@@ -16,8 +16,8 @@ const individualHistories = {}
 /**
  * Load translations, you can use the different files for different languages
  */
-const translations = require('./translations/default.json')
-const botMemory = require(`./translations/${options.botName}/default.json`)
+const translations = require(`./translations/${options.translationFile}.json`)
+const botMemory = require(`./translations/${options.botName}/${options.translationFile}.json`)
 
 /**
  * Makes the bot send a message randomly if nobody talks

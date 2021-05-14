@@ -1,4 +1,5 @@
 {
+  "translationFile": "default",
   "generate_num": 100,
   "temp": 0.7,
   "maxHistory": 20,
