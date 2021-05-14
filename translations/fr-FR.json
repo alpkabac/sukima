@@ -1,0 +1,7 @@
+{
+  "onJoin": "*Rejoint le salon*",
+  "onPart": "*Quitte le salon*",
+  "onQuit": "*Quitte le salon*",
+  "onKick": "*A été kické par ${by}, raison: ${reason}*",
+  "onAction": "*${text}*"
+}

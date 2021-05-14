@@ -1,0 +1,10 @@
+{
+  "generate_num": 100,
+  "temp": 0.7,
+  "maxHistory": 20,
+  "botName": "Alice",
+  "channel": "#cbna",
+  "botMaxConsecutiveMessages": 1,
+  "minBotMessageIntervalInMinutes": 5,
+  "maxBotMessageIntervalInMinutes": 15
+}
