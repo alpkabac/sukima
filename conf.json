@@ -4,6 +4,7 @@
   "maxHistory": 20,
   "botName": "Alice",
   "channel": "#cbna",
+  "apiUrl": "http://localhost:5000/prompt",
   "botMaxConsecutiveMessages": 1,
   "minBotMessageIntervalInMinutes": 5,
   "maxBotMessageIntervalInMinutes": 15

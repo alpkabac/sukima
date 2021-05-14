@@ -210,7 +210,7 @@ async function generateMessage(prompt, callback = (aiMessage, err) => null) {
         temp: options.temp                  // Temperature
     }
 
-    axios.post("http://localhost:5000/prompt", data)
+    axios.post(options.apiUrl, data)
         .then((result) => {
             const answer = result.data[0].startsWith(options.botName + ": ") ?  // Remove starting bot name if present
                 result.data[0].slice((options.botName + ": ").length)
