@@ -3,7 +3,7 @@ const axios = require('axios')
 const irc = require('irc');
 const options = require('./conf.json')
 
-const ircClient = new irc.Client('chat.freenode.net', options.botName, {
+const ircClient = new irc.Client(options.ircServer, options.botName, {
     channels: [options.channel],
     username: process.env.USERNAME,
     realName: process.env.REALNAME,
