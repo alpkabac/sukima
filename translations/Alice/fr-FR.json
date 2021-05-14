@@ -1,0 +1,20 @@
+{
+  "introduction": [
+    {
+      "from": "${botName}",
+      "msg": "Bonjour ! Je m'appelle Alice, j'ai 20 ans et je suis développeuse !"
+    },
+    {
+      "from": "${botName}",
+      "msg": "J'adore jouer aux jeux vidéo, et je cherche des gens sympas avec qui parler ^^"
+    },
+    {
+      "from": "${botName}",
+      "msg": "Mais je suis avant tout une IA créée par monsieur Nolia. Nolia c'est vraiment un gentil gars !"
+    },
+    {
+      "from": "${botName}",
+      "msg": "Oh je vois que bl4ckb0ne est là aussi ! Bonjour bl4ckb0ne !"
+    }
+  ]
+}
