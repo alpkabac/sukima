@@ -2,6 +2,7 @@ require('dotenv').config()
 const axios = require('axios')
 const irc = require('irc');
 const options = require('./conf.json')
+const evalbotHorni = require('./translations/evalbot/boolean/horniDetection.json')
 
 const ircClient = new irc.Client(options.ircServer, options.botName, {
     channels: [options.channel],
@@ -17,7 +18,7 @@ const individualHistories = {}
  * Load translations, you can use the different files for different languages
  */
 const translations = require(`./translations/${options.translationFile}.json`)
-const botMemory = require(`./translations/${options.botName}/${options.translationFile}.json`)
+const botMemory = require(`./translations/aiPersonality/${options.botName}/${options.translationFile}.json`)
 
 /**
  * Makes the bot send a message randomly if nobody talks
@@ -83,6 +84,8 @@ ircClient.addListener('message', function (from, to, message) {
     // Detects if the bot name has been mentioned, reacts if it's the case
     if (msg.toLowerCase().includes(options.botName.toLowerCase())) {
         generateAndSendMessage(options.channel, channelHistory, true)
+    } else {
+        horniBot(msg)
     }
 });
 
@@ -184,10 +187,10 @@ function generateAndSendMessage(to, history, usesIntroduction = false) {
         message = message.trim()
         if (message && !err) {
             const messages = message.split("\n")
-            for(let m of messages){
+            for (let m of messages) {
                 history.push({from: options.botName, msg: m})
+                console.log(options.botName + ' => ' + to + ': ' + m);
             }
-            console.log(options.botName + ' => ' + to + ': ' + message);
             ircClient.say(to, message.trim());
             restartInterval()
         } else {
@@ -196,18 +199,94 @@ function generateAndSendMessage(to, history, usesIntroduction = false) {
     })
 }
 
+function horniBot(message) {
+    const prompt = (
+            evalbotHorni.shuffle ? (evalbotHorni.examples
+                    .map((e) => e)                      // copy
+                    .sort(() => Math.random() - 0.5)    // Shuffle
+            ) : evalbotHorni.examples
+        )
+            .map((e) => `${evalbotHorni.inputLabel}${e.input}${evalbotHorni.outputLabel} ${e.output}`)
+            .join("\n\n")
+        + `\n\n${evalbotHorni.inputLabel}${message}${evalbotHorni.outputLabel}`
+
+
+    simpleEvalbot(prompt, evalbotHorni.tokensToGenerate, (message) => {
+        console.log("<prompt>")
+        console.log(prompt)
+        console.log("</prompt>")
+
+        console.log("<message>")
+        console.log(message)
+        console.log("</message>")
+    })
+}
+
 /**
- * Tries to generate a message with the AI API
+ * Generates an answer given a prompt
+ * Retries until fulfillment
+ * @param prompt
+ * @param tokensToGenerate
+ * @param callback
+ */
+function simpleEvalbot(prompt, tokensToGenerate = 1, callback = (answer) => null) {
+    // Tries to generate a message until it works
+    sendRawPrompt(prompt, (message, err) => {
+        message = message.trim()
+        if (message && !err) {
+            callback(message)
+        } else {
+            simpleEvalbot(prompt, tokensToGenerate, callback)
+        }
+    }, {
+        generate_num: tokensToGenerate,
+        temp: 0.7
+    })
+}
+
+/**
+ * Tries to generate a an answer with the AI API
  * @param prompt to feed to the AI
  * @param callback (aiMessage, err) => null either aiMessage or err if the message was null or empty after processing
+ * @param conf {generate_num, temp}
  */
-async function generateMessage(prompt, callback = (aiMessage, err) => null) {
+async function sendRawPrompt(prompt, callback = (aiMessage, err) => null, conf = options) {
     const data = {
         prompt,
         nb_answer: 1,   // Keep at 1, AI API allows to generate multiple answers per prompt but we only use the first
         raw: false,     // Keep at false
-        generate_num: options.generate_num, // Number of token to generate
-        temp: options.temp                  // Temperature
+        generate_num: conf.generate_num, // Number of token to generate
+        temp: conf.temp                  // Temperature
+    }
+
+    axios.post(options.apiUrl, data)
+        .then((result) => {
+            const answer = result.data[0]
+            if (answer) {
+                callback(answer)
+            } else {
+                callback(null, true)
+            }
+        })
+        .catch((err) => {
+            console.log(err)
+            callback(null, true)
+        })
+}
+
+/**
+ * Tries to generate a message with the AI API
+ * @param prompt to feed to the AI
+ * @param callback (aiMessage, err) => null either aiMessage or err if the message was null or empty after processing
+ * @param conf {generate_num, temp}
+ */
+async function generateMessage(prompt, callback = (aiMessage, err) => null, conf = options) {
+    const data = {
+        prompt,
+        nb_answer: 1,   // Keep at 1, AI API allows to generate multiple answers per prompt but we only use the first
+        raw: false,     // Keep at false
+        generate_num: conf.generate_num, // Number of token to generate
+        temp: conf.temp                  // Temperature
     }
 
     axios.post(options.apiUrl, data)

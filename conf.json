@@ -5,9 +5,9 @@
   "maxHistory": 20,
   "botName": "Alice",
   "ircServer": "chat.freenode.net",
-  "channel": "#cbna",
+  "channel": "#nolibot",
   "apiUrl": "http://localhost:5000/prompt",
   "botMaxConsecutiveMessages": 1,
-  "minBotMessageIntervalInMinutes": 30,
-  "maxBotMessageIntervalInMinutes": 60
+  "minBotMessageIntervalInMinutes": 0,
+  "maxBotMessageIntervalInMinutes": 1
 }
