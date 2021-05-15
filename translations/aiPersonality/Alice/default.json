@@ -1,4 +1,5 @@
 {
+  "noContextSentence": "Hello, my name is Alice and I'm an AI designed to answer all your questions",
   "introduction": [
     {
       "from": "${botName}",

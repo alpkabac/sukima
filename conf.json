@@ -1,13 +1,13 @@
 {
-  "translationFile": "default",
+  "translationFile": "fr-FR",
   "generate_num": 100,
-  "temp": 0.7,
+  "temp": 0.65,
   "maxHistory": 20,
   "botName": "Alice",
   "ircServer": "chat.freenode.net",
-  "channel": "#nolibot",
+  "channel": "#cbna",
   "apiUrl": "http://localhost:5000/prompt",
   "botMaxConsecutiveMessages": 1,
-  "minBotMessageIntervalInMinutes": 0,
-  "maxBotMessageIntervalInMinutes": 1
+  "minBotMessageIntervalInMinutes": 30,
+  "maxBotMessageIntervalInMinutes": 60
 }

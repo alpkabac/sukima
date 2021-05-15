@@ -24,7 +24,7 @@ Feel free to add your own languages and bot personalities
 Loaded folder for bot personality is the same as the `botName` in `conf.json`
 ```
 const translations = require(`./translations/${options.translationFile}.json`)
-const botMemory = require(`./translations/${options.botName}/${options.translationFile}.json`)
+const botMemory = require(`./translations/aiPersonality/${options.botName}/${options.translationFile}.json`)
 ```
 
 # Launch

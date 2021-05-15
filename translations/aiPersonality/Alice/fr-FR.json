@@ -1,16 +1,13 @@
 {
+  "noContextSentence": "Bonjour, je m'appelle Alice et je suis une IA conçe pour répondre à toute vos questions",
   "introduction": [
     {
       "from": "${botName}",
-      "msg": "Bonjour ! Je m'appelle Alice, j'ai 20 ans et je suis développeuse !"
+      "msg": "Bonjour ! Je m'appelle Alice et je suis une IA créée par monsieur Nolia!"
     },
     {
       "from": "${botName}",
-      "msg": "J'adore jouer aux jeux vidéo, et je cherche des gens sympas avec qui parler ^^"
-    },
-    {
-      "from": "${botName}",
-      "msg": "Mais je suis avant tout une IA créée par monsieur Nolia. Nolia c'est vraiment un gentil gars !"
+      "msg": "J'adore parler de jeux vidéo et de code, et j'ai hâte de discuter avec vous!"
     },
     {
       "from": "${botName}",

@@ -17,8 +17,8 @@ const individualHistories = {}
 /**
  * Load translations, you can use the different files for different languages
  */
-const translations = require(`./translations/${options.translationFile}.json`)
-const botMemory = require(`./translations/aiPersonality/${options.botName}/${options.translationFile}.json`)
+let translations = require(`./translations/${options.translationFile}.json`)
+let botTranslations = require(`./translations/aiPersonality/${options.botName}/${options.translationFile}.json`)
 
 /**
  * Makes the bot send a message randomly if nobody talks
@@ -77,15 +77,53 @@ ircClient.addListener('message', function (from, to, message) {
     )
     console.log(from + ' => ' + to + ': ' + msg);
 
-    pushIntoHistory(channelHistory, {from, msg})
-
     botConsecutiveMessages = 0    // Reset consecutive message counter
 
-    // Detects if the bot name has been mentioned, reacts if it's the case
-    if (msg.toLowerCase().includes(options.botName.toLowerCase())) {
-        generateAndSendMessage(options.channel, channelHistory, true)
-    } else {
-        horniBot(msg)
+    // Remember a sentence, one per nick allowed
+    if (msg.startsWith("!remember ")) {
+        if (!botTranslations.memory) botTranslations.memory = {}
+        botTranslations.memory[from] = msg.replace("!remember ", "")
+    }
+
+    // Forget the sentence associated with your nick
+    else if (msg.startsWith("!remember")) {
+        if (!botTranslations.memory) botTranslations.memory = {}
+        delete botTranslations.memory[from]
+    }
+
+    // Change language of the bot on the fly
+    else if (msg.startsWith("!lang ")) {
+        const language = msg.replace("!lang ", "")
+        try {
+            translations = require(`./translations/${language}.json`)
+            botTranslations = require(`./translations/aiPersonality/${options.botName}/${language}.json`)
+        } catch (e) {
+            ircClient.say(options.channel, "Wrong language, try \"fr-FR\" or \"en-EN\"")
+        }
+    }
+
+    // Forget the whole conversation, keeps introduction and memory
+    else if (msg.startsWith("!forget")) {
+        channelHistory.splice(0, channelHistory.length)
+    }
+
+    // Only use a simple sentence from the bot as a context, nothing more
+    else if (msg.startsWith("!")) {
+        pushIntoHistory(channelHistory, {from, msg: msg.slice(1)})
+        generateAndSendMessage(options.channel, [{
+            from: options.botName,
+            msg: botTranslations.noContextSentence
+        }, {from: from, msg: msg.slice(1)}], false)
+    }
+
+    // Normal message, triggers the bot to speak if its name is included
+    else {
+        pushIntoHistory(channelHistory, {from, msg: msg.replace(":", "")})
+
+        // Detects if the bot name has been mentioned, reacts if it's the case
+        if (msg.toLowerCase().includes(options.botName.toLowerCase())) {
+            generateAndSendMessage(options.channel, channelHistory, true)
+        }
     }
 });
 
@@ -166,7 +204,7 @@ ircClient.addListener('pm', function (from, message) {
  */
 function generateAndSendMessage(to, history, usesIntroduction = false) {
     // Preparing memory by replacing placeholders
-    const introduction = botMemory.introduction.map((e) => {
+    const introduction = botTranslations.introduction.map((e) => {
         return {
             from: e.from.replace("${botName}", options.botName),
             msg: e.msg
@@ -175,6 +213,9 @@ function generateAndSendMessage(to, history, usesIntroduction = false) {
 
     // Preparing the prompt
     const prompt = (usesIntroduction ? introduction : [])   // Load introduction if needed
+            .concat(!usesIntroduction || !botTranslations.memory ? [] : Object.keys(botTranslations.memory).map((key) => {
+                return {from: key, msg: botTranslations.memory[key]}
+            }))
             .concat(
                 history.slice(-options.maxHistory)                  // Concat the last X messages from history
             )
@@ -184,94 +225,26 @@ function generateAndSendMessage(to, history, usesIntroduction = false) {
 
     // Tries to generate a message until it works
     generateMessage(prompt, (message, err) => {
-        message = message.trim()
+        message = (message ? message.trim() : message)
         if (message && !err) {
             const messages = message.split("\n")
             for (let m of messages) {
                 history.push({from: options.botName, msg: m})
                 console.log(options.botName + ' => ' + to + ': ' + m);
             }
-            ircClient.say(to, message.trim());
+            if (message.startsWith("*") && message.endsWith("*")) {
+                ircClient.action(to, message.substr(1, message.length - 2));
+            } else {
+                ircClient.say(to, message);
+            }
+            console.log("<PROMPT>##################################################################")
+            console.log(prompt)
+            console.log("</PROMPT>>################################################################")
             restartInterval()
         } else {
             generateAndSendMessage(to, history, usesIntroduction)
         }
     })
-}
-
-function horniBot(message) {
-    const prompt = (
-            evalbotHorni.shuffle ? (evalbotHorni.examples
-                    .map((e) => e)                      // copy
-                    .sort(() => Math.random() - 0.5)    // Shuffle
-            ) : evalbotHorni.examples
-        )
-            .map((e) => `${evalbotHorni.inputLabel}${e.input}${evalbotHorni.outputLabel} ${e.output}`)
-            .join("\n\n")
-        + `\n\n${evalbotHorni.inputLabel}${message}${evalbotHorni.outputLabel}`
-
-
-    simpleEvalbot(prompt, evalbotHorni.tokensToGenerate, (message) => {
-        console.log("<prompt>")
-        console.log(prompt)
-        console.log("</prompt>")
-
-        console.log("<message>")
-        console.log(message)
-        console.log("</message>")
-    })
-}
-
-/**
- * Generates an answer given a prompt
- * Retries until fulfillment
- * @param prompt
- * @param tokensToGenerate
- * @param callback
- */
-function simpleEvalbot(prompt, tokensToGenerate = 1, callback = (answer) => null) {
-    // Tries to generate a message until it works
-    sendRawPrompt(prompt, (message, err) => {
-        message = message.trim()
-        if (message && !err) {
-            callback(message)
-        } else {
-            simpleEvalbot(prompt, tokensToGenerate, callback)
-        }
-    }, {
-        generate_num: tokensToGenerate,
-        temp: 0.7
-    })
-}
-
-/**
- * Tries to generate a an answer with the AI API
- * @param prompt to feed to the AI
- * @param callback (aiMessage, err) => null either aiMessage or err if the message was null or empty after processing
- * @param conf {generate_num, temp}
- */
-async function sendRawPrompt(prompt, callback = (aiMessage, err) => null, conf = options) {
-    const data = {
-        prompt,
-        nb_answer: 1,   // Keep at 1, AI API allows to generate multiple answers per prompt but we only use the first
-        raw: false,     // Keep at false
-        generate_num: conf.generate_num, // Number of token to generate
-        temp: conf.temp                  // Temperature
-    }
-
-    axios.post(options.apiUrl, data)
-        .then((result) => {
-            const answer = result.data[0]
-            if (answer) {
-                callback(answer)
-            } else {
-                callback(null, true)
-            }
-        })
-        .catch((err) => {
-            console.log(err)
-            callback(null, true)
-        })
 }
 
 /**
@@ -306,8 +279,9 @@ async function generateMessage(prompt, callback = (aiMessage, err) => null, conf
                 .replace(/  +/g, ' ')      // Remove double spaces
                 .replace(/\n /g, '\n')      // Remove double spaces
                 .split("\n")
-                .slice(0, 2)
+                .slice(0, 1)                                    // Keep only first line
                 .join("\n")
+                .trim()
             if (parsedAnswer) {
                 callback(parsedAnswer)
             } else {
