@@ -1,6 +1,13 @@
 # AliceBot
 IRC chatbot that uses an AI API to generate messages
 
+# IRC commands and usage
+`!forget` will make the bot forget the current conversation, only keeping her presentation and memories acquired through `!remember`  
+`!remember Your text` will insert a message from you in the bot's memory formatted like `yourNick: Your text` (only one `!remember` per user)  
+`!remember` will delete your remembered message  
+`!Blah blah blah` will send the message without any memory besides the `noContextSentence` included in personality traduction file  
+You can use the `!` prefix to ask questions without using the context (it gives the **best** results)
+
 # Prerequisites
 The AI API is not part of this project, but it's basically a gpt-neo API endpoint that takes this as JSON parameters:
 ```
