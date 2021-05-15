@@ -1,6 +1,6 @@
 {
   "translationFile": "fr-FR",
-  "generate_num": 100,
+  "generate_num": 50,
   "temp": 0.65,
   "maxHistory": 20,
   "botName": "Alice",

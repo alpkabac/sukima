@@ -2,7 +2,6 @@ require('dotenv').config()
 const axios = require('axios')
 const irc = require('irc');
 const options = require('./conf.json')
-const evalbotHorni = require('./translations/evalbot/boolean/horniDetection.json')
 
 const ircClient = new irc.Client(options.ircServer, options.botName, {
     channels: [options.channel],
@@ -64,6 +63,10 @@ function pushIntoHistory(history, entry) {
     while (history.length > options.maxHistory) history.shift()
 }
 
+function upperCaseFirstLetter(str){
+    return str.substr(0,1).toUpperCase() + str.substr(1)
+}
+
 /**
  * Makes the bot react to messages if its name is mentioned
  */
@@ -72,7 +75,7 @@ ircClient.addListener('message', function (from, to, message) {
     if (!to.toLowerCase().includes(options.channel.toLowerCase())) return
 
     const msg = replaceNickByBotName(
-        (message.substr(0, 1).toUpperCase() + message.substr(1)) // Uppercase the first letter
+        (upperCaseFirstLetter(message)) // Uppercase the first letter
             .trim()
     )
     console.log(from + ' => ' + to + ': ' + msg);
@@ -109,11 +112,11 @@ ircClient.addListener('message', function (from, to, message) {
 
     // Only use a simple sentence from the bot as a context, nothing more
     else if (msg.startsWith("!")) {
-        pushIntoHistory(channelHistory, {from, msg: msg.slice(1)})
+        pushIntoHistory(channelHistory, {from, msg: upperCaseFirstLetter(msg.slice(1))})
         generateAndSendMessage(options.channel, [{
             from: options.botName,
             msg: botTranslations.noContextSentence
-        }, {from: from, msg: msg.slice(1)}], false)
+        }, {from: from, msg: upperCaseFirstLetter(msg.slice(1))}], false)
     }
 
     // Normal message, triggers the bot to speak if its name is included
@@ -173,7 +176,7 @@ ircClient.addListener('kick', function (channel, nick, by, reason) {
  * Makes the bot react when someone makes an action on the channel
  */
 ircClient.addListener('action', function (from, channel, text) {
-    const msg = replaceNickByBotName((text.substr(0, 1).toUpperCase() + text.substr(1)).trim())
+    const msg = replaceNickByBotName((upperCaseFirstLetter(text)).trim())
     console.log(`${from} performed an action on ${options.channel}: ${msg}`)
     if (options.channel === ircClient.nick) {
         pushIntoHistory(individualHistories[from], {from, msg: translations.onAction.replace("${text}", msg)})
@@ -189,7 +192,7 @@ ircClient.addListener('action', function (from, channel, text) {
  */
 ircClient.addListener('pm', function (from, message) {
     if (!individualHistories[from]) individualHistories[from] = []  // Init individual history
-    const msg = replaceNickByBotName((message.substr(0, 1).toUpperCase() + message.substr(1)).trim())
+    const msg = replaceNickByBotName((upperCaseFirstLetter(message)).trim())
     console.log(from + ' => ' + options.botName + ': ' + msg);
     pushIntoHistory(individualHistories[from], {from, msg})
     generateAndSendMessage(from, individualHistories[from], true)
