@@ -6,7 +6,8 @@ IRC chatbot that uses an AI API to generate messages
 `!remember Your text` will insert a message from you in the bot's memory formatted like `yourNick: Your text` (only one `!remember` per user)  
 `!remember` will delete your remembered message  
 `!Blah blah blah` will send the message without any memory besides the `noContextSentence` included in personality traduction file  
-You can use the `!` prefix to ask questions without using the context (it gives the **best** results)
+You can use the `!` prefix to ask questions without using the context (it gives the **best** results)  
+`?Blah blah blah` will simply trigger the bot to talk
 
 # Prerequisites
 The AI API is not part of this project, but it's basically a gpt-neo API endpoint that takes this as JSON parameters:

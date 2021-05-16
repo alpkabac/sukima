@@ -119,6 +119,12 @@ ircClient.addListener('message', function (from, to, message) {
         }, {from: from, msg: upperCaseFirstLetter(msg.slice(1))}], false)
     }
 
+    // Only use a simple sentence from the bot as a context, nothing more
+    else if (msg.startsWith("?")) {
+        pushIntoHistory(channelHistory, {from, msg: upperCaseFirstLetter(msg.slice(1))})
+        generateAndSendMessage(options.channel, channelHistory, true)
+    }
+
     // Normal message, triggers the bot to speak if its name is included
     else {
         pushIntoHistory(channelHistory, {from, msg: msg.replace(":", "")})
