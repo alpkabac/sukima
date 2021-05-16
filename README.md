@@ -8,7 +8,9 @@ IRC chatbot that uses an AI API to generate messages
 `!Blah blah blah` will send the message without any memory besides the `noContextSentence` included in personality traduction file  
 You can use the `!` prefix to ask questions without using the context (it gives the **best** results)  
 `?Blah blah blah` will simply trigger the bot to talk after your message  
-`?` will simply trigger the bot to talk
+`?` will simply trigger the bot to talk  
+`!mute` Prevents the bot from receiving and sending messages (PMs still work)  
+`!unmute`
 
 # Prerequisites
 The AI API is not part of this project, but it's basically a gpt-neo API endpoint that takes this as JSON parameters:
