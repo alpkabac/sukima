@@ -63,8 +63,8 @@ function pushIntoHistory(history, entry) {
     while (history.length > options.maxHistory) history.shift()
 }
 
-function upperCaseFirstLetter(str){
-    return str.substr(0,1).toUpperCase() + str.substr(1)
+function upperCaseFirstLetter(str) {
+    return str.substr(0, 1).toUpperCase() + str.substr(1)
 }
 
 /**
@@ -79,8 +79,8 @@ ircClient.addListener('message', function (from, to, message) {
             .trim()
     )
     console.log(from + ' => ' + to + ': ' + msg);
-
     botConsecutiveMessages = 0    // Reset consecutive message counter
+    restartInterval()
 
     // Remember a sentence, one per nick allowed
     if (msg.startsWith("!remember ")) {
@@ -121,7 +121,10 @@ ircClient.addListener('message', function (from, to, message) {
 
     // Only use a simple sentence from the bot as a context, nothing more
     else if (msg.startsWith("?")) {
-        pushIntoHistory(channelHistory, {from, msg: upperCaseFirstLetter(msg.slice(1))})
+        const m = upperCaseFirstLetter(msg.slice(1))
+        if (m) {
+            pushIntoHistory(channelHistory, {from, msg: m})
+        }
         generateAndSendMessage(options.channel, channelHistory, true)
     }
 
@@ -220,11 +223,17 @@ function generateAndSendMessage(to, history, usesIntroduction = false) {
         }
     })
 
+    // Preparing context
+    const intro = (usesIntroduction ? introduction : [])
+    const memory = !usesIntroduction || !botTranslations.memory ?
+        []
+        : Object.keys(botTranslations.memory).map((key) => {
+            return {from: key, msg: botTranslations.memory[key]}
+        })
+
     // Preparing the prompt
-    const prompt = (usesIntroduction ? introduction : [])   // Load introduction if needed
-            .concat(!usesIntroduction || !botTranslations.memory ? [] : Object.keys(botTranslations.memory).map((key) => {
-                return {from: key, msg: botTranslations.memory[key]}
-            }))
+    const prompt = intro
+            .concat(memory)
             .concat(
                 history.slice(-options.maxHistory)                  // Concat the last X messages from history
             )

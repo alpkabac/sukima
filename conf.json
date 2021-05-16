@@ -8,6 +8,6 @@
   "channel": "#cbna",
   "apiUrl": "http://localhost:5000/prompt",
   "botMaxConsecutiveMessages": 1,
-  "minBotMessageIntervalInMinutes": 30,
-  "maxBotMessageIntervalInMinutes": 60
+  "minBotMessageIntervalInMinutes": 1,
+  "maxBotMessageIntervalInMinutes": 2
 }
