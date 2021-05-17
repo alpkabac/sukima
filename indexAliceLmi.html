@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Noli's Collorative Story Generation</title>
+    <style>
+
+    </style>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+
+<div id="counter"></div>
+
+<div class="container">
+    <div class="row noMargin">
+        <div class="col" id="LMI">
+
+        </div>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io()
+
+    socket.on("LMI", (text) => {
+        const LMI = document.getElementById("LMI")
+        LMI.innerText = text
+    })
+</script>
+</body>
+</html>

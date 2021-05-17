@@ -3,6 +3,17 @@ const axios = require('axios')
 const irc = require('irc');
 const options = require('./conf.json')
 
+const http = require('http')
+const fs = require('fs')
+const {Server} = require("socket.io");
+const server = http.createServer((req, res) => {
+    res.writeHead(200, {'content-type': 'text/html'})
+    fs.createReadStream('indexAliceLmi.html').pipe(res)
+})
+const io = new Server(server);
+
+server.listen(process.env.PORT || 3003)
+
 const ircClient = new irc.Client(options.ircServer, options.botName, {
     channels: [options.channel],
     username: process.env.USERNAME,
@@ -139,10 +150,9 @@ ircClient.addListener('message', function (from, to, message) {
             from: options.botName,
             msg: botTranslations.noContextSentence
         }, {from: from, msg: message}], false)
-    }
-
-    // Only use a simple sentence from the bot as a context, nothing more
-    else if (msg.startsWith("?")) {
+    } else if (msg.startsWith(",") && msg.length === 1) {
+        generateAndSendMessage(options.channel, channelHistory, true, true)
+    } else if (msg.startsWith("?")) {
         const m = upperCaseFirstLetter(msg.slice(1))
         if (m) {
             pushIntoHistory(channelHistory, {from, msg: m})
@@ -235,8 +245,9 @@ ircClient.addListener('pm', function (from, message) {
  * @param to the channel or nick
  * @param history of the conversation
  * @param usesIntroduction if it should use the introduction of the bot
+ * @param continuation
  */
-function generateAndSendMessage(to, history, usesIntroduction = false) {
+function generateAndSendMessage(to, history, usesIntroduction = false, continuation = false) {
     if (options.isMuted) return
 
     // Preparing memory by replacing placeholders
@@ -263,7 +274,7 @@ function generateAndSendMessage(to, history, usesIntroduction = false) {
             )
             .map((msg) => `${msg.from}: ${msg.msg}`)        // Formatting the line
             .join("\n")                                     // Concat the array into multiline string
-        + "\n" + options.botName + ":"                              // Add the options.botName so the AI knows it's its turn to speak
+        + (continuation ? "" : ("\n" + options.botName + ":"))                              // Add the options.botName so the AI knows it's its turn to speak
 
     // Tries to generate a message until it works
     generateMessage(prompt, (message, err) => {
@@ -285,10 +296,11 @@ function generateAndSendMessage(to, history, usesIntroduction = false) {
                 msg: parsedMessage
             })
 
-            if (parsedMessage.length > 500){
-                ircClient.say(to, parsedMessage.substr(0,500));
-                ircClient.say(to, parsedMessage.substr(500));
-            }else{
+            if (parsedMessage.length > 200) {
+                for(let i=0; i<parsedMessage.length; i+= 200){
+                    ircClient.say(to, parsedMessage.substr(i*200, i*200+200));
+                }
+            } else {
                 ircClient.say(to, parsedMessage);
             }
 
@@ -302,6 +314,8 @@ function generateAndSendMessage(to, history, usesIntroduction = false) {
                 }
             }
             */
+
+            io.emit("LMI", prompt)
             console.log("<PROMPT>##################################################################")
             console.log(prompt)
             console.log("<ANSWER>>################################################################")

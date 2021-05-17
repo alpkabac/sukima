@@ -13,56 +13,71 @@ const io = new Server(server);
 let story = "Alice"
 let choices = {}
 let suggestions = []
+let nextSuggestions = []
+let lastUpdate = Date.now()
 
 async function main() {
     suggestions = await getSuggestions()
 
-    setInterval(async () => {
+    async function mainLoop() {
         if (choices) {
-            const counts = [0, 0, 0, 0, 0]
-            for (const [key, value] of Object.entries(choices)) {
-                if (value === -1) {
-                    counts[4]++
-                } else {
-                    counts[value]++
-                }
-            }
+            const counts = countChoices()
 
             //If there are votes
             if (counts.reduce((a, b) => a + b, 0)) {
-
                 const best = counts.indexOf(Math.max(...counts));
                 if (best !== 4) {         // If suggestion
-                    story += " " + suggestions[best]
-                } else if (best === 4) {  // If retry
-                    suggestions = await getSuggestions()
+                    story += " " + suggestions[best]  // FIXME: concat while keeping punctuation and shit
                 }
+                suggestions = await getSuggestions()
 
                 io.emit('suggestions', suggestions)
                 io.emit('story', story)
             }
 
+            io.emit('counterReset')
             choices = {}
         }
 
-    }, 10000)
+        lastUpdate = Date.now()
+        setTimeout(mainLoop, 60000)
+    }
+
+    setInterval(() => {
+        io.emit('choicesCount', countChoices())
+    }, 1000)
+    mainLoop()
 }
 
+function countChoices() {
+    const counts = [0, 0, 0, 0, 0]
+    for (const [key, value] of Object.entries(choices)) {
+        if (value === -1) {
+            counts[4]++
+        } else {
+            counts[value]++
+        }
+    }
+    return counts;
+}
 
 io.on('connection', (socket) => {
     console.log('a user connected');
 
     socket.emit('story', story)
     socket.emit('suggestions', suggestions)
+    socket.emit('timer', Math.floor(60 - (Date.now() - lastUpdate) / 1000))
 
     let choice = -1
     socket.on('upvote', (sentChoice) => {
         choice = sentChoice
         choices[socket.id] = choice
+        socket.emit('count', choices)
     });
     socket.on('reroll', () => {
         choice = -1
         choices[socket.id] = choice
+        socket.emit('count', choices)
     });
 
     socket.on('disconnect', () => {
