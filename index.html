@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Socket.IO chat</title>
+    <style>
+        body {
+            margin: 0;
+            padding-bottom: 3rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .col {
+            border: 1px solid black;
+        }
+
+        .five {
+            text-align: center;
+        }
+    </style>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+
+<div class="container">
+    <div class="row noMargin">
+        <div class="col one" id="one">
+            one
+        </div>
+        <div class="col two" id="two">
+            two
+        </div>
+    </div>
+    <div class="row noMargin">
+        <div class="col three" id="three">
+            three
+        </div>
+        <div class="col four" id="four">
+            four
+        </div>
+    </div>
+    <div class="row noMargin">
+        <div class="col five" id="reroll">
+            Reroll
+        </div>
+    </div>
+    <div class="row noMargin">
+        <div class="col six" id="storyDiv">
+        </div>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+
+    socket.on("story", (story) => {
+        document.getElementById("storyDiv").innerText = story
+    })
+
+    socket.on("suggestionCount", (suggestionCount)={
+
+    })
+
+    socket.on("suggestions", (suggestions) => {
+        document.getElementById("one").innerText = suggestions[0]
+        document.getElementById("two").innerText = suggestions[1]
+        document.getElementById("three").innerText = suggestions[2]
+        document.getElementById("four").innerText = suggestions[3]
+    })
+
+    document.getElementById("reroll").onclick = function(){
+        socket.emit("reroll")
+    }
+    document.getElementById("one").onclick = function(){
+        socket.emit("upvote", 0)
+    }
+    document.getElementById("two").onclick = function(){
+        socket.emit("upvote", 1)
+    }
+    document.getElementById("three").onclick = function(){
+        socket.emit("upvote", 2)
+    }
+    document.getElementById("four").onclick = function(){
+        socket.emit("upvote", 3)
+    }
+
+</script>
+</body>
+</html>

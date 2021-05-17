@@ -1,28 +1,89 @@
 require('dotenv').config()
 const axios = require('axios')
 const options = require('./conf.json')
+const http = require('http')
+const fs = require('fs')
+const {Server} = require("socket.io");
+const server = http.createServer((req, res) => {
+    res.writeHead(200, {'content-type': 'text/html'})
+    fs.createReadStream('index.html').pipe(res)
+})
+const io = new Server(server);
 
+let story = "Alice"
+let choices = {}
+let suggestions = []
 
 async function main() {
-    const prompt = ``
-    const promptTokenCount = (await getTokens(prompt)).length
-    const answer = await getPromptAsync(prompt, 20, 5)
+    suggestions = await getSuggestions()
+
+    setInterval(async () => {
+        if (choices) {
+            const counts = [0, 0, 0, 0, 0]
+            for (const [key, value] of Object.entries(choices)) {
+                if (value === -1) {
+                    counts[4]++
+                } else {
+                    counts[value]++
+                }
+            }
+
+            //If there are votes
+            if (counts.reduce((a, b) => a + b, 0)) {
+
+                const best = counts.indexOf(Math.max(...counts));
+                if (best !== 4) {         // If suggestion
+                    story += " " + suggestions[best]
+                } else if (best === 4) {  // If retry
+                    suggestions = await getSuggestions()
+                }
+
+                io.emit('suggestions', suggestions)
+                io.emit('story', story)
+            }
+
+            choices = {}
+        }
+
+    }, 10000)
+}
+
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+
+    socket.emit('story', story)
+    socket.emit('suggestions', suggestions)
+
+    let choice = -1
+    socket.on('upvote', (sentChoice) => {
+        choice = sentChoice
+        choices[socket.id] = choice
+    });
+    socket.on('reroll', () => {
+        choice = -1
+        choices[socket.id] = choice
+    });
+
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
+});
+
+server.listen(process.env.PORT || 3000)
+main()
+
+async function getSuggestions() {
+    const answer = await getPromptAsync(story, 20, 4)
     const answerTokenCount = []
     for (let a of answer) {
         answerTokenCount.push((await getTokens(a)).length)
     }
 
-    console.log(`########################################################################################################################`)
-    console.log(`Prompt tokens: ${promptTokenCount}, answer tokens: ${answerTokenCount.join("/")}`)
-    console.log("\x1b[93m", prompt)
-    for (let i = 0; i < answer.length; i++) {
-        console.log(i % 2 ? "\x1b[37m" : "\x1b[90m", answer[i])
-    }
-
-    console.log("\x1b[0m")
+    return answer
 }
 
-main()
+//main()
 
 /**
  * Returns an AI generated text continuing your prompt

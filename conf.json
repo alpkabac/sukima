@@ -6,7 +6,7 @@
   "botName": "Alice",
   "isMuted": false,
   "ircServer": "chat.freenode.net",
-  "channel": "#cbna",
+  "channel": "#nolibot",
   "apiUrl": "http://localhost:5000/prompt",
   "apiUrlToken": "http://localhost:5000/tokens",
   "botMaxConsecutiveMessages": 1,

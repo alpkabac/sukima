@@ -16,6 +16,7 @@
     "request-promise": "^4.2.6"
   },
   "devDependencies": {
-    "dotenv": "^9.0.2"
+    "dotenv": "^9.0.2",
+    "socket.io": "^4.1.1"
   }
 }

@@ -70,6 +70,7 @@ function upperCaseFirstLetter(str) {
 
 /**
  * Makes the bot react to messages if its name is mentioned
+ * FIXME: split code
  */
 ircClient.addListener('message', function (from, to, message) {
     // Prevents PM
@@ -103,7 +104,7 @@ ircClient.addListener('message', function (from, to, message) {
             translations = require(`./translations/${language}.json`)
             //message += `Loaded translations: ${language}`
         } catch (e) {
-            message += `Couldn't load translations for ${language}`
+            //message += `Couldn't load translations for ${language}`
         }
 
         try {
@@ -126,8 +127,7 @@ ircClient.addListener('message', function (from, to, message) {
     // Mute/unmute, stops message generation and conversation memory
     else if (msg.startsWith("!mute")) {
         options.isMuted = true
-    }
-    else if (msg.startsWith("!unmute")) {
+    } else if (msg.startsWith("!unmute")) {
         options.isMuted = false
     }
 
@@ -269,18 +269,39 @@ function generateAndSendMessage(to, history, usesIntroduction = false) {
     generateMessage(prompt, (message, err) => {
         message = (message ? message.trim() : message)
         if (message && !err) {
-
             const messages = message.split("\n")
-            for (let m of messages) {
-                history.push({from: options.botName, msg: m})
-                console.log(options.botName + ' => ' + to + ': ' + m);
+            const parsedMessage = message
+                .replace(".\n", ". ")
+                .replace(". \n", ". ")
+                .replace("?\n", "? ")
+                .replace("? \n", "? ")
+                .replace("!\n", "! ")
+                .replace("! \n", "! ")
+                .replace(" \n", ". ")
+                .replace("\n", ". ")
 
+            history.push({
+                from: options.botName,
+                msg: parsedMessage
+            })
+
+            if (parsedMessage.length > 500){
+                ircClient.say(to, parsedMessage.substr(0,500));
+                ircClient.say(to, parsedMessage.substr(500));
+            }else{
+                ircClient.say(to, parsedMessage);
+            }
+
+            /*
+            for (let m of messages) {
+                console.log(options.botName + ' => ' + to + ': ' + m);
                 if (m.startsWith("*") && m.endsWith("*")) {
                     ircClient.action(to, m.substr(1, m.length - 2));
                 } else {
                     ircClient.say(to, m);
                 }
             }
+            */
             console.log("<PROMPT>##################################################################")
             console.log(prompt)
             console.log("<ANSWER>>################################################################")
@@ -319,8 +340,8 @@ async function generateMessage(prompt, callback = (aiMessage, err) => null, conf
                 .join("\n")
                 .split(`${options.botName}:`)
                 .join("\n")
-                .split(/([a-zA-Z0-9-_]+ :)/)[0]           // Remove text after first "nick: "
-                .split(/([a-zA-Z0-9-_]+:)/)[0]           // Remove text after first "nick:"
+                .split(/([a-zA-Z0-9-_'`\[\]]+ :)/)[0]           // Remove text after first "nick: "
+                .split(/([a-zA-Z0-9-_'`\[\]]+:)/)[0]           // Remove text after first "nick:"
                 .replace(/  +/g, ' ')      // Remove double spaces
                 .replace(/\n /g, '\n')      // Remove double spaces
                 .split("\n")
