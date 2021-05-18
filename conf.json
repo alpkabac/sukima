@@ -1,15 +1,15 @@
 {
-  "translationFile": "default",
-  "generate_num": 50,
+  "translationFile": "en-NSFW2",
+  "generate_num": 100,
   "temp": 0.65,
   "maxHistory": 50,
   "botName": "Alice",
   "isMuted": false,
   "ircServer": "chat.freenode.net",
   "channel": "#nolibot",
+  "lniPort": 3003,
   "apiUrl": "http://localhost:5000/prompt",
   "apiUrlToken": "http://localhost:5000/tokens",
-  "botMaxConsecutiveMessages": 1,
   "minBotMessageIntervalInMinutes": 5,
   "maxBotMessageIntervalInMinutes": 15
 }

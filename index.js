@@ -1,6 +1,7 @@
 require('dotenv').config()
 const axios = require('axios')
 const irc = require('irc');
+const colors = require('colors')
 const options = require('./conf.json')
 
 const http = require('http')
@@ -11,8 +12,15 @@ const server = http.createServer((req, res) => {
     fs.createReadStream('indexAliceLmi.html').pipe(res)
 })
 const io = new Server(server);
+let lastPrompt = ""
+let lastMessage = ""
+let lastParsedMessage = ""
 
-server.listen(process.env.PORT || 3003)
+io.on('connection', (socket) => {
+    socket.emit('LMI', lastPrompt, lastMessage, lastParsedMessage)
+})
+
+server.listen(parseInt(process.env.PORT) || options.lniPort)
 
 const ircClient = new irc.Client(options.ircServer, options.botName, {
     channels: [options.channel],
@@ -27,8 +35,19 @@ const individualHistories = {}
 /**
  * Load translations, you can use the different files for different languages
  */
-let translations = require(`./translations/${options.translationFile}.json`)
-let botTranslations = require(`./translations/aiPersonality/${options.botName}/${options.translationFile}.json`)
+let translations
+try {
+    translations = require(`./translations/${options.translationFile}.json`)
+} catch (e) {
+    translations = require(`./translations/default.json`)
+}
+
+let botTranslations
+try {
+    botTranslations = require(`./translations/aiPersonality/${options.botName}/${options.translationFile}.json`)
+} catch (e) {
+    botTranslations = require(`./translations/aiPersonality/${options.botName}/default.json`)
+}
 
 /**
  * Makes the bot send a message randomly if nobody talks
@@ -37,13 +56,11 @@ let botTranslations = require(`./translations/aiPersonality/${options.botName}/$
  */
 const minBotMessageInterval = 1000 * 60 * options.minBotMessageIntervalInMinutes
 const maxBotMessageInterval = 1000 * 60 * options.maxBotMessageIntervalInMinutes
-let botConsecutiveMessages = 0
 
 function startTimer() {
     return setTimeout(() => {
-        if (botConsecutiveMessages < options.botMaxConsecutiveMessages) {
+        if (channelHistory.length > 0 && channelHistory[channelHistory.length - 1].from !== options.botName) {
             generateAndSendMessage(options.channel, channelHistory, true)
-            botConsecutiveMessages++
         }
         startTimer()
     }, Math.random() * (maxBotMessageInterval - minBotMessageInterval) + minBotMessageInterval)
@@ -92,7 +109,6 @@ ircClient.addListener('message', function (from, to, message) {
             .trim()
     )
     console.log(from + ' => ' + to + ': ' + msg);
-    botConsecutiveMessages = 0    // Reset consecutive message counter
     restartInterval()
 
     // Remember a sentence, one per nick allowed
@@ -231,13 +247,15 @@ ircClient.addListener('action', function (from, channel, text) {
 /**
  * Makes the bot react to every PM
  */
+
+/* Temporary deactivated
 ircClient.addListener('pm', function (from, message) {
     if (!individualHistories[from]) individualHistories[from] = []  // Init individual history
     const msg = replaceNickByBotName((upperCaseFirstLetter(message)).trim())
-    console.log(from + ' => ' + options.botName + ': ' + msg);
     pushIntoHistory(individualHistories[from], {from, msg}, false)
     generateAndSendMessage(from, individualHistories[from], true)
 });
+*/
 
 /**
  * Sends message using history and bot introduction as a prompt to generate the message
@@ -266,74 +284,164 @@ function generateAndSendMessage(to, history, usesIntroduction = false, continuat
             return {from: key, msg: botTranslations.memory[key]}
         })
 
+
     // Preparing the prompt
+    let filter = false
     const prompt = intro
             .concat(memory)
             .concat(
                 history.slice(-options.maxHistory)                  // Concat the last X messages from history
             )
+            .reverse()
+            .filter((msg) => {
+                if (!continuation) return true
+                if (msg.from === options.botName && !filter) {
+                    filter = true
+                }
+                return filter
+            })
+            .reverse()
             .map((msg) => `${msg.from}: ${msg.msg}`)        // Formatting the line
+
             .join("\n")                                     // Concat the array into multiline string
         + (continuation ? "" : ("\n" + options.botName + ":"))                              // Add the options.botName so the AI knows it's its turn to speak
 
     // Tries to generate a message until it works
-    generateMessage(prompt, (message, err) => {
-        message = (message ? message.trim() : message)
-        if (message && !err) {
-            const messages = message.split("\n")
-            const parsedMessage = message
-                .replace(".\n", ". ")
-                .replace(". \n", ". ")
-                .replace("?\n", "? ")
-                .replace("? \n", "? ")
-                .replace("!\n", "! ")
-                .replace("! \n", "! ")
-                .replace(" \n", ". ")
-                .replace("\n", ". ")
+    sendRawPrompt(prompt, (message, err) => {
+        if (err) {
+            return generateAndSendMessage(to, history, usesIntroduction, continuation)
+        }
 
+        const answer = message.startsWith(options.botName + ": ") ?  // Remove starting bot name if present
+            message.slice((options.botName + ": ").length)
+            : message
+
+        // Remove everything from the output that is not something that the bot says itself
+        const parsedMessage = answer
+            .split(`${options.botName} :`)
+            .join("\n")
+            .split(`${options.botName}:`)
+            .join("\n")
+            .split(/([ a-zA-Z0-9-_'`\[\]]+ :)/)[0]           // Remove text after first "nick: "
+            .split(/([ a-zA-Z0-9-_'`\[\]]+:)/)[0]           // Remove text after first "nick:"
+            .split("\n")
+            .map((str) => str.trim())
+            .join("\n")
+            .replace(",\n", ". ")
+            .replace(".\n", ". ")
+            .replace("?\n", "? ")
+            .replace("!\n", "! ")
+            .replace("\n", ". ")
+            .replace(/  +/g, ' ')      // Remove double spaces
+            .replace(/\n /g, ' ')      // Remove double spaces
+            .replace("\n", '. ')      // Remove double spaces
+
+        if (!parsedMessage) {
+            return generateAndSendMessage(to, history, usesIntroduction, continuation)
+        }
+
+        // Update history
+        if (!continuation) {
             history.push({
                 from: options.botName,
                 msg: parsedMessage
             })
-
-            if (parsedMessage.length > 200) {
-                for(let i=0; i<parsedMessage.length; i+= 200){
-                    ircClient.say(to, parsedMessage.substr(i*200, i*200+200));
-                }
-            } else {
-                ircClient.say(to, parsedMessage);
-            }
-
-            /*
-            for (let m of messages) {
-                console.log(options.botName + ' => ' + to + ': ' + m);
-                if (m.startsWith("*") && m.endsWith("*")) {
-                    ircClient.action(to, m.substr(1, m.length - 2));
-                } else {
-                    ircClient.say(to, m);
-                }
-            }
-            */
-
-            io.emit("LMI", prompt)
-            console.log("<PROMPT>##################################################################")
-            console.log(prompt)
-            console.log("<ANSWER>>################################################################")
-            console.log(messages)
-            restartInterval()
         } else {
-            generateAndSendMessage(to, history, usesIntroduction)
+            history.reverse()
+            for (let h of history) {
+                if (h.from === options.botName) {
+                    if (h.msg.substr(h.msg.length - 1).match(/[,.;?!:]/)) {
+                        h.msg += " "
+                    }
+                    h.msg += parsedMessage
+                    break
+                }
+            }
+            history.reverse()
         }
+
+        if (parsedMessage.length > 200) {
+            const words = parsedMessage.split(". ")
+            let accumulator = words[0]
+
+            for (let i = 1; i < words.length; i++) {
+                const word = words[i]
+
+                if ((accumulator.length + word.length) < 200) {
+                    accumulator += ". " + word
+                } else {
+                    ircClient.say(to, accumulator);
+                    accumulator = word
+                }
+            }
+            if (accumulator) ircClient.say(to, accumulator);
+        } else {
+            ircClient.say(to, parsedMessage);
+        }
+
+        io.emit("LMI", prompt, message, parsedMessage)
+        lastPrompt = prompt
+        lastMessage = message
+        lastParsedMessage = parsedMessage
+        console.log(`<PROMPT>\n${prompt}\n</PROMPT>`.grey.bgBlack)
+        console.log(`<ANSWER>\n${message}\n</ANSWER>`.cyan.bgBlack)
+        console.log(`<MESSAGE>\n${parsedMessage}\n</MESSAGE>`.green.bgBlack)
+        restartInterval()
+    })
+}
+
+function horniBot(message) {
+    const prompt = (
+            evalbotHorni.shuffle ? (evalbotHorni.examples
+                    .map((e) => e)                      // copy
+                    .sort(() => Math.random() - 0.5)    // Shuffle
+            ) : evalbotHorni.examples
+        )
+            .map((e) => `${evalbotHorni.inputLabel}${e.input}${evalbotHorni.outputLabel} ${e.output}`)
+            .join("\n\n")
+        + `\n\n${evalbotHorni.inputLabel}${message}${evalbotHorni.outputLabel}`
+
+
+    simpleEvalbot(prompt, evalbotHorni.tokensToGenerate, (message) => {
+        console.log("<prompt>")
+        console.log(prompt)
+        console.log("</prompt>")
+
+        console.log("<message>")
+        console.log(message)
+        console.log("</message>")
     })
 }
 
 /**
- * Tries to generate a message with the AI API
+ * Generates an answer given a prompt
+ * Retries until fulfillment
+ * @param prompt
+ * @param tokensToGenerate
+ * @param callback
+ */
+function simpleEvalbot(prompt, tokensToGenerate = 1, callback = (answer) => null) {
+    // Tries to generate a message until it works
+    sendRawPrompt(prompt, (message, err) => {
+        message = message.trim()
+        if (message && !err) {
+            callback(message)
+        } else {
+            simpleEvalbot(prompt, tokensToGenerate, callback)
+        }
+    }, {
+        generate_num: tokensToGenerate,
+        temp: 0.7
+    })
+}
+
+/**
+ * Tries to generate a an answer with the AI API
  * @param prompt to feed to the AI
  * @param callback (aiMessage, err) => null either aiMessage or err if the message was null or empty after processing
  * @param conf {generate_num, temp}
  */
-async function generateMessage(prompt, callback = (aiMessage, err) => null, conf = options) {
+async function sendRawPrompt(prompt, callback = (aiMessage, err) => null, conf = options) {
     const data = {
         prompt,
         nb_answer: 1,   // Keep at 1, AI API allows to generate multiple answers per prompt but we only use the first
@@ -344,26 +452,9 @@ async function generateMessage(prompt, callback = (aiMessage, err) => null, conf
 
     axios.post(options.apiUrl, data)
         .then((result) => {
-            const answer = result.data[0].startsWith(options.botName + ": ") ?  // Remove starting bot name if present
-                result.data[0].slice((options.botName + ": ").length)
-                : result.data[0]
-
-            // Remove everything from the output that is not something that the bot says itself
-            const parsedAnswer = answer
-                .split(`${options.botName} :`)
-                .join("\n")
-                .split(`${options.botName}:`)
-                .join("\n")
-                .split(/([a-zA-Z0-9-_'`\[\]]+ :)/)[0]           // Remove text after first "nick: "
-                .split(/([a-zA-Z0-9-_'`\[\]]+:)/)[0]           // Remove text after first "nick:"
-                .replace(/  +/g, ' ')      // Remove double spaces
-                .replace(/\n /g, '\n')      // Remove double spaces
-                .split("\n")
-                .slice(0, 10)                                    // Keep only first lines
-                .join("\n")
-                .trim()
-            if (parsedAnswer) {
-                callback(parsedAnswer)
+            const answer = result.data[0]
+            if (answer) {
+                callback(answer)
             } else {
                 callback(null, true)
             }

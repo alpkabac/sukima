@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alice's LMI</title>
+    <style>
+
+    </style>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+
+<div class="container">
+    <div class="row noMargin">
+        <div class="col">
+
+        </div>
+        <div class="col" id="prompt">
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const prompt = "Alice"
+
+    const data = {
+        prompt,
+        nb_answer: 1,   // Keep at 1, AI API allows to generate multiple answers per prompt but we only use the first
+        raw: false,     // Keep at false
+        generate_num: 30, // Number of token to generate
+        temp: 0.65                  // Temperature
+    }
+
+    fetch("http://localhost:5000/prompt", {
+        method: "POST",
+        body: JSON.stringify(data)
+    }).then(res => {
+        console.log("Request complete! response:", res);
+    });
+</script>
+</body>
+</html>

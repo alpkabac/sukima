@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Noli's Collorative Story Generation</title>
+    <title>Alice's LMI</title>
     <style>
-
+        .row{
+            border: 1px solid black
+        }
     </style>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet"/>
 </head>
@@ -12,6 +14,32 @@
 <div id="counter"></div>
 
 <div class="container">
+    <div class="row noMargin">
+        <div class="col text-center">
+            <h3>Raw message</h3>
+        </div>
+    </div>
+    <div class="row noMargin">
+
+        <div class="col" id="RAW_RESPONSE">
+
+        </div>
+    </div>
+    <div class="row noMargin">
+        <div class="col text-center">
+            <h3>Parsed message</h3>
+        </div>
+    </div>
+    <div class="row noMargin">
+        <div class="col" id="PARSED_MESSAGE">
+
+        </div>
+    </div>
+    <div class="row noMargin">
+        <div class="col text-center">
+            <h3>LMI</h3>
+        </div>
+    </div>
     <div class="row noMargin">
         <div class="col" id="LMI">
 
@@ -23,9 +51,13 @@
 <script>
     const socket = io()
 
-    socket.on("LMI", (text) => {
+    socket.on("LMI", (text, message, parsedMessage) => {
         const LMI = document.getElementById("LMI")
         LMI.innerText = text
+        const RAW_RESPONSE = document.getElementById("RAW_RESPONSE")
+        RAW_RESPONSE.innerText = message
+        const PARSED_MESSAGE = document.getElementById("PARSED_MESSAGE")
+        PARSED_MESSAGE.innerText = parsedMessage
     })
 </script>
 </body>
