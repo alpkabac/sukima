@@ -327,14 +327,14 @@ function generateAndSendMessage(to, history, usesIntroduction = false, continuat
             .split("\n")
             .map((str) => str.trim())
             .join("\n")
+            .replace(/  +/g, ' ')      // Remove double spaces
+            .replace(/\n /g, ' ')
             .replace(",\n", ". ")
             .replace(".\n", ". ")
             .replace("?\n", "? ")
             .replace("!\n", "! ")
             .replace("\n", ". ")
-            .replace(/  +/g, ' ')      // Remove double spaces
-            .replace(/\n /g, ' ')      // Remove double spaces
-            .replace("\n", '. ')      // Remove double spaces
+
 
         if (!parsedMessage) {
             return generateAndSendMessage(to, history, usesIntroduction, continuation)
