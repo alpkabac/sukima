@@ -136,9 +136,9 @@ ircClient.addListener('message', function (from, to, message) {
 
         try {
             botTranslations = require(`./translations/aiPersonality/${options.botName}/${language}.json`)
-            //message += `\nLoaded bot personality: ${options.botName}/${language}`
+            message += `\nLoaded bot personality file: ${options.botName}/${language}.json`
         } catch (e) {
-            message += (message ? "\n" : "") + `Couldn't load bot personality for ${options.botName}/${language}`
+            message += (message ? "\n" : "") + `Couldn't load bot personality for ${options.botName}/${language}.json`
         }
 
         if (message) {
