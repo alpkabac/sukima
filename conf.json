@@ -1,5 +1,5 @@
 {
-  "translationFile": "en-NSFW2",
+  "translationFile": "en-NSFW",
   "generate_num": 100,
   "temp": 0.65,
   "maxHistory": 50,
