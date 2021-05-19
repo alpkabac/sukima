@@ -29,7 +29,7 @@ The AI API is not part of this project, but it's basically a gpt-neo API endpoin
 }
 ```
 
-If you want to host it yourself, you'll have to download and install AI Dungeon Clover Edition  
+If you want to host it yourself, you'll have to download and install AI Dungeon Clover Edition **and the gtp-neo horni-ln model** (it's what works the best right now)  
 Then, all you have to do is copy/paste the `ai_rest_server.py` file into AID Clover in the same folder as `play.py`
 
 # Install
