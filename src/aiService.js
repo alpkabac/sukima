@@ -1,14 +1,19 @@
 const axios = require("axios");
 const conf = require("../conf.json");
+const messageService = require("./messageService");
+const lmiService = require("./lmiService");
 
 class AiService {
 
     static async sendUntilSuccess(prompt, nbToken = conf.generate_num, temp = 0.65, callback = (answer) => null) {
         let answer
-        while (!answer) {
+        let parsedAnswer
+        while (!parsedAnswer) {
             answer = await this.sendPrompt(prompt, nbToken, temp)
+            parsedAnswer = messageService.parse(answer)
         }
-        callback(answer)
+        lmiService.updateLmi(prompt, answer, parsedAnswer)
+        callback(parsedAnswer)
     }
 
     static async sendPrompt(prompt, nbToken, temp = 0.65) {

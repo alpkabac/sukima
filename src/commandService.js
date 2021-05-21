@@ -110,10 +110,8 @@ class CommandService {
 
                     const prompt = promptService.getPrompt(message, from, channel, false, false)
                     aiService.sendUntilSuccess(prompt, conf.generate_num, undefined, (answer) => {
-                        const parsedAnswer = messageService.parse(answer)
-                        lmiService.updateLmi(prompt, answer, parsedAnswer)
-                        historyService.pushIntoHistory(parsedAnswer, conf.botName, channel)
-                        resolve({message: parsedAnswer, channel})
+                        historyService.pushIntoHistory(answer, conf.botName, channel)
+                        resolve({message: answer, channel})
                     })
                 } else {
                     resolve(true)
@@ -131,8 +129,6 @@ class CommandService {
                 if (!this.isChannelMuted(channel)) {
                     const prompt = promptService.getPrompt(msg, from, channel, true, true, true)
                     aiService.sendUntilSuccess(prompt, conf.generate_num, undefined, (answer) => {
-                        const parsedAnswer = messageService.parse(answer)
-                        lmiService.updateLmi(prompt, answer, parsedAnswer)
 
                         historyService.getChannelHistory(channel).reverse()
                         for (let h of historyService.getChannelHistory(channel)) {
@@ -140,12 +136,12 @@ class CommandService {
                                 if (h.msg.substr(h.msg.length - 1).match(/[,.;?!:]/)) {
                                     h.msg += " "
                                 }
-                                h.msg += parsedAnswer
+                                h.msg += answer
                                 break
                             }
                         }
                         historyService.getChannelHistory(channel).reverse()
-                        resolve({message: parsedAnswer, channel})
+                        resolve({message: answer, channel})
                     })
                 } else {
                     resolve(true)
@@ -167,10 +163,8 @@ class CommandService {
                     }
                     const prompt = promptService.getPrompt(message, from, channel)
                     aiService.sendUntilSuccess(prompt, undefined, undefined, (answer) => {
-                        const parsedAnswer = messageService.parse(answer)
-                        lmiService.updateLmi(prompt, answer, parsedAnswer)
-                        historyService.pushIntoHistory(parsedAnswer, conf.botName, channel)
-                        resolve({message: parsedAnswer, channel})
+                        historyService.pushIntoHistory(answer, conf.botName, channel)
+                        resolve({message: answer, channel})
                     })
                 } else {
                     resolve(true)
@@ -188,10 +182,8 @@ class CommandService {
                 if (msg.toLowerCase().includes(conf.botName.toLowerCase())) {
                     const prompt = promptService.getPrompt(msg, from, channel)
                     aiService.sendUntilSuccess(prompt, undefined, undefined, (answer) => {
-                        const parsedAnswer = messageService.parse(answer)
-                        lmiService.updateLmi(prompt, answer, parsedAnswer)
-                        historyService.pushIntoHistory(parsedAnswer, conf.botName, channel)
-                        resolve({message: parsedAnswer, channel})
+                        historyService.pushIntoHistory(answer, conf.botName, channel)
+                        resolve({message: answer, channel})
                     })
                 } else {
                     resolve(true)
@@ -211,10 +203,8 @@ class CommandService {
                 if (lastMessageFromChannel && lastMessageFromChannel.from !== conf.botName) {
                     const prompt = promptService.getPrompt(null, null, channel)
                     aiService.sendUntilSuccess(prompt, undefined, undefined, (answer) => {
-                        const parsedAnswer = messageService.parse(answer)
-                        lmiService.updateLmi(prompt, answer, parsedAnswer)
-                        historyService.pushIntoHistory(parsedAnswer, conf.botName, channel)
-                        resolve({message: parsedAnswer, channel})
+                        historyService.pushIntoHistory(answer, conf.botName, channel)
+                        resolve({message: answer, channel})
                     })
                 }else{
                     resolve(true)
@@ -233,10 +223,8 @@ class CommandService {
                 historyService.pushIntoHistory(action, from, channel)
                 const prompt = promptService.getPrompt(msg, from, channel)
                 aiService.sendUntilSuccess(prompt, undefined, undefined, (answer) => {
-                    const parsedAnswer = messageService.parse(answer)
-                    lmiService.updateLmi(prompt, answer, parsedAnswer)
-                    historyService.pushIntoHistory(parsedAnswer, conf.botName, channel)
-                    resolve({message: parsedAnswer, channel})
+                    historyService.pushIntoHistory(answer, conf.botName, channel)
+                    resolve({message: answer, channel})
                 })
             } else {
                 resolve(true)
