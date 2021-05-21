@@ -57,7 +57,7 @@ class CommandService {
     }
 
     static forgetAllRemember(msg, from, channel) {
-        const command = "!forgetAll"
+        const command = "!forgetAllRemember"
         if (msg.startsWith(command)) {
             // TODO: check if user 'from' is allowed to execute that command
             memoryService.forgetAllUserMemoryInChannel(channel)

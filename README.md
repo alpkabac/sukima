@@ -17,6 +17,8 @@ IRC chatbot that uses an AI API to generate messages
 - `!mute` Prevents the bot from receiving and sending messages (PMs still work)
 - `!unmute`
 - `,` is a special command **only to be used when the bot sends an incomplete message**
+- `!lang <language>` will load the `translations/aiPersonality/${conf.botName}/${conf.defaultBotTranslationFile}.json`
+  file, useful to change the bot personality
 
 # Prerequisites
 
