@@ -1,0 +1,25 @@
+class MemoryService {
+    static channelMemories = {}
+    static userMemories = {}
+
+    static getChannelMemory(channel) {
+        return !this.channelMemories[channel] ? [] : this.channelMemories[channel]
+    }
+
+    static setUserMemoryInChannel(msg, user, channel) {
+        if (!MemoryService.channelMemories[channel]) MemoryService.channelMemories[channel] = {}
+        MemoryService.channelMemories[channel][user] = msg
+    }
+
+    static forgetUserMemoryInChannel(user, channel) {
+        if (!MemoryService.channelMemories[channel]) MemoryService.channelMemories[channel] = {}
+        delete MemoryService.channelMemories[channel][user]
+    }
+
+    static forgetAllUserMemoryInChannel(channel) {
+        if (MemoryService.channelMemories[channel])
+            delete MemoryService.channelMemories[channel]
+    }
+}
+
+module.exports = MemoryService

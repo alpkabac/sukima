@@ -1,7 +1,7 @@
 {
-  "onJoin": "*Joins the channel*",
-  "onPart": "*Leaves the channel*",
-  "onQuit": "*Quits the channel*",
-  "onKick": "*Was kicked by ${by}, reason: ${reason}*",
+  "onJoin": "Joins the channel",
+  "onPart": "Leaves the channel",
+  "onQuit": "Quits the channel",
+  "onKick": "Was kicked by ${by}, reason; ${reason}",
   "onAction": "*${text}*"
 }

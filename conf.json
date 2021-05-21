@@ -1,16 +1,16 @@
 {
-  "translationFile": "en-NSFW",
+  "translationFile": "en-EN",
+  "defaultBotTranslationFile": "en-NSFW",
   "generate_num": 100,
   "temp": 0.65,
   "maxHistory": 30,
   "botName": "Alice",
   "isMuted": false,
   "ircServer": "irc.libera.chat",
-  "channel": "#cbna",
-  "channels": ["#cbna"],
+  "channels": ["#alicebot"],
   "lniPort": 3003,
   "apiUrl": "http://localhost:5000/prompt",
   "apiUrlToken": "http://localhost:5000/tokens",
-  "minBotMessageIntervalInMinutes": 5,
-  "maxBotMessageIntervalInMinutes": 15
+  "minBotMessageIntervalInMinutes": 0,
+  "maxBotMessageIntervalInMinutes": 1
 }
