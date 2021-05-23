@@ -6,22 +6,32 @@ const fs = require('fs')
 const {Server} = require("socket.io");
 const server = http.createServer((req, res) => {
     res.writeHead(200, {'content-type': 'text/html'})
-    fs.createReadStream('indexSimplePrompt.html').pipe(res)
+    fs.createReadStream('simplePrompt.html').pipe(res)
 })
 const io = new Server(server);
 
 io.on('connection', (socket) => {
-    socket.on('prompt', async (prompt, nbTokenToGenerate = 20, temperature = 0.65) => {
+    socket.on('prompt', async (prompt, nbTokenToGenerate = 20, temperature = 0.65, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5) => {
         nbTokenToGenerate = Math.min(100, nbTokenToGenerate)
-        const answer = (await getPromptAsync(prompt, nbTokenToGenerate, temperature))[0]
+        const answer = (await getPromptAsync(prompt, nbTokenToGenerate, temperature, 1, top_k, top_p, repetitionPenalty))[0]
         const tokensPrompt = (await getTokens(prompt))
         const tokensAnswer = (await getTokens(answer))
 
         socket.emit('prompt', prompt, answer, tokensPrompt, tokensAnswer)
     });
+
+    socket.on('tokensPrompt', async (prompt) => {
+        const tokensPrompt = (await getTokens(prompt)).length
+        socket.emit('tokensPrompt', tokensPrompt)
+    });
+
+    socket.on('tokensAnswer', async (prompt) => {
+        const tokensPrompt = (await getTokens(prompt)).length
+        socket.emit('tokensAnswer', tokensPrompt)
+    });
 });
 
-server.listen(process.env.PORT || 3003)
+server.listen(process.env.PORT || options.lniPort)
 
 /**
  * Returns an AI generated text continuing your prompt
@@ -30,12 +40,15 @@ server.listen(process.env.PORT || 3003)
  * @param nbToken
  * @param temperature
  * @param nbResult
+ * @param top_k
+ * @param top_p
+ * @param repetitionPenalty
  */
-function getPromptAsync(prompt, nbToken = 1, temperature = 0.65, nbResult = 1) {
+function getPromptAsync(prompt, nbToken = 1, temperature = 0.65, nbResult = 1, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5) {
     return new Promise((accept) => {
         getPrompt(prompt, nbToken, (answer) => {
             accept(answer)
-        }, temperature, nbResult)
+        }, temperature, nbResult, top_k, top_p, repetitionPenalty)
     })
 }
 
@@ -47,17 +60,21 @@ function getPromptAsync(prompt, nbToken = 1, temperature = 0.65, nbResult = 1) {
  * @param callback
  * @param temperature
  * @param nbResult
+ * @param top_k
+ * @param top_p
+ * @param repetitionPenalty
+ * @param nbFail
  */
 function getPrompt(prompt, nbToken = 1, callback = (answer) => {
-}, temperature = 0.65, nbResult = 1) {
+}, temperature = 0.65, nbResult = 1, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5, nbFail=0) {
     // Tries to generate a message until it works
     sendPrompt(prompt, nbToken, (message, err) => {
         if (message && !err) {
             callback(message)
-        } else {
-            getPrompt(prompt, nbToken, callback, temperature, nbResult)
+        } else if (nbFail < 3){
+            getPrompt(prompt, nbToken, callback, temperature, nbResult, top_k, top_p, repetitionPenalty, ++nbFail)
         }
-    }, temperature, nbResult)
+    }, temperature, nbResult, top_k, top_p, repetitionPenalty)
 }
 
 /**
@@ -93,14 +110,19 @@ function getTokens(prompt) {
  * @param callback (aiMessage, err) => null either aiMessage or err if the message was null or empty after processing
  * @param temperature
  * @param nbResult
+ * @param top_k
+ * @param top_p
+ * @param repetitionPenalty
  */
-async function sendPrompt(prompt, nbToken, callback = (aiMessage, err) => null, temperature = 0.65, nbResult = 1) {
+async function sendPrompt(prompt, nbToken, callback = (aiMessage, err) => null, temperature = 0.65, nbResult = 1, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5) {
     const data = {
         prompt,
         nb_answer: nbResult,
-        raw: false,     // Keep at false
         generate_num: nbToken,
-        temp: temperature
+        temp: temperature,
+        top_k,
+        top_p,
+        repetitionPenalty
     }
 
     axios.post(options.apiUrl, data)

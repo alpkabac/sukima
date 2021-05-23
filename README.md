@@ -17,8 +17,9 @@ IRC chatbot that uses an AI API to generate messages
 - `!mute` Prevents the bot from receiving and sending messages (PMs still work)
 - `!unmute`
 - `,` is a special command **only to be used when the bot sends an incomplete message**
-- `!lang <language>` will load the `translations/aiPersonality/${conf.botName}/${conf.defaultBotTranslationFile}.json`
+- `!lang <language>` will load the `translations/aiPersonality/${conf.botName}/<language>.json`
   file, useful to change the bot personality
+  - Available personalities for Alice: `en-EN`, `en-NSFW`, `en-GURO` and `fr-FR`
 
 # Prerequisites
 
@@ -34,7 +35,11 @@ The AI API is not part of this project, but it's basically a gpt-neo API endpoin
 
 If you want to host it yourself, you'll have to download and install AI Dungeon Clover Edition **and the gtp-neo
 horni-ln model** (it's what works the best right now)  
-Then, all you have to do is copy/paste the `ai_rest_server.py` file into AID Clover in the same folder as `play.py`
+Then, all you have to do is copy/paste the `ai_rest_server.py` file into AID Clover in the same folder as `play.py` and execute it
+
+It will expose two REST endpoints:  
+POST `http://localhost:5000/prompt` to send a prompt and generate an answer  
+POST `http://localhost:5000/tokens` to get the tokens from a prompt
 
 # Install
 

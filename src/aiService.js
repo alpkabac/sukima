@@ -8,7 +8,8 @@ class AiService {
     static async sendUntilSuccess(prompt, nbToken = conf.generate_num, temp = 0.65, callback = (answer) => null) {
         let answer
         let parsedAnswer
-        while (!parsedAnswer) {
+        let nbTry = 0
+        while (!parsedAnswer && ++nbTry <= 5 ) {
             answer = await this.sendPrompt(prompt, nbToken, temp)
             parsedAnswer = messageService.parse(answer)
         }

@@ -40,14 +40,19 @@
 
 <div class="container">
     <div class="containerText">
-        <textarea id="textarea"></textarea>
+        <textarea id="textarea" placeholder="Type your text directly here then press ctrl+enter or click the Continue button"></textarea>
     </div>
     <div class="containerOptions">
-        <textarea rows="4" id="textareaAnswer"></textarea>
+        <textarea rows="1" id="textareaTokens" disabled>Tokens: 0/2048</textarea>
+        <textarea rows="4" id="textareaAnswer" placeholder="Generated text will appear here. You can press ctrl+enter again to retry, or ctrl+right shift to paste output onto the main text"></textarea>
+        <textarea rows="1" id="textareaTokensAnswer" disabled>Tokens: 0</textarea>
         <button class="fullWidthButton" id="sendButton">Continue (ctrl + enter)</button>
         <button class="fullWidthButton" id="pasteInPromptButton">Paste result to prompt (ctrl + right shift)</button>
-        <span>Temperature<input id="temperature" type="number" value="0.65"></span>
         <span>Tokens to generate <input id="nbTokenToGenerate" max="100" type="number" value="10"></span>
+        <span>Temperature <input id="temperature" type="number" value="0.65"></span>
+        <span>Top K <input id="top_k" type="number" value="50"></span>
+        <span>Top P <input id="top_p" type="number" value="0.9"></span>
+        <span>Repetition Penalty <input id="repetition_penalty" type="number" value="1.5"></span>
     </div>
 </div>
 
@@ -57,17 +62,46 @@
     const socket = io()
 
     const textarea = document.getElementById("textarea")
+    const textareaTokens = document.getElementById("textareaTokens")
     const textareaAnswer = document.getElementById("textareaAnswer")
-    const inputTemperature = document.getElementById("temperature")
+    const textareaTokensAnswer = document.getElementById("textareaTokensAnswer")
     const inputNbToken = document.getElementById("nbTokenToGenerate")
+    const inputTemperature = document.getElementById("temperature")
+    const inputTopK = document.getElementById("top_k")
+    const inputTopP = document.getElementById("top_p")
+    const inputRepetitionPenalty = document.getElementById("repetition_penalty")
     const sendButton = document.getElementById("sendButton")
     const pasteInPromptButton = document.getElementById("pasteInPromptButton")
 
     function sendPrompt() {
         if (textarea.value) {
-            socket.emit("prompt", textarea.value, parseInt(inputNbToken.value), parseFloat(inputTemperature.value))
+            socket.emit(
+                "prompt",
+                textarea.value,
+                parseInt(inputNbToken.value),
+                parseFloat(inputTemperature.value),
+                parseInt(inputTopK.value),
+                parseFloat(inputTopP.value),
+                parseFloat(inputRepetitionPenalty.value),
+            )
         }
     }
+
+    textarea.onkeyup = async () => {
+        socket.emit("tokensPrompt", textarea.value)
+    }
+
+    socket.on("tokensPrompt", (answer) => {
+        textareaTokens.value = "Tokens: "+answer+"/2048"
+    })
+
+    textareaAnswer.onkeyup = async () => {
+        socket.emit("tokensAnswer", textareaAnswer.value)
+    }
+
+    socket.on("tokensAnswer", (answer) => {
+        textareaTokensAnswer.value = "Tokens: "+answer
+    })
 
     function onKeyPress(e) {
         if (e.keyCode === 13 && e.ctrlKey) {
@@ -87,6 +121,8 @@
             .replace(/ \./g, ".")
             .replace(/ ,/g, ",")
         textareaAnswer.value = ""
+        socket.emit("tokensPrompt", textarea.value)
+        socket.emit("tokensAnswer", textareaAnswer.value)
         sendPrompt()
     }
 
@@ -96,6 +132,8 @@
 
     socket.on("prompt", (prompt, answer, tokensPrompt, tokensAnswer) => {
         textareaAnswer.value = answer
+        socket.emit("tokensPrompt", textarea.value)
+        socket.emit("tokensAnswer", textareaAnswer.value)
     })
 </script>
 </body>
