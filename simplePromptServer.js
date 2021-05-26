@@ -11,9 +11,9 @@ const server = http.createServer((req, res) => {
 const io = new Server(server);
 
 io.on('connection', (socket) => {
-    socket.on('prompt', async (prompt, nbTokenToGenerate = 20, temperature = 0.65, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5) => {
+    socket.on('prompt', async (prompt, nbTokenToGenerate = 20, temperature = 0.65, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5, repetitionPenaltyRange = 512, repetitionPenaltySlope = 3.33) => {
         nbTokenToGenerate = Math.min(100, nbTokenToGenerate)
-        const answer = (await getPromptAsync(prompt, nbTokenToGenerate, temperature, 1, top_k, top_p, repetitionPenalty))[0]
+        const answer = (await getPromptAsync(prompt, nbTokenToGenerate, temperature, 1, top_k, top_p, repetitionPenalty, repetitionPenaltyRange, repetitionPenaltySlope))[0]
         const tokensPrompt = (await getTokens(prompt))
         const tokensAnswer = (await getTokens(answer))
 
@@ -43,12 +43,14 @@ server.listen(process.env.PORT || options.lniPort)
  * @param top_k
  * @param top_p
  * @param repetitionPenalty
+ * @param repetitionPenaltyRange
+ * @param repetitionPenaltySlope
  */
-function getPromptAsync(prompt, nbToken = 1, temperature = 0.65, nbResult = 1, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5) {
+function getPromptAsync(prompt, nbToken = 1, temperature = 0.65, nbResult = 1, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5, repetitionPenaltyRange = 512, repetitionPenaltySlope = 3.33) {
     return new Promise((accept) => {
         getPrompt(prompt, nbToken, (answer) => {
             accept(answer)
-        }, temperature, nbResult, top_k, top_p, repetitionPenalty)
+        }, temperature, nbResult, top_k, top_p, repetitionPenalty, repetitionPenaltyRange, repetitionPenaltySlope)
     })
 }
 
@@ -63,18 +65,20 @@ function getPromptAsync(prompt, nbToken = 1, temperature = 0.65, nbResult = 1, t
  * @param top_k
  * @param top_p
  * @param repetitionPenalty
+ * @param repetitionPenaltyRange
+ * @param repetitionPenaltySlope
  * @param nbFail
  */
 function getPrompt(prompt, nbToken = 1, callback = (answer) => {
-}, temperature = 0.65, nbResult = 1, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5, nbFail=0) {
+}, temperature = 0.65, nbResult = 1, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5, repetitionPenaltyRange = 512, repetitionPenaltySlope = 3.33, nbFail = 0) {
     // Tries to generate a message until it works
     sendPrompt(prompt, nbToken, (message, err) => {
         if (message && !err) {
             callback(message)
-        } else if (nbFail < 3){
-            getPrompt(prompt, nbToken, callback, temperature, nbResult, top_k, top_p, repetitionPenalty, ++nbFail)
+        } else if (nbFail < 3) {
+            getPrompt(prompt, nbToken, callback, temperature, nbResult, top_k, top_p, repetitionPenalty, repetitionPenaltyRange, repetitionPenaltySlope, ++nbFail)
         }
-    }, temperature, nbResult, top_k, top_p, repetitionPenalty)
+    }, temperature, nbResult, top_k, top_p, repetitionPenalty, repetitionPenaltyRange, repetitionPenaltySlope)
 }
 
 /**
@@ -113,8 +117,10 @@ function getTokens(prompt) {
  * @param top_k
  * @param top_p
  * @param repetitionPenalty
+ * @param repetitionPenaltyRange
+ * @param repetitionPenaltySlope
  */
-async function sendPrompt(prompt, nbToken, callback = (aiMessage, err) => null, temperature = 0.65, nbResult = 1, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5) {
+async function sendPrompt(prompt, nbToken, callback = (aiMessage, err) => null, temperature = 0.65, nbResult = 1, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5, repetitionPenaltyRange = 512, repetitionPenaltySlope = 3.33) {
     const data = {
         prompt,
         nb_answer: nbResult,
@@ -122,7 +128,9 @@ async function sendPrompt(prompt, nbToken, callback = (aiMessage, err) => null, 
         temp: temperature,
         top_k,
         top_p,
-        repetitionPenalty
+        repetition_penalty: repetitionPenalty,
+        repetition_penalty_range: repetitionPenaltyRange,
+        repetition_penalty_slope: repetitionPenaltySlope
     }
 
     axios.post(options.apiUrl, data)

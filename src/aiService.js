@@ -9,22 +9,26 @@ class AiService {
         let answer
         let parsedAnswer
         let nbTry = 0
-        while (!parsedAnswer && ++nbTry <= 5 ) {
-            answer = await this.sendPrompt(prompt, nbToken, temp)
+        while (!parsedAnswer && ++nbTry <= 5) {
+            answer = await this.sendPrompt(prompt, nbToken)
             parsedAnswer = messageService.parse(answer)
         }
         lmiService.updateLmi(prompt, answer, parsedAnswer)
         callback(parsedAnswer)
     }
 
-    static async sendPrompt(prompt, nbToken, temp = 0.65) {
+    static async sendPrompt(prompt, nbToken) {
         return new Promise((resolve, reject) => {
             const data = {
                 prompt,
-                nb_answer: 1,           // Keep at 1
-                raw: false,             // Keep at false
-                generate_num: nbToken,  // Number of token to generate
-                temp                    // Temperature
+                nb_answer: 1,
+                generate_num: nbToken,
+                temp: 0.6,
+                top_k: 90,
+                top_p: 0.6,
+                repetition_penalty: 2.5,
+                repetition_penalty_range: 512,
+                repetition_penalty_slope: 3.33
             }
 
             axios.post(conf.apiUrl, data)

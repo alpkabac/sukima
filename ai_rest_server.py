@@ -15,16 +15,17 @@ generator = GPT2Generator(
     top_k=40,
     top_p=0.9,
     repetition_penalty=1.25,
-    repetition_penalty_range=2048,#512,
+    repetition_penalty_range=512,  # 512,
     repetition_penalty_slope=3.33
 )
-generator.max_history_tokens = 2048#1024
+generator.max_history_tokens = 2048  # 1024
 
 from flask import Flask, request
-from flask_json import FlaskJSON, JsonError, json_response, as_json
+from flask_json import FlaskJSON
 
 api = Flask(__name__)
 FlaskJSON(api)
+
 
 @api.route('/tokens', methods=['POST'])
 def get_tokens():
@@ -33,38 +34,43 @@ def get_tokens():
     tokens = generator.tokenizer.encode(prompt, add_special_tokens=False, add_prefix_space=True)
     return json.dumps(tokens, indent=2)
 
+
 @api.route('/prompt', methods=['POST'])
 def get_prompt():
     data = request.get_json(force=True)
-    prompt = data['prompt']#request.form['prompt']
-    nb_answer = int(data['nb_answer'])#request.form['nb_answer'])
-    raw = bool(data['raw'])#request.form['raw'])
-    generate_num = int(data['generate_num'])#request.form['generate_num'])
-    temp = float(data['temp'])
+    prompt = data['prompt']
+    nb_answer = int(data['nb_answer']) if 'nb_answer' in data else 1
+    generate_num = int(data['generate_num']) if 'generate_num' in data else 10
+    temp = float(data['temp']) if 'temp' in data else 0.8
+    top_k = int(data['top_k']) if 'top_k' in data else 50
+    top_p = float(data['top_p']) if 'top_p' in data else 0.9
+    repetition_penalty = float(data['repetition_penalty']) if 'repetition_penalty' in data else 1.5
+    repetition_penalty_range = int(data['repetition_penalty_range']) if 'repetition_penalty_range' in data else 512
+    repetition_penalty_slope = float(data['repetition_penalty_slope']) if 'repetition_penalty_slope' in data else 3.33
+
+
+    generator.max_history_tokens = 2048 - generate_num
+
     if nb_answer is None:
         nb_answer = 1
 
     ret = []
-    ret_raw = ""
 
     for i in range(nb_answer):
         t = generator.generate_raw(
-            """""",
+            "",
             prompt,
-            generate_num if generate_num is not None else generator.generate_num,
-            temp if temp is not None else generator.temp,
-            generator.top_k,
-            generator.top_p,
-            generator.repetition_penalty,
-            generator.repetition_penalty_range,
-            generator.repetition_penalty_slope,
+            generate_num,
+            temp,
+            top_k,
+            top_p,
+            repetition_penalty,
+            repetition_penalty_range,
+            repetition_penalty_slope,
             generator.tokenizer.encode(["<|endoftext|>", ">"])
         )
         ret.append(t)
-        ret_raw += t+"\n\n"
 
-    if raw is not None and raw is True:
-        return ret_raw
     return json.dumps(ret, indent=2)
 
 

@@ -19,7 +19,7 @@ class MessageService {
             .join("\n")
             .replace(/  +/g, ' ')      // Remove double spaces
             .replace(/\n /g, ' ')
-            .replace(",\n", ". ")
+            .replace(",\n", ", ")
             .replace(".\n", ". ")
             .replace("?\n", "? ")
             .replace("!\n", "! ")

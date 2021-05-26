@@ -49,10 +49,12 @@
         <button class="fullWidthButton" id="sendButton">Continue (ctrl + enter)</button>
         <button class="fullWidthButton" id="pasteInPromptButton">Paste result to prompt (ctrl + right shift)</button>
         <span>Tokens to generate <input id="nbTokenToGenerate" max="100" type="number" value="10"></span>
-        <span>Temperature <input id="temperature" type="number" value="0.65"></span>
-        <span>Top K <input id="top_k" type="number" value="50"></span>
-        <span>Top P <input id="top_p" type="number" value="0.9"></span>
-        <span>Repetition Penalty <input id="repetition_penalty" type="number" value="1.5"></span>
+        <span>Temperature <input id="temperature" type="number" value="0.9"></span>
+        <span>Top K <input id="top_k" type="number" value="90"></span>
+        <span>Top P <input id="top_p" type="number" value="0.6"></span>
+        <span>Repetition Penalty <input id="repetition_penalty" type="number" value="2.5"></span>
+        <span>Repetition Penalty Range <input id="repetition_penalty_range" type="number" value="512"></span>
+        <span>Repetition Penalty Slope <input id="repetition_penalty_slope" type="number" value="3.33"></span>
     </div>
 </div>
 
@@ -70,6 +72,8 @@
     const inputTopK = document.getElementById("top_k")
     const inputTopP = document.getElementById("top_p")
     const inputRepetitionPenalty = document.getElementById("repetition_penalty")
+    const inputRepetitionPenaltyRange = document.getElementById("repetition_penalty_range")
+    const inputRepetitionPenaltySlope = document.getElementById("repetition_penalty_slope")
     const sendButton = document.getElementById("sendButton")
     const pasteInPromptButton = document.getElementById("pasteInPromptButton")
 
@@ -83,6 +87,8 @@
                 parseInt(inputTopK.value),
                 parseFloat(inputTopP.value),
                 parseFloat(inputRepetitionPenalty.value),
+                parseInt(inputRepetitionPenaltyRange.value),
+                parseFloat(inputRepetitionPenaltySlope.value),
             )
         }
     }
