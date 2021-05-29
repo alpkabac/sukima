@@ -134,6 +134,10 @@
             .replace(/ \./g, ".")
             .replace(/ ,/g, ",")
             .replace(/' /g, "'")
+            .replace(/" /g, '"')
+            .replace(/""/g, '" "')
+            .replace(/([a-zA-Z]) \?/g, '$1?')
+            .replace(/([a-zA-Z]) !/g, '$1!')
         textareaAnswer.value = ""
         textareaTokensAnswer.value = "Tokens: 0"
         socket.emit("tokens", textarea.value, "tokensPrompt")

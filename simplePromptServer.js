@@ -19,11 +19,16 @@ const io = new Server(server);
 io.on('connection', (socket) => {
     socket.on('prompt', async (prompt, nbTokenToGenerate = 20, temperature = 0.65, top_k = 50, top_p = 0.5, repetitionPenalty = 1.5, repetitionPenaltyRange = 512, repetitionPenaltySlope = 3.33) => {
         nbTokenToGenerate = Math.min(100, nbTokenToGenerate)
-        const answer = (await getPromptAsync(prompt, nbTokenToGenerate, temperature, 1, top_k, top_p, repetitionPenalty, repetitionPenaltyRange, repetitionPenaltySlope))[0]
         const tokensPrompt = (await getTokens(prompt))
+        const clampedPrompt = tokensPrompt
+            .slice(-2048)
+            .map((token)=> vocabIndexed[token].replace('Ġ',' ').replace('Ċ', ' '))
+            .join('')
+            .trim()
+        const answer = (await getPromptAsync(clampedPrompt, nbTokenToGenerate, temperature, 1, top_k, top_p, repetitionPenalty, repetitionPenaltyRange, repetitionPenaltySlope))[0]
         const tokensAnswer = (await getTokens(answer))
 
-        socket.emit('prompt', prompt, answer, tokensPrompt, tokensAnswer)
+        socket.emit('prompt', clampedPrompt, answer, tokensPrompt, tokensAnswer)
     });
 
     socket.on('tokens', async (prompt, id) => {
