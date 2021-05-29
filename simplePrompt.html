@@ -83,6 +83,11 @@
     const sendButton = document.getElementById("sendButton")
     const pasteInPromptButton = document.getElementById("pasteInPromptButton")
 
+    let timerPrompt = setTimeout(() => {
+    }, 1000)
+    let timerAnswer = setTimeout(() => {
+    }, 1000)
+
     function sendPrompt() {
         if (textarea.value) {
             socket.emit(
@@ -100,11 +105,17 @@
     }
 
     textarea.onkeyup = async () => {
-        socket.emit("tokens", textarea.value, "tokensPrompt")
+        clearTimeout(timerPrompt)
+        timerPrompt = setTimeout(() => {
+            socket.emit("tokens", textarea.value, "tokensPrompt")
+        }, 500)
     }
 
     textareaAnswer.onkeyup = async () => {
-        socket.emit("tokens", textareaAnswer.value, "tokensAnswer")
+        clearTimeout(timerAnswer)
+        timerAnswer = setTimeout(() => {
+            socket.emit("tokens", textareaAnswer.value, "tokensAnswer")
+        }, 500)
     }
 
     function onKeyPress(e) {
@@ -134,7 +145,6 @@
             .replace(/ \./g, ".")
             .replace(/ ,/g, ",")
             .replace(/' /g, "'")
-            .replace(/" /g, '"')
             .replace(/""/g, '" "')
             .replace(/([a-zA-Z]) \?/g, '$1?')
             .replace(/([a-zA-Z]) !/g, '$1!')

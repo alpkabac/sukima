@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
         const tokensPrompt = (await getTokens(prompt))
         const clampedPrompt = tokensPrompt
             .slice(-2048)
-            .map((token)=> vocabIndexed[token].replace('Ġ',' ').replace('Ċ', ' '))
+            .map((token)=> vocabIndexed[token].replace('Ġ',' ').replace('Ċ', '\n'))
             .join('')
             .trim()
         const answer = (await getPromptAsync(clampedPrompt, nbTokenToGenerate, temperature, 1, top_k, top_p, repetitionPenalty, repetitionPenaltyRange, repetitionPenaltySlope))[0]
