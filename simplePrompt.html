@@ -40,12 +40,17 @@
 
 <div class="container">
     <div class="containerText">
-        <textarea id="textarea" placeholder="Type your text directly here then press ctrl+enter or click the Continue button"></textarea>
+        <textarea id="textarea"
+                  placeholder="Type your text directly here then press ctrl+enter or click the Continue button"></textarea>
     </div>
     <div class="containerOptions">
         <textarea rows="1" id="textareaTokens" disabled>Tokens: 0/2048</textarea>
-        <textarea rows="4" id="textareaAnswer" placeholder="Generated text will appear here. You can press ctrl+enter again to retry, or ctrl+right shift to paste output onto the main text"></textarea>
+        <textarea rows="4" id="textareaAnswer"
+                  placeholder="Generated text will appear here. You can press ctrl+enter again to retry, or ctrl+right shift to paste output onto the main text"></textarea>
         <textarea rows="1" id="textareaTokensAnswer" disabled>Tokens: 0</textarea>
+        <textarea rows="4" id="textareaAnswerTokens"
+                  placeholder="Here will be displayed the tokens of the output area, you can use it to experiment with tokens!"
+                  disabled></textarea>
         <button class="fullWidthButton" id="sendButton">Continue (ctrl + enter)</button>
         <button class="fullWidthButton" id="pasteInPromptButton">Paste result to prompt (ctrl + right shift)</button>
         <span>Tokens to generate <input id="nbTokenToGenerate" max="100" type="number" value="10"></span>
@@ -67,6 +72,7 @@
     const textareaTokens = document.getElementById("textareaTokens")
     const textareaAnswer = document.getElementById("textareaAnswer")
     const textareaTokensAnswer = document.getElementById("textareaTokensAnswer")
+    const textareaAnswerTokens = document.getElementById("textareaAnswerTokens")
     const inputNbToken = document.getElementById("nbTokenToGenerate")
     const inputTemperature = document.getElementById("temperature")
     const inputTopK = document.getElementById("top_k")
@@ -94,20 +100,12 @@
     }
 
     textarea.onkeyup = async () => {
-        socket.emit("tokensPrompt", textarea.value)
+        socket.emit("tokens", textarea.value, "tokensPrompt")
     }
-
-    socket.on("tokensPrompt", (answer) => {
-        textareaTokens.value = "Tokens: "+answer+"/2048"
-    })
 
     textareaAnswer.onkeyup = async () => {
-        socket.emit("tokensAnswer", textareaAnswer.value)
+        socket.emit("tokens", textareaAnswer.value, "tokensAnswer")
     }
-
-    socket.on("tokensAnswer", (answer) => {
-        textareaTokensAnswer.value = "Tokens: "+answer
-    })
 
     function onKeyPress(e) {
         if (e.keyCode === 13 && e.ctrlKey) {
@@ -116,6 +114,15 @@
             appendAnswerToTextArea()
         }
     }
+
+    socket.on("tokens", (answer, id) => {
+        if (id === "tokensPrompt") {
+            textareaTokens.value = "Tokens: " + answer.length + "/2048"
+        } else if (id === "tokensAnswer") {
+            textareaTokensAnswer.value = "Tokens: " + answer.length
+            textareaAnswerTokens.value = answer.map(s => s).join(' | ')
+        }
+    })
 
     sendButton.onclick = sendPrompt
 
@@ -126,9 +133,10 @@
             .replace(/\n /g, "\n")
             .replace(/ \./g, ".")
             .replace(/ ,/g, ",")
+            .replace(/' /g, "'")
         textareaAnswer.value = ""
-        socket.emit("tokensPrompt", textarea.value)
-        socket.emit("tokensAnswer", textareaAnswer.value)
+        textareaTokensAnswer.value = "Tokens: 0"
+        socket.emit("tokens", textarea.value, "tokensPrompt")
         sendPrompt()
     }
 
@@ -138,8 +146,8 @@
 
     socket.on("prompt", (prompt, answer, tokensPrompt, tokensAnswer) => {
         textareaAnswer.value = answer
-        socket.emit("tokensPrompt", textarea.value)
-        socket.emit("tokensAnswer", textareaAnswer.value)
+        socket.emit("tokens", textarea.value, "tokensPrompt")
+        socket.emit("tokens", textareaAnswer.value, "tokensAnswer")
     })
 </script>
 </body>

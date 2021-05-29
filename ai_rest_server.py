@@ -1,6 +1,3 @@
-# a little script to test if 16 bit degrades accuracy of the model. Not a perfect experiment but I think it's good enough
-# must be moved to the clover-edition directory or it will not run
-# I can not figure out why. According to pythons documentation, only the current directory matters, not the placement of the file
 import json
 
 from getconfig import settings

@@ -1,12 +1,18 @@
 require('dotenv').config()
 const axios = require('axios')
 const options = require('./conf.json')
+const vocabIndexed = require('./vocabIndexed.json')
 const http = require('http')
 const fs = require('fs')
 const {Server} = require("socket.io");
 const server = http.createServer((req, res) => {
-    res.writeHead(200, {'content-type': 'text/html'})
-    fs.createReadStream('simplePrompt.html').pipe(res)
+    if (req.url === "/") {
+        res.writeHead(200, {'content-type': 'text/html'})
+        fs.createReadStream('simplePrompt.html').pipe(res)
+    }else if (req.url === "/vocab"){
+        res.writeHead(200, {'content-type': 'application/json'})
+        fs.createReadStream('vocab.json').pipe(res)
+    }
 })
 const io = new Server(server);
 
@@ -20,14 +26,9 @@ io.on('connection', (socket) => {
         socket.emit('prompt', prompt, answer, tokensPrompt, tokensAnswer)
     });
 
-    socket.on('tokensPrompt', async (prompt) => {
-        const tokensPrompt = (await getTokens(prompt)).length
-        socket.emit('tokensPrompt', tokensPrompt)
-    });
-
-    socket.on('tokensAnswer', async (prompt) => {
-        const tokensPrompt = (await getTokens(prompt)).length
-        socket.emit('tokensAnswer', tokensPrompt)
+    socket.on('tokens', async (prompt, id) => {
+        const tokensPrompt = (await getTokens(prompt)).map((token)=> vocabIndexed[token])
+        socket.emit('tokens', tokensPrompt, id)
     });
 });
 
