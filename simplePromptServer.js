@@ -31,7 +31,7 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(process.env.PORT || options.lniPort)
+server.listen(process.env.PORT || 3003)
 
 /**
  * Returns an AI generated text continuing your prompt

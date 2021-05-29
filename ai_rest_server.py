@@ -18,7 +18,6 @@ generator = GPT2Generator(
     repetition_penalty_range=512,  # 512,
     repetition_penalty_slope=3.33
 )
-generator.max_history_tokens = 2048  # 1024
 
 from flask import Flask, request
 from flask_json import FlaskJSON
