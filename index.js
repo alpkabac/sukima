@@ -1,1 +1,1 @@
-const bot = require('./src/connector/ircConnector')
+const bot = require('./src/connector/discordConnector')

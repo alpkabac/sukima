@@ -21,6 +21,7 @@ class BotService {
         const msg = prepareIncomingMessage(message, conf.botName, botNick)
 
         return commandService.remember(msg, from, channel)
+            || await commandService.r34(msg, from, channel)
             || commandService.forgetRemember(msg, from, channel)
             || await commandService.changeLanguage(msg, from, channel)
             || commandService.forgetAllRemember(msg, from, channel)

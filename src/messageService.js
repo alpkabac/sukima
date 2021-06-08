@@ -7,7 +7,8 @@ class MessageService {
             : msg
 
         // Remove everything from the output that is not something that the bot says itself
-        return answer
+        return answer.split('\n')[0]
+            /*
             .split(`${conf.botName} :`)
             .join("\n")
             .split(`${conf.botName}:`)
@@ -24,6 +25,7 @@ class MessageService {
             .replace("?\n", "? ")
             .replace("!\n", "! ")
             .replace("\n", ". ")
+             */
     }
 }
 

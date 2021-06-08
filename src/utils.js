@@ -1,3 +1,4 @@
+const conf = require('../conf.json')
 
 class Utils {
     /**
@@ -18,6 +19,15 @@ class Utils {
 
     static caseInsensitiveStringEquals(str1, str2) {
         return str1.toLowerCase() === str2.toLowerCase()
+    }
+
+    static getInterval() {
+        return 1000 *
+            (
+                Math.random()
+                * (conf.maxBotMessageIntervalInMinutes - conf.minBotMessageIntervalInMinutes)
+                + conf.minBotMessageIntervalInMinutes
+            )
     }
 }
 

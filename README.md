@@ -10,8 +10,8 @@ IRC chatbot that uses an AI API to generate messages
   one `!remember` per user)
 - `!remember` will delete your remembered message
 - `!Blah blah blah` will send the message without any memory besides the `noContextSentence` included in personality
-  traduction file
-- You can use the `!` prefix to ask questions without using the context (it gives the **best** results)
+  translation file
+  - You can use the `!` prefix to ask questions without using the context (it gives the **best** results)
 - `?Blah blah blah` will simply trigger the bot to talk after your message
 - `?` will simply trigger the bot to talk
 - `!mute` Prevents the bot from receiving and sending messages (PMs still work)
@@ -20,26 +20,13 @@ IRC chatbot that uses an AI API to generate messages
 - `!lang <language>` will load the `translations/aiPersonality/${conf.botName}/<language>.json`
   file, useful to change the bot personality
   - Available personalities for Alice: `en-EN`, `en-NSFW`, `en-GURO` and `fr-FR`
+- [NSFW] `!r34` will send a link to a random picture from rule34.xxx
+- [NSFW] `!r34 alice_in_wonderland` is the default, but you can also search multiple tags separated by a space
 
 # Prerequisites
 
-The AI API is not part of this project, but it's basically a gpt-neo API endpoint that takes this as JSON parameters:
-
-```
-{
-    prompt,        // Prompt to process
-    generate_num,  // Number of tokens to generate
-    temp           // Temperature
-}
-```
-
-If you want to host it yourself, you'll have to download and install AI Dungeon Clover Edition **and the gtp-neo
-horni-ln model** (it's what works the best right now)  
-Then, all you have to do is copy/paste the `ai_rest_server.py` file into AID Clover in the same folder as `play.py` and execute it
-
-It will expose two REST endpoints:  
-POST `http://localhost:5000/prompt` to send a prompt and generate an answer  
-POST `http://localhost:5000/tokens` to get the tokens from a prompt
+Is project uses my [Horni API](https://gitlab.com/nolialsea/horni-api) to generate the AI results  
+You have to install and run it in order for simple prompt to work
 
 # Install
 

@@ -22,18 +22,18 @@ class AiService {
             const data = {
                 prompt,
                 nb_answer: 1,
-                generate_num: nbToken,
+                number_generated_tokens: nbToken,
                 temp: 0.6,
-                top_k: 90,
-                top_p: 0.6,
-                repetition_penalty: 2.5,
+                top_k: 60,
+                top_p: 0.9,
+                repetition_penalty: 1.5,
                 repetition_penalty_range: 512,
-                repetition_penalty_slope: 3.33
+                banned_strings: ["(", "[","{", "<", "«"]
             }
 
             axios.post(conf.apiUrl, data)
                 .then((result) => {
-                    const answer = result.data[0]
+                    const answer = result.data.results[0].content
                     if (answer) {
                         resolve(answer)
                     } else {

@@ -2,6 +2,7 @@ const ircClient = require('../ircClient')
 const botService = require('../botService')
 const conf = require('../../conf.json')
 const commandService = require("../commandService");
+const {getInterval} = require("../utils");
 
 class IrcConnector {
     static sendMessage(to, message) {
@@ -79,9 +80,9 @@ async function loop() {
     if (msg.message) {
         ircClient.say(msg.channel, msg.message)
     }
-    setTimeout(loop, 1000 * 60 * (Math.random() * (conf.maxBotMessageIntervalInMinutes - conf.minBotMessageIntervalInMinutes) + conf.minBotMessageIntervalInMinutes))
+    setTimeout(loop, getInterval())
 }
 
-setTimeout(loop, 1000 * 60 * (Math.random() * (conf.maxBotMessageIntervalInMinutes - conf.minBotMessageIntervalInMinutes) + conf.minBotMessageIntervalInMinutes))
+setTimeout(loop, getInterval())
 
 module.exports = IrcConnector

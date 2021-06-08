@@ -7,6 +7,7 @@ const aiService = require("./aiService");
 const promptService = require("./promptService");
 const messageService = require("./messageService");
 const lmiService = require("./lmiService");
+const {getMap,getTags} = require("./r34Service");
 
 class CommandService {
     static mutedChannels
@@ -228,6 +229,57 @@ class CommandService {
                 })
             } else {
                 resolve(true)
+            }
+        })
+    }
+
+    static r34(msg, from, channel){
+        return new Promise((resolve) => {
+            if (msg.content.startsWith("!r34")) {
+                let tags = msg.substr("!r34 ".length)
+                let pid
+                const tagSplit = tags.split(" ")
+                pid = parseInt(tagSplit[0])
+
+                if (!isNaN(pid)) {
+                    tagSplit.shift()
+                    tags = tagSplit.join(" ")
+                } else {
+                    pid = null
+                }
+
+                if (!tags) {
+                    tags = "alice_in_wonderland"
+                }
+
+                getTags(100, null, tags, (found_tags) => {
+                    if (found_tags.length > 0) {
+                        if (!pid) {
+                            pid = Math.floor(Math.random() * Math.floor(found_tags[0].posts / 100))
+                        }
+
+                        getMap(100, pid, tags ? tags : null, (posts) => {
+                            if (posts && posts.length > 0) {
+                                posts = posts
+                                    .filter((p) => !p.file_url.endsWith(".mp4"))
+                                    .filter((p) => p.score >= 50)
+
+                                if (posts.length === 0) {
+                                    resolve(true)
+                                } else {
+                                    const id = Math.floor(Math.random() * posts.length)
+                                    resolve({message: posts[id].file_url, channel})
+                                }
+                            } else {
+                                resolve(true)
+                            }
+                        })
+                    } else {
+                        resolve(true)
+                    }
+                }, null, null)
+            } else {
+                resolve(false)
             }
         })
     }
