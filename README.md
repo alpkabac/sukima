@@ -25,7 +25,7 @@ IRC chatbot that uses an AI API to generate messages
 
 # Prerequisites
 
-Is project uses my [Horni API](https://gitlab.com/nolialsea/horni-api) to generate the AI results  
+This project uses my [Horni API](https://gitlab.com/nolialsea/horni-api) to generate the AI results  
 You have to install and run it in order for simple prompt to work
 
 # Install
