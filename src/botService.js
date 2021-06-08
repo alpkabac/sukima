@@ -13,7 +13,6 @@ function prepareIncomingMessage(message, botName, nick) {
 
 class BotService {
     static async onChannelMessage(from, channel, message, botNick = conf.botName) {
-        // Prevents PM
         if (!isMessageFromChannel(channel, conf.channels)) {
             return
         }

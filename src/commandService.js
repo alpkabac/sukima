@@ -7,7 +7,7 @@ const aiService = require("./aiService");
 const promptService = require("./promptService");
 const messageService = require("./messageService");
 const lmiService = require("./lmiService");
-const {getMap,getTags} = require("./r34Service");
+const {getMap, getTags} = require("./r34Service");
 
 class CommandService {
     static mutedChannels
@@ -199,7 +199,7 @@ class CommandService {
         return new Promise((resolve) => {
             if (!this.isChannelMuted(channel)) {
                 const lastMessageFromChannel = historyService.getChannelHistory(channel) && historyService.getChannelHistory(channel).length > 0 ?
-                    historyService.getChannelHistory(channel)[historyService.getChannelHistory(channel).length-1]
+                    historyService.getChannelHistory(channel)[historyService.getChannelHistory(channel).length - 1]
                     : null
                 if (lastMessageFromChannel && lastMessageFromChannel.from !== conf.botName) {
                     const prompt = promptService.getPrompt(null, null, channel)
@@ -207,7 +207,7 @@ class CommandService {
                         historyService.pushIntoHistory(answer, conf.botName, channel)
                         resolve({message: answer, channel})
                     })
-                }else{
+                } else {
                     resolve(true)
                 }
             } else {
@@ -233,10 +233,16 @@ class CommandService {
         })
     }
 
-    static r34(msg, from, channel){
+    static r34(msg, from, channel) {
+        const command = "!r34"
         return new Promise((resolve) => {
-            if (msg.content.startsWith("!r34")) {
-                let tags = msg.substr("!r34 ".length)
+            if (msg.startsWith(command)) {
+                if (this.isChannelMuted(channel)) {
+                    resolve(true)
+                    return
+                }
+
+                let tags = msg.substr((command + " ").length)
                 let pid
                 const tagSplit = tags.split(" ")
                 pid = parseInt(tagSplit[0])

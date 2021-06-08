@@ -26,7 +26,7 @@ bot.on('message', async msg => {
     const message = await botService.onChannelMessage(
         msg.author.username,
         "#" + msg.channel.name,
-        msg.content,
+        msg.cleanContent,
         conf.botName)
     locked = false
     if (message && message.message) {
