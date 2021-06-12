@@ -26,10 +26,14 @@ class PromptService {
         // Preparing the prompt
         let filter = false
 
+        const channelContext = translationService.botTranslations.context
+        const botDescription = translationService.botTranslations.description
+
         const channelMemory = this.getChannelMemory(channel)
             .map(m => m.msg).join("\n")         // Insert channel `!remember`s
 
-        return (channelMemory ? channelMemory + `\n` : '') +
+        return channelContext + "\n" + botDescription + "\n"
+            + (channelMemory ? channelMemory + `\n` : '') +
             (this.getIntroduction(usesIntroduction)
                     .concat(
                         !usesHistory ?

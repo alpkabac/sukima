@@ -23,7 +23,12 @@ IRC chatbot that uses an AI API to generate messages
 - [NSFW] `!r34` will send a link to a random picture from rule34.xxx
 - [NSFW] `!r34 alice_in_wonderland` is the default, but you can also search multiple tags separated by a space
 
-# Prerequisites
+# Prerequisites for 6B parameters AI model
+
+You have to run [this colab](https://colab.research.google.com/gist/nolialsea/ba93c54a09b95e3306b69fd2480183e7/gpt-j-6b-inference-demo.ipynb#scrollTo=bsIUxnOdBAYu)  
+Then paste the generated API URL to the `conf.json` file `apiUrl` property
+
+# Prerequisites for 2.7B parameters AI model
 
 This project uses my [Horni API](https://gitlab.com/nolialsea/horni-api) to generate the AI results  
 You have to install and run it in order for simple prompt to work
@@ -50,4 +55,5 @@ const botMemory = require(`./translations/aiPersonality/${options.botName}/${opt
 
 # Launch
 
-`node ./index.js`
+`node ./index_discord.js` for discord version
+`node ./index_irc.js` for irc version

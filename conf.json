@@ -6,10 +6,15 @@
   "maxHistory": 30,
   "botName": "Alice",
   "ircServer": "irc.libera.chat",
-  "channels": ["#general", "#alice", "#alicebot"],
+  "channels": [
+    "#alicebot",
+    "#alice",
+    "#alicetest"
+  ],
+  "mutedChannels": {
+  },
   "lniPort": 3000,
-  "apiUrl": "http://localhost:5000/prompt",
-  "apiUrlToken": "http://localhost:5000/tokens",
-  "minBotMessageIntervalInMinutes": 6,
-  "maxBotMessageIntervalInMinutes": 12
+  "apiUrl": "https://localhost:5000",
+  "minBotMessageIntervalInMinutes": 4,
+  "maxBotMessageIntervalInMinutes": 8
 }

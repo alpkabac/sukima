@@ -5,15 +5,19 @@ const conf = require('../conf.json')
 const utils = require('./utils')
 const aiService = require("./aiService");
 const promptService = require("./promptService");
-const messageService = require("./messageService");
-const lmiService = require("./lmiService");
 const {getMap, getTags} = require("./r34Service");
 
 class CommandService {
     static mutedChannels
 
+    static loadMutedChannels() {
+        if (!this.mutedChannels || this.mutedChannels === {}) {
+            this.mutedChannels = conf.mutedChannels || {}
+        }
+    }
+
     static isChannelMuted(channel) {
-        if (!this.mutedChannels) this.mutedChannels = {}
+        this.loadMutedChannels()
         return this.mutedChannels[channel]
     }
 
@@ -21,7 +25,7 @@ class CommandService {
         const command = "!mute"
         if (msg.startsWith(command)) {
             // TODO: check if user 'from' is allowed to execute that command
-            if (!this.mutedChannels) this.mutedChannels = {}
+            this.loadMutedChannels()
             this.mutedChannels[channel] = true
             return true
         }
@@ -32,7 +36,7 @@ class CommandService {
         const command = "!unmute"
         if (msg.startsWith(command)) {
             // TODO: check if user 'from' is allowed to execute that command
-            if (!this.mutedChannels) this.mutedChannels = {}
+            this.loadMutedChannels()
             delete this.mutedChannels[channel]
             return true
         }
@@ -113,7 +117,7 @@ class CommandService {
                     aiService.sendUntilSuccess(prompt, conf.generate_num, undefined, (answer) => {
                         historyService.pushIntoHistory(answer, conf.botName, channel)
                         resolve({message: answer, channel})
-                    })
+                    }).then(() => {})
                 } else {
                     resolve(true)
                 }
@@ -143,7 +147,7 @@ class CommandService {
                         }
                         historyService.getChannelHistory(channel).reverse()
                         resolve({message: answer, channel})
-                    })
+                    }).then(() => {})
                 } else {
                     resolve(true)
                 }
@@ -166,7 +170,7 @@ class CommandService {
                     aiService.sendUntilSuccess(prompt, undefined, undefined, (answer) => {
                         historyService.pushIntoHistory(answer, conf.botName, channel)
                         resolve({message: answer, channel})
-                    })
+                    }).then(() => {})
                 } else {
                     resolve(true)
                 }
@@ -185,7 +189,7 @@ class CommandService {
                     aiService.sendUntilSuccess(prompt, undefined, undefined, (answer) => {
                         historyService.pushIntoHistory(answer, conf.botName, channel)
                         resolve({message: answer, channel})
-                    })
+                    }).then(() => {})
                 } else {
                     resolve(true)
                 }
@@ -206,7 +210,7 @@ class CommandService {
                     aiService.sendUntilSuccess(prompt, undefined, undefined, (answer) => {
                         historyService.pushIntoHistory(answer, conf.botName, channel)
                         resolve({message: answer, channel})
-                    })
+                    }).then(() => {})
                 } else {
                     resolve(true)
                 }
@@ -226,7 +230,7 @@ class CommandService {
                 aiService.sendUntilSuccess(prompt, undefined, undefined, (answer) => {
                     historyService.pushIntoHistory(answer, conf.botName, channel)
                     resolve({message: answer, channel})
-                })
+                }).then(() => {})
             } else {
                 resolve(true)
             }
@@ -290,6 +294,8 @@ class CommandService {
         })
     }
 }
+
+CommandService.loadMutedChannels()
 
 module
     .exports = CommandService

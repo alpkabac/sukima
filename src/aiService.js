@@ -31,7 +31,7 @@ class AiService {
                 banned_strings: ["(", "[","{", "<", "«"]
             }
 
-            axios.post(conf.apiUrl, data)
+            axios.post(conf.apiUrl+"/prompt", data)
                 .then((result) => {
                     const answer = result.data.results[0].content
                     if (answer) {
