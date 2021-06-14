@@ -1,3 +1,4 @@
+require('dotenv').config()
 const utils = require('./utils')
 const conf = require('../conf.json')
 const commandService = require('./commandService')
@@ -12,12 +13,12 @@ function prepareIncomingMessage(message, botName, nick) {
 }
 
 class BotService {
-    static async onChannelMessage(from, channel, message, botNick = conf.botName) {
+    static async onChannelMessage(from, channel, message, botNick = process.env.BOTNAME) {
         if (!isMessageFromChannel(channel, conf.channels)) {
             return
         }
 
-        const msg = prepareIncomingMessage(message, conf.botName, botNick)
+        const msg = prepareIncomingMessage(message, process.env.BOTNAME, botNick)
 
         return commandService.remember(msg, from, channel)
             || await commandService.r34(msg, from, channel)
@@ -37,7 +38,7 @@ class BotService {
     }
 
     static async onJoin(channel, nick) {
-        if (nick !== conf.botName) {
+        if (nick !== process.env.BOTNAME) {
             return await commandService.reactToAction(translationsService.translations.onJoin, nick, channel)
         }
         return false

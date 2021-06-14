@@ -1,17 +1,17 @@
-const conf = require("../conf.json")
+require('dotenv').config()
 
 class MessageService {
     static parse(msg) {
-        const answer = msg.startsWith(conf.botName + ": ") ?  // Remove starting bot name if present
-            msg.slice((conf.botName + ": ").length)
+        const answer = msg.startsWith(process.env.BOTNAME + ": ") ?  // Remove starting bot name if present
+            msg.slice((process.env.BOTNAME + ": ").length)
             : msg
 
         // Remove everything from the output that is not something that the bot says itself
         return answer.split('\n')[0]
             /*
-            .split(`${conf.botName} :`)
+            .split(`${process.env.BOTNAME} :`)
             .join("\n")
-            .split(`${conf.botName}:`)
+            .split(`${process.env.BOTNAME}:`)
             .join("\n")
             .split(/([ a-zA-Z0-9-_'`\[\]]+ :)/)[0]           // Remove text after first "nick: "
             .split(/([ a-zA-Z0-9-_'`\[\]]+:)/)[0]           // Remove text after first "nick:"

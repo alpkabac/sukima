@@ -1,3 +1,4 @@
+require('dotenv').config()
 const conf = require("../conf.json")
 const translationService = require("./translationService")
 const historyService = require("./historyService")
@@ -8,8 +9,8 @@ class PromptService {
         if (!usesIntroduction) return []
         return translationService.botTranslations.introduction.map((e) => {
             return {
-                from: e.from.replace("${botName}", conf.botName),
-                msg: e.msg.replace("${botName}", conf.botName)
+                from: e.from.replace("${botName}", process.env.BOTNAME),
+                msg: e.msg.replace("${botName}", process.env.BOTNAME)
             }
         })
     }
@@ -37,7 +38,7 @@ class PromptService {
             (this.getIntroduction(usesIntroduction)
                     .concat(
                         !usesHistory ?
-                            [{from: conf.botName, msg: translationService.botTranslations.noContextSentence}, {
+                            [{from: process.env.BOTNAME, msg: translationService.botTranslations.noContextSentence}, {
                                 from,
                                 msg
                             }]
@@ -48,7 +49,7 @@ class PromptService {
                     .reverse()  // If continuation, reverse and remove messages until the last message from the bot
                     .filter((msg) => {
                         if (!isContinuation) return true
-                        if (msg.from === conf.botName && !filter) {
+                        if (msg.from === process.env.BOTNAME && !filter) {
                             filter = true
                         }
                         return filter
@@ -57,7 +58,7 @@ class PromptService {
                     .map((msg) => `${msg.from}: ${msg.msg}`)        // Formatting the line
                     .join("\n")         // Concat the array into multiline string
             )
-            + (isContinuation ? "" : ("\n" + conf.botName + ":")) // Add the conf.botName so the AI knows it's its turn to speak
+            + (isContinuation ? "" : ("\n" + process.env.BOTNAME + ":")) // Add the process.env.BOTNAME so the AI knows it's its turn to speak
     }
 }
 

@@ -1,7 +1,8 @@
+require('dotenv').config()
 const irc = require('irc');
 const conf = require('../conf.json')
 
-const ircClient = new irc.Client(conf.ircServer, conf.botName, {
+const ircClient = new irc.Client(conf.ircServer, process.env.BOTNAME, {
     channels: conf.channels,
     username: process.env.USERNAME,
     realName: process.env.REALNAME,

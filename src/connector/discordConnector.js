@@ -32,7 +32,7 @@ bot.on('message', async msg => {
         msg.author.username,
         "#" + msg.channel.name,
         msg.cleanContent,
-        conf.botName)
+        process.env.BOTNAME)
     locked = false
     if (message && message.message && message.message.trim()) {
         await msg.channel.send(message.message)

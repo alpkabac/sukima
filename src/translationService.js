@@ -1,3 +1,4 @@
+require('dotenv').config()
 const conf = require('../conf.json')
 
 class TranslationsService {
@@ -18,7 +19,7 @@ class TranslationsService {
         return this._botTranslations
     }
 
-    static changeBotLanguage(code = conf.defaultBotTranslationFile, botName = conf.botName) {
+    static changeBotLanguage(code = conf.defaultBotTranslationFile, botName = process.env.BOTNAME) {
         try {
             this._botTranslations = require(`../translations/aiPersonality/${botName}/${code}.json`)
             return true
