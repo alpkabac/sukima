@@ -28,10 +28,10 @@ class AiService {
                 top_p: 0.9,
                 repetition_penalty: 1.3,
                 repetition_penalty_range: 128,
-                banned_strings: ["(", "[","{", "<", "«"]
+                banned_strings: ["[", "{", "«"]
             }
 
-            axios.post(conf.apiUrl+"/prompt", data)
+            axios.post(conf.apiUrl + "/prompt", data)
                 .then((result) => {
                     const answer = result.data.results[0].content
                     if (answer) {
