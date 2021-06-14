@@ -45,9 +45,9 @@ async function loop() {
     if (locked) return setTimeout(loop, getInterval())
 
     for (let channel in channels){
-        const msg = await commandService.talk("#" + channel?.name)
+        const msg = await commandService.talk("#" + channels[channel]?.name)
         if (msg.message && msg.message.trim()) {
-            channel.send(msg.message)
+            channels[channel].send(msg.message)
         }
     }
     setTimeout(loop, getInterval())
