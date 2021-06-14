@@ -26,8 +26,8 @@ class AiService {
                 temp: 0.6,
                 top_k: 60,
                 top_p: 0.9,
-                repetition_penalty: 1.5,
-                repetition_penalty_range: 512,
+                repetition_penalty: 1.3,
+                repetition_penalty_range: 128,
                 banned_strings: ["(", "[","{", "<", "«"]
             }
 

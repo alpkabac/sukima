@@ -14,7 +14,7 @@
   "mutedChannels": {
   },
   "lniPort": 3000,
-  "apiUrl": "https://07cf90e8f134.ngrok.io",
+  "apiUrl": "http://localhost:5000",
   "minBotMessageIntervalInMinutes": 4,
   "maxBotMessageIntervalInMinutes": 8
 }
