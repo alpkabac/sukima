@@ -8,7 +8,7 @@ const {getInterval} = require("../utils");
 
 const TOKEN = process.env.TOKEN;
 bot.login(TOKEN);
-let channel
+const channels = []
 let locked = false
 
 bot.on('ready', () => {
@@ -20,13 +20,15 @@ bot.on('message', async msg => {
     if (msg.content === ";ai me") return                        // Prevents commands from other bots
 
     // Set API URL dynamically
-    if (msg.cleanContent.startsWith("!apiurl ")){
+    if (msg.cleanContent.startsWith("!apiurl ")) {
         conf.apiUrl = msg.cleanContent.replace("!apiurl ", "")
         await msg.channel.send("API URL correctly changed")
         return
     }
 
-    channel = msg.channel
+    if (!channels["#" + msg.channel.name])
+        channels["#" + msg.channel.name] = msg.channel
+
     locked = true
     const message = await botService.onChannelMessage(
         msg.author.username,
@@ -41,15 +43,16 @@ bot.on('message', async msg => {
 
 async function loop() {
     if (locked) return setTimeout(loop, getInterval())
-    const msg = await commandService.talk("#" + channel?.name)
-    if (msg.message && msg.message.trim()) {
-        channel.send(msg.message)
+
+    for (let channel in channels){
+        const msg = await commandService.talk("#" + channel?.name)
+        if (msg.message && msg.message.trim()) {
+            channel.send(msg.message)
+        }
     }
     setTimeout(loop, getInterval())
 }
 
 setTimeout(loop, getInterval())
 
-module.exports = {
-
-}
+module.exports = {}
