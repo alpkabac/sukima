@@ -169,10 +169,7 @@ class CommandService {
                         historyService.getChannelHistory(channel).reverse()
                         for (let h of historyService.getChannelHistory(channel)) {
                             if (h.from === process.env.BOTNAME) {
-                                if (h.msg.substr(h.msg.length - 1).match(/[,.;?!:]/)) {
-                                    h.msg += " "
-                                }
-                                h.msg += answer
+                                h.msg = answer
                                 break
                             }
                         }
