@@ -55,6 +55,7 @@ bot.on('message', async msg => {
     if (message && message.message && message.message.trim().length > 0) {
         if (msg.cleanContent.startsWith("²") && msg.cleanContent.length === 1) {
             channels["#" + msg.channel.name].lastBotMessage.edit(message.message)
+            msg.delete()
         } else {
             await msg.inlineReply(message.message)
         }
