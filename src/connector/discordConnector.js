@@ -14,9 +14,9 @@ let locked = false
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
 
-    for (let {snowflake, channel} of bot.channels.cache){
+    bot.channels.cache.mapValues((channel)=>{
         channel.send(`I'm back! Here is the link to my LMI: ${process.env.LMI}`)
-    }
+    })
 });
 
 bot.on('message', async msg => {
