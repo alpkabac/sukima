@@ -60,7 +60,7 @@ bot.on('message', async msg => {
             channels["#" + msg.channel.name].lastBotMessage.edit(channels["#" + msg.channel.name].lastBotMessage.cleanContent + message.message)
             msg.delete()
         } else if (msg.cleanContent.startsWith("?") && msg.cleanContent.length === 1) {
-            await msg.inlineReply(message.message)
+            await msg.channel.send(message.message)
             msg.delete()
         } else {
             await msg.inlineReply(message.message)
