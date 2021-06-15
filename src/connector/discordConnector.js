@@ -14,9 +14,10 @@ let locked = false
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
 
-    bot.channels.cache.mapValues((channel)=>{
-        channel.send(`I'm back! Here is the link to my LMI: ${process.env.LMI}`)
-    })
+    bot.channels.fetch("852192504862605312")
+        .then(channel => {
+            channel.send(`I'm back! Here is the link to my LMI: ${process.env.LMI}`)
+        })
 });
 
 bot.on('message', async msg => {
@@ -48,7 +49,7 @@ bot.on('message', async msg => {
 async function loop() {
     if (locked) return setTimeout(loop, getInterval())
 
-    for (let channel in channels){
+    for (let channel in channels) {
         const msg = await commandService.talk("#" + channels[channel]?.name)
         if (msg.message && msg.message.trim()) {
             channels[channel].send(msg.message)
