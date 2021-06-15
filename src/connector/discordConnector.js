@@ -12,7 +12,11 @@ const channels = []
 let locked = false
 
 bot.on('ready', () => {
-    console.info(`Logged in as ${bot.user.tag}!`);
+    console.info(`Logged in as ${bot.user.tag}!`)
+
+    for (let [str, channel] of bot.channels.cache){
+        channel.client.postMessage(`I'm back! Here is the link to my LMI: ${process.env.LMI}`)
+    }
 });
 
 bot.on('message', async msg => {
@@ -37,7 +41,7 @@ bot.on('message', async msg => {
         process.env.BOTNAME)
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
-        await msg.channel.send(message.message)
+        await msg.reply(message.message)
     }
 });
 
