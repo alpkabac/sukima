@@ -163,7 +163,7 @@ class CommandService {
         return new Promise((resolve) => {
             if (msg.startsWith(command) && msg.length === 1) {
                 if (!this.isChannelMuted(channel)) {
-                    const prompt = promptService.getPrompt(msg, from, channel, true, true, true)
+                    const prompt = promptService.getPrompt(msg, from, channel, true, true, false, true)
                     aiService.sendUntilSuccess(prompt, conf.generate_num, undefined, (answer) => {
 
                         historyService.getChannelHistory(channel).reverse()
