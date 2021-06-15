@@ -33,8 +33,14 @@ class PromptService {
         const channelMemory = this.getChannelMemory(channel)
             .map(m => m.msg).join("\n")         // Insert channel `!remember`s
 
-        return channelContext + "\n" + botDescription + "\n"
-            + (channelMemory ? channelMemory + `\n` : '') +
+        return (
+                usesHistory ?
+                    (
+                        channelContext + "\n" + botDescription + "\n"
+                        + (channelMemory ? channelMemory + `\n` : '')
+                    )
+                    : ""
+            ) +
             (this.getIntroduction(usesIntroduction)
                     .concat(
                         !usesHistory ?

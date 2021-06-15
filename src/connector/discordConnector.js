@@ -36,7 +36,7 @@ bot.on('message', async msg => {
         msg.cleanContent,
         process.env.BOTNAME)
     locked = false
-    if (message && message.message && message.message.trim()) {
+    if (message && message.message && message.message.trim().length > 0) {
         await msg.channel.send(message.message)
     }
 });
