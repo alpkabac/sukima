@@ -22,6 +22,7 @@ class BotService {
 
         return commandService.remember(msg, from, channel)
             || await commandService.r34(msg, from, channel)
+            || await commandService.retryMessage(msg, from, channel)
             || commandService.forgetRemember(msg, from, channel)
             || await commandService.changeLanguage(msg, from, channel)
             || commandService.forgetAllRemember(msg, from, channel)

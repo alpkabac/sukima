@@ -23,7 +23,7 @@ class PromptService {
             })
     }
 
-    static getPrompt(msg, from, channel, usesIntroduction = true, usesHistory = true, isContinuation = false) {
+    static getPrompt(msg, from, channel, usesIntroduction = true, usesHistory = true, isContinuation = false, isRetry = false) {
         // Preparing the prompt
         let filter = false
 
@@ -54,11 +54,19 @@ class PromptService {
                     )
                     .reverse()  // If continuation, reverse and remove messages until the last message from the bot
                     .filter((msg) => {
-                        if (!isContinuation) return true
-                        if (msg.from === process.env.BOTNAME && !filter) {
-                            filter = true
+                        if (!isContinuation && !isRetry) return true
+                        if (isContinuation) {
+                            if (msg.from === process.env.BOTNAME && !filter) {
+                                filter = true
+                            }
+                            return filter
+                        }else if (isRetry){
+                            if (msg.from === process.env.BOTNAME && !filter) {
+                                filter = true
+                                return false
+                            }
+                            return filter
                         }
-                        return filter
                     })
                     .reverse()  // Unreverse
                     .map((msg) => `${msg.from}: ${msg.msg}`)        // Formatting the line

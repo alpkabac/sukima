@@ -158,6 +158,36 @@ class CommandService {
         })
     }
 
+    static retryMessage(msg, from, channel) {
+        const command = "²"
+        return new Promise((resolve) => {
+            if (msg.startsWith(command) && msg.length === 1) {
+                if (!this.isChannelMuted(channel)) {
+                    const prompt = promptService.getPrompt(msg, from, channel, true, true, true)
+                    aiService.sendUntilSuccess(prompt, conf.generate_num, undefined, (answer) => {
+
+                        historyService.getChannelHistory(channel).reverse()
+                        for (let h of historyService.getChannelHistory(channel)) {
+                            if (h.from === process.env.BOTNAME) {
+                                if (h.msg.substr(h.msg.length - 1).match(/[,.;?!:]/)) {
+                                    h.msg += " "
+                                }
+                                h.msg += answer
+                                break
+                            }
+                        }
+                        historyService.getChannelHistory(channel).reverse()
+                        resolve({message: answer, channel})
+                    }).then(() => {})
+                } else {
+                    resolve(true)
+                }
+            } else {
+                resolve(false)
+            }
+        })
+    }
+
     static answerMessage(msg, from, channel) {
         const command = "?"
         return new Promise((resolve) => {

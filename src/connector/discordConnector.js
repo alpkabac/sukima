@@ -1,6 +1,12 @@
 require('dotenv').config()
 const {Client} = require("discord.js");
-const bot = new Client();
+require("../discord/ExtAPIMessage");
+const bot = new Client({
+    allowedMentions: {
+        // set repliedUser value to `false` to turn off the mention by default
+        repliedUser: false
+    }
+});
 const botService = require('../botService')
 const conf = require('../../conf.json')
 const commandService = require("../commandService");
@@ -21,7 +27,15 @@ bot.on('ready', () => {
 });
 
 bot.on('message', async msg => {
-    if (msg.author.username === bot.user.username) return       // Prevents messages from the bot itself
+    if (!channels["#" + msg.channel.name])
+        channels["#" + msg.channel.name] = msg.channel
+
+    // Prevents messages from the bot itself
+    // Also cache the last bot message for later retries
+    if (msg.author.username === bot.user.username) {
+        channels["#" + msg.channel.name].lastBotMessage = msg
+        return
+    }
     if (msg.content === ";ai me") return                        // Prevents commands from other bots
 
     // Set API URL dynamically
@@ -31,9 +45,6 @@ bot.on('message', async msg => {
         return
     }
 
-    if (!channels["#" + msg.channel.name])
-        channels["#" + msg.channel.name] = msg.channel
-
     locked = true
     const message = await botService.onChannelMessage(
         msg.author.username,
@@ -42,7 +53,11 @@ bot.on('message', async msg => {
         process.env.BOTNAME)
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
-        await msg.reply(message.message)
+        if (msg.cleanContent.startsWith("²") && msg.cleanContent.length === 1) {
+            channels["#" + msg.channel.name].lastBotMessage.edit(message.message)
+        } else {
+            await msg.inlineReply(message.message)
+        }
     }
 });
 
