@@ -42,11 +42,15 @@ bot.on('message', async msg => {
     const cleanContent = originalMsg.cleanContent
 
     if (cleanContent.startsWith("²") && cleanContent.length === 1) {
-        msg = await originalMsg.react("🔄")
+        await originalMsg.react("🔄")
     } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-        msg = await originalMsg.react("▶")
+        await originalMsg.react("▶")
     } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-        msg = await originalMsg.react("⏩")
+        await originalMsg.react("⏩")
+    } else if (cleanContent.startsWith("!")) {
+        await originalMsg.react("❗")
+    } else if (cleanContent.startsWith("?")) {
+        await originalMsg.react("❓")
     }
 
     locked = true
