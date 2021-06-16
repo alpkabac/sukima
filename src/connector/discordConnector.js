@@ -38,28 +38,31 @@ bot.on('message', async msg => {
     }
     if (msg.content === ";ai me") return                        // Prevents commands from other bots
 
-    // Set API URL dynamically
-    if (msg.cleanContent.startsWith("!apiurl ")) {
-        conf.apiUrl = msg.cleanContent.replace("!apiurl ", "")
-        await msg.channel.send("API URL correctly changed")
-        return
+    const cleanContent = msg.cleanContent
+
+    if (cleanContent.startsWith("²") && cleanContent.length === 1) {
+        msg = await msg.edit("`²` command found, retrying...")
+    } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
+        msg = await msg.edit("`,` command found, continuing...")
+    } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
+        msg = await msg.edit("`?` command found, replying...")
     }
 
     locked = true
     const message = await botService.onChannelMessage(
         msg.author.username,
         "#" + msg.channel.name,
-        msg.cleanContent,
+        cleanContent,
         process.env.BOTNAME)
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
-        if (msg.cleanContent.startsWith("²") && msg.cleanContent.length === 1) {
+        if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels["#" + msg.channel.name].lastBotMessage.edit(message.message)
             msg.delete()
-        } else if (msg.cleanContent.startsWith(",") && msg.cleanContent.length === 1) {
+        } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
             channels["#" + msg.channel.name].lastBotMessage.edit(channels["#" + msg.channel.name].lastBotMessage.cleanContent + message.message)
             msg.delete()
-        } else if (msg.cleanContent.startsWith("?") && msg.cleanContent.length === 1) {
+        } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await msg.channel.send(message.message)
             msg.delete()
         } else {
