@@ -42,11 +42,11 @@ bot.on('message', async msg => {
     const cleanContent = originalMsg.cleanContent
 
     if (cleanContent.startsWith("²") && cleanContent.length === 1) {
-        msg = await originalMsg.react(":arrows_counterclockwise:")
+        msg = await originalMsg.react("🔄")
     } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-        msg = await originalMsg.react(":arrow_forward:")
+        msg = await originalMsg.react("▶")
     } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-        msg = await originalMsg.react(":fast_forward:")
+        msg = await originalMsg.react("⏩")
     }
 
     locked = true
