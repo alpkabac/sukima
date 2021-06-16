@@ -27,46 +27,47 @@ bot.on('ready', () => {
 });
 
 bot.on('message', async msg => {
-    if (!channels["#" + msg.channel.name])
-        channels["#" + msg.channel.name] = msg.channel
+    const originalMsg = msg
+    if (!channels["#" + originalMsg.channel.name])
+        channels["#" + originalMsg.channel.name] = originalMsg.channel
 
     // Prevents messages from the bot itself
     // Also cache the last bot message for later retries
-    if (msg.author.username === bot.user.username) {
-        channels["#" + msg.channel.name].lastBotMessage = msg
+    if (originalMsg.author.username === bot.user.username) {
+        channels["#" + originalMsg.channel.name].lastBotMessage = originalMsg
         return
     }
-    if (msg.content === ";ai me") return                        // Prevents commands from other bots
+    if (originalMsg.content === ";ai me") return                        // Prevents commands from other bots
 
-    const cleanContent = msg.cleanContent
+    const cleanContent = originalMsg.cleanContent
 
     if (cleanContent.startsWith("²") && cleanContent.length === 1) {
-        msg = await msg.edit("`²` command found, retrying...")
+        msg = await originalMsg.edit("`²` command found, retrying...")
     } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-        msg = await msg.edit("`,` command found, continuing...")
+        msg = await originalMsg.edit("`,` command found, continuing...")
     } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-        msg = await msg.edit("`?` command found, replying...")
+        msg = await originalMsg.edit("`?` command found, replying...")
     }
 
     locked = true
     const message = await botService.onChannelMessage(
-        msg.author.username,
-        "#" + msg.channel.name,
+        originalMsg.author.username,
+        "#" + originalMsg.channel.name,
         cleanContent,
         process.env.BOTNAME)
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
-            channels["#" + msg.channel.name].lastBotMessage.edit(message.message)
+            channels["#" + originalMsg.channel.name].lastBotMessage.edit(message.message)
             msg.delete()
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-            channels["#" + msg.channel.name].lastBotMessage.edit(channels["#" + msg.channel.name].lastBotMessage.cleanContent + message.message)
+            channels["#" + originalMsg.channel.name].lastBotMessage.edit(channels["#" + originalMsg.channel.name].lastBotMessage.cleanContent + message.message)
             msg.delete()
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-            await msg.channel.send(message.message)
+            await originalMsg.channel.send(message.message)
             msg.delete()
         } else {
-            await msg.inlineReply(message.message)
+            await originalMsg.inlineReply(message.message)
         }
     }
 });
