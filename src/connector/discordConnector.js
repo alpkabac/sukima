@@ -51,6 +51,8 @@ bot.on('message', async msg => {
         await originalMsg.react("❗")
     } else if (cleanContent.startsWith("?")) {
         await originalMsg.react("❓")
+    } else if (cleanContent.includes(process.env.BOTNAME)) {
+        await originalMsg.react("🙋‍♀")
     }
 
     locked = true
