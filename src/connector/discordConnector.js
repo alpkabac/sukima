@@ -45,31 +45,21 @@ bot.on('message', async msg => {
         return
     }
 
-    const msgContent = msg.cleanContent
-
-    if (msgContent.startsWith("²") && msgContent.length === 1) {
-        await msg.edit("`²` command found, retrying...")
-    } else if (msgContent.startsWith(",") && msgContent.length === 1) {
-        await msg.edit("`,` command found, continuing...")
-    } else if (msgContent.startsWith("?") && msgContent.length === 1) {
-        await msg.edit("`?` command found, replying...")
-    }
-
     locked = true
     const message = await botService.onChannelMessage(
         msg.author.username,
         "#" + msg.channel.name,
-        msgContent,
+        msg.cleanContent,
         process.env.BOTNAME)
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
-        if (msgContent.startsWith("²") && msgContent.length === 1) {
+        if (msg.cleanContent.startsWith("²") && msg.cleanContent.length === 1) {
             channels["#" + msg.channel.name].lastBotMessage.edit(message.message)
             msg.delete()
-        } else if (msgContent.startsWith(",") && msgContent.length === 1) {
+        } else if (msg.cleanContent.startsWith(",") && msg.cleanContent.length === 1) {
             channels["#" + msg.channel.name].lastBotMessage.edit(channels["#" + msg.channel.name].lastBotMessage.cleanContent + message.message)
             msg.delete()
-        } else if (msgContent.startsWith("?") && msgContent.length === 1) {
+        } else if (msg.cleanContent.startsWith("?") && msg.cleanContent.length === 1) {
             await msg.channel.send(message.message)
             msg.delete()
         } else {
