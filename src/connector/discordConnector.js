@@ -59,13 +59,13 @@ bot.on('message', async msg => {
     if (message && message.message && message.message.trim().length > 0) {
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels["#" + originalMsg.channel.name].lastBotMessage.edit(message.message)
-            msg.delete()
+            originalMsg.delete()
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
             channels["#" + originalMsg.channel.name].lastBotMessage.edit(channels["#" + originalMsg.channel.name].lastBotMessage.cleanContent + message.message)
-            msg.delete()
+            originalMsg.delete()
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(message.message)
-            msg.delete()
+            originalMsg.delete()
         } else {
             await originalMsg.inlineReply(message.message)
         }
