@@ -42,11 +42,11 @@ bot.on('message', async msg => {
     const cleanContent = originalMsg.cleanContent
 
     if (cleanContent.startsWith("²") && cleanContent.length === 1) {
-        msg = await originalMsg.edit("`²` command found, retrying...")
+        msg = await originalMsg.react(":arrows_counterclockwise:")
     } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-        msg = await originalMsg.edit("`,` command found, continuing...")
+        msg = await originalMsg.react(":arrow_forward:")
     } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-        msg = await originalMsg.edit("`?` command found, replying...")
+        msg = await originalMsg.react(":fast_forward:")
     }
 
     locked = true
