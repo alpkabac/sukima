@@ -8,6 +8,12 @@ class MessageService {
 
         // Remove everything from the output that is not something that the bot says itself
         return answer.split('\n')[0]
+            .replace(/;+/, ";")
+            .replace(/3+/, "3")
+            .replace(/\?+/, "?")
+            .replace(/!+/, "!")
+            .replace(/\.{3,}}/, "...")
+
             /*
             .split(`${process.env.BOTNAME} :`)
             .join("\n")
