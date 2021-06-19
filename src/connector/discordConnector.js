@@ -28,8 +28,8 @@ bot.on('ready', () => {
 
 bot.on('message', async msg => {
     const channelName = msg.channel.type === "dm" ?
-        "#" + msg.channel.name
-        : "##" + msg.channel.id
+        "##" + msg.channel.id
+        :"#" + msg.channel.name
 
     const originalMsg = msg
     if (!channels[channelName])
