@@ -22,8 +22,7 @@ bot.on('ready', () => {
 
     bot.channels.fetch("852192504862605312")
         .then(channel => {
-            channel.send(`Bot started. Current LMI: ${process.env.LMI}`)
-            channel.send(`I'm back! Here is the link to my LMI: ${translationService.botTranslations.getIntroduction()[0].msg}`)
+            channel.send(`Bot started. Current LMI: ${process.env.LMI}\n${translationService.botTranslations.getIntroduction()[0].msg}`)
         })
 });
 
