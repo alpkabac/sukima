@@ -27,14 +27,18 @@ bot.on('ready', () => {
 });
 
 bot.on('message', async msg => {
+    const channelName = msg.channel.type === "dm" ?
+        "#" + msg.channel.name
+        : "##" + msg.channel.id
+
     const originalMsg = msg
-    if (!channels["#" + originalMsg.channel.name])
-        channels["#" + originalMsg.channel.name] = originalMsg.channel
+    if (!channels[channelName])
+        channels[channelName] = originalMsg.channel
 
     // Prevents messages from the bot itself
     // Also cache the last bot message for later retries
     if (originalMsg.author.username === bot.user.username) {
-        channels["#" + originalMsg.channel.name].lastBotMessage = originalMsg
+        channels[channelName].lastBotMessage = originalMsg
         return
     }
     if (originalMsg.content === ";ai me") return                        // Prevents commands from other bots
@@ -49,21 +53,19 @@ bot.on('message', async msg => {
         await originalMsg.react("⏩")
     }
 
-    console.log(originalMsg)
-
     locked = true
     const message = await botService.onChannelMessage(
         originalMsg.author.username,
-        "#" + originalMsg.channel.name,
+        channelName,
         cleanContent,
         process.env.BOTNAME)
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
-            channels["#" + originalMsg.channel.name].lastBotMessage.edit(message.message)
+            channels[channelName].lastBotMessage.edit(message.message)
             originalMsg.delete()
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-            channels["#" + originalMsg.channel.name].lastBotMessage.edit(channels["#" + originalMsg.channel.name].lastBotMessage.cleanContent + message.message)
+            channels[channelName].lastBotMessage.edit(channels[channelName].lastBotMessage.cleanContent + message.message)
             originalMsg.delete()
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(message.message)
@@ -78,7 +80,7 @@ async function loop() {
     if (locked) return setTimeout(loop, getInterval())
 
     for (let channel in channels) {
-        const msg = await commandService.talk("#" + channels[channel]?.name)
+        const msg = await commandService.talk(channels[channel]?.name)
         if (msg.message && msg.message.trim()) {
             channels[channel].send(msg.message)
         }
