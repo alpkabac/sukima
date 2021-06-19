@@ -96,7 +96,7 @@ class CommandService {
                     message += (message ? "\n" : "") + `Couldn't load bot personality for ${process.env.BOTNAME}/${language}.json`
                 }
                 if (message) {
-                    message = `${message}\n${translationsService.botTranslations.getIntroduction()[0].msg}`
+                    message = `${message}\n${translationsService.botTranslations.introduction[0].msg}`
                     resolve({message, channel})
                 } else {
                     resolve(true)
