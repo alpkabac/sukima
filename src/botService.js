@@ -5,6 +5,7 @@ const commandService = require('./commandService')
 const translationsService = require('./translationService')
 
 function isMessageFromChannel(to, channels) {
+    if (to.startsWith("##")) return true
     return channels.some((channel) => utils.caseInsensitiveStringEquals(to, channel))
 }
 

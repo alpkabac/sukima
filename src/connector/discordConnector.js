@@ -53,7 +53,6 @@ bot.on('message', async msg => {
         await originalMsg.react("⏩")
     }
 
-    console.log(msg)
 
     locked = true
     const message = await botService.onChannelMessage(

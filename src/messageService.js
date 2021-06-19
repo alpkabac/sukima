@@ -8,7 +8,7 @@ class MessageService {
 
         // Remove everything from the output that is not something that the bot says itself
         return answer.split('\n')[0]
-            .replace(/([;3?!])\1+/g, ";")
+            .replace(/([;3?!])\1+/g, "$1")
             .replace(/(.)\1{3,}/g, "...")
 
             /*
