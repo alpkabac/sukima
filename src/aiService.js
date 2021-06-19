@@ -5,7 +5,7 @@ const lmiService = require("./lmiService");
 
 class AiService {
 
-    static async sendUntilSuccess(prompt, nbToken = conf.generate_num, temp = 0.65, callback = (answer) => null) {
+    static async sendUntilSuccess(prompt, nbToken = conf.generate_num, temp = 0.65, preventLMI = false, callback = (answer) => null) {
         let answer
         let parsedAnswer
         let nbTry = 0
@@ -13,7 +13,9 @@ class AiService {
             answer = await this.sendPrompt(prompt, nbToken)
             parsedAnswer = messageService.parse(answer)
         }
-        lmiService.updateLmi(prompt, answer, parsedAnswer)
+        if (!preventLMI) {
+            lmiService.updateLmi(prompt, answer, parsedAnswer)
+        }
         callback(parsedAnswer)
     }
 
