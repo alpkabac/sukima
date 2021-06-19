@@ -25,7 +25,7 @@ class AiService {
                 prompt,
                 nb_answer: 1,
                 number_generated_tokens: nbToken,
-                temp: 0.7,
+                temp: 0.5,
                 top_k: 60,
                 top_p: 0.9,
                 repetition_penalty: 1.3,
