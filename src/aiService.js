@@ -25,11 +25,11 @@ class AiService {
                 prompt,
                 nb_answer: 1,
                 number_generated_tokens: nbToken,
-                temp: 0.5,
+                temp: 0.65,
                 top_k: 60,
                 top_p: 0.9,
-                repetition_penalty: 1.3,
-                repetition_penalty_range: 256,
+                repetition_penalty: 1.6,
+                repetition_penalty_range: 512,
                 banned_strings: ["[", "{", "«"]
             }
 
