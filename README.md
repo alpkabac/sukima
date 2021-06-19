@@ -14,9 +14,10 @@ IRC chatbot that uses an AI API to generate messages
   - You can use the `!` prefix to ask questions without using the context (it gives the **best** results)
 - `?Blah blah blah` will simply trigger the bot to talk after your message
 - `?` will simply trigger the bot to talk
+- `,` is a special command **only to be used when the bot sends an incomplete message**
+- `²` will make Alice rewrite entirely her last message
 - `!mute` Prevents the bot from receiving and sending messages (PMs still work)
 - `!unmute`
-- `,` is a special command **only to be used when the bot sends an incomplete message**
 - `!lang <language>` will load the `translations/aiPersonality/${process.env.BOTNAME}/<language>.json`
   file, useful to change the bot personality
   - Available personalities for Alice: `en-EN`, `en-NSFW`, `en-GURO` and `fr-FR`

@@ -49,6 +49,8 @@ bot.on('message', async msg => {
         await originalMsg.react("⏩")
     }
 
+    console.log(originalMsg)
+
     locked = true
     const message = await botService.onChannelMessage(
         originalMsg.author.username,
