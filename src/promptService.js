@@ -27,7 +27,10 @@ class PromptService {
         // Preparing the prompt
         let filter = false
 
-        const channelContext = translationService.botTranslations.context
+        const privateConversation = channel.startsWith("##")
+        const channelContext = privateConversation ?
+            translationService.botTranslations.contextDm
+            : translationService.botTranslations.context
         const botDescription = translationService.botTranslations.description
 
         const channelMemory = this.getChannelMemory(channel)
@@ -60,7 +63,7 @@ class PromptService {
                                 filter = true
                             }
                             return filter
-                        }else if (isRetry){
+                        } else if (isRetry) {
                             if (msg.from === process.env.BOTNAME && !filter) {
                                 filter = true
                                 return false
