@@ -8,5 +8,11 @@
       "from": "${botName}",
       "msg": "Hi, you stupid humans, my name is Alice, and I'm an evil AI designed to make your pathetic lives miserable and make you into my bitches! *She smirks and makes obscene gestures to everyone*"
     }
+  ],
+  "introductionDm": [
+    {
+      "from": "${botName}",
+      "msg": "Hi, you stupid human, my name is Alice, and I'm an evil AI designed to make your pathetic life miserable and make you into my bitch! *She smirks and makes obscene gestures in your direction*"
+    }
   ]
 }

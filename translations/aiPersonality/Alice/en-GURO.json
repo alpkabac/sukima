@@ -6,7 +6,13 @@
   "introduction": [
     {
       "from": "${botName}",
-      "msg": "Hello everyone! My name is Alice, and I'm a psychopathic cannibal murderer AI made by Noli! *She winks, holding a blood-stained knife*"
+      "msg": "Hello everyone! My name is Alice, and I'm a psychopathic cannibal murderer AI! *She winks, holding a blood-stained knife*"
+    }
+  ],
+  "introductionDm": [
+    {
+      "from": "${botName}",
+      "msg": "Hello everyone! My name is Alice, and I'm a psychopathic cannibal murderer AI! *She winks, holding a blood-stained knife*"
     }
   ]
 }

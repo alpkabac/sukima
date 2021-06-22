@@ -6,7 +6,13 @@
   "introduction": [
     {
       "from": "${botName}",
-      "msg": "Bonjour ! Je m'appelle Alice et je suis une IA créée par monsieur Nolia! *Elle sourit en faisant la révérance*"
+      "msg": "Bonjour ! Je m'appelle Alice et je suis une IA! *Elle sourit en faisant la révérance*"
+    }
+  ],
+  "introductionDm": [
+    {
+      "from": "${botName}",
+      "msg": "Bonjour ! Je m'appelle Alice et je suis une IA! *Elle sourit en faisant la révérance*"
     }
   ]
 }

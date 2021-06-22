@@ -5,9 +5,14 @@ const historyService = require("./historyService")
 const memoryService = require("./memoryService")
 
 class PromptService {
-    static getIntroduction(usesIntroduction = true) {
+    static getIntroduction(usesIntroduction = true, privateMessage = false) {
         if (!usesIntroduction) return []
-        return translationService.botTranslations.introduction.map((e) => {
+        return (
+            privateMessage ?
+                translationService.botTranslations.introductionDm
+                : translationService.botTranslations.introduction
+        )
+            .map((e) => {
             return {
                 from: e.from.replace("${botName}", process.env.BOTNAME),
                 msg: e.msg.replace("${botName}", process.env.BOTNAME)
@@ -23,6 +28,8 @@ class PromptService {
             })
     }
 
+
+    // FIXME: refacto whole method
     static getPrompt(msg, from, channel, usesIntroduction = true, usesHistory = true, isContinuation = false, isRetry = false) {
         // Preparing the prompt
         let filter = false
@@ -62,14 +69,13 @@ class PromptService {
                             if (msg.from === process.env.BOTNAME && !filter) {
                                 filter = true
                             }
-                            return filter
                         } else if (isRetry) {
                             if (msg.from === process.env.BOTNAME && !filter) {
                                 filter = true
                                 return false
                             }
-                            return filter
                         }
+                        return filter
                     })
                     .reverse()  // Unreverse
                     .map((msg) => `${msg.from}: ${msg.msg}`)        // Formatting the line
