@@ -1,16 +1,17 @@
 require('dotenv').config()
 const conf = require("../conf.json")
 const translationService = require("./translationService")
+const channelBotTranslationService = require("./channelBotTranslationService")
 const historyService = require("./historyService")
 const memoryService = require("./memoryService")
 
 class PromptService {
-    static getIntroduction(usesIntroduction = true, privateMessage = false) {
+    static getIntroduction(botTranslations, usesIntroduction = true, privateMessage = false) {
         if (!usesIntroduction) return []
         return (
             privateMessage ?
-                translationService.botTranslations.introductionDm
-                : translationService.botTranslations.introduction
+                botTranslations.introductionDm
+                : botTranslations.introduction
         )
             .map((e) => {
             return {
@@ -35,10 +36,11 @@ class PromptService {
         let filter = false
 
         const privateConversation = channel.startsWith("##")
+        const botTranslations = channelBotTranslationService.getChannelBotTranslations(channel)
         const channelContext = privateConversation ?
-            translationService.botTranslations.contextDm
-            : translationService.botTranslations.context
-        const botDescription = translationService.botTranslations.description
+            botTranslations.contextDm
+            : botTranslations.context
+        const botDescription = botTranslations.description
 
         const channelMemory = this.getChannelMemory(channel)
             .map(m => m.msg).join("\n")         // Insert channel `!remember`s
@@ -51,10 +53,10 @@ class PromptService {
                     )
                     : ""
             ) +
-            (this.getIntroduction(usesIntroduction)
+            (this.getIntroduction(botTranslations, usesIntroduction)
                     .concat(
                         !usesHistory ?
-                            [{from: process.env.BOTNAME, msg: translationService.botTranslations.noContextSentence}, {
+                            [{from: process.env.BOTNAME, msg: botTranslations.noContextSentence}, {
                                 from,
                                 msg
                             }]

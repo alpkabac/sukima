@@ -1,6 +1,5 @@
 class MemoryService {
     static channelMemories = {}
-    static userMemories = {}
 
     static getChannelMemory(channel) {
         return !this.channelMemories[channel] ? [] : this.channelMemories[channel]

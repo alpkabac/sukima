@@ -9,6 +9,7 @@ const bot = new Client({
 });
 const botService = require('../botService')
 const translationService = require('../translationService')
+const channelBotTranslationService = require('../channelBotTranslationService')
 const commandService = require("../commandService");
 const {getInterval} = require("../utils");
 
@@ -22,7 +23,7 @@ bot.on('ready', () => {
 
     bot.channels.fetch("852192504862605312")
         .then(channel => {
-            channel.send(`Bot started. Current LMI: ${process.env.LMI}\n${translationService.botTranslations.introduction[0].msg}`)
+            channel.send(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations(channel).introduction[0].msg}`)
         })
 });
 

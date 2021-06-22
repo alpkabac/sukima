@@ -2,6 +2,7 @@ require('dotenv').config()
 const historyService = require('./historyService')
 const memoryService = require('./memoryService')
 const translationsService = require('./translationService')
+const channelBotTranslationService = require('./channelBotTranslationService')
 const conf = require('../conf.json')
 const utils = require('./utils')
 const aiService = require("./aiService");
@@ -90,13 +91,15 @@ class CommandService {
                 const language = msg.replace(command, "")
                 let message = ""
                 translationsService.changeLanguage(language)
-                if (translationsService.changeBotLanguage(language, process.env.BOTNAME)) {
+                if (channelBotTranslationService.changeChannelBotTranslations(channel, language, process.env.BOTNAME)) {
                     message += `\nLoaded bot personality file: ${process.env.BOTNAME}/${language}.json`
                 } else {
                     message += (message ? "\n" : "") + `Couldn't load bot personality for ${process.env.BOTNAME}/${language}.json`
                 }
                 if (message) {
-                    message = `${message}\n${translationsService.botTranslations.introduction[0].msg}`
+                    const privateMessage = channel.startsWith("##")
+                    const botTranslations =  channelBotTranslationService.getChannelBotTranslations(channel)
+                    message = `${message}\n${(privateMessage ? botTranslations.introductionDm : botTranslations.introduction)[0].msg}`
                     resolve({message, channel})
                 } else {
                     resolve(true)
@@ -119,7 +122,8 @@ class CommandService {
                     aiService.sendUntilSuccess(prompt, conf.generate_num, undefined, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
-                    }).then(() => {})
+                    }).then(() => {
+                    })
                 } else {
                     resolve(true)
                 }
@@ -149,7 +153,8 @@ class CommandService {
                         }
                         historyService.getChannelHistory(channel).reverse()
                         resolve({message: answer, channel})
-                    }).then(() => {})
+                    }).then(() => {
+                    })
                 } else {
                     resolve(true)
                 }
@@ -176,7 +181,8 @@ class CommandService {
                         }
                         historyService.getChannelHistory(channel).reverse()
                         resolve({message: answer, channel})
-                    }).then(() => {})
+                    }).then(() => {
+                    })
                 } else {
                     resolve(true)
                 }
@@ -199,7 +205,8 @@ class CommandService {
                     aiService.sendUntilSuccess(prompt, undefined, undefined, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
-                    }).then(() => {})
+                    }).then(() => {
+                    })
                 } else {
                     resolve(true)
                 }
@@ -218,7 +225,8 @@ class CommandService {
                     aiService.sendUntilSuccess(prompt, undefined, undefined, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
-                    }).then(() => {})
+                    }).then(() => {
+                    })
                 } else {
                     resolve(true)
                 }
@@ -239,7 +247,8 @@ class CommandService {
                     aiService.sendUntilSuccess(prompt, undefined, undefined, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
-                    }).then(() => {})
+                    }).then(() => {
+                    })
                 } else {
                     resolve(true)
                 }
@@ -259,7 +268,8 @@ class CommandService {
                 aiService.sendUntilSuccess(prompt, undefined, undefined, channel.startsWith("##"), (answer) => {
                     historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                     resolve({message: answer, channel})
-                }).then(() => {})
+                }).then(() => {
+                })
             } else {
                 resolve(true)
             }
