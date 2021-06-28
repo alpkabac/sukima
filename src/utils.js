@@ -46,8 +46,8 @@ class Utils {
         return response.audioContent;
     };
 
-    static async tts (connection, text) {
-        const buffer = await Utils.synthesizeText(text)
+    static async tts (client, connection, text) {
+        const buffer = await Utils.synthesizeText(client, text)
         const stream = new Duplex()
         stream.push(buffer)
         stream.push(null)
