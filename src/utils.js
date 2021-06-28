@@ -1,7 +1,8 @@
 const conf = require('../conf.json')
-const Duplex = require('stream').Duplex;
+const textToSpeech = require('@google-cloud/text-to-speech')
+const Duplex = require('stream').Duplex
 
-const client = new textToSpeech.TextToSpeechClient();
+const client = new textToSpeech.TextToSpeechClient()
 
 class Utils {
     /**
