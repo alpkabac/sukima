@@ -98,13 +98,12 @@ bot.on('message', async msg => {
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(message.message)
             originalMsg.delete()
-        } else if (message.message.startsWith("Loaded bot")){
+        } else if (message.message.startsWith("\nLoaded bot")){
             console.log("Loaded bot")
             console.log(message.message)
             await speak(message.message.split("\n")[1], channelName)
             return
         } else {
-            console.log(message.message)
             await originalMsg.inlineReply(message.message)
         }
 
