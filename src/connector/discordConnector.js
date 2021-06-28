@@ -30,7 +30,7 @@ bot.on('ready', () => {
 bot.on('message', async msg => {
     const channelName = msg.channel.type === "dm" ?
         "##" + msg.channel.id
-        :"#" + msg.channel.name
+        : "#" + msg.channel.name
 
     const originalMsg = msg
     if (!channels[channelName])
@@ -69,10 +69,10 @@ bot.on('message', async msg => {
             channels[channelName].lastBotMessage.edit(channels[channelName].lastBotMessage.cleanContent + message.message)
             originalMsg.delete()
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-            await originalMsg.channel.send(message.message, {tts: true})
+            await originalMsg.channel.send(message.message)
             originalMsg.delete()
         } else {
-            await originalMsg.inlineReply(message.message)
+            await originalMsg.inlineReply(message.message, {tts: cleanContent.startsWith("?")})
         }
     }
 });
