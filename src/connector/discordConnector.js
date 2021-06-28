@@ -76,7 +76,9 @@ bot.on('message', async msg => {
         await originalMsg.react("⏩")
     } else if (cleanContent === "!forget") {
         await originalMsg.react("💔")
-        setTimeout(originalMsg.delete, 2000)
+        setTimeout(() => {
+            originalMsg.delete()
+        }, 2000)
     }
 
     locked = true
