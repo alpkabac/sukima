@@ -47,7 +47,7 @@ class Utils {
     };
 
     static async tts (connection, text) {
-        const buffer = await this.synthesizeText(text)
+        const buffer = await Utils.synthesizeText(text)
         const stream = new Duplex()
         stream.push(buffer)
         stream.push(null)
