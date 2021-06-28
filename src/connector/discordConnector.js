@@ -18,32 +18,34 @@ bot.login(TOKEN);
 const channels = []
 let locked = false
 
+
+let connection
+let voiceChannel
+let speak = () => null
+
+
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
+    speak = async function (msg) {
+        if (voiceChannel) {
+            if (
+                !(connection = bot.voice.connections.find(
+                    (vc) => vc.channel.id === voiceChannel.id
+                ))
+            ) {
+                connection = await voiceChannel.join()
+            }
+            if (connection) {
+                await tts(connection, msg)
+            }
+        }
+    }
 
     bot.channels.fetch("852192504862605312")
         .then(channel => {
             channel.send(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations(channel).introduction[0].msg}`)
         })
 });
-
-let connection
-let voiceChannel
-
-async function speak (msg){
-    if (voiceChannel) {
-        if (
-            !(connection = bot.voice.connections.find(
-                (vc) => vc.channel.id === voiceChannel.id
-            ))
-        ) {
-            connection = await voiceChannel.join()
-        }
-        if (connection) {
-            await tts(connection, msg)
-        }
-    }
-}
 
 bot.on('message', async msg => {
     const channelName = msg.channel.type === "dm" ?
@@ -93,7 +95,7 @@ bot.on('message', async msg => {
             await originalMsg.channel.send(message.message)
             originalMsg.delete()
         } else {
-                await originalMsg.inlineReply(message.message)
+            await originalMsg.inlineReply(message.message)
         }
 
         await speak(message.message)
