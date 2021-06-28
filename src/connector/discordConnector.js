@@ -10,6 +10,7 @@ const bot = new Client({
 const botService = require('../botService')
 const channelBotTranslationService = require('../channelBotTranslationService')
 const commandService = require("../commandService");
+const {tts} = require("../utils");
 const {getInterval} = require("../utils");
 
 const TOKEN = process.env.TOKEN;
@@ -30,6 +31,10 @@ bot.on('message', async msg => {
     const channelName = msg.channel.type === "dm" ?
         "##" + msg.channel.id
         : "#" + msg.channel.name
+
+    const voiceChannel = msg.member.voice.channel
+    let connection
+
 
     const originalMsg = msg
     if (!channels[channelName])
@@ -71,7 +76,18 @@ bot.on('message', async msg => {
             await originalMsg.channel.send(message.message)
             originalMsg.delete()
         } else {
-            await originalMsg.inlineReply(message.message)
+            if (voiceChannel) {
+                if (
+                    !(connection = bot.voice.connections.find(
+                        (vc) => vc.channel.id === voiceChannel.id
+                    ))
+                ) {
+                    connection = await voiceChannel.join();
+                }
+                await tts(connection, message.message);
+            } else {
+                await originalMsg.inlineReply(message.message)
+            }
         }
     }
 });

@@ -1,4 +1,5 @@
 const conf = require('../conf.json')
+const Duplex = require('stream').Duplex;
 
 class Utils {
     /**
@@ -28,6 +29,29 @@ class Utils {
                 * (conf.maxBotMessageIntervalInMinutes - conf.minBotMessageIntervalInMinutes)
                 + conf.minBotMessageIntervalInMinutes
             )
+    }
+
+    static async synthesizeText  (client, text) {
+        const request = {
+            input: { text },
+            voice: {
+                languageCode: 'en-UK',
+                name: 'en-GB-Standard-A',
+                ssmlGender: 'FEMALE',
+            },
+            audioConfig: { audioEncoding: 'OGG_OPUS' },
+        };
+
+        const [response] = await client.synthesizeSpeech(request);
+        return response.audioContent;
+    };
+
+    static async tts (connection, text) {
+        const buffer = await this.synthesizeText(text)
+        const stream = new Duplex()
+        stream.push(buffer)
+        stream.push(null)
+        connection.play(stream)
     }
 }
 
