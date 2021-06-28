@@ -29,6 +29,20 @@ bot.on('ready', () => {
 
 let connection
 let voiceChannel
+
+async function speak (msg){
+    if (voiceChannel) {
+        if (
+            !(connection = bot.voice.connections.find(
+                (vc) => vc.channel.id === voiceChannel.id
+            ))
+        ) {
+            connection = await voiceChannel.join();
+        }
+        await tts(connection, msg);
+    }
+}
+
 bot.on('message', async msg => {
     const channelName = msg.channel.type === "dm" ?
         "##" + msg.channel.id
@@ -80,16 +94,7 @@ bot.on('message', async msg => {
                 await originalMsg.inlineReply(message.message)
         }
 
-        if (voiceChannel) {
-            if (
-                !(connection = bot.voice.connections.find(
-                    (vc) => vc.channel.id === voiceChannel.id
-                ))
-            ) {
-                connection = await voiceChannel.join();
-            }
-            await tts(connection, message.message);
-        }
+        await speak(message.message)
     }
 });
 
@@ -100,17 +105,7 @@ async function loop() {
         const msg = await commandService.talk(channel)
         if (msg.message && msg.message.trim()) {
             channels[channel].send(msg.message)
-
-            if (voiceChannel) {
-                if (
-                    !(connection = bot.voice.connections.find(
-                        (vc) => vc.channel.id === voiceChannel.id
-                    ))
-                ) {
-                    connection = await voiceChannel.join();
-                }
-                await tts(connection, msg.message);
-            }
+            await speak(msg.message)
         }
     }
     setTimeout(loop, getInterval())
