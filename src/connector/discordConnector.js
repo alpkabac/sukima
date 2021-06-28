@@ -76,6 +76,7 @@ bot.on('message', async msg => {
         await originalMsg.react("⏩")
     } else if (cleanContent === "!forget") {
         await originalMsg.react("💔")
+        setTimeout(originalMsg.delete, 2000)
     }
 
     locked = true
@@ -94,8 +95,6 @@ bot.on('message', async msg => {
             originalMsg.delete()
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(message.message)
-            originalMsg.delete()
-        } else if (cleanContent === "!forget") {
             originalMsg.delete()
         } else {
             await originalMsg.inlineReply(message.message)
