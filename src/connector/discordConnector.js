@@ -84,7 +84,7 @@ bot.on('message', async msg => {
                 ) {
                     connection = await voiceChannel.join();
                 }
-                await tts(bot, connection, message.message);
+                await tts(connection, message.message);
             } else {
                 await originalMsg.inlineReply(message.message)
             }
