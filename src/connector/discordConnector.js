@@ -78,7 +78,7 @@ bot.on('message', async msg => {
         await originalMsg.react("💔")
         setTimeout(() => {
             originalMsg.delete()
-        }, 2000)
+        }, 3000)
     }
 
     locked = true
