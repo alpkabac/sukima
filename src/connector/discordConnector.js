@@ -69,7 +69,7 @@ bot.on('message', async msg => {
             channels[channelName].lastBotMessage.edit(channels[channelName].lastBotMessage.cleanContent + message.message)
             originalMsg.delete()
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-            await originalMsg.channel.send(message.message)
+            await originalMsg.channel.send(message.message, {tts: true})
             originalMsg.delete()
         } else {
             await originalMsg.inlineReply(message.message)
