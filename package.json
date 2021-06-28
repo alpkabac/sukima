@@ -9,6 +9,7 @@
   "author": "Noli",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/opus": "^0.5.3",
     "@google-cloud/text-to-speech": "^3.2.3",
     "axios": "^0.21.1",
     "colors": "^1.4.0",
