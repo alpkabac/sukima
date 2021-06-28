@@ -1,6 +1,8 @@
 const conf = require('../conf.json')
 const Duplex = require('stream').Duplex;
 
+const client = new textToSpeech.TextToSpeechClient();
+
 class Utils {
     /**
      * Replaces the nick of the bot by the bot name
@@ -31,7 +33,7 @@ class Utils {
             )
     }
 
-    static async synthesizeText  (client, text) {
+    static async synthesizeText  (text) {
         const request = {
             input: { text },
             voice: {
@@ -46,8 +48,8 @@ class Utils {
         return response.audioContent;
     };
 
-    static async tts (client, connection, text) {
-        const buffer = await Utils.synthesizeText(client, text)
+    static async tts (connection, text) {
+        const buffer = await Utils.synthesizeText(text)
         const stream = new Duplex()
         stream.push(buffer)
         stream.push(null)
