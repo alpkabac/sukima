@@ -72,18 +72,17 @@ bot.on('message', async msg => {
             await originalMsg.channel.send(message.message)
             originalMsg.delete()
         } else {
-
-            if (cleanContent.startsWith("$")) {
-                const broadcast = bot.voice.createBroadcast()
-                const channelId = msg.member.voice.channelID
-                const channel = bot.channels.cache.get(channelId)
-                channel.join().then(connection => {
-                    broadcast.play(discordTTS.getVoiceStream(message.message))
-                    connection.play(broadcast)
-                });
-            }else {
-                await originalMsg.inlineReply(message.message)
-            }
+            await originalMsg.inlineReply(message.message)
+        }
+    } else {
+        if (cleanContent.startsWith("$")) {
+            const broadcast = bot.voice.createBroadcast()
+            const channelId = msg.member.voice.channelID
+            const channel = bot.channels.cache.get(channelId)
+            channel.join().then(connection => {
+                broadcast.play(discordTTS.getVoiceStream("This is a test"))
+                connection.play(broadcast)
+            });
         }
     }
 });
