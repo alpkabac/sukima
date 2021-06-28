@@ -1,7 +1,6 @@
 require('dotenv').config()
 const {Client} = require("discord.js");
 require("../discord/ExtAPIMessage");
-const discordTTS = require('discord-tts')
 const bot = new Client({
     allowedMentions: {
         // set repliedUser value to `false` to turn off the mention by default
@@ -73,16 +72,6 @@ bot.on('message', async msg => {
             originalMsg.delete()
         } else {
             await originalMsg.inlineReply(message.message)
-        }
-    } else {
-        if (cleanContent.startsWith("$")) {
-            const broadcast = bot.voice.createBroadcast()
-            const channelId = msg.member.voice.channelID
-            const channel = bot.channels.cache.get(channelId)
-            channel.join().then(connection => {
-                broadcast.play(discordTTS.getVoiceStream("This is a test"))
-                connection.play(broadcast)
-            });
         }
     }
 });
