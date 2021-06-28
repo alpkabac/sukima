@@ -1,6 +1,7 @@
 require('dotenv').config()
 const {Client} = require("discord.js");
 require("../discord/ExtAPIMessage");
+const discordTTS = require('discord-tts')
 const bot = new Client({
     allowedMentions: {
         // set repliedUser value to `false` to turn off the mention by default
@@ -8,7 +9,6 @@ const bot = new Client({
     }
 });
 const botService = require('../botService')
-const translationService = require('../translationService')
 const channelBotTranslationService = require('../channelBotTranslationService')
 const commandService = require("../commandService");
 const {getInterval} = require("../utils");
@@ -72,7 +72,18 @@ bot.on('message', async msg => {
             await originalMsg.channel.send(message.message)
             originalMsg.delete()
         } else {
-            await originalMsg.inlineReply(message.message, {tts: cleanContent.startsWith("?")})
+
+            if (cleanContent.startsWith("#")) {
+                const broadcast = bot.voice.createBroadcast()
+                const channelId = msg.member.voice.channelID
+                const channel = bot.channels.cache.get(channelId)
+                channel.join().then(connection => {
+                    broadcast.play(discordTTS.getVoiceStream(message.message))
+                    connection.play(broadcast)
+                });
+            }else {
+                await originalMsg.inlineReply(message.message)
+            }
         }
     }
 });
