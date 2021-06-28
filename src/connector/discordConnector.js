@@ -112,11 +112,8 @@ async function loop() {
     for (let channel in channels) {
         const msg = await commandService.talk(channel)
         if (msg.message && msg.message.trim()) {
-            const channelName = channel.type === "dm" ?
-                "##" + channel.id
-                : "#" + channel.name
             channels[channel].send(msg.message)
-            await speak(msg.message, channelName)
+            await speak(msg.message, channel)
         }
     }
     setTimeout(loop, getInterval())
