@@ -52,8 +52,7 @@ bot.on('message', async msg => {
         "##" + msg.channel.id
         : "#" + msg.channel.name
 
-    voiceChannel = msg.member.voice.channel
-
+    voiceChannel = msg.member?.voice?.channel
 
     const originalMsg = msg
     if (!channels[channelName])
