@@ -51,7 +51,6 @@ class Utils {
         stream.push(buffer)
         stream.push(null)
         connection.play(stream)
-        console.log(voiceConfig)
     }
 }
 
