@@ -37,9 +37,11 @@ async function speak (msg){
                 (vc) => vc.channel.id === voiceChannel.id
             ))
         ) {
-            connection = await voiceChannel.join();
+            connection = await voiceChannel.join()
         }
-        await tts(connection, msg);
+        if (connection) {
+            await tts(connection, msg)
+        }
     }
 }
 
