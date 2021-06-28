@@ -38,8 +38,8 @@ class Utils {
         const request = {
             input: { text },
             voice: {
-                languageCode: 'en-UK',
-                name: 'en-GB-Standard-A',
+                languageCode: 'en-US',
+                name: 'en-US-Wavenet-F',
                 ssmlGender: 'FEMALE',
             },
             audioConfig: { audioEncoding: 'OGG_OPUS' },
