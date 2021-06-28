@@ -27,13 +27,14 @@ bot.on('ready', () => {
         })
 });
 
+let connection
+let voiceChannel
 bot.on('message', async msg => {
     const channelName = msg.channel.type === "dm" ?
         "##" + msg.channel.id
         : "#" + msg.channel.name
 
-    const voiceChannel = msg.member.voice.channel
-    let connection
+    voiceChannel = msg.member.voice.channel
 
 
     const originalMsg = msg
@@ -76,18 +77,18 @@ bot.on('message', async msg => {
             await originalMsg.channel.send(message.message)
             originalMsg.delete()
         } else {
-            if (voiceChannel) {
-                if (
-                    !(connection = bot.voice.connections.find(
-                        (vc) => vc.channel.id === voiceChannel.id
-                    ))
-                ) {
-                    connection = await voiceChannel.join();
-                }
-                await tts(connection, message.message);
-            } else {
                 await originalMsg.inlineReply(message.message)
+        }
+
+        if (voiceChannel) {
+            if (
+                !(connection = bot.voice.connections.find(
+                    (vc) => vc.channel.id === voiceChannel.id
+                ))
+            ) {
+                connection = await voiceChannel.join();
             }
+            await tts(connection, message.message);
         }
     }
 });
@@ -99,6 +100,17 @@ async function loop() {
         const msg = await commandService.talk(channel)
         if (msg.message && msg.message.trim()) {
             channels[channel].send(msg.message)
+
+            if (voiceChannel) {
+                if (
+                    !(connection = bot.voice.connections.find(
+                        (vc) => vc.channel.id === voiceChannel.id
+                    ))
+                ) {
+                    connection = await voiceChannel.join();
+                }
+                await tts(connection, msg.message);
+            }
         }
     }
     setTimeout(loop, getInterval())
