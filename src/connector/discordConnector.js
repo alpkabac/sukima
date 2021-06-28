@@ -73,7 +73,7 @@ bot.on('message', async msg => {
             originalMsg.delete()
         } else {
 
-            if (cleanContent.startsWith("_")) {
+            if (cleanContent.startsWith("$")) {
                 const broadcast = bot.voice.createBroadcast()
                 const channelId = msg.member.voice.channelID
                 const channel = bot.channels.cache.get(channelId)
