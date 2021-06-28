@@ -98,6 +98,9 @@ bot.on('message', async msg => {
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(message.message)
             originalMsg.delete()
+        } else if (message.message.startsWith("Loaded bot personality")){
+            await speak(message.message.split("\n")[1], channelName)
+            return
         } else {
             await originalMsg.inlineReply(message.message)
         }
