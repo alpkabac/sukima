@@ -26,7 +26,7 @@ let speak = () => null
 
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
-    speak = async function (msg) {
+    speak = async function (msg, channel) {
         if (voiceChannel) {
             if (
                 !(connection = bot.voice.connections.find(
@@ -36,7 +36,7 @@ bot.on('ready', () => {
                 connection = await voiceChannel.join()
             }
             if (connection) {
-                await tts(connection, msg)
+                await tts(connection, msg, channelBotTranslationService.getChannelBotTranslations(channel).voice)
             }
         }
     }
@@ -102,7 +102,7 @@ bot.on('message', async msg => {
             await originalMsg.inlineReply(message.message)
         }
 
-        await speak(message.message)
+        await speak(message.message, channelName)
     }
 });
 
@@ -112,8 +112,11 @@ async function loop() {
     for (let channel in channels) {
         const msg = await commandService.talk(channel)
         if (msg.message && msg.message.trim()) {
+            const channelName = channel.type === "dm" ?
+                "##" + channel.id
+                : "#" + channel.name
             channels[channel].send(msg.message)
-            await speak(msg.message)
+            await speak(msg.message, channelName)
         }
     }
     setTimeout(loop, getInterval())

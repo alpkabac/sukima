@@ -1,4 +1,9 @@
 {
+  "voice": {
+    "languageCode": "fr-FR",
+    "name": "fr-FR-Wavenet-C",
+    "ssmlGender": "FEMALE"
+  },
   "noContextSentence": "Bonjour, je m'appelle Alice et je suis une IA conçe pour répondre à toute vos questions",
   "context": "[Content: This is a conversation on Discord; Year: 2021.]",
   "contextDm": "[Context: This is a private conversation on Discord; Year: 2021.]",

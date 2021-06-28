@@ -34,14 +34,10 @@ class Utils {
             )
     }
 
-    static async synthesizeText  (text) {
+    static async synthesizeText  (text, voiceConfig) {
         const request = {
             input: { text },
-            voice: {
-                languageCode: 'en-US',
-                name: 'en-US-Wavenet-F',
-                ssmlGender: 'FEMALE',
-            },
+            voice: voiceConfig,
             audioConfig: { audioEncoding: 'OGG_OPUS' },
         };
 
@@ -49,8 +45,8 @@ class Utils {
         return response.audioContent;
     };
 
-    static async tts (connection, text) {
-        const buffer = await Utils.synthesizeText(text)
+    static async tts (connection, text, voiceConfig) {
+        const buffer = await Utils.synthesizeText(text, voiceConfig)
         const stream = new Duplex()
         stream.push(buffer)
         stream.push(null)

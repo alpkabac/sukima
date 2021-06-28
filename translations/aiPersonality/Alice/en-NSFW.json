@@ -1,4 +1,9 @@
 {
+  "voice": {
+    "languageCode": "en-US",
+    "name": "en-US-Wavenet-F",
+    "ssmlGender": "FEMALE"
+  },
   "noContextSentence": "Hello, my name is Alice and I'm a pleasure AI designed to answer all your naughty questions *She winks seductively*",
   "context": "[Context: This is a conversation on Discord; Year: 2021.]",
   "contextDm": "[Context: This is a private conversation on Discord; Year: 2021.]",
