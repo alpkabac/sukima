@@ -41,11 +41,16 @@ bot.on('ready', () => {
         }
     }
 
-    bot.channels.fetch("852192504862605312")
+    sendIntro("853322311268171816")
+    sendIntro("852192504862605312")
+});
+
+function sendIntro(id){
+    bot.channels.fetch(id)
         .then(channel => {
             channel.send(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations(channel).introduction[0].msg}`)
         })
-});
+}
 
 bot.on('message', async msg => {
     const channelName = msg.channel.type === "dm" ?
