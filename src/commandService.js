@@ -277,10 +277,10 @@ class CommandService {
     }
 
     static setEvalbot(msg, from, channel) {
-        const command = /!evalbot *([0-9]*)/g.exec(msg);
+        const command = /!evalbot *([0-9]*)\n/g.exec(msg);
         return new Promise((resolve) => {
             if (command && command[1]) {
-                const message = utils.upperCaseFirstLetter(msg.replace(command, ""))
+                const message = utils.upperCaseFirstLetter(msg.replace(command[0], ""))
                 const tokenCount = Math.min(100, parseInt(command[1]))
                 const result = aiService.simpleEvalbot(message, tokenCount)
                 resolve({message: result, channel})
