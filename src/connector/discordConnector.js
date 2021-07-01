@@ -53,7 +53,8 @@ function sendIntro(id){
 }
 
 bot.on('message', async msg => {
-    const channelName = msg.channel.type === "dm" ?
+    const privateMessage = msg.channel.type === "dm"
+    const channelName = privateMessage ?
         "##" + msg.channel.id
         : "#" + msg.channel.name
 
@@ -112,6 +113,12 @@ bot.on('message', async msg => {
         }
 
         await speak(message.message, channelName)
+    }else if (privateMessage){
+        const msg = await commandService.talk(channelName)
+        if (msg.message && msg.message.trim()) {
+            channels[channelName].send(msg.message)
+            await speak(msg.message, channelName)
+        }
     }
 });
 

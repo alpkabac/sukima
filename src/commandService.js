@@ -119,7 +119,7 @@ class CommandService {
                     historyService.pushIntoHistory(message, from, channel)
 
                     const prompt = promptService.getPrompt(message, from, channel, false, false)
-                    aiService.sendUntilSuccess(prompt, conf.generate_num, undefined, channel.startsWith("##"), (answer) => {
+                    aiService.sendUntilSuccess(prompt, conf.generate_num, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
                     }).then(() => {
@@ -139,7 +139,7 @@ class CommandService {
             if (msg.startsWith(command) && msg.length === 1) {
                 if (!this.isChannelMuted(channel)) {
                     const prompt = promptService.getPrompt(msg, from, channel, true, true, true)
-                    aiService.sendUntilSuccess(prompt, conf.generate_num, undefined, channel.startsWith("##"), (answer) => {
+                    aiService.sendUntilSuccess(prompt, conf.generate_num, channel.startsWith("##"), (answer) => {
 
                         historyService.getChannelHistory(channel).reverse()
                         for (let h of historyService.getChannelHistory(channel)) {
@@ -170,7 +170,7 @@ class CommandService {
             if (msg.startsWith(command) && msg.length === 1) {
                 if (!this.isChannelMuted(channel)) {
                     const prompt = promptService.getPrompt(msg, from, channel, true, true, false, true)
-                    aiService.sendUntilSuccess(prompt, conf.generate_num, undefined, channel.startsWith("##"), (answer) => {
+                    aiService.sendUntilSuccess(prompt, conf.generate_num, channel.startsWith("##"), (answer) => {
 
                         historyService.getChannelHistory(channel).reverse()
                         for (let h of historyService.getChannelHistory(channel)) {
@@ -202,7 +202,7 @@ class CommandService {
                         historyService.pushIntoHistory(message, from, channel)
                     }
                     const prompt = promptService.getPrompt(message, from, channel)
-                    aiService.sendUntilSuccess(prompt, undefined, undefined, channel.startsWith("##"), (answer) => {
+                    aiService.sendUntilSuccess(prompt, undefined, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
                     }).then(() => {
@@ -222,7 +222,7 @@ class CommandService {
                 historyService.pushIntoHistory(msg, from, channel)
                 if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
                     const prompt = promptService.getPrompt(msg, from, channel)
-                    aiService.sendUntilSuccess(prompt, undefined, undefined, channel.startsWith("##"), (answer) => {
+                    aiService.sendUntilSuccess(prompt, undefined, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
                     }).then(() => {
@@ -244,7 +244,7 @@ class CommandService {
                     : null
                 if (lastMessageFromChannel && lastMessageFromChannel.from !== process.env.BOTNAME) {
                     const prompt = promptService.getPrompt(null, null, channel)
-                    aiService.sendUntilSuccess(prompt, undefined, undefined, channel.startsWith("##"), (answer) => {
+                    aiService.sendUntilSuccess(prompt, undefined, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
                     }).then(() => {
@@ -265,7 +265,7 @@ class CommandService {
                     .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
                 historyService.pushIntoHistory(action, from, channel)
                 const prompt = promptService.getPrompt(msg, from, channel)
-                aiService.sendUntilSuccess(prompt, undefined, undefined, channel.startsWith("##"), (answer) => {
+                aiService.sendUntilSuccess(prompt, undefined, channel.startsWith("##"), (answer) => {
                     historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                     resolve({message: answer, channel})
                 }).then(() => {
