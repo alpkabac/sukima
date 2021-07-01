@@ -98,7 +98,7 @@ class CommandService {
                 }
                 if (message) {
                     const privateMessage = channel.startsWith("##")
-                    const botTranslations =  channelBotTranslationService.getChannelBotTranslations(channel)
+                    const botTranslations = channelBotTranslationService.getChannelBotTranslations(channel)
                     message = `${message}\n${(privateMessage ? botTranslations.introductionDm : botTranslations.introduction)[0].msg}`
                     resolve({message, channel})
                 } else {
@@ -272,6 +272,20 @@ class CommandService {
                 })
             } else {
                 resolve(true)
+            }
+        })
+    }
+
+    static setEvalbot(msg, from, channel) {
+        const command = /!evalbot *([0-9]*)/g.exec(msg);
+        return new Promise((resolve) => {
+            if (command && command[1]) {
+                const message = utils.upperCaseFirstLetter(msg.replace(command, ""))
+                const tokenCount = Math.min(100, parseInt(command[1]))
+                const result = aiService.simpleEvalbot(message, tokenCount)
+                resolve(result)
+            } else {
+                resolve(false)
             }
         })
     }
