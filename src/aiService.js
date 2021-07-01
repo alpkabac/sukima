@@ -60,7 +60,7 @@ class AiService {
      * @param tokensToGenerate
      * @param callback
      */
-    async static simpleEvalbot(prompt, tokensToGenerate = 1, callback = (answer) => null) {
+    static async simpleEvalbot(prompt, tokensToGenerate = 1, callback = (answer) => null) {
         const data = {
             prompt,
             nb_answer: 1,
