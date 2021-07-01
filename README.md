@@ -23,6 +23,9 @@ IRC chatbot that uses an AI API to generate messages
   - Available personalities for Alice: `en-EN`, `en-NSFW`, `en-GURO` and `fr-FR`
 - [NSFW] `!r34` will send a link to a random picture from rule34.xxx
 - [NSFW] `!r34 alice_in_wonderland` is the default, but you can also search multiple tags separated by a space
+- `!evalbot <number of tokens to generate>\n<your prompt>` will execute your prompt and return X tokens depending on your argument
+  - This command can be used freely without the bot remembering either the command nor the output
+  - It can be used as a tool to test evalbots, or just to use the AI model with your own prompt
 
 # Prerequisites for 6B parameters AI model
 
@@ -57,4 +60,4 @@ const botMemory = require(`./translations/aiPersonality/${options.botName}/${opt
 # Launch
 
 `node ./index_discord.js` for discord version
-`node ./index_irc.js` for irc version
+`node ./index_irc.js` for irc version 
