@@ -290,6 +290,20 @@ class CommandService {
         })
     }
 
+    static prompt(msg, from, channel) {
+        const command = /!prompt *([0-9]*)\n/g.exec(msg);
+        return new Promise(async (resolve) => {
+            if (command && command[1]) {
+                const message = utils.upperCaseFirstLetter(msg.replace(command[0], ""))
+                const tokenCount = Math.min(100, parseInt(command[1]))
+                const result = await aiService.simpleEvalbot(message, tokenCount)
+                resolve({message: result, channel})
+            } else {
+                resolve(false)
+            }
+        })
+    }
+
     static r34(msg, from, channel) {
         const command = "!r34"
         return new Promise((resolve) => {
