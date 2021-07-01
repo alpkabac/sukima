@@ -26,6 +26,7 @@ class BotService {
             || await commandService.retryMessage(msg, from, channel)
             || commandService.forgetRemember(msg, from, channel)
             || await commandService.changeLanguage(msg, from, channel)
+            || await commandService.setEvalbot(msg, from, channel)
             || commandService.forgetAllRemember(msg, from, channel)
             || commandService.deleteChannelHistory(msg, from, channel)
             || commandService.mute(msg, from, channel)
