@@ -2,6 +2,7 @@ const axios = require("axios");
 const conf = require("../conf.json");
 const messageService = require("./messageService");
 const lmiService = require("./lmiService");
+const LmiService = require("./lmiService");
 
 class AiService {
 
@@ -69,11 +70,14 @@ class AiService {
             top_k: 60,
             top_p: 0.9,
             repetition_penalty: 2.5,
-            repetition_penalty_range: 512,
+            repetition_penalty_range: 32,
             banned_strings: []
         }
 
-        return await this.sendPromptDefault(data)
+        const result = await this.sendPromptDefault(data)
+        const parsedResult = result.split("\n")[0]
+        LmiService.updateLmi(prompt, result, parsedResult)
+        return parsedResult
     }
 }
 

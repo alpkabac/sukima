@@ -283,7 +283,7 @@ class CommandService {
                 const message = utils.upperCaseFirstLetter(msg.replace(command[0], ""))
                 const tokenCount = Math.min(100, parseInt(command[1]))
                 const result = await aiService.simpleEvalbot(message, tokenCount)
-                resolve({message: result.split("\n")[0], channel})
+                resolve({message: result, channel})
             } else {
                 resolve(false)
             }
