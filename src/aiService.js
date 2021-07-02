@@ -69,8 +69,8 @@ class AiService {
             temp: 0.8,
             top_k: 60,
             top_p: 0.9,
-            repetition_penalty: 2.5,
-            repetition_penalty_range: 32,
+            repetition_penalty: 1.3,
+            repetition_penalty_range: 8,
             banned_strings: []
         }
 
