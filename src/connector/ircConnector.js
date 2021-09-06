@@ -16,7 +16,7 @@ class IrcConnector {
 ircClient.addListener('message', async function (from, to, message) {
     const msg = await botService.onChannelMessage(from, to, message, ircClient.nick)
     if (msg.message) {
-        ircClient.say(msg.channel, msg.message)
+        ircClient.say(msg.channel, msg.message.trim())
     }
 });
 
@@ -27,7 +27,7 @@ ircClient.addListener('message', async function (from, to, message) {
 ircClient.addListener('join', async function (channel, nick) {
     const msg = await botService.onJoin(channel, nick)
     if (msg.message) {
-        ircClient.say(msg.channel, msg.message)
+        ircClient.say(msg.channel, msg.message.trim())
     }
 });
 
@@ -37,7 +37,7 @@ ircClient.addListener('join', async function (channel, nick) {
 ircClient.addListener('part', async function (channel, nick) {
     const msg = await botService.onPart(channel, nick)
     if (msg.message) {
-        ircClient.say(msg.channel, msg.message)
+        ircClient.say(msg.channel, msg.message.trim())
     }
 });
 
@@ -54,7 +54,7 @@ ircClient.addListener('quit', async function (nick) {
 ircClient.addListener('kick', async function (channel, nick, by, reason) {
     const msg = await botService.onKick(channel, nick, by, reason)
     if (msg.message) {
-        ircClient.say(msg.channel, msg.message)
+        ircClient.say(msg.channel, msg.message.trim())
     }
 });
 
@@ -64,7 +64,7 @@ ircClient.addListener('kick', async function (channel, nick, by, reason) {
 ircClient.addListener('action', async function (from, channel, text) {
     const msg = await botService.onAction(channel, from, text)
     if (msg.message) {
-        ircClient.say(msg.channel, msg.message)
+        ircClient.say(msg.channel, msg.message.trim())
     }
 });
 
@@ -78,7 +78,7 @@ ircClient.addListener('pm', async function (from, message) {
 async function loop() {
     const msg = await commandService.talk(conf.channels[0])
     if (msg.message) {
-        ircClient.say(msg.channel, msg.message)
+        ircClient.say(msg.channel, msg.message.trim())
     }
     setTimeout(loop, getInterval())
 }

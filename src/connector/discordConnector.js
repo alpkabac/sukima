@@ -41,14 +41,26 @@ bot.on('ready', () => {
         }
     }
 
-    sendIntro("853322311268171816")
+    //sendIntro("853322311268171816")
     sendIntro("852192504862605312")
+    sendIntro("883501924954042438")
+    sendIntro("883504359739125790")
+
 });
 
-function sendIntro(id){
+function sendIntro(id) {
     bot.channels.fetch(id)
         .then(channel => {
-            channel.send(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations(channel).introduction[0].msg}`)
+            if (id === "883501924954042438") {
+                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-EVIL")
+            } else if (id === "883504359739125790") {
+                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-NSFW")
+            }
+            if (process.env.LMI) {
+                channel.send(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`)
+            } else {
+                channel.send(`Bot started. Current LMI: ${"http://92.167.46.105:3000/"}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`)
+            }
         })
 }
 
@@ -104,7 +116,7 @@ bot.on('message', async msg => {
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(message.message)
             originalMsg.delete()
-        } else if (message.message.startsWith("\nLoaded bot")){
+        } else if (message.message.startsWith("\nLoaded bot")) {
             await originalMsg.inlineReply(message.message)
             await speak(message.message.split("\n")[2], channelName)
             return
@@ -113,7 +125,7 @@ bot.on('message', async msg => {
         }
 
         await speak(message.message, channelName)
-    }else if (privateMessage){
+    } else if (privateMessage) {
         const msg = await commandService.talk(channelName)
         if (msg.message && msg.message.trim()) {
             channels[channelName].send(msg.message)
@@ -126,6 +138,7 @@ async function loop() {
     if (locked) return setTimeout(loop, getInterval())
 
     for (let channel in channels) {
+        if (channel.startsWith("##")) continue
         const msg = await commandService.talk(channel)
         if (msg.message && msg.message.trim()) {
             channels[channel].send(msg.message)

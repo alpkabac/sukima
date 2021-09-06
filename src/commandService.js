@@ -78,7 +78,7 @@ class CommandService {
         if (msg.startsWith(command)) {
             // TODO: check if user 'from' is allowed to execute that command
             historyService.forgetChannelHistory(channel)
-            return true
+            return {message:`${channelBotTranslationService.getChannelBotTranslations(channel).introduction[0].msg}`, channel}
         }
         return false
     }

@@ -5,11 +5,17 @@
   "temp": 0.65,
   "maxHistory": 30,
   "botName": "Alice",
+  "ircNick": "Alice",
   "ircServer": "irc.libera.chat",
   "channels": [
+    "#cbna",
     "#alicebot",
     "#alice",
-    "#alicetest"
+    "#alicetest",
+    "#alice-default",
+    "#alice-evil",
+    "#alice-nsfw"
+
   ],
   "mutedChannels": {
   },
