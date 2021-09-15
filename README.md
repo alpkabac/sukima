@@ -2,7 +2,7 @@
 
 IRC chatbot that uses an AI API to generate messages
 
-# IRC commands and usage
+# IRC/Discord commands and usage
 
 - `!forget` will make the bot forget the current conversation, only keeping her presentation and memories acquired
   through `!remember`
