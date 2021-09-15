@@ -1,6 +1,6 @@
 # AliceBot
 
-IRC chatbot that uses an AI API to generate messages
+IRC/Discord chatbot that uses an AI API to generate messages
 
 # IRC/Discord commands and usage
 
