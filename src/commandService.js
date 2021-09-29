@@ -308,7 +308,7 @@ class CommandService {
                     const lines = personality.split("\n")
 
                     aiPersonality.description = lines[0]
-                    message += "Custom AI Personality loaded!\n"
+                    message += "Custom AI Personality "+aiPersonality.description+" loaded!\n"
 
                     if (lines.length > 1) {
                         for (let i = 1; i < lines.length; i++) {

@@ -26,6 +26,12 @@ IRC/Discord chatbot that uses an AI API to generate messages
 - `!prompt <number of tokens to generate>\n<your prompt>` will execute your prompt and return X tokens depending on your argument
   - This command can be used freely without the bot remembering either the command nor the output
   - It can be used as a tool to test evalbots, or just to use the AI model with your own prompt
+- `!setpersonality <context>\n<presentation message>` sets the AI personality for the current channel or DM channel
+  - use like this:
+```
+!setpersonality [ character: Alice; gender: female; hair: golden; personality: joyful, helpful, talkative; writing style: purple prose ]
+Hello everyone! My name is Alice, and I'm an AI *She smiles cutely as she bows down before everyone*
+```
 
 # Prerequisites for 6B parameters AI model
 
