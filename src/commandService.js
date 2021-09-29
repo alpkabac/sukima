@@ -335,7 +335,7 @@ class CommandService {
     static setVoice(msg, from, channel) {
         const command = "!setVoice "
         return new Promise((resolve) => {
-            if (msg.toLowerCase().startsWith(command.toLowerCase()) && !conf.changePersonalityChannelBlacklist.includes(channel)) {
+            if (msg.toLowerCase().startsWith(command.toLowerCase())) {
                 // TODO: check if user 'from' is allowed to execute that command
                 const voice = msg.replace(command, "")
 
