@@ -26,6 +26,7 @@ class BotService {
             || await commandService.retryMessage(msg, from, channel)
             || commandService.forgetRemember(msg, from, channel)
             || await commandService.setPersonality(msg, from, channel)
+            || await commandService.setVoice(msg, from, channel)
             || await commandService.changeLanguage(msg, from, channel)
             || await commandService.prompt(msg, from, channel)
             || commandService.forgetAllRemember(msg, from, channel)
@@ -39,6 +40,7 @@ class BotService {
     }
 
     static onPrivateMessage() {
+
     }
 
     static async onJoin(channel, nick) {

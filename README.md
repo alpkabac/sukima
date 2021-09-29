@@ -32,6 +32,7 @@ IRC/Discord chatbot that uses an AI API to generate messages
 !setpersonality [ character: Alice; gender: female; hair: golden; personality: joyful, helpful, talkative; writing style: purple prose ]
 Hello everyone! My name is Alice, and I'm an AI *She smiles cutely as she bows down before everyone*
 ```
+- `!setvoice <lang> <voice> <gender>` use like this: `!setvoice en-US en-US-Wavenet-F FEMALE` and see https://cloud.google.com/text-to-speech/docs/voices for supported languages
 
 # Prerequisites for 6B parameters AI model
 

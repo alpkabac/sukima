@@ -332,6 +332,41 @@ class CommandService {
         })
     }
 
+    static setVoice(msg, from, channel) {
+        const command = "!setVoice "
+        return new Promise((resolve) => {
+            if (msg.toLowerCase().startsWith(command.toLowerCase()) && !conf.changePersonalityChannelBlacklist.includes(channel)) {
+                // TODO: check if user 'from' is allowed to execute that command
+                const voice = msg.replace(command, "")
+
+                let message = ""
+                const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
+
+                if (voice && voice.length > 0) {
+                    const params = voice.split(" ")
+
+                    if (params.length === 3){
+                        aiPersonality.voice = {
+                            languageCode: params[0],
+                            name: params[1],
+                            ssmlGender: params[2]
+                        }
+
+                        message = "AI Personality voice set to "+JSON.stringify(aiPersonality.voice)
+                    }else{
+                        message = "Wrong usage. Command for default voice: \"!setvoice en-US en-US-Wavenet-F FEMALE\""
+                    }
+                } else {
+                    message = "Sorry, you did something wrong"
+                }
+                resolve({message, channel})
+
+            } else {
+                resolve(false)
+            }
+        })
+    }
+
     static r34(msg, from, channel) {
         const command = "!r34"
         return new Promise((resolve) => {
