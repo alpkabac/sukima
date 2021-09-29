@@ -15,12 +15,12 @@ class ChannelBotTranslationService {
     static changeChannelBotTranslations(channel, code = conf.defaultBotTranslationFile, botName = process.env.BOTNAME) {
         try {
             //this.channelBotTranslations[channel] = JSON.parse(fs.readFileSync(__dirname.replace('\\src', '') + `\\translations\\aiPersonality\\${botName}/${code}.json`))
-            this.channelBotTranslations[channel] = require(`../translations/aiPersonality/${botName}/${code}.json`)
+            this.channelBotTranslations[channel] = JSON.parse(JSON.stringify(require(`../translations/aiPersonality/${botName}/${code}.json`)))
             return true
         } catch (e) {
             try {
                 //this.channelBotTranslations[channel] = fs.readFileSync(`../translations/aiPersonality/${botName}/${conf.defaultBotTranslationFile}.json`).toJSON()
-                this.channelBotTranslations[channel] = require(`../translations/aiPersonality/${botName}/${conf.defaultBotTranslationFile}.json`)
+                this.channelBotTranslations[channel] = JSON.parse(JSON.stringify(require(`../translations/aiPersonality/${botName}/${conf.defaultBotTranslationFile}.json`)))
             } catch (e2) {
                 console.log(e2)
             }
