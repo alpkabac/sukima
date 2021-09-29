@@ -45,6 +45,7 @@ bot.on('ready', () => {
     sendIntro("852192504862605312")
     sendIntro("883501924954042438")
     sendIntro("883504359739125790")
+    sendIntro("892776322932281386")
 
 });
 
@@ -55,6 +56,8 @@ function sendIntro(id) {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-EVIL")
             } else if (id === "883504359739125790") {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-NSFW")
+            } else if (id === "892776322932281386") {
+                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-ROCK")
             }
             if (process.env.LMI) {
                 channel.send(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`)
