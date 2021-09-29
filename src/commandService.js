@@ -8,7 +8,7 @@ const utils = require('./utils')
 const aiService = require("./aiService")
 const promptService = require("./promptService")
 const {getMap, getTags} = require("./r34Service")
-const voices = require('./tts/languages.json')
+const voices = JSON.parse(JSON.stringify(require('./tts/languages.json')))
 
 class CommandService {
     static mutedChannels
