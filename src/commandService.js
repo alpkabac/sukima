@@ -5,9 +5,10 @@ const translationsService = require('./translationService')
 const channelBotTranslationService = require('./channelBotTranslationService')
 const conf = require('../conf.json')
 const utils = require('./utils')
-const aiService = require("./aiService");
-const promptService = require("./promptService");
-const {getMap, getTags} = require("./r34Service");
+const aiService = require("./aiService")
+const promptService = require("./promptService")
+const {getMap, getTags} = require("./r34Service")
+const voices = require('./tts/languages.json')
 
 class CommandService {
     static mutedChannels
@@ -308,7 +309,7 @@ class CommandService {
                     const lines = personality.split("\n")
 
                     aiPersonality.description = lines[0]
-                    message += "Custom AI Personality "+aiPersonality.description+" loaded!\n"
+                    message += "Custom AI Personality " + aiPersonality.description + " loaded!\n"
 
                     if (lines.length > 1) {
                         for (let i = 1; i < lines.length; i++) {
@@ -345,16 +346,25 @@ class CommandService {
                 if (voice && voice.length > 0) {
                     const params = voice.split(" ")
 
-                    if (params.length === 3){
-                        aiPersonality.voice = {
-                            languageCode: params[0],
-                            name: params[1],
-                            ssmlGender: params[2]
+                    if (params.length === 1 || params.length === 3) {
+                        if (params.length === 1) {
+                            const selectedVoice = voices.voices.find(v => v.languageCode.toLowerCase() === params[0])
+                            if (selectedVoice) {
+                                aiPersonality.voice = selectedVoice
+                                message = "AI Personality voice set to " + JSON.stringify(selectedVoice)
+                            } else {
+                                message = "Voice not found, check out https://cloud.google.com/text-to-speech/docs/voices for available voices"
+                            }
+                        } else if (params.length === 3) {
+                            aiPersonality.voice = {
+                                languageCode: params[0],
+                                name: params[1],
+                                ssmlGender: params[2]
+                            }
+                            message = "AI Personality voice set to " + JSON.stringify(aiPersonality.voice)
                         }
-
-                        message = "AI Personality voice set to "+JSON.stringify(aiPersonality.voice)
-                    }else{
-                        message = "Wrong usage. Command for default voice: \"!setvoice en-US en-US-Wavenet-F FEMALE\""
+                    } else {
+                        message = "Wrong usage. Command for default voice: \"!setVoice en-US en-US-Wavenet-F FEMALE\" or simpler: \"!setVoice en-US-Wavenet-F\""
                     }
                 } else {
                     message = "Sorry, you did something wrong"
