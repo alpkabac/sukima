@@ -348,7 +348,7 @@ class CommandService {
 
                     if (params.length === 1 || params.length === 3) {
                         if (params.length === 1) {
-                            const selectedVoice = voices.voices.find(v => v.languageCode.toLowerCase() === params[0])
+                            const selectedVoice = voices.voices.find(v => v.languageCode.toLowerCase() === params[0].toLowerCase())
                             if (selectedVoice) {
                                 aiPersonality.voice = selectedVoice
                                 message = "AI Personality voice set to " + JSON.stringify(selectedVoice)
