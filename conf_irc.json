@@ -1,6 +1,6 @@
 {
   "translationFile": "en-EN",
-  "defaultBotTranslationFile": "en-EN",
+  "defaultBotTranslationFile": "en-EVIL",
   "generate_num": 100,
   "temp": 0.65,
   "maxHistory": 30,
@@ -29,7 +29,7 @@
   ],
   "mutedChannels": {
   },
-  "lniPort": 3000,
+  "lniPort": 3001,
   "apiUrl": "http://localhost:5000",
   "minBotMessageIntervalInSeconds": 4,
   "maxBotMessageIntervalInSeconds": 8

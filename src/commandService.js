@@ -78,7 +78,10 @@ class CommandService {
         if (msg.startsWith(command)) {
             // TODO: check if user 'from' is allowed to execute that command
             historyService.forgetChannelHistory(channel)
-            return {message:`${channelBotTranslationService.getChannelBotTranslations(channel).introduction[0].msg}`, channel}
+            return {
+                message: `${channelBotTranslationService.getChannelBotTranslations(channel).introduction[0].msg}`,
+                channel
+            }
         }
         return false
     }
@@ -166,8 +169,9 @@ class CommandService {
 
     static retryMessage(msg, from, channel) {
         const command = "²"
+        const command2 = "○"
         return new Promise((resolve) => {
-            if (msg.startsWith(command) && msg.length === 1) {
+            if ((msg.startsWith(command) || msg.startsWith(command2)) && msg.length === 1) {
                 if (!this.isChannelMuted(channel)) {
                     const prompt = promptService.getPrompt(msg, from, channel, true, true, false, true)
                     aiService.sendUntilSuccess(prompt, conf.generate_num, channel.startsWith("##"), (answer) => {
@@ -276,8 +280,8 @@ class CommandService {
         })
     }
 
-    static setEvalbot(msg, from, channel) {
-        const command = /!evalbot *([0-9]*)\n/g.exec(msg);
+    static prompt(msg, from, channel) {
+        const command = /!prompt *([0-9]*)\n/g.exec(msg);
         return new Promise(async (resolve) => {
             if (command && command[1]) {
                 const message = utils.upperCaseFirstLetter(msg.replace(command[0], ""))
@@ -290,14 +294,38 @@ class CommandService {
         })
     }
 
-    static prompt(msg, from, channel) {
-        const command = /!prompt *([0-9]*)\n/g.exec(msg);
-        return new Promise(async (resolve) => {
-            if (command && command[1]) {
-                const message = utils.upperCaseFirstLetter(msg.replace(command[0], ""))
-                const tokenCount = Math.min(100, parseInt(command[1]))
-                const result = await aiService.simpleEvalbot(message, tokenCount)
-                resolve({message: result, channel})
+    static setPersonality(msg, from, channel) {
+        const command = "!setPersonality "
+        return new Promise((resolve) => {
+            if (msg.toLowerCase().startsWith(command.toLowerCase()) && !conf.changePersonalityChannelBlacklist.includes(channel)) {
+                // TODO: check if user 'from' is allowed to execute that command
+                const personality = msg.replace(command, "")
+
+                let message = ""
+                const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
+
+                if (personality && personality.length > 0) {
+                    const lines = personality.split("\n")
+
+                    aiPersonality.description = lines[0]
+                    message += "Custom AI Personality loaded!\n"
+
+                    if (lines.length > 1) {
+                        for (let i = 1; i < lines.length; i++) {
+                            if (!aiPersonality.introduction[i - 1]) {
+                                aiPersonality.introduction[i - 1] = {from: process.env.BOTNAME, msg: lines[i]}
+                            } else {
+                                aiPersonality.introduction[i - 1].msg = lines[i]
+                            }
+                            message += aiPersonality.introduction[i - 1].msg
+                        }
+                    }
+
+                } else {
+                    message = "Sorry, you did something wrong"
+                }
+                resolve({message, channel})
+
             } else {
                 resolve(false)
             }

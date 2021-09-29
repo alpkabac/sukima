@@ -29,8 +29,8 @@ class Utils {
         return 1000 *
             (
                 Math.random()
-                * (conf.maxBotMessageIntervalInMinutes - conf.minBotMessageIntervalInMinutes)
-                + conf.minBotMessageIntervalInMinutes
+                * (conf.maxBotMessageIntervalInSeconds - conf.minBotMessageIntervalInSeconds)
+                + conf.minBotMessageIntervalInSeconds
             )
     }
 

@@ -595,9 +595,9 @@ class AiService {
         return await this.sendPromptDefault(data)
     }
 
-    static async sendPromptDefault(data) {
+    static async sendPromptDefault(data, params = DEFAULT_PARAMETERS) {
         return new Promise((resolve, reject) => {
-            generate(data.prompt)
+            generate(data.prompt, params)
                 .then(r => resolve(r))
                 .catch(err => reject(err))
         })
@@ -622,7 +622,13 @@ class AiService {
             banned_strings: []
         }
 
-        const result = await this.sendPromptDefault(data)
+        const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
+
+        params.max_length = tokensToGenerate
+        params.bad_words_ids = undefined
+        delete params.bad_words_ids
+
+        const result = await this.sendPromptDefault(data, params)
         const parsedResult = result.split("\n")[0]
         LmiService.updateLmi(prompt, result, parsedResult)
         return parsedResult
