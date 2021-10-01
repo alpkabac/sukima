@@ -221,6 +221,11 @@ class CommandService {
         })
     }
 
+    static comment(msg, from, channel) {
+        const command = "#"
+        return !!msg.startsWith(command);
+    }
+
     static answerToName(msg, from, channel) {
         return new Promise((resolve) => {
             if (!this.isChannelMuted(channel)) {

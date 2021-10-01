@@ -15,7 +15,8 @@ IRC/Discord chatbot that uses an AI API to generate messages
 - `?Blah blah blah` will simply trigger the bot to talk after your message
 - `?` will simply trigger the bot to talk
 - `,` is a special command **only to be used when the bot sends an incomplete message**
-- `²` will make Alice rewrite entirely her last message
+- `²` will make the bot rewrite entirely her last message
+- `# Blah blah` comment text, the bot doesn't see it not react to it
 - `!mute` Prevents the bot from receiving and sending messages (PMs still work)
 - `!unmute`
 - `!lang <language>` will load the `translations/aiPersonality/${process.env.BOTNAME}/<language>.json`

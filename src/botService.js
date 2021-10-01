@@ -37,6 +37,7 @@ class BotService {
             || await commandService.continueMessage(msg, from, channel)
             || await commandService.answerMessage(msg, from, channel)
             || await commandService.answerToName(msg, from, channel)
+            || commandService.comment(msg, from, channel)
     }
 
     static onPrivateMessage() {
