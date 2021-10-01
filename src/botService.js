@@ -21,7 +21,8 @@ class BotService {
 
         const msg = prepareIncomingMessage(message, process.env.BOTNAME, botNick)
 
-        return commandService.remember(msg, from, channel)
+        return commandService.comment(msg, from, channel)
+            || commandService.remember(msg, from, channel)
             || await commandService.r34(msg, from, channel)
             || await commandService.retryMessage(msg, from, channel)
             || commandService.forgetRemember(msg, from, channel)
@@ -37,7 +38,6 @@ class BotService {
             || await commandService.continueMessage(msg, from, channel)
             || await commandService.answerMessage(msg, from, channel)
             || await commandService.answerToName(msg, from, channel)
-            || commandService.comment(msg, from, channel)
     }
 
     static onPrivateMessage() {
