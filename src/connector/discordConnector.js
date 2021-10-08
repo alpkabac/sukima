@@ -61,8 +61,6 @@ function sendIntro(id) {
             }
             if (process.env.LMI) {
                 channel.send(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`)
-            } else {
-                channel.send(`Bot started. Current LMI: ${"http://92.167.46.105:3000/"}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`)
             }
         })
 }

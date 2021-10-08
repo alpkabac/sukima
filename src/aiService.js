@@ -2,8 +2,8 @@ const axios = require("axios");
 const conf = require("../conf.json");
 const messageService = require("./messageService");
 const lmiService = require("./lmiService");
-const LmiService = require("./lmiService");
 
+let lastGenerationTimestamp = Date.now()
 
 const getAccessToken = async (access_key) => {
     return new Promise((resolve, reject) => {
@@ -539,26 +539,29 @@ const generate = async (input, params = DEFAULT_PARAMETERS, model = "6B-v3") => 
     if (!ACCESS_TOKEN) ACCESS_TOKEN = await getAccessToken(process.env.NOVEL_AI_API_KEY)
 
     return new Promise((resolve, reject) => {
-        axios.post(
-            "https://api.novelai.net/ai/generate",
-            {
-                input,
-                model,
-                parameters: params
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': "Bearer " + ACCESS_TOKEN
+        const timeDiff = Date.now() - lastGenerationTimestamp
+        setTimeout(() => {
+            axios.post(
+                "https://api.novelai.net/ai/generate",
+                {
+                    input,
+                    model,
+                    parameters: params
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': "Bearer " + ACCESS_TOKEN
+                    }
                 }
-            }
-        )
-            .then(r => {
-                resolve(r.data.output)
-            })
-            .catch(err => {
-                reject(err)
-            })
+            )
+                .then(r => {
+                    resolve(r.data.output)
+                })
+                .catch(err => {
+                    reject(err)
+                })
+        }, timeDiff < 1000 ? 1000 - timeDiff : 0)
     })
 }
 
@@ -630,7 +633,7 @@ class AiService {
 
         const result = await this.sendPromptDefault(data, params)
         const parsedResult = result.split("\n")[0]
-        LmiService.updateLmi(prompt, result, parsedResult)
+        lmiService.updateLmi(prompt, result, parsedResult)
         return parsedResult
     }
 }
