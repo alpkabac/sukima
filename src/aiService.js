@@ -33,7 +33,7 @@ const DEFAULT_PARAMETERS = {
             sequence: [
                 1635
             ],
-            bias: 0.4,
+            bias: 0.3,
             ensure_sequence_finish: false,
             generate_once: true
         },
