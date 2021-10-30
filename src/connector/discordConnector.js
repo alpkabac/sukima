@@ -136,12 +136,11 @@ bot.on('message', async msg => {
 });
 
 async function loop() {
-    if (locked) return setTimeout(loop, getInterval())
+    if (locked) return setTimeout(loop, 2000)
 
     for (let channel in channels) {
-        if (channel.startsWith("##")) continue
         const msg = await commandService.talk(channel)
-        if (msg.message && msg.message.trim()) {
+        if (msg && msg.message && msg.message.trim()) {
             channels[channel].send(msg.message)
             await speak(msg.message, channel)
         }
