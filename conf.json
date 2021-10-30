@@ -13,6 +13,7 @@
     "#alice-default",
     "#alice-evil",
     "#alice-nsfw",
+    "#alice-rock",
     "#alice-custom-1",
     "#alice-custom-2",
     "#alice-custom-3"
@@ -23,7 +24,8 @@
     "#alicetest",
     "#alice-default",
     "#alice-evil",
-    "#alice-nsfw"
+    "#alice-nsfw",
+    "#alice-rock"
   ],
   "mutedChannels": {
   },
