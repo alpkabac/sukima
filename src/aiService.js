@@ -28,6 +28,24 @@ const DEFAULT_PARAMETERS = {
     min_length: 1,
     max_length: 2048,
     temperature: 0.75,
+    logit_bias_exp: [
+        {
+            sequence: [
+                1635
+            ],
+            bias: 0.4,
+            ensure_sequence_finish: false,
+            generate_once: true
+        },
+        {
+            sequence: [
+                9
+            ],
+            bias: 0.1,
+            ensure_sequence_finish: false,
+            generate_once: true
+        }
+    ],
     top_k: 140,
     top_p: 0.9,
     eos_token_id: 198,
@@ -535,36 +553,46 @@ const DEFAULT_PARAMETERS = {
     ]
 }
 
-const generate = async (input, params = DEFAULT_PARAMETERS, model = "6B-v3") => {
-    if (!ACCESS_TOKEN) ACCESS_TOKEN = await getAccessToken(process.env.NOVEL_AI_API_KEY)
+const generateUnthrottled = async (accessToken, input, params) => {
+    const res = await axios.post(
+        "https://api.novelai.net/ai/generate",
+        {
+            input,
+            model: "6B-v3",
+            parameters: params
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': "Bearer " + ACCESS_TOKEN
+            }
+        }
+    )
 
-    return new Promise((resolve, reject) => {
-        const timeDiff = Date.now() - lastGenerationTimestamp
-        setTimeout(() => {
-            axios.post(
-                "https://api.novelai.net/ai/generate",
-                {
-                    input,
-                    model,
-                    parameters: params
-                },
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': "Bearer " + ACCESS_TOKEN
-                    }
-                }
-            )
-                .then(r => {
-                    resolve(r.data.output)
-                })
-                .catch(err => {
-                    reject(err)
-                })
-        }, timeDiff < 1000 ? 1000 - timeDiff : 0)
-    })
+    return res.data.output
 }
 
+let isProcessing = false
+// throttles generation at one request per second
+const generate = async function (input, params, lowPriority = false) {
+    if (!ACCESS_TOKEN) ACCESS_TOKEN = await getAccessToken(process.env.NOVEL_AI_API_KEY)
+    const timeStep = conf.minTimeBetweenApiRequestsInSeconds * 1000
+
+    return new Promise((resolve) => {
+        if (lowPriority && isProcessing) {
+            resolve(null)
+        } else {
+            isProcessing = true
+            const timeDiff = Date.now() - lastGenerationTimestamp
+            lastGenerationTimestamp = Date.now()
+            setTimeout(async () => {
+                const res = await generateUnthrottled(ACCESS_TOKEN, input, params)
+                isProcessing = false
+                resolve(res)
+            }, timeDiff < timeStep ? timeStep - timeDiff : 0)
+        }
+    })
+}
 
 class AiService {
 
@@ -582,25 +610,25 @@ class AiService {
         callback(parsedAnswer)
     }
 
-    static async sendPrompt(prompt, nbToken) {
-        const data = {
-            prompt,
-            nb_answer: 1,
-            number_generated_tokens: nbToken,
-            temp: 0.6,
-            top_k: 60,
-            top_p: 0.9,
-            repetition_penalty: 1.2,
-            repetition_penalty_range: 512,
-            banned_strings: ["[", "{", "«"]
-        }
+    static async sendLowPriority(prompt, nbToken = conf.generate_num, preventLMI = false) {
+        let answer = await this.sendPrompt(prompt, nbToken, true)
 
-        return await this.sendPromptDefault(data)
+        if (answer) {
+            const parsedAnswer = messageService.parse(answer)
+            if (!preventLMI) {
+                lmiService.updateLmi(prompt, answer, parsedAnswer)
+            }
+            return parsedAnswer
+        }
     }
 
-    static async sendPromptDefault(data, params = DEFAULT_PARAMETERS) {
+    static async sendPrompt(prompt, nbToken, lowPriority = false) {
+        return await this.sendPromptDefault(prompt, undefined, lowPriority)
+    }
+
+    static async sendPromptDefault(prompt, params = DEFAULT_PARAMETERS, lowPriority = false) {
         return new Promise((resolve, reject) => {
-            generate(data.prompt, params)
+            generate(prompt, params, lowPriority)
                 .then(r => resolve(r))
                 .catch(err => reject(err))
         })
@@ -613,25 +641,13 @@ class AiService {
      * @param tokensToGenerate
      */
     static async simpleEvalbot(prompt, tokensToGenerate = 1) {
-        const data = {
-            prompt,
-            nb_answer: 1,
-            number_generated_tokens: tokensToGenerate,
-            temp: 0.8,
-            top_k: 60,
-            top_p: 0.9,
-            repetition_penalty: 1.3,
-            repetition_penalty_range: 2,
-            banned_strings: []
-        }
-
         const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
 
         params.max_length = tokensToGenerate
         params.bad_words_ids = undefined
         delete params.bad_words_ids
 
-        const result = await this.sendPromptDefault(data, params)
+        const result = await this.sendPromptDefault(prompt, params)
         const parsedResult = result.split("\n")[0]
         lmiService.updateLmi(prompt, result, parsedResult)
         return parsedResult

@@ -2,8 +2,8 @@ require('dotenv').config()
 
 class MessageService {
     static parse(msg) {
-        const answer = msg.startsWith(process.env.BOTNAME + ": ") ?  // Remove starting bot name if present
-            msg.slice((process.env.BOTNAME + ": ").length)
+        const answer = msg.startsWith((process.env.SURNAME || process.env.BOTNAME) + ": ") ?  // Remove starting bot name if present
+            msg.slice(((process.env.SURNAME || process.env.BOTNAME) + ": ").length)
             : msg
 
         // Remove everything from the output that is not something that the bot says itself

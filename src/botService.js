@@ -14,7 +14,7 @@ function prepareIncomingMessage(message, botName, nick) {
 }
 
 class BotService {
-    static async onChannelMessage(from, channel, message, botNick = process.env.BOTNAME) {
+    static async onChannelMessage(from, channel, message, botNick = process.env.SURNAME || process.env.BOTNAME) {
         if (!isMessageFromChannel(channel, conf.channels)) {
             return
         }

@@ -105,7 +105,7 @@ bot.on('message', async msg => {
         originalMsg.author.username,
         channelName,
         cleanContent,
-        process.env.BOTNAME)
+        (process.env.SURNAME || process.env.BOTNAME))
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
