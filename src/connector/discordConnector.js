@@ -24,6 +24,10 @@ let voiceChannel
 let speak = () => null
 
 
+function replaceAsterisksBySingleQuotes(text){
+    return text.replace(/\*/g, '`')
+}
+
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
     speak = async function (msg, channel) {
@@ -57,7 +61,7 @@ function sendIntro(id) {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-ROCK")
             }
             if (process.env.LMI) {
-                channel.send(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`)
+                channel.send(replaceAsterisksBySingleQuotes(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
             }
         })
 }
@@ -105,30 +109,25 @@ bot.on('message', async msg => {
         (process.env.SURNAME || process.env.BOTNAME))
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
+        const parsedMessage = replaceAsterisksBySingleQuotes(message.message)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
-            channels[channelName].lastBotMessage.edit(message.message)
+            channels[channelName].lastBotMessage.edit(parsedMessage)
             originalMsg.delete()
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-            channels[channelName].lastBotMessage.edit(channels[channelName].lastBotMessage.cleanContent + message.message)
+            channels[channelName].lastBotMessage.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
             originalMsg.delete()
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-            await originalMsg.channel.send(message.message)
+            await originalMsg.channel.send(parsedMessage)
             originalMsg.delete()
         } else if (message.message.startsWith("\nLoaded bot")) {
-            await originalMsg.inlineReply(message.message)
+            await originalMsg.inlineReply(parsedMessage)
             await speak(message.message.split("\n")[2], channelName)
             return
         } else {
-            await originalMsg.inlineReply(message.message)
+            await originalMsg.inlineReply(parsedMessage)
         }
 
         await speak(message.message, channelName)
-    } else if (privateMessage) {
-        const msg = await commandService.talk(channelName)
-        if (msg.message && msg.message.trim()) {
-            channels[channelName].send(msg.message)
-            await speak(msg.message, channelName)
-        }
     }
 });
 
@@ -138,9 +137,10 @@ async function loop() {
     for (let channel in channels) {
         const msg = await commandService.talk(channel)
         if (msg && msg.message && msg.message.trim()) {
-            channels[channel].send(msg.message)
+            const parsedMessage = replaceAsterisksBySingleQuotes(msg.message)
+            channels[channel].send(parsedMessage)
             if (!channel.startsWith("##")) {
-                await speak(msg.message, channel)
+                await speak(parsedMessage, channel)
             }
         }
     }

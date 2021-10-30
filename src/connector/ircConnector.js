@@ -19,9 +19,10 @@ class IrcConnector {
  */
 ircClient.addListener('message', async function (from, to, message) {
     resetLastMessageTimestamp()
-    const msg = await botService.onChannelMessage(from, to, message, ircClient.nick)
-    if (msg.message) {
-        ircClient.say(msg.channel, msg.message.trim())
+    const isDM = !to.startsWith("#")
+    const msg = await botService.onChannelMessage(from, isDM ? "##" + from : to, message, ircClient.nick)
+    if (msg && msg.message) {
+        ircClient.say(isDM ? from : msg.channel, msg.message.trim())
         resetLastMessageTimestamp()
     }
 });
@@ -32,15 +33,16 @@ ircClient.addListener('message', async function (from, to, message) {
  */
 ircClient.addListener('join', async function (channel, nick) {
     resetLastMessageTimestamp()
-    if (false && nick === process.env.BOTNAME) {
+    if (nick === process.env.BOTNAME) {
+        return
         const msg = commandService.deleteChannelHistory("!forget", "Noli", channel)
-        if (msg.message) {
+        if (msg && msg.message) {
             ircClient.say(msg.channel, msg.message.trim())
             resetLastMessageTimestamp()
         }
     } else {
         const msg = await botService.onJoin(channel, nick)
-        if (msg.message) {
+        if (msg && msg.message) {
             ircClient.say(msg.channel, msg.message.trim())
             resetLastMessageTimestamp()
         }
@@ -53,7 +55,7 @@ ircClient.addListener('join', async function (channel, nick) {
 ircClient.addListener('part', async function (channel, nick) {
     resetLastMessageTimestamp()
     const msg = await botService.onPart(channel, nick)
-    if (msg.message) {
+    if (msg && msg.message) {
         ircClient.say(msg.channel, msg.message.trim())
         resetLastMessageTimestamp()
     }
@@ -71,7 +73,7 @@ ircClient.addListener('quit', async function (nick) {
 ircClient.addListener('kick', async function (channel, nick, by, reason) {
     resetLastMessageTimestamp()
     const msg = await botService.onKick(channel, nick, by, reason)
-    if (msg.message) {
+    if (msg && msg.message) {
         ircClient.say(msg.channel, msg.message.trim())
         resetLastMessageTimestamp()
     }
@@ -83,7 +85,7 @@ ircClient.addListener('kick', async function (channel, nick, by, reason) {
 ircClient.addListener('action', async function (from, channel, text) {
     resetLastMessageTimestamp()
     const msg = await botService.onAction(channel, from, text)
-    if (msg.message) {
+    if (msg && msg.message) {
         ircClient.say(msg.channel, msg.message.trim())
         resetLastMessageTimestamp()
     }
