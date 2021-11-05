@@ -31,14 +31,17 @@ function replaceAsterisksBySingleQuotes(text){
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
     if (process.env.BOTNAME === "Jarvis") return
-    speak = async function (msg, channel) {
-        if (voiceChannel) {
-            connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
-            if (!connection) {
-                connection = await voiceChannel.join()
-            }
-            if (connection) {
-                await tts(connection, msg, channelBotTranslationService.getChannelBotTranslations(channel).voice)
+
+    if (!process.env.DISABLE_TTS || !["true","yes"].includes(process.env.DISABLE_TTS.trim().toLowerCase())){
+        speak = async function (msg, channel) {
+            if (voiceChannel) {
+                connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
+                if (!connection) {
+                    connection = await voiceChannel.join()
+                }
+                if (connection) {
+                    await tts(connection, msg, channelBotTranslationService.getChannelBotTranslations(channel).voice)
+                }
             }
         }
     }
@@ -69,6 +72,9 @@ function sendIntro(id) {
 
 bot.on('message', async msg => {
     const privateMessage = msg.channel.type === "dm"
+    if (process.env.DISABLE_DM && ["true","yes"].includes(process.env.DISABLE_DM.trim().toLowerCase())){
+        return
+    }
     const channelName = privateMessage ?
         "##" + msg.channel.id
         : "#" + msg.channel.name
@@ -128,7 +134,9 @@ bot.on('message', async msg => {
             await originalMsg.inlineReply(parsedMessage)
         }
 
-        await speak(message.message, channelName)
+        if (speak) {
+            await speak(message.message, channelName)
+        }
     }
 });
 
