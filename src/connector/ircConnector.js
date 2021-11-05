@@ -34,7 +34,6 @@ ircClient.addListener('message', async function (from, to, message) {
 ircClient.addListener('join', async function (channel, nick) {
     resetLastMessageTimestamp()
     if (nick === process.env.BOTNAME) {
-        return
         const msg = commandService.deleteChannelHistory("!forget", "Noli", channel)
         if (msg && msg.message) {
             ircClient.say(msg.channel, msg.message.trim())
@@ -121,6 +120,6 @@ async function main() {
     }
 }
 
-main()
+//main()
 
 module.exports = IrcConnector

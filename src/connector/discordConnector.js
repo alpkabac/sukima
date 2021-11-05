@@ -30,6 +30,7 @@ function replaceAsterisksBySingleQuotes(text){
 
 bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
+    if (process.env.BOTNAME === "Jarvis") return
     speak = async function (msg, channel) {
         if (voiceChannel) {
             connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
@@ -147,6 +148,8 @@ async function loop() {
     setTimeout(loop, getInterval())
 }
 
-setTimeout(loop, getInterval())
+if (process.env.BOTNAME !== "Jarvis") {
+    setTimeout(loop, getInterval())
+}
 
 module.exports = {}
