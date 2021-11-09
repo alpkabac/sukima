@@ -131,21 +131,27 @@ bot.on('message', async msg => {
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             try {
                 channels[channelName].lastBotMessage?.edit(parsedMessage)
-                originalMsg.delete()
+                if (!privateMessage) {
+                    originalMsg.delete()
+                }
             } catch {
 
             }
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
             try {
                 channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
-                originalMsg.delete()
+                if (!privateMessage) {
+                    originalMsg.delete()
+                }
             } catch {
 
             }
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             try {
                 await originalMsg.channel.send(parsedMessage)
-                originalMsg.delete()
+                if (!privateMessage) {
+                    originalMsg.delete()
+                }
             } catch {
 
             }
