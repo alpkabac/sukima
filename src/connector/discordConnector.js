@@ -130,19 +130,39 @@ bot.on('message', async msg => {
         const parsedMessage = replaceAsterisksBySingleQuotes(message.message)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(parsedMessage)
-            originalMsg.delete()
+            try {
+                originalMsg.delete()
+            }catch{
+
+            }
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
-            originalMsg.delete()
+            try {
+                originalMsg.delete()
+            }catch{
+
+            }
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(parsedMessage)
-            originalMsg.delete()
+            try {
+                originalMsg.delete()
+            }catch{
+
+            }
         } else if (message.message.startsWith("\nLoaded bot")) {
-            await originalMsg.inlineReply(parsedMessage)
+            try {
+                await originalMsg.inlineReply(parsedMessage)
+            }catch{
+
+            }
             await speak(message.message.split("\n")[2], channelName)
             return
         } else {
-            await originalMsg.inlineReply(parsedMessage)
+            try {
+                await originalMsg.inlineReply(parsedMessage)
+            }catch{
+
+            }
         }
 
         if (speak) {
