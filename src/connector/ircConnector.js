@@ -36,7 +36,7 @@ ircClient.addListener('join', async function (channel, nick) {
     if (nick === process.env.BOTNAME) {
         const msg = commandService.deleteChannelHistory("!forget", "Noli", channel)
         if (msg && msg.message) {
-            ircClient.say(msg.channel, msg.message.trim())
+            //ircClient.say(msg.channel, msg.message.trim())
             resetLastMessageTimestamp()
         }
     } else {

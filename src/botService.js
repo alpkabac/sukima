@@ -4,19 +4,13 @@ const conf = require('../conf.json')
 const commandService = require('./commandService')
 const translationsService = require('./translationService')
 
-function isMessageFromChannel(to, channels) {
-    if (to.startsWith("##")) return true
-    if (process.env.UNIQUE_CHANNEL) return to === "#" + process.env.UNIQUE_CHANNEL
-    return channels.some((channel) => utils.caseInsensitiveStringEquals(to, channel))
-}
-
 function prepareIncomingMessage(message, botName, nick) {
     return utils.replaceNickByBotName(botName, nick, message).trim()
 }
 
 class BotService {
     static async onChannelMessage(from, channel, message, botNick = process.env.SURNAME || process.env.BOTNAME) {
-        if (!isMessageFromChannel(channel, conf.channels)) {
+        if (!utils.isMessageFromChannel(channel, conf.channels)) {
             return
         }
 
@@ -70,7 +64,7 @@ class BotService {
     }
 
     static async onAction(channel, nick, action) {
-        if (isMessageFromChannel(channel, conf.channels)) {
+        if (utils.isMessageFromChannel(channel, conf.channels)) {
             return await commandService.reactToAction(
                 action,
                 nick,

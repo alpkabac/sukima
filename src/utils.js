@@ -52,6 +52,12 @@ class Utils {
         stream.push(null)
         connection.play(stream)
     }
+
+    static isMessageFromChannel(to, channels) {
+        if (to.startsWith("##")) return true
+        if (process.env.UNIQUE_CHANNEL) return to === "#" + process.env.UNIQUE_CHANNEL
+        return channels.some((channel) => Utils.caseInsensitiveStringEquals(to, channel))
+    }
 }
 
 module.exports = Utils

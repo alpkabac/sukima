@@ -31,7 +31,7 @@
   },
   "lniPort": 3001,
   "apiUrl": "http://localhost:5000",
-  "minBotMessageIntervalInSeconds": 6,
-  "maxBotMessageIntervalInSeconds": 8,
+  "minBotMessageIntervalInSeconds": 50,
+  "maxBotMessageIntervalInSeconds": 70,
   "minTimeBetweenApiRequestsInSeconds": 2
 }

@@ -249,8 +249,9 @@ class CommandService {
     static talk(channel) {
         return new Promise((resolve) => {
             if (!this.isChannelMuted(channel)) {
-                const lastMessageFromChannel = historyService.getChannelHistory(channel) && historyService.getChannelHistory(channel).length > 0 ?
-                    historyService.getChannelHistory(channel)[historyService.getChannelHistory(channel).length - 1]
+                const history = historyService.getChannelHistory(channel)
+                const lastMessageFromChannel = history && history.length > 0 ?
+                    history[history.length - 1]
                     : null
                 if (lastMessageFromChannel && lastMessageFromChannel.from !== (process.env.SURNAME || process.env.BOTNAME)) {
                     const prompt = promptService.getPrompt(null, null, channel)
@@ -321,7 +322,10 @@ class CommandService {
                     if (lines.length > 1) {
                         for (let i = 1; i < lines.length; i++) {
                             if (!aiPersonality.introduction[i - 1]) {
-                                aiPersonality.introduction[i - 1] = {from: (process.env.SURNAME || process.env.BOTNAME), msg: lines[i]}
+                                aiPersonality.introduction[i - 1] = {
+                                    from: (process.env.SURNAME || process.env.BOTNAME),
+                                    msg: lines[i]
+                                }
                             } else {
                                 aiPersonality.introduction[i - 1].msg = lines[i]
                             }

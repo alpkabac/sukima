@@ -1,6 +1,8 @@
 require('dotenv').config()
 const {Client} = require("discord.js");
 require("../discord/ExtAPIMessage");
+const conf = require("../../conf.json")
+
 const bot = new Client({
     allowedMentions: {
         // set repliedUser value to `false` to turn off the mention by default
@@ -12,6 +14,7 @@ const channelBotTranslationService = require('../channelBotTranslationService')
 const commandService = require("../commandService");
 const {tts} = require("../utils");
 const {getInterval} = require("../utils");
+const Utils = require("../utils");
 
 const TOKEN = process.env.TOKEN;
 bot.login(TOKEN);
@@ -72,12 +75,16 @@ function sendIntro(id) {
 
 bot.on('message', async msg => {
     const privateMessage = msg.channel.type === "dm"
-    if (process.env.DISABLE_DM && ["true","yes"].includes(process.env.DISABLE_DM.trim().toLowerCase())){
+    if (privateMessage && process.env.DISABLE_DM && ["true","yes"].includes(process.env.DISABLE_DM.trim().toLowerCase())){
         return
     }
     const channelName = privateMessage ?
         "##" + msg.channel.id
         : "#" + msg.channel.name
+
+    if (!Utils.isMessageFromChannel(channelName, conf.channels)){
+        return
+    }
 
     voiceChannel = msg.member?.voice?.channel
 
