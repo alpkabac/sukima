@@ -111,7 +111,11 @@ bot.on('message', async msg => {
     } else if (cleanContent === "!forget") {
         await originalMsg.react("💔")
         setTimeout(() => {
-            originalMsg.delete()
+            try {
+                originalMsg.delete()
+            }catch{
+
+            }
         }, 3000)
     }
 
