@@ -112,7 +112,7 @@ bot.on('message', async msg => {
         await originalMsg.react("💔")
         setTimeout(() => {
             try {
-                originalMsg.delete()
+                //originalMsg.delete()
             } catch {
 
             }
