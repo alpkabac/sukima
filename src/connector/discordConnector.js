@@ -27,7 +27,7 @@ let voiceChannel
 let speak = () => null
 
 
-function replaceAsterisksBySingleQuotes(text){
+function replaceAsterisksBySingleQuotes(text) {
     return text.replace(/\*/g, '`')
 }
 
@@ -35,7 +35,7 @@ bot.on('ready', () => {
     console.info(`Logged in as ${bot.user.tag}!`)
     if (process.env.BOTNAME === "Jarvis") return
 
-    if (!process.env.DISABLE_TTS || !["true","yes"].includes(process.env.DISABLE_TTS.trim().toLowerCase())){
+    if (!process.env.DISABLE_TTS || !["true", "yes"].includes(process.env.DISABLE_TTS.trim().toLowerCase())) {
         speak = async function (msg, channel) {
             if (voiceChannel) {
                 connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
@@ -75,14 +75,14 @@ function sendIntro(id) {
 
 bot.on('message', async msg => {
     const privateMessage = msg.channel.type === "dm"
-    if (privateMessage && process.env.DISABLE_DM && ["true","yes"].includes(process.env.DISABLE_DM.trim().toLowerCase())){
+    if (privateMessage && process.env.DISABLE_DM && ["true", "yes"].includes(process.env.DISABLE_DM.trim().toLowerCase())) {
         return
     }
     const channelName = privateMessage ?
         "##" + msg.channel.id
         : "#" + msg.channel.name
 
-    if (!Utils.isMessageFromChannel(channelName, conf.channels)){
+    if (!Utils.isMessageFromChannel(channelName, conf.channels)) {
         return
     }
 
@@ -113,7 +113,7 @@ bot.on('message', async msg => {
         setTimeout(() => {
             try {
                 originalMsg.delete()
-            }catch{
+            } catch {
 
             }
         }, 3000)
@@ -129,44 +129,48 @@ bot.on('message', async msg => {
     if (message && message.message && message.message.trim().length > 0) {
         const parsedMessage = replaceAsterisksBySingleQuotes(message.message)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
-            channels[channelName].lastBotMessage?.edit(parsedMessage)
             try {
+                channels[channelName].lastBotMessage?.edit(parsedMessage)
                 originalMsg.delete()
-            }catch{
+            } catch {
 
             }
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-            channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
             try {
+                channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
                 originalMsg.delete()
-            }catch{
+            } catch {
 
             }
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-            await originalMsg.channel.send(parsedMessage)
             try {
+                await originalMsg.channel.send(parsedMessage)
                 originalMsg.delete()
-            }catch{
+            } catch {
 
             }
         } else if (message.message.startsWith("\nLoaded bot")) {
             try {
                 await originalMsg.inlineReply(parsedMessage)
-            }catch{
+                await speak(message.message.split("\n")[2], channelName)
+            } catch {
 
             }
-            await speak(message.message.split("\n")[2], channelName)
             return
         } else {
             try {
                 await originalMsg.inlineReply(parsedMessage)
-            }catch{
+            } catch {
 
             }
         }
 
         if (speak) {
-            await speak(message.message, channelName)
+            try {
+                await speak(message.message, channelName)
+            }catch{
+
+            }
         }
     }
 });
