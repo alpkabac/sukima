@@ -111,10 +111,8 @@ bot.on('message', async msg => {
     } else if (cleanContent === "!forget") {
         await originalMsg.react("💔")
         setTimeout(() => {
-            try {
-                //originalMsg.delete()
-            } catch {
-
+            if (!privateMessage) {
+                originalMsg.delete()
             }
         }, 3000)
     }
@@ -129,54 +127,30 @@ bot.on('message', async msg => {
     if (message && message.message && message.message.trim().length > 0) {
         const parsedMessage = replaceAsterisksBySingleQuotes(message.message)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
-            try {
-                channels[channelName].lastBotMessage?.edit(parsedMessage)
-                if (!privateMessage) {
-                    originalMsg.delete()
-                }
-            } catch {
-
+            channels[channelName].lastBotMessage?.edit(parsedMessage)
+            if (!privateMessage) {
+                originalMsg.delete()
             }
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-            try {
-                channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
-                if (!privateMessage) {
-                    originalMsg.delete()
-                }
-            } catch {
-
+            channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
+            if (!privateMessage) {
+                originalMsg.delete()
             }
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-            try {
-                await originalMsg.channel.send(parsedMessage)
-                if (!privateMessage) {
-                    originalMsg.delete()
-                }
-            } catch {
-
+            await originalMsg.channel.send(parsedMessage)
+            if (!privateMessage) {
+                originalMsg.delete()
             }
         } else if (message.message.startsWith("\nLoaded bot")) {
-            try {
-                await originalMsg.inlineReply(parsedMessage)
-                await speak(message.message.split("\n")[2], channelName)
-            } catch {
-
-            }
+            await originalMsg.inlineReply(parsedMessage)
+            await speak(message.message.split("\n")[2], channelName)
             return
         } else {
-            try {
-                await originalMsg.inlineReply(parsedMessage)
-            } catch {
-
-            }
+            await originalMsg.inlineReply(parsedMessage)
         }
 
         if (speak) {
-            try {
-                await speak(message.message, channelName)
-            }catch{
-
-            }
+            await speak(message.message, channelName)
         }
     }
 });
