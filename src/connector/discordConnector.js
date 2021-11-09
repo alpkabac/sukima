@@ -125,10 +125,10 @@ bot.on('message', async msg => {
     if (message && message.message && message.message.trim().length > 0) {
         const parsedMessage = replaceAsterisksBySingleQuotes(message.message)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
-            channels[channelName].lastBotMessage.edit(parsedMessage)
+            channels[channelName].lastBotMessage?.edit(parsedMessage)
             originalMsg.delete()
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-            channels[channelName].lastBotMessage.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
+            channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
             originalMsg.delete()
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(parsedMessage)
