@@ -26,6 +26,7 @@ class BotService {
             || await commandService.changeLanguage(msg, from, channel)
             || await commandService.prompt(msg, from, channel)
             || commandService.rpgPutEvent(msg, from, channel)
+            || commandService.rpgContext(msg, from, channel)
             || commandService.forgetAllRemember(msg, from, channel)
             || commandService.deleteChannelHistory(msg, from, channel)
             || commandService.mute(msg, from, channel)

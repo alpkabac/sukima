@@ -398,6 +398,29 @@ class CommandService {
                 const formattedEvent = event.startsWith("[") && event.endsWith("]") ? event :
                     `[ Event: ${event.trim()} ]`
                 historyService.pushIntoHistory(formattedEvent, null, channel, true)
+
+                return {message: formattedEvent, channel}
+            }
+            return true
+        } else {
+            return false
+        }
+    }
+
+    static rpgContext(msg, from, channel) {
+        const command = "!rpg "
+
+        if (msg.startsWith(command)) {
+            const fullCommand = msg.replace(command, "").trim()
+            const words = fullCommand.split(" ")
+            const key = words.shift()
+            const command = words.join(" ")
+
+            if (key && command) {
+                const formattedEvent = `[ ${utils.upperCaseFirstLetter(key)}: ${command.trim()} ]`
+                historyService.pushIntoHistory(formattedEvent, null, channel, true)
+
+                return {message: formattedEvent, channel}
             }
             return true
         } else {

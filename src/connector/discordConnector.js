@@ -164,6 +164,10 @@ bot.on('message', async msg => {
             await originalMsg.inlineReply(parsedMessage)
             await speak(message.message.split("\n")[2], channelName)
             return
+        } else if(cleanContent.startsWith("!rpg") || cleanContent.startsWith("!event")){
+            if (!privateMessage) {
+                originalMsg.edit(parsedMessage)
+            }
         } else {
             await originalMsg.inlineReply(parsedMessage)
         }
