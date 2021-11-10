@@ -138,7 +138,7 @@ bot.on('message', async msg => {
 
     locked = true
     const message = await botService.onChannelMessage(
-        originalMsg.author.username,
+        replaceAliases(originalMsg.author.username),
         channelName,
         cleanContent,
         (process.env.SURNAME || process.env.BOTNAME))
