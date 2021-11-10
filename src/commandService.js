@@ -414,10 +414,10 @@ class CommandService {
             const fullCommand = msg.replace(command, "").trim()
             const words = fullCommand.split(" ")
             const key = words.shift()
-            const command = words.join(" ")
+            const value = words.join(" ")
 
-            if (key && command) {
-                const formattedEvent = `[ ${utils.upperCaseFirstLetter(key)}: ${command.trim()} ]`
+            if (key && value) {
+                const formattedEvent = `[ ${utils.upperCaseFirstLetter(key)}: ${value.trim()} ]`
                 historyService.pushIntoHistory(formattedEvent, null, channel, true)
 
                 return {message: formattedEvent, channel}
