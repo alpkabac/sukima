@@ -84,13 +84,21 @@ function sendIntro(id) {
         })
 }
 
+// TODO: add configurations for aliases
+function replaceAliases(nick) {
+    if (nick === "AliceBot") {
+        return "Alice"
+    }
+    return nick
+}
+
 bot.on('message', async msg => {
     const privateMessage = msg.channel.type === "dm"
     if (privateMessage && process.env.DISABLE_DM && ["true", "yes"].includes(process.env.DISABLE_DM.trim().toLowerCase())) {
         return
     }
     const channelName = privateMessage ?
-        "##" + msg.channel.id
+        "##" + replaceAliases(msg.channel.id)
         : "#" + msg.channel.name
 
     if (!Utils.isMessageFromChannel(channelName, conf.channels)) {
