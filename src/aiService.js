@@ -54,6 +54,7 @@ const DEFAULT_PARAMETERS = {
     repetition_penalty_slope: 6.57,
     tail_free_sampling: 1,
     prefix: "vanilla",
+
     bad_words_ids: [
         [
             27,
@@ -560,7 +561,7 @@ const generateUnthrottled = async (accessToken, input, params) => {
             "https://api.novelai.net/ai/generate",
             {
                 input,
-                model: "6B-v3",
+                model: "6B-v4",
                 parameters: params
             },
             {
