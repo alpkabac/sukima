@@ -397,7 +397,7 @@ class CommandService {
             if (event) {
                 const formattedEvent = event.startsWith("[") && event.endsWith("]") ? event :
                     `[ Event: ${event.trim()} ]`
-                historyService.pushIntoHistory(formattedEvent, null, channel)
+                historyService.pushIntoHistory(formattedEvent, null, channel, true)
             }
             return true
         } else {
