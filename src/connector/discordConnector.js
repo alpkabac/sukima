@@ -166,7 +166,7 @@ bot.on('message', async msg => {
             return
         } else if(cleanContent.startsWith("!rpg") || cleanContent.startsWith("!event")){
             if (!privateMessage) {
-                originalMsg.edit(parsedMessage)
+                await originalMsg.react("✅")
             }
         } else {
             await originalMsg.inlineReply(parsedMessage)
