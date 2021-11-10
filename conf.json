@@ -14,6 +14,7 @@
     "#alice-evil",
     "#alice-nsfw",
     "#alice-rock",
+    "#alice-rpg",
     "#alice-custom-1",
     "#alice-custom-2",
     "#alice-custom-3"
@@ -25,7 +26,8 @@
     "#alice-default",
     "#alice-evil",
     "#alice-nsfw",
-    "#alice-rock"
+    "#alice-rock",
+    "#alice-rpg"
   ],
   "mutedChannels": {
   },
