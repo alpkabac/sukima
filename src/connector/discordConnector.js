@@ -85,7 +85,6 @@ function sendIntro(id) {
 }
 
 bot.on('message', async msg => {
-    msg = replaceBackQuotesByAsterisks(msg)
     const privateMessage = msg.channel.type === "dm"
     if (privateMessage && process.env.DISABLE_DM && ["true", "yes"].includes(process.env.DISABLE_DM.trim().toLowerCase())) {
         return
@@ -112,7 +111,7 @@ bot.on('message', async msg => {
     }
     if (originalMsg.content === ";ai me") return                        // Prevents commands from other bots
 
-    const cleanContent = originalMsg.cleanContent
+    const cleanContent = replaceBackQuotesByAsterisks(originalMsg.cleanContent)
 
     if (cleanContent.startsWith("²") && cleanContent.length === 1) {
         await originalMsg.react("🔄")
