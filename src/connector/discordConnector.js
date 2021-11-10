@@ -49,14 +49,17 @@ bot.on('ready', () => {
         }
     }
 
+    sendIntro("908046238887333888")
+    if (process.env.BOTNAME === "Lulune") return
+
     //sendIntro("853322311268171816")
     sendIntro("852192504862605312")
     sendIntro("883501924954042438")
     sendIntro("883504359739125790")
     sendIntro("892776322932281386")
-    sendIntro("908046238887333888")
+
 });
- 
+
 function sendIntro(id) {
     bot.channels.fetch(id)
         .then(channel => {
@@ -71,7 +74,7 @@ function sendIntro(id) {
             }
             if (process.env.LMI) {
                 channel.send(replaceAsterisksBySingleQuotes(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
-            }else{
+            } else {
                 channel.send(replaceAsterisksBySingleQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
             }
         })
