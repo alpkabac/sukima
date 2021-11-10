@@ -66,6 +66,8 @@ function sendIntro(id) {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-NSFW")
             } else if (id === "892776322932281386") {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-ROCK")
+            } else if (id === "908046238887333888") {
+                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-RPG")
             }
             if (process.env.LMI) {
                 channel.send(replaceAsterisksBySingleQuotes(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
