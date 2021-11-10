@@ -32,7 +32,7 @@ function replaceAsterisksByBackQuotes(text) {
 }
 
 function replaceBackQuotesByAsterisks(text) {
-    return text.replace(/\*/g, '`')
+    return text.replace(/`/g, '*')
 }
 
 bot.on('ready', () => {
