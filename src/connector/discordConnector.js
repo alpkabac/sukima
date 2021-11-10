@@ -27,7 +27,11 @@ let voiceChannel
 let speak = () => null
 
 
-function replaceAsterisksBySingleQuotes(text) {
+function replaceAsterisksByBackQuotes(text) {
+    return text.replace(/\*/g, '`')
+}
+
+function replaceBackQuotesByAsterisks(text) {
     return text.replace(/\*/g, '`')
 }
 
@@ -73,14 +77,15 @@ function sendIntro(id) {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-RPG")
             }
             if (process.env.LMI) {
-                channel.send(replaceAsterisksBySingleQuotes(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
+                channel.send(replaceAsterisksByBackQuotes(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
             } else {
-                channel.send(replaceAsterisksBySingleQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
+                channel.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
             }
         })
 }
 
 bot.on('message', async msg => {
+    msg = replaceBackQuotesByAsterisks(msg)
     const privateMessage = msg.channel.type === "dm"
     if (privateMessage && process.env.DISABLE_DM && ["true", "yes"].includes(process.env.DISABLE_DM.trim().toLowerCase())) {
         return
@@ -132,7 +137,7 @@ bot.on('message', async msg => {
         (process.env.SURNAME || process.env.BOTNAME))
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
-        const parsedMessage = replaceAsterisksBySingleQuotes(message.message)
+        const parsedMessage = replaceAsterisksByBackQuotes(message.message)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(parsedMessage)
             if (!privateMessage) {
@@ -168,7 +173,7 @@ async function loop() {
     for (let channel in channels) {
         const msg = await commandService.talk(channel)
         if (msg && msg.message && msg.message.trim()) {
-            const parsedMessage = replaceAsterisksBySingleQuotes(msg.message)
+            const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
             channels[channel].send(parsedMessage)
             if (!channel.startsWith("##")) {
                 await speak(parsedMessage, channel)
