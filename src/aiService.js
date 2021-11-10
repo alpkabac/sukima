@@ -554,22 +554,27 @@ const DEFAULT_PARAMETERS = {
 }
 
 const generateUnthrottled = async (accessToken, input, params) => {
-    const res = await axios.post(
-        "https://api.novelai.net/ai/generate",
-        {
-            input,
-            model: "6B-v3",
-            parameters: params
-        },
-        {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': "Bearer " + ACCESS_TOKEN
+    let res
+    try {
+        res = await axios.post(
+            "https://api.novelai.net/ai/generate",
+            {
+                input,
+                model: "6B-v3",
+                parameters: params
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': "Bearer " + ACCESS_TOKEN
+                }
             }
-        }
-    )
+        )
+    }catch{
+        res = null
+    }
 
-    return res.data.output
+    return res?.data?.output
 }
 
 let isProcessing = false
@@ -578,7 +583,7 @@ const generate = async function (input, params, lowPriority = false) {
     if (!ACCESS_TOKEN) ACCESS_TOKEN = await getAccessToken(process.env.NOVEL_AI_API_KEY)
     const timeStep = conf.minTimeBetweenApiRequestsInSeconds * 1000
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         if (lowPriority && isProcessing) {
             resolve(null)
         } else {
@@ -586,9 +591,13 @@ const generate = async function (input, params, lowPriority = false) {
             const timeDiff = Date.now() - lastGenerationTimestamp
             lastGenerationTimestamp = Date.now()
             setTimeout(async () => {
-                const res = await generateUnthrottled(ACCESS_TOKEN, input, params)
-                isProcessing = false
-                resolve(res)
+                try {
+                    const res = await generateUnthrottled(ACCESS_TOKEN, input, params)
+                    isProcessing = false
+                    resolve(res)
+                }catch{
+                    reject(null)
+                }
             }, timeDiff < timeStep ? timeStep - timeDiff : 0)
         }
     })

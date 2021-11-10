@@ -4,6 +4,7 @@ const translationService = require("./translationService")
 const channelBotTranslationService = require("./channelBotTranslationService")
 const historyService = require("./historyService")
 const memoryService = require("./memoryService")
+const encoder = require("gpt-3-encoder")
 
 class PromptService {
     static getIntroduction(botTranslations, usesIntroduction = true, privateMessage = false) {
@@ -28,7 +29,6 @@ class PromptService {
                 return {from: key, msg: memoryService.getChannelMemory(channel)[key]}
             })
     }
-
 
     // FIXME: refacto whole method
     static getPrompt(msg, from, channel, usesIntroduction = true, usesHistory = true, isContinuation = false, isRetry = false) {
