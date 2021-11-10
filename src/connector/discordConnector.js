@@ -68,15 +68,15 @@ function sendIntro(id) {
     bot.channels.fetch(id)
         .then(channel => {
             if (id === "883501924954042438") {
-                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-EVIL")
+                //channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-EVIL")
             } else if (id === "883504359739125790") {
-                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-NSFW")
+                //channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-NSFW")
             } else if (id === "892776322932281386") {
-                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-ROCK")
+                //channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-ROCK")
             } else if (id === "908046238887333888") {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-RPG")
             }
-            if (process.env.LMI) {
+            if (process.env.LMI && id !== "908046238887333888") {
                 channel.send(replaceAsterisksByBackQuotes(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
             } else {
                 channel.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
