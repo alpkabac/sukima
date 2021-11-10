@@ -80,7 +80,7 @@ class PromptService {
                         return filter
                     })
                     .reverse()  // Unreverse
-                    .map((msg) => `${msg.from}: ${msg.msg}`)        // Formatting the line
+                    .map((msg) => msg.from ? `${msg.from}: ${msg.msg}` : msg.msg)        // Formatting the line
                     .join("\n")         // Concat the array into multiline string
             )
             + (isContinuation ? "" : ("\n" + process.env.BOTNAME + ":")) // Add the process.env.BOTNAME so the AI knows it's its turn to speak

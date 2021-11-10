@@ -389,6 +389,22 @@ class CommandService {
         })
     }
 
+    static rpgPutEvent(msg, from, channel) {
+        const command = "!event "
+
+        if (msg.startsWith(command)) {
+            const event = msg.replace(command, "")
+            if (event) {
+                const formattedEvent = event.startsWith("[") && event.endsWith("]") ? event :
+                    `[ Event: ${event.trim()} ]`
+                historyService.pushIntoHistory(formattedEvent, null, channel)
+            }
+            return true
+        } else {
+            return false
+        }
+    }
+
     static r34(msg, from, channel) {
         const command = "!r34"
         return new Promise((resolve) => {
