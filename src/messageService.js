@@ -2,6 +2,7 @@ require('dotenv').config()
 
 class MessageService {
     static parse(msg) {
+        if (!msg) return ""
         const answer = msg.startsWith((process.env.SURNAME || process.env.BOTNAME) + ": ") ?  // Remove starting bot name if present
             msg.slice(((process.env.SURNAME || process.env.BOTNAME) + ": ").length)
             : msg
