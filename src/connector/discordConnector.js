@@ -83,7 +83,7 @@ function sendIntro(id) {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-RPG")
             }
             if (process.env.LMI && id !== "908046238887333888") {
-                //channel.send(replaceAsterisksByBackQuotes(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
+                channel.send(replaceAsterisksByBackQuotes(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
             } else {
                 channel.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
             }
