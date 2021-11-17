@@ -44,6 +44,12 @@ const DEFAULT_PARAMETERS = {
             bias: 0.1,
             ensure_sequence_finish: false,
             generate_once: true
+        },
+        {
+            sequence: [3740, 1378],
+            bias: 0.9,
+            ensure_sequence_finish: true,
+            generate_once: true
         }
     ],
     top_k: 140,

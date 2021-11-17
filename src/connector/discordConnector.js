@@ -53,7 +53,9 @@ bot.on('ready', () => {
         }
     }
 
+    // TODO: conf for channels to send intro into at startup
     sendIntro("908046238887333888")
+    sendIntro("910345920481206273")
     if (process.env.BOTNAME === "Lulune") return
 
     //sendIntro("853322311268171816")
@@ -62,15 +64,19 @@ bot.on('ready', () => {
     sendIntro("883504359739125790")
     sendIntro("892776322932281386")
 
+
 });
 
 function sendIntro(id) {
     bot.channels.fetch(id)
         .then(channel => {
+            // TODO: move bot personality setup elsewhere
             if (id === "883501924954042438") {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-EVIL")
             } else if (id === "883504359739125790") {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-NSFW")
+            } else if (id === "910345920481206273") {
+                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-NSFW-DOM")
             } else if (id === "892776322932281386") {
                 channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-ROCK")
             } else if (id === "908046238887333888") {
