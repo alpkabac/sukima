@@ -10,6 +10,7 @@ const promptService = require("./promptService")
 const {getMap, getTags} = require("./r34Service")
 const voices = JSON.parse(JSON.stringify(require('./tts/languages.json')))
 
+// TODO: split this class
 class CommandService {
     static mutedChannels
 
@@ -95,10 +96,10 @@ class CommandService {
                 const language = msg.replace(command, "")
                 let message = ""
                 translationsService.changeLanguage(language)
-                if (channelBotTranslationService.changeChannelBotTranslations(channel, language, process.env.SURNAME || process.env.BOTNAME)) {
-                    message += `\nLoaded bot personality file: ${process.env.SURNAME || process.env.BOTNAME}/${language}.json`
+                if (channelBotTranslationService.changeChannelBotTranslations(channel, language, process.env.BOTNAME)) {
+                    message += `\nLoaded bot personality file: ${process.env.BOTNAME}/${language}.json`
                 } else {
-                    message += (message ? "\n" : "") + `Couldn't load bot personality for ${process.env.SURNAME || process.env.BOTNAME}/${language}.json`
+                    message += (message ? "\n" : "") + `Couldn't load bot personality for ${process.env.BOTNAME}/${language}.json`
                 }
                 if (message) {
                     const privateMessage = channel.startsWith("##")
@@ -124,7 +125,7 @@ class CommandService {
 
                     const prompt = promptService.getPrompt(message, from, channel, false, false)
                     aiService.sendUntilSuccess(prompt, conf.generate_num, channel.startsWith("##"), (answer) => {
-                        historyService.pushIntoHistory(answer, process.env.SURNAME || process.env.BOTNAME, channel)
+                        historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
                     }).then(() => {
                     })
@@ -147,7 +148,7 @@ class CommandService {
 
                         historyService.getChannelHistory(channel).reverse()
                         for (let h of historyService.getChannelHistory(channel)) {
-                            if (h.from === (process.env.SURNAME || process.env.BOTNAME)) {
+                            if (h.from === process.env.BOTNAME) {
                                 if (h.msg.substr(h.msg.length - 1).match(/[,.;?!:]/)) {
                                     h.msg += " "
                                 }
@@ -179,7 +180,7 @@ class CommandService {
 
                         historyService.getChannelHistory(channel).reverse()
                         for (let h of historyService.getChannelHistory(channel)) {
-                            if (h.from === (process.env.SURNAME || process.env.BOTNAME)) {
+                            if (h.from === process.env.BOTNAME) {
                                 h.msg = answer
                                 break
                             }
@@ -208,7 +209,7 @@ class CommandService {
                     }
                     const prompt = promptService.getPrompt(message, from, channel)
                     aiService.sendUntilSuccess(prompt, undefined, channel.startsWith("##"), (answer) => {
-                        historyService.pushIntoHistory(answer, process.env.SURNAME || process.env.BOTNAME, channel)
+                        historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
                     }).then(() => {
                     })
@@ -230,10 +231,10 @@ class CommandService {
         return new Promise((resolve) => {
             if (!this.isChannelMuted(channel)) {
                 historyService.pushIntoHistory(msg, from, channel)
-                if (msg.toLowerCase().includes((process.env.SURNAME || process.env.BOTNAME).toLowerCase())) {
+                if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
                     const prompt = promptService.getPrompt(msg, from, channel)
                     aiService.sendUntilSuccess(prompt, undefined, channel.startsWith("##"), (answer) => {
-                        historyService.pushIntoHistory(answer, (process.env.SURNAME || process.env.BOTNAME), channel)
+                        historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
                     }).then(() => {
                     })
@@ -253,11 +254,11 @@ class CommandService {
                 const lastMessageFromChannel = history && history.length > 0 ?
                     history[history.length - 1]
                     : null
-                if (lastMessageFromChannel && lastMessageFromChannel.from !== (process.env.SURNAME || process.env.BOTNAME)) {
+                if (lastMessageFromChannel && lastMessageFromChannel.from !== process.env.BOTNAME) {
                     const prompt = promptService.getPrompt(null, null, channel)
                     aiService.sendLowPriority(prompt, undefined, channel.startsWith("##")).then((answer) => {
                         if (answer) {
-                            historyService.pushIntoHistory(answer, (process.env.SURNAME || process.env.BOTNAME), channel)
+                            historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                             resolve({message: answer, channel})
                         }
                         resolve(true)
@@ -279,7 +280,7 @@ class CommandService {
                 historyService.pushIntoHistory(action, from, channel)
                 const prompt = promptService.getPrompt(msg, from, channel)
                 aiService.sendUntilSuccess(prompt, undefined, channel.startsWith("##"), (answer) => {
-                    historyService.pushIntoHistory(answer, (process.env.SURNAME || process.env.BOTNAME), channel)
+                    historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                     resolve({message: answer, channel})
                 }).then(() => {
                 })
@@ -306,7 +307,11 @@ class CommandService {
     static setPersonality(msg, from, channel) {
         const command = "!setPersonality "
         return new Promise((resolve) => {
-            if (msg.toLowerCase().startsWith(command.toLowerCase()) && !conf.changePersonalityChannelBlacklist.includes(channel)) {
+            if (msg.toLowerCase().startsWith(command.toLowerCase())) {
+                if (conf.changePersonalityChannelBlacklist.includes(channel)) {
+                    resolve({message: "Sorry, but this channel personality is locked.", channel})
+                    return
+                }
                 // TODO: check if user 'from' is allowed to execute that command
                 const personality = msg.replace(command, "")
 
@@ -323,7 +328,7 @@ class CommandService {
                         for (let i = 1; i < lines.length; i++) {
                             if (!aiPersonality.introduction[i - 1]) {
                                 aiPersonality.introduction[i - 1] = {
-                                    from: (process.env.SURNAME || process.env.BOTNAME),
+                                    from: process.env.BOTNAME,
                                     msg: lines[i]
                                 }
                             } else {

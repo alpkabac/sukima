@@ -11,7 +11,7 @@ class ChannelBotTranslationService {
         return this.channelBotTranslations[channel]
     }
 
-    static changeChannelBotTranslations(channel, code = process.env.TRANSLATION_FILE ||conf.defaultBotTranslationFile, botName = process.env.SURNAME || process.env.BOTNAME) {
+    static changeChannelBotTranslations(channel, code = process.env.TRANSLATION_FILE || "en-EN", botName = process.env.BOTNAME) {
         try {
             this.channelBotTranslations[channel] = JSON.parse(JSON.stringify(require(`../translations/aiPersonality/${botName}/${code}.json`)))
             return true

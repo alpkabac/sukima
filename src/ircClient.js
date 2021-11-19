@@ -4,7 +4,7 @@ const conf = require('../conf.json')
 
 const ircClient = new irc.Client(conf.ircServer, process.env.BOTNAME, {
     channels: conf.channels,
-    username: process.env.USERNAME,
+    username: process.env.BOTNAME,
     realName: process.env.REALNAME,
     password: process.env.PASSWORD,
 });

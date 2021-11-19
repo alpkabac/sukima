@@ -1,3 +1,4 @@
+require('dotenv').config()
 const ircClient = require('../ircClient')
 const botService = require('../botService')
 const conf = require('../../conf.json')
@@ -14,13 +15,28 @@ class IrcConnector {
     }
 }
 
+function replaceAliasesInMessage(message, nick) {
+    if (nick === "AliceBot") {
+        return message
+            .replace("AliceBot", nick)
+            .replace("Alicebot", nick)
+            .replace("alicebot", nick)
+    } else if (nick === "GLaDOS") {
+        return message
+            .replace("glados", nick)
+            .replace("Glados", nick)
+    } else {
+        return message
+    }
+}
+
 /**
  * Makes the bot react to messages if its name is mentioned
  */
 ircClient.addListener('message', async function (from, to, message) {
     resetLastMessageTimestamp()
     const isDM = !to.startsWith("#")
-    const msg = await botService.onChannelMessage(from, isDM ? "##" + from : to, message, ircClient.nick)
+    const msg = await botService.onChannelMessage(from, isDM ? "##" + from : to, replaceAliasesInMessage(message, process.env.BOTNAME), ircClient.nick)
     if (msg && msg.message) {
         ircClient.say(isDM ? from : msg.channel, msg.message.trim())
         resetLastMessageTimestamp()

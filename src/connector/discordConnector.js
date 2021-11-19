@@ -1,6 +1,7 @@
 require('dotenv').config()
 const {Client} = require("discord.js");
 require("../discord/ExtAPIMessage");
+const voices = JSON.parse(JSON.stringify(require('../tts/languages.json')))
 const conf = require("../../conf.json")
 
 const bot = new Client({
@@ -9,6 +10,7 @@ const bot = new Client({
         repliedUser: false
     }
 });
+
 const botService = require('../botService')
 const channelBotTranslationService = require('../channelBotTranslationService')
 const commandService = require("../commandService");
@@ -24,6 +26,7 @@ let locked = false
 
 let connection
 let voiceChannel
+let setJSONPersonality
 let speak = () => null
 
 
@@ -35,11 +38,104 @@ function replaceBackQuotesByAsterisks(text) {
     return text.replace(/`/g, '*')
 }
 
-bot.on('ready', () => {
+bot.on('ready', async () => {
     console.info(`Logged in as ${bot.user.tag}!`)
-    if (process.env.BOTNAME === "Jarvis") return
 
-    if (!process.env.DISABLE_TTS || !["true", "yes"].includes(process.env.DISABLE_TTS.trim().toLowerCase())) {
+    if (process.env.ENABLE_CUSTOM_AI && process.env.ENABLE_CUSTOM_AI.toLowerCase() === "true") {
+        await bot.user.setUsername(process.env.BOTNAME)
+        await bot.user.setAvatar("https://cdn.discordapp.com/embed/avatars/0.png")
+    }
+
+    setJSONPersonality = async function (msg, from, channel) {
+        const command = "!setJSONPersonality "
+
+        if (msg.toLowerCase().startsWith(command.toLowerCase())) {
+            // TODO: check if user 'from' is allowed to execute that command
+
+            if (!process.env.ENABLE_CUSTOM_AI && process.env.ENABLE_CUSTOM_AI.toLowerCase() === "true") {
+                return {message: "Sorry, but this command is not enabled on this AI.", channel}
+            }
+            if (conf.changePersonalityChannelBlacklist.includes(channel)) {
+                return {message: "Sorry, but this channel personality is locked.", channel}
+            }
+            const personalityJSON = msg.replace(command, "")
+            let personality
+            try {
+                personality = JSON.parse(personalityJSON)
+            } catch (e) {
+                return {message: "JSON could not be parsed"}
+            }
+
+            const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
+
+            if (personality.username !== undefined) {
+                await bot.user.setUsername(personality.username)
+                process.env.BOTNAME = personality.username
+            }
+
+            if (personality.avatar !== undefined) {
+                await bot.user.setAvatar(personality.avatar)
+            }
+
+            if (personality.description !== undefined) {
+                aiPersonality.description = personality.description
+            }
+
+            if (personality.contextDm !== undefined) {
+                aiPersonality.contextDm = personality.contextDm
+            }
+
+            if (personality.context !== undefined) {
+                aiPersonality.context = personality.context
+            }
+
+            if (personality.noContextSentence !== undefined) {
+                aiPersonality.noContextSentence = personality.noContextSentence
+            }
+
+            if (personality.noContextSentence !== undefined) {
+                aiPersonality.noContextSentence = personality.noContextSentence
+            }
+
+            if (personality.voice !== undefined) {
+                const selectedVoice = voices.voices
+                    .find(v => v.name.toLowerCase() === personality.voice.toLowerCase())
+                if (selectedVoice) {
+                    aiPersonality.voice = selectedVoice
+                }
+            }
+
+            if (personality.introduction !== undefined) {
+                aiPersonality.introduction = personality.introduction.split("\n").map((l) => {
+                    return {
+                        from: process.env.BOTNAME,
+                        msg: l
+                    }
+                })
+            }
+
+            if (personality.introductionDm !== undefined) {
+                aiPersonality.introductionDm = personality.introductionDm.split("\n").map((l) => {
+                    return {
+                        from: process.env.BOTNAME,
+                        msg: l
+                    }
+                })
+            }
+
+            const JSONPersonality = JSON.parse(JSON.stringify(aiPersonality))
+            JSONPersonality.voice = aiPersonality.voice.name
+            return {
+                message: `Personality successfully loaded! Complete JSON for the new personality:\n${JSON.stringify(JSONPersonality)}`,
+                channel
+            }
+        } else {
+            return false
+        }
+    }
+
+
+    if (!process.env.DISABLE_TTS && process.env.DISABLE_TTS.toLowerCase() === "true") {
         speak = async function (msg, channel) {
             if (voiceChannel) {
                 connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
@@ -52,6 +148,8 @@ bot.on('ready', () => {
             }
         }
     }
+
+    if (process.env.DISABLE_INTRO && process.env.DISABLE_INTRO.toLowerCase() === "true") return
 
     // TODO: conf for channels to send intro into at startup
     sendIntro("908046238887333888")
@@ -85,7 +183,9 @@ function sendIntro(id) {
             if (process.env.LMI && id !== "908046238887333888") {
                 channel.send(replaceAsterisksByBackQuotes(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
             } else {
-                channel.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
+                if (channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction.length > 0) {
+                    channel.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
+                }
             }
         })
 }
@@ -98,9 +198,24 @@ function replaceAliases(nick) {
     return nick
 }
 
+function replaceAliasesInMessage(message, nick) {
+    if (nick === "AliceBot") {
+        return message
+            .replace("AliceBot", nick)
+            .replace("Alicebot", nick)
+            .replace("alicebot", nick)
+    } else if (nick === "GLaDOS") {
+        return message
+            .replace("glados", nick)
+            .replace("Glados", nick)
+    } else {
+        return message
+    }
+}
+
 bot.on('message', async msg => {
     const privateMessage = msg.channel.type === "dm"
-    if (privateMessage && process.env.DISABLE_DM && ["true", "yes"].includes(process.env.DISABLE_DM.trim().toLowerCase())) {
+    if (privateMessage && process.env.DISABLE_DM && process.env.DISABLE_DM.toLowerCase() === "true") {
         return
     }
     const channelName = privateMessage ?
@@ -110,8 +225,6 @@ bot.on('message', async msg => {
     if (!Utils.isMessageFromChannel(channelName, conf.channels)) {
         return
     }
-
-    voiceChannel = msg.member?.voice?.channel
 
     const originalMsg = msg
     if (!channels[channelName])
@@ -125,7 +238,7 @@ bot.on('message', async msg => {
     }
     if (originalMsg.content === ";ai me") return                        // Prevents commands from other bots
 
-    const cleanContent = replaceBackQuotesByAsterisks(originalMsg.cleanContent)
+    const cleanContent = replaceAliasesInMessage(replaceBackQuotesByAsterisks(originalMsg.cleanContent), process.env.BOTNAME)
 
     if (cleanContent.startsWith("²") && cleanContent.length === 1) {
         await originalMsg.react("🔄")
@@ -140,6 +253,14 @@ bot.on('message', async msg => {
                 originalMsg.delete()
             }
         }, 3000)
+    } else if (cleanContent.startsWith("!setJSONPersonality ")) {
+        if (!setJSONPersonality) throw new Error("Shit happened")
+
+        const r = await setJSONPersonality(originalMsg.cleanContent, replaceAliases(originalMsg.author.username), channelName)
+        if (r && r.message) {
+            await originalMsg.inlineReply(r.message)
+        }
+        return
     }
 
     locked = true
@@ -147,9 +268,10 @@ bot.on('message', async msg => {
         replaceAliases(originalMsg.author.username),
         channelName,
         cleanContent,
-        (process.env.SURNAME || process.env.BOTNAME))
+        process.env.BOTNAME)
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
+        voiceChannel = msg.member?.voice?.channel
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(parsedMessage)
@@ -170,7 +292,7 @@ bot.on('message', async msg => {
             await originalMsg.inlineReply(parsedMessage)
             await speak(message.message.split("\n")[2], channelName)
             return
-        } else if(cleanContent.startsWith("!rpg") || cleanContent.startsWith("!event")){
+        } else if (cleanContent.startsWith("!rpg") || cleanContent.startsWith("!event")) {
             if (!privateMessage) {
                 await originalMsg.react("✅")
             }
@@ -200,7 +322,7 @@ async function loop() {
     setTimeout(loop, getInterval())
 }
 
-if (process.env.BOTNAME !== "Jarvis") {
+if (!process.env.DISABLE_AUTO_ANSWER && process.env.DISABLE_AUTO_ANSWER.toLowerCase() === "true") {
     setTimeout(loop, getInterval())
 }
 
