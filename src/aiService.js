@@ -7,14 +7,12 @@ let lastGenerationTimestamp = Date.now()
 
 const getAccessToken = async (access_key) => {
     return new Promise((resolve, reject) => {
-        console.log("STARTING GET TOKEN REQUEST...")
         axios.post("https://api.novelai.net/user/login", {key: access_key}, {
             headers: {
                 'Content-Type': 'application/json'
             }
         })
             .then(r => {
-                console.log("GET TOKEN REQUEST FINISHED!")
                 resolve(r.data.accessToken)
             })
             .catch(err => {
@@ -565,7 +563,6 @@ const DEFAULT_PARAMETERS = {
 const generateUnthrottled = async (accessToken, input, params) => {
     let res
     try {
-        console.log("STARTING REQUEST...")
         res = await axios.post(
             "https://api.novelai.net/ai/generate",
             {
@@ -580,7 +577,6 @@ const generateUnthrottled = async (accessToken, input, params) => {
                 }
             }
         )
-        console.log("REQUEST FINISHED!")
     }catch{
         res = null
     }

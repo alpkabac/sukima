@@ -382,7 +382,9 @@ async function loop() {
     if (locked) return setTimeout(loop, 2000)
 
     for (let channel in channels) {
+        channels[channel].startTyping().then()
         const msg = await commandService.talk(channel)
+        channels[channel].stopTyping(true)
         if (msg && msg.message && msg.message.trim()) {
             const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
             channels[channel].send(parsedMessage)
