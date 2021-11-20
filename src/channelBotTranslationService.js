@@ -20,7 +20,6 @@ class ChannelBotTranslationService {
                 this.channelBotTranslations[channel] = JSON.parse(JSON.stringify(require(`../translations/aiPersonality/${botName}/${process.env.TRANSLATION_FILE || conf.defaultBotTranslationFile}.json`)))
             } catch (e2) {
                 this.channelBotTranslations[channel] = JSON.parse(JSON.stringify(require(`../translations/aiPersonality/CustomAI/EN-en.json`)))
-                console.log(e2)
             }
             return false
         }
