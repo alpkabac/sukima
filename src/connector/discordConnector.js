@@ -40,7 +40,7 @@ function replaceBackQuotesByAsterisks(text) {
 
 bot.on('ready', async () => {
     console.info(`Logged in as ${bot.user.tag}!`)
-    process.env.BOTNAME = bot.user.tag
+    process.env.BOTNAME = replaceAliases(bot.user.tag)
 
     setJSONPersonality = async function (msg, from, channel) {
         const command = "!setJSONPersonality "
