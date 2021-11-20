@@ -611,13 +611,12 @@ const generate = async function (input, params, lowPriority = false) {
 }
 
 class AiService {
-
-    static async sendUntilSuccess(prompt, nbToken = conf.generate_num, preventLMI = false, callback = (answer) => null) {
+    static async sendUntilSuccess(prompt, preventLMI = false, callback = (answer) => null) {
         let answer
         let parsedAnswer
         let nbTry = 0
         while (!parsedAnswer && ++nbTry <= 5) {
-            answer = await this.sendPrompt(prompt, nbToken)
+            answer = await this.sendPrompt(prompt)
             parsedAnswer = messageService.parse(answer)
         }
         if (!preventLMI) {
@@ -626,8 +625,8 @@ class AiService {
         callback(parsedAnswer)
     }
 
-    static async sendLowPriority(prompt, nbToken = conf.generate_num, preventLMI = false) {
-        let answer = await this.sendPrompt(prompt, nbToken, true)
+    static async sendLowPriority(prompt, preventLMI = false) {
+        let answer = await this.sendPrompt(prompt, true)
 
         if (answer) {
             const parsedAnswer = messageService.parse(answer)
@@ -638,7 +637,7 @@ class AiService {
         }
     }
 
-    static async sendPrompt(prompt, nbToken, lowPriority = false) {
+    static async sendPrompt(prompt, lowPriority = false) {
         return await this.sendPromptDefault(prompt, undefined, lowPriority)
     }
 

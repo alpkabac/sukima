@@ -3,6 +3,7 @@ const {Client} = require("discord.js");
 require("../discord/ExtAPIMessage");
 const voices = JSON.parse(JSON.stringify(require('../tts/languages.json')))
 const conf = require("../../conf.json")
+const aiService = require('../aiService')
 
 const bot = new Client({
     allowedMentions: {
@@ -39,6 +40,7 @@ function replaceBackQuotesByAsterisks(text) {
 
 bot.on('ready', async () => {
     console.info(`Logged in as ${bot.user.tag}!`)
+
     setJSONPersonality = async function (msg, from, channel) {
         const command = "!setJSONPersonality "
 
@@ -49,28 +51,38 @@ bot.on('ready', async () => {
             let errorMessages = ""
 
             if (!process.env.ENABLE_CUSTOM_AI || process.env.ENABLE_CUSTOM_AI.toLowerCase() !== "true") {
-                return {message: "Sorry, but this command is not enabled on this AI.", channel}
+                return {message: "# Sorry, but this command is not enabled on this AI.", channel}
             }
             if (conf.changePersonalityChannelBlacklist.includes(channel)) {
-                return {message: "Sorry, but this channel personality is locked.", channel}
+                return {message: "# Sorry, but this channel personality is locked.", channel}
             }
+
+
             const personalityJSON = msg.replace(command, "")
             let personality
             try {
                 personality = JSON.parse(personalityJSON)
             } catch (e) {
-                return {message: "JSON could not be parsed"}
+                return {message: "# JSON could not be parsed"}
             }
 
             const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
+
+            if (personality.target !== undefined){
+                if (personality.target.toLowerCase() !== process.env.BOTNAME.toLowerCase()){
+                    return true
+                }
+            }
 
             if (personality.username !== undefined) {
                 try {
                     await bot.user.setUsername(personality.username)
                     process.env.BOTNAME = personality.username
                 } catch (e) {
-                    success = false
-                    errorMessages += "Username already taken by too many people or was changed too recently\n"
+                    return {
+                        message: `# Personality failed to load: Username already taken by too many people or was changed too recently`,
+                        channel
+                    }
                 }
             }
 
@@ -78,8 +90,10 @@ bot.on('ready', async () => {
                 try {
                     await bot.user.setAvatar(personality.avatar)
                 } catch (e) {
-                    success = false
-                    errorMessages += "The avatar couldn't be loaded or was changed too recently\n"
+                    return {
+                        message: `# Personality failed to load: The avatar couldn't be loaded or was changed too recently`,
+                        channel
+                    }
                 }
             }
 
@@ -183,7 +197,7 @@ bot.on('ready', async () => {
                 }
             }
             return {
-                message: (success ?
+                message: "# "+(success ?
                         `Personality successfully loaded! `
                         : `Personality loaded, but there were errors while trying to edit the AI personality:\n${errorMessages}\n`)
                     + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`
@@ -228,8 +242,6 @@ bot.on('ready', async () => {
     sendIntro("883501924954042438")
     sendIntro("883504359739125790")
     sendIntro("892776322932281386")
-
-
 });
 
 function sendIntro(id) {
@@ -333,13 +345,11 @@ bot.on('message', async msg => {
     }
 
     locked = true
-    originalMsg.channel.startTyping().then()
     const message = await botService.onChannelMessage(
         replaceAliases(originalMsg.author.username),
         channelName,
         cleanContent,
         process.env.BOTNAME)
-    originalMsg.channel.stopTyping()
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
@@ -382,9 +392,7 @@ async function loop() {
     if (locked) return setTimeout(loop, 2000)
 
     for (let channel in channels) {
-        channels[channel].startTyping().then()
         const msg = await commandService.talk(channel)
-        channels[channel].stopTyping(true)
         if (msg && msg.message && msg.message.trim()) {
             const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
             channels[channel].send(parsedMessage)
