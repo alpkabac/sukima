@@ -170,6 +170,11 @@ bot.on('ready', async () => {
                 JSONPersonality.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
             }
 
+
+            if(JSONPersonality?.voice?.name){
+                JSONPersonality.voice = JSONPersonality.voice.name
+            }
+
             if (personality.voice !== undefined) {
                 JSONPersonality.voice = aiPersonality.voice.name
             }
