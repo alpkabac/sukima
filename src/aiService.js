@@ -33,7 +33,7 @@ const DEFAULT_PARAMETERS = {
             sequence: [
                 1635
             ],
-            bias: 0.3,
+            bias: 0.2,
             ensure_sequence_finish: false,
             generate_once: true
         },
@@ -41,7 +41,7 @@ const DEFAULT_PARAMETERS = {
             sequence: [
                 9
             ],
-            bias: 0.1,
+            bias: 0.05,
             ensure_sequence_finish: false,
             generate_once: true
         },
@@ -52,11 +52,11 @@ const DEFAULT_PARAMETERS = {
             generate_once: true
         }
     ],
-    top_k: 140,
-    top_p: 0.9,
+    top_k: 0,
+    top_p: 0.725,
     eos_token_id: 198,
     repetition_penalty: 1.1875,
-    repetition_penalty_range: 512,
+    repetition_penalty_range: 1024,
     repetition_penalty_slope: 6.57,
     tail_free_sampling: 1,
     prefix: "vanilla",

@@ -51,12 +51,8 @@ bot.on('ready', async () => {
             let errorMessages = ""
 
             if (!process.env.ENABLE_CUSTOM_AI || process.env.ENABLE_CUSTOM_AI.toLowerCase() !== "true") {
-                return {message: "# Sorry, but this command is not enabled on this AI.", channel}
+                return {error: "# Sorry, but this command is not enabled on this AI.", channel}
             }
-            if (conf.changePersonalityChannelBlacklist.includes(channel)) {
-                return {message: "# Sorry, but this channel personality is locked.", channel}
-            }
-
 
             const personalityJSON = msg.replace(command, "")
             let personality
@@ -68,12 +64,15 @@ bot.on('ready', async () => {
 
             const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
 
-            if (personality.target !== undefined){
-                if (personality.target.toLowerCase() !== process.env.BOTNAME.toLowerCase()){
+            if (personality.target !== undefined) {
+                if (personality.target.toLowerCase() !== process.env.BOTNAME.toLowerCase()) {
                     return true
                 }
-            }else{
-                return {message: "# The `target` property is mandatory and should be a string containing the name of the target bot", channel}
+            } else {
+                return {
+                    message: "# The `target` property is mandatory and should be a string containing the name of the target bot",
+                    channel
+                }
             }
 
             if (personality.username !== undefined) {
@@ -199,7 +198,7 @@ bot.on('ready', async () => {
                 }
             }
             return {
-                message: "# "+(success ?
+                message: "# " + (success ?
                         `Personality successfully loaded! `
                         : `Personality loaded, but there were errors while trying to edit the AI personality:\n${errorMessages}\n`)
                     + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`
@@ -285,13 +284,20 @@ function replaceAliasesInMessage(message, nick) {
             .replace("AliceBot", nick)
             .replace("Alicebot", nick)
             .replace("alicebot", nick)
-    } else if (nick === "GLaDOS") {
+    }
+
+    if (nick === "GLaDOS") {
         return message
             .replace("glados", nick)
             .replace("Glados", nick)
-    } else {
-        return message
     }
+
+    if (nick === "Lulune"){
+        return message
+            .replace("Lulu", nick)
+    }
+    return message
+
 }
 
 bot.on('message', async msg => {
@@ -343,6 +349,8 @@ bot.on('message', async msg => {
         const r = await setJSONPersonality(originalMsg.cleanContent, replaceAliases(originalMsg.author.username), channelName)
         if (r && r.message) {
             await originalMsg.inlineReply(r.message)
+        } else if (r && r.error) {
+            await originalMsg.react("❌")
         }
     }
 
