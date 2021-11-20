@@ -63,7 +63,7 @@ bot.on('ready', async () => {
             try {
                 personality = JSON.parse(personalityJSON)
             } catch (e) {
-                return {message: "# JSON could not be parsed"}
+                return {message: "# JSON could not be parsed", channel}
             }
 
             const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
@@ -72,6 +72,8 @@ bot.on('ready', async () => {
                 if (personality.target.toLowerCase() !== process.env.BOTNAME.toLowerCase()){
                     return true
                 }
+            }else{
+                return {message: "# The `target` property is mandatory and should be a string containing the name of the target bot", channel}
             }
 
             if (personality.username !== undefined) {
