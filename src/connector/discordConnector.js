@@ -196,6 +196,9 @@ bot.on('ready', async () => {
             JSONPersonality.ENABLE_TTS = process.env.ENABLE_TTS
             JSONPersonality.ENABLE_AUTO_ANSWER = process.env.ENABLE_AUTO_ANSWER
 
+            JSONPersonality.target = personality.target
+            JSONPersonality.username = process.env.BOTNAME
+
             let stringJSONPersonality = JSON.stringify(JSONPersonality, null, 2)
             if (stringJSONPersonality.length > 1700) {
                 stringJSONPersonality = JSON.stringify(JSONPersonality)
