@@ -80,6 +80,9 @@ class CommandService {
         if (msg.startsWith(command)) {
             // TODO: check if user 'from' is allowed to execute that command
             historyService.forgetChannelHistory(channel)
+
+            if (channelBotTranslationService.getChannelBotTranslations(channel).introduction.length < 1) return true
+
             return {
                 message: `${channelBotTranslationService.getChannelBotTranslations(channel).introduction[0].msg}`,
                 channel
@@ -431,6 +434,12 @@ class CommandService {
         } else {
             return false
         }
+    }
+
+    static setJSONPersonality(msg, from, channel){
+        const command = "!setJSONPersonality"
+        return !!msg.startsWith(command);
+
     }
 
     static r34(msg, from, channel) {

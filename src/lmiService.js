@@ -3,13 +3,13 @@ const http = require('http')
 const fs = require('fs')
 const {Server} = require("socket.io");
 
-if (process.env.LMI_PORT) {
-    const server = http.createServer((req, res) => {
-        res.writeHead(200, {'content-type': 'text/html'})
-        fs.createReadStream('indexAliceLmi.html').pipe(res)
-    })
-    const io = new Server(server);
+const server = http.createServer((req, res) => {
+    res.writeHead(200, {'content-type': 'text/html'})
+    fs.createReadStream('indexAliceLmi.html').pipe(res)
+})
+const io = new Server(server);
 
+if (process.env.LMI_PORT) {
     io.on('connection', (socket) => {
         socket.emit('LMI', LmiService.lastPrompt, LmiService.lastMessage, LmiService.lastParsedMessage)
     })

@@ -14,7 +14,6 @@ const bot = new Client({
 const botService = require('../botService')
 const channelBotTranslationService = require('../channelBotTranslationService')
 const commandService = require("../commandService");
-const {tts} = require("../utils");
 const {getInterval} = require("../utils");
 const Utils = require("../utils");
 
@@ -27,7 +26,7 @@ let locked = false
 let connection
 let voiceChannel
 let setJSONPersonality
-let speak = () => null
+let speak = null
 
 
 function replaceAsterisksByBackQuotes(text) {
@@ -40,19 +39,16 @@ function replaceBackQuotesByAsterisks(text) {
 
 bot.on('ready', async () => {
     console.info(`Logged in as ${bot.user.tag}!`)
-
-    if (process.env.ENABLE_CUSTOM_AI && process.env.ENABLE_CUSTOM_AI.toLowerCase() === "true") {
-        await bot.user.setUsername(process.env.BOTNAME)
-        await bot.user.setAvatar("https://cdn.discordapp.com/embed/avatars/0.png")
-    }
-
     setJSONPersonality = async function (msg, from, channel) {
         const command = "!setJSONPersonality "
 
         if (msg.toLowerCase().startsWith(command.toLowerCase())) {
             // TODO: check if user 'from' is allowed to execute that command
 
-            if (!process.env.ENABLE_CUSTOM_AI && process.env.ENABLE_CUSTOM_AI.toLowerCase() === "true") {
+            let success = true
+            let errorMessages = ""
+
+            if (!process.env.ENABLE_CUSTOM_AI || process.env.ENABLE_CUSTOM_AI.toLowerCase() !== "true") {
                 return {message: "Sorry, but this command is not enabled on this AI.", channel}
             }
             if (conf.changePersonalityChannelBlacklist.includes(channel)) {
@@ -69,12 +65,22 @@ bot.on('ready', async () => {
             const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
 
             if (personality.username !== undefined) {
-                await bot.user.setUsername(personality.username)
-                process.env.BOTNAME = personality.username
+                try {
+                    await bot.user.setUsername(personality.username)
+                    process.env.BOTNAME = personality.username
+                } catch (e) {
+                    success = false
+                    errorMessages += "Username already taken by too many people or was changed too recently\n"
+                }
             }
 
             if (personality.avatar !== undefined) {
-                await bot.user.setAvatar(personality.avatar)
+                try {
+                    await bot.user.setAvatar(personality.avatar)
+                } catch (e) {
+                    success = false
+                    errorMessages += "The avatar couldn't be loaded or was changed too recently\n"
+                }
             }
 
             if (personality.description !== undefined) {
@@ -102,6 +108,9 @@ bot.on('ready', async () => {
                     .find(v => v.name.toLowerCase() === personality.voice.toLowerCase())
                 if (selectedVoice) {
                     aiPersonality.voice = selectedVoice
+                } else {
+                    success = false
+                    errorMessages += "The voice isn't recognized\n"
                 }
             }
 
@@ -124,9 +133,61 @@ bot.on('ready', async () => {
             }
 
             const JSONPersonality = JSON.parse(JSON.stringify(aiPersonality))
-            JSONPersonality.voice = aiPersonality.voice.name
+
+            if (personality.ENABLE_DM !== undefined) {
+                process.env.ENABLE_DM = "" + personality.ENABLE_DM
+                JSONPersonality.ENABLE_DM = "" + personality.ENABLE_DM
+            }
+
+            if (personality.ENABLE_TTS !== undefined) {
+                process.env.ENABLE_TTS = "" + personality.ENABLE_TTS
+                JSONPersonality.ENABLE_TTS = "" + personality.ENABLE_TTS
+            }
+
+            if (personality.ENABLE_INTRO !== undefined) {
+                process.env.ENABLE_INTRO = "" + personality.ENABLE_INTRO
+                JSONPersonality.ENABLE_INTRO = "" + personality.ENABLE_INTRO
+            }
+
+            if (personality.ENABLE_AUTO_ANSWER !== undefined) {
+                process.env.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
+                JSONPersonality.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
+            }
+
+            if (personality.voice !== undefined) {
+                JSONPersonality.voice = aiPersonality.voice.name
+            }
+
+            if (JSONPersonality.introduction) {
+                JSONPersonality.introduction = JSONPersonality.introduction.map(e => e.msg).join("\n")
+            }
+
+            if (JSONPersonality.introductionDm !== undefined) {
+                JSONPersonality.introductionDm = JSONPersonality.introductionDm.map(e => e.msg).join("\n")
+            }
+
+            if (success && personality.avatar !== undefined) {
+                JSONPersonality.avatar = personality.avatar
+            }
+
+            JSONPersonality.ENABLE_INTRO = process.env.ENABLE_INTRO
+            JSONPersonality.ENABLE_DM = process.env.ENABLE_DM
+            JSONPersonality.ENABLE_TTS = process.env.ENABLE_TTS
+            JSONPersonality.ENABLE_AUTO_ANSWER = process.env.ENABLE_AUTO_ANSWER
+
+            let stringJSONPersonality = JSON.stringify(JSONPersonality, null, 2)
+            if (stringJSONPersonality.length > 1700) {
+                stringJSONPersonality = JSON.stringify(JSONPersonality)
+                if (stringJSONPersonality.length > 1700) {
+                    stringJSONPersonality = "{ ...JSON was too long to fit into discord's 2000 character limit per message... }"
+                }
+            }
             return {
-                message: `Personality successfully loaded! Complete JSON for the new personality:\n${JSON.stringify(JSONPersonality)}`,
+                message: (success ?
+                        `Personality successfully loaded! `
+                        : `Personality loaded, but there were errors while trying to edit the AI personality:\n${errorMessages}\n`)
+                    + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`
+                ,
                 channel
             }
         } else {
@@ -134,22 +195,28 @@ bot.on('ready', async () => {
         }
     }
 
+    speak = async function (msg, channel) {
+        if (process.env.ENABLE_TTS && process.env.ENABLE_TTS.toLowerCase() === "true") {
 
-    if (!process.env.DISABLE_TTS && process.env.DISABLE_TTS.toLowerCase() === "true") {
-        speak = async function (msg, channel) {
             if (voiceChannel) {
                 connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
                 if (!connection) {
+                    console.log("No connection is present for TTS, getting connection...")
                     connection = await voiceChannel.join()
+                    if (connection) {
+                        console.log("TTS connection found!")
+                    }
                 }
                 if (connection) {
-                    await tts(connection, msg, channelBotTranslationService.getChannelBotTranslations(channel).voice)
+                    await Utils.tts(connection, msg, channelBotTranslationService.getChannelBotTranslations(channel).voice)
+                } else {
+                    console.log("Could not establish TTS connection.")
                 }
             }
         }
     }
 
-    if (process.env.DISABLE_INTRO && process.env.DISABLE_INTRO.toLowerCase() === "true") return
+    if (!process.env.ENABLE_INTRO || process.env.ENABLE_INTRO.toLowerCase() !== "true") return
 
     // TODO: conf for channels to send intro into at startup
     sendIntro("908046238887333888")
@@ -215,7 +282,7 @@ function replaceAliasesInMessage(message, nick) {
 
 bot.on('message', async msg => {
     const privateMessage = msg.channel.type === "dm"
-    if (privateMessage && process.env.DISABLE_DM && process.env.DISABLE_DM.toLowerCase() === "true") {
+    if (privateMessage && (!process.env.ENABLE_DM || process.env.ENABLE_DM.toLowerCase() !== "true")) {
         return
     }
     const channelName = privateMessage ?
@@ -254,25 +321,30 @@ bot.on('message', async msg => {
             }
         }, 3000)
     } else if (cleanContent.startsWith("!setJSONPersonality ")) {
-        if (!setJSONPersonality) throw new Error("Shit happened")
+        if (!setJSONPersonality) {
+            await originalMsg.inlineReply("Sorry, but this command is not fully loaded. Please try again later!")
+            return
+        }
 
         const r = await setJSONPersonality(originalMsg.cleanContent, replaceAliases(originalMsg.author.username), channelName)
         if (r && r.message) {
             await originalMsg.inlineReply(r.message)
         }
-        return
     }
 
     locked = true
+    originalMsg.channel.startTyping().then()
     const message = await botService.onChannelMessage(
         replaceAliases(originalMsg.author.username),
         channelName,
         cleanContent,
         process.env.BOTNAME)
+    originalMsg.channel.stopTyping()
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
-        voiceChannel = msg.member?.voice?.channel
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
+        voiceChannel = msg.member?.voice?.channel
+
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(parsedMessage)
             if (!privateMessage) {
@@ -290,7 +362,7 @@ bot.on('message', async msg => {
             }
         } else if (message.message.startsWith("\nLoaded bot")) {
             await originalMsg.inlineReply(parsedMessage)
-            await speak(message.message.split("\n")[2], channelName)
+            if (speak) await speak(message.message.split("\n")[2], channelName)
             return
         } else if (cleanContent.startsWith("!rpg") || cleanContent.startsWith("!event")) {
             if (!privateMessage) {
@@ -322,7 +394,7 @@ async function loop() {
     setTimeout(loop, getInterval())
 }
 
-if (!process.env.DISABLE_AUTO_ANSWER && process.env.DISABLE_AUTO_ANSWER.toLowerCase() === "true") {
+if (process.env.ENABLE_AUTO_ANSWER && process.env.ENABLE_AUTO_ANSWER.toLowerCase() === "true") {
     setTimeout(loop, getInterval())
 }
 
