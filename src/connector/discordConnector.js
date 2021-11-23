@@ -171,7 +171,7 @@ bot.on('ready', async () => {
             }
 
 
-            if(JSONPersonality?.voice?.name){
+            if (JSONPersonality?.voice?.name) {
                 JSONPersonality.voice = JSONPersonality.voice.name
             }
 
@@ -301,7 +301,7 @@ function replaceAliasesInMessage(message, nick) {
             .replace("Glados", nick)
     }
 
-    if (nick === "Lulune"){
+    if (nick === "Lulune") {
         return message
             .replace("Lulu", nick)
     }
@@ -408,23 +408,25 @@ bot.on('message', async msg => {
 });
 
 async function loop() {
+    // Waits two seconds if an answer is still generating
     if (locked) return setTimeout(loop, 2000)
 
-    for (let channel in channels) {
-        const msg = await commandService.talk(channel)
-        if (msg && msg.message && msg.message.trim()) {
-            const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
-            channels[channel].send(parsedMessage)
-            if (!channel.startsWith("##")) {
-                await speak(parsedMessage, channel)
+    if (process.env.ENABLE_AUTO_ANSWER && process.env.ENABLE_AUTO_ANSWER.toLowerCase() === "true") {
+        for (let channel in channels) {
+            const msg = await commandService.talk(channel)
+            if (msg && msg.message && msg.message.trim()) {
+                const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
+                channels[channel].send(parsedMessage)
+                if (!channel.startsWith("##")) {
+                    await speak(parsedMessage, channel)
+                }
             }
         }
     }
+
     setTimeout(loop, getInterval())
 }
 
-if (process.env.ENABLE_AUTO_ANSWER && process.env.ENABLE_AUTO_ANSWER.toLowerCase() === "true") {
-    setTimeout(loop, getInterval())
-}
+setTimeout(loop, getInterval())
 
 module.exports = {}
