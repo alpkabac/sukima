@@ -337,23 +337,44 @@ bot.on('message', async msg => {
     if (originalMsg.content === ";ai me") return                        // Prevents commands from other bots
 
     const cleanContent = replaceAliasesInMessage(replaceBackQuotesByAsterisks(originalMsg.cleanContent), process.env.BOTNAME)
+    const userRoles = originalMsg.member.roles.cache.map(r => {
+        return {id: r.id, name: r.name}
+    })
 
-    if (cleanContent.startsWith("²") && cleanContent.length === 1) {
+    if ((cleanContent.startsWith("²") || cleanContent.startsWith("○")) && cleanContent.length === 1) {
         await originalMsg.react("🔄")
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_RETRY_MESSAGE)){
+            await originalMsg.react("🛑")
+        }
     } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
         await originalMsg.react("▶")
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_CONTINUE_MESSAGE)){
+            await originalMsg.react("🛑")
+        }
     } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
         await originalMsg.react("⏩")
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_ANWSER_MESSAGE)){
+            await originalMsg.react("🛑")
+        }
     } else if (cleanContent === "!forget") {
         await originalMsg.react("💔")
-        setTimeout(() => {
-            if (!privateMessage) {
-                originalMsg.delete()
-            }
-        }, 3000)
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_FORGET)){
+            await originalMsg.react("🛑")
+        }else {
+            setTimeout(() => {
+                if (!privateMessage) {
+                    originalMsg.delete()
+                }
+            }, 3000)
+        }
     } else if (cleanContent.startsWith("!setJSONPersonality ")) {
         if (!setJSONPersonality) {
             await originalMsg.inlineReply("Sorry, but this command is not fully loaded. Please try again later!")
+            return
+        }
+
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_SET_JSON_PERSONALITY)){
+            await originalMsg.react("🛑")
             return
         }
 
@@ -367,9 +388,7 @@ bot.on('message', async msg => {
 
     locked = true
 
-    const userRoles = originalMsg.member.roles.cache.map(r => {
-        return {id: r.id, name: r.name}
-    })
+
 
     const message = await botService.onChannelMessage(
         replaceAliases(originalMsg.author.username),
