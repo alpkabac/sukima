@@ -17,6 +17,7 @@ const channelBotTranslationService = require('../channelBotTranslationService')
 const commandService = require("../commandService");
 const {getInterval} = require("../utils");
 const Utils = require("../utils");
+const utils = require("../utils");
 
 const TOKEN = process.env.TOKEN;
 bot.login(TOKEN);
@@ -42,11 +43,12 @@ bot.on('ready', async () => {
     console.info(`Logged in as ${bot.user.tag}!`)
     process.env.BOTNAME = replaceAliases(bot.user.tag.replace(/#.*$/, ""))
 
-    setJSONPersonality = async function (msg, from, channel) {
+    setJSONPersonality = async function (msg, from, channel, roles) {
         const command = "!setJSONPersonality "
 
         if (msg.toLowerCase().startsWith(command.toLowerCase())) {
-            // TODO: check if user 'from' is allowed to execute that command
+
+            if (!utils.checkPermissions(roles, process.env.ALLOW_SET_JSON_PERSONALITY)) return true
 
             let success = true
             let errorMessages = ""
@@ -240,7 +242,7 @@ bot.on('ready', async () => {
         }
     }
 
-    if (!process.env.ENABLE_INTRO || process.env.ENABLE_INTRO.toLowerCase() !== "true") return
+    if (!utils.getBoolFromString(process.env.ENABLE_INTRO)) return
 
     // TODO: conf for channels to send intro into at startup
     sendIntro("908046238887333888")
@@ -355,7 +357,7 @@ bot.on('message', async msg => {
             return
         }
 
-        const r = await setJSONPersonality(originalMsg.cleanContent, replaceAliases(originalMsg.author.username), channelName)
+        const r = await setJSONPersonality(originalMsg.cleanContent, replaceAliases(originalMsg.author.username), channelName, userRoles)
         if (r && r.message) {
             await originalMsg.inlineReply(r.message)
         } else if (r && r.error) {
@@ -364,11 +366,17 @@ bot.on('message', async msg => {
     }
 
     locked = true
+
+    const userRoles = originalMsg.member.roles.cache.map(r => {
+        return {id: r.id, name: r.name}
+    })
+
     const message = await botService.onChannelMessage(
         replaceAliases(originalMsg.author.username),
         channelName,
         cleanContent,
-        process.env.BOTNAME)
+        process.env.BOTNAME,
+        userRoles)
     locked = false
     if (message && message.message && message.message.trim().length > 0) {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)

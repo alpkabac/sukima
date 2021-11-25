@@ -25,10 +25,11 @@ class CommandService {
         return this.mutedChannels[channel]
     }
 
-    static mute(msg, from, channel) {
+    static mute(msg, from, channel, roles) {
         const command = "!mute"
         if (msg.startsWith(command)) {
-            // TODO: check if user 'from' is allowed to execute that command
+            if (!utils.checkPermissions(roles, process.env.ALLOW_MUTE)) return true
+
             this.loadMutedChannels()
             this.mutedChannels[channel] = true
             return true
@@ -36,10 +37,11 @@ class CommandService {
         return false
     }
 
-    static unmute(msg, from, channel) {
+    static unmute(msg, from, channel, roles) {
         const command = "!unmute"
         if (msg.startsWith(command)) {
-            // TODO: check if user 'from' is allowed to execute that command
+            if (!utils.checkPermissions(roles, process.env.ALLOW_MUTE)) return true
+
             this.loadMutedChannels()
             delete this.mutedChannels[channel]
             return true
@@ -47,38 +49,44 @@ class CommandService {
         return false
     }
 
-    static remember(msg, from, channel) {
+    static remember(msg, from, channel, roles) {
         const command = "!remember "
         if (msg.startsWith(command)) {
+            if (!utils.checkPermissions(roles, process.env.ALLOW_REMEMBER)) return true
+
             memoryService.setUserMemoryInChannel(msg.replace(command, ""), from, channel)
             return true
         }
         return false
     }
 
-    static forgetRemember(msg, from, channel) {
+    static forgetRemember(msg, from, channel, roles) {
         const command = "!remember"
         if (msg.startsWith(command)) {
+            if (!utils.checkPermissions(roles, process.env.ALLOW_REMEMBER)) return true
+
             memoryService.forgetUserMemoryInChannel(from, channel)
             return true
         }
         return false
     }
 
-    static forgetAllRemember(msg, from, channel) {
+    static forgetAllRemember(msg, from, channel, roles) {
         const command = "!forgetAllRemember"
         if (msg.startsWith(command)) {
-            // TODO: check if user 'from' is allowed to execute that command
+            if (!utils.checkPermissions(roles, process.env.ALLOW_WIPE_REMEMBER)) return true
+
             memoryService.forgetAllUserMemoryInChannel(channel)
             return true
         }
         return false
     }
 
-    static deleteChannelHistory(msg, from, channel) {
+    static deleteChannelHistory(msg, from, channel, roles) {
         const command = "!forget"
         if (msg.startsWith(command)) {
-            // TODO: check if user 'from' is allowed to execute that command
+            if (!utils.checkPermissions(roles, process.env.ALLOW_FORGET)) return true
+
             historyService.forgetChannelHistory(channel)
 
             if (channelBotTranslationService.getChannelBotTranslations(channel).introduction.length < 1) return true
@@ -91,11 +99,15 @@ class CommandService {
         return false
     }
 
-    static changeLanguage(msg, from, channel) {
+    static changeLanguage(msg, from, channel, roles) {
         const command = "!lang "
         return new Promise((resolve) => {
             if (msg.startsWith(command)) {
-                // TODO: check if user 'from' is allowed to execute that command
+                if (!utils.checkPermissions(roles, process.env.ALLOW_CHANGE_LANGUAGE)) {
+                    resolve(true)
+                    return
+                }
+
                 const language = msg.replace(command, "")
                 let message = ""
                 translationsService.changeLanguage(language)
@@ -118,10 +130,16 @@ class CommandService {
         })
     }
 
-    static noContextMessage(msg, from, channel) {
+    static noContextMessage(msg, from, channel, roles) {
         const command = "!"
         return new Promise((resolve) => {
             if (msg.startsWith(command)) {
+
+                if (!utils.checkPermissions(roles, process.env.ALLOW_NO_CONTEXT_MESSAGE)) {
+                    resolve(true)
+                    return
+                }
+
                 if (!this.isChannelMuted(channel)) {
                     const message = utils.upperCaseFirstLetter(msg.slice(1))
                     historyService.pushIntoHistory(message, from, channel)
@@ -141,10 +159,16 @@ class CommandService {
         })
     }
 
-    static continueMessage(msg, from, channel) {
+    static continueMessage(msg, from, channel, roles) {
         const command = ","
         return new Promise((resolve) => {
             if (msg.startsWith(command) && msg.length === 1) {
+
+                if (!utils.checkPermissions(roles, process.env.ALLOW_CONTINUE_MESSAGE)) {
+                    resolve(true)
+                    return
+                }
+
                 if (!this.isChannelMuted(channel)) {
                     const prompt = promptService.getPrompt(msg, from, channel, true, true, true)
                     aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
@@ -172,11 +196,17 @@ class CommandService {
         })
     }
 
-    static retryMessage(msg, from, channel) {
+    static retryMessage(msg, from, channel, roles) {
         const command = "²"
         const command2 = "○"
         return new Promise((resolve) => {
             if ((msg.startsWith(command) || msg.startsWith(command2)) && msg.length === 1) {
+
+                if (!utils.checkPermissions(roles, process.env.ALLOW_RETRY_MESSAGE)) {
+                    resolve(true)
+                    return
+                }
+
                 if (!this.isChannelMuted(channel)) {
                     const prompt = promptService.getPrompt(msg, from, channel, true, true, false, true)
                     aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
@@ -201,10 +231,16 @@ class CommandService {
         })
     }
 
-    static answerMessage(msg, from, channel) {
+    static answerMessage(msg, from, channel, roles) {
         const command = "?"
         return new Promise((resolve) => {
             if (msg.startsWith(command)) {
+
+                if (!utils.checkPermissions(roles, process.env.ALLOW_ANWSER_MESSAGE)) {
+                    resolve(true)
+                    return
+                }
+
                 if (!this.isChannelMuted(channel)) {
                     const message = utils.upperCaseFirstLetter(msg.slice(1))
                     if (message) {
@@ -225,17 +261,26 @@ class CommandService {
         })
     }
 
-    static comment(msg, from, channel) {
+    static comment(msg, from, channel, roles) {
         const command = "#"
+        if (!utils.checkPermissions(roles, process.env.ALLOW_COMMENT_MESSAGE)) return true
+
+
         return !!msg.startsWith(command);
     }
 
-    static answerToName(msg, from, channel) {
+    static answerToName(msg, from, channel, roles) {
         return new Promise((resolve) => {
+
+            if (!utils.checkPermissions(roles, process.env.ALLOW_ANWSER_MESSAGE)) {
+                resolve(true)
+                return
+            }
+
             if (!this.isChannelMuted(channel)) {
-                historyService.pushIntoHistory(msg, from, channel)
+                historyService.pushIntoHistory(msg, from, channel, roles)
                 if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
-                    const prompt = promptService.getPrompt(msg, from, channel)
+                    const prompt = promptService.getPrompt(msg, from, channel, roles)
                     aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
@@ -275,13 +320,19 @@ class CommandService {
         })
     }
 
-    static reactToAction(msg, from, channel) {
+    static reactToAction(msg, from, channel, roles) {
         return new Promise((resolve) => {
+
+            if (!utils.checkPermissions(roles, process.env.ALLOW_REACTIONS)) {
+                resolve(true)
+                return
+            }
+
             if (!this.isChannelMuted(channel)) {
                 const action = translationsService.translations.onAction
                     .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
                 historyService.pushIntoHistory(action, from, channel)
-                const prompt = promptService.getPrompt(msg, from, channel)
+                const prompt = promptService.getPrompt(msg, from, channel, roles)
                 aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
                     historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                     resolve({message: answer, channel})
@@ -293,12 +344,19 @@ class CommandService {
         })
     }
 
-    static prompt(msg, from, channel) {
+    static prompt(msg, from, channel, roles) {
         const command = /!prompt *([0-9]*)\n/g.exec(msg);
         return new Promise(async (resolve) => {
+
             if (command && command[1]) {
+
+                if (!utils.checkPermissions(roles, process.env.ALLOW_PROMPT_MESSAGE)) {
+                    resolve(true)
+                    return
+                }
+
                 const message = utils.upperCaseFirstLetter(msg.replace(command[0], ""))
-                const tokenCount = Math.min(100, parseInt(command[1]))
+                const tokenCount = Math.min(150, parseInt(command[1]))
                 const result = await aiService.simpleEvalbot(message, tokenCount)
                 resolve({message: result, channel})
             } else {
@@ -307,10 +365,16 @@ class CommandService {
         })
     }
 
-    static setPersonality(msg, from, channel) {
+    static setPersonality(msg, from, channel, roles) {
         const command = "!setPersonality "
         return new Promise((resolve) => {
             if (msg.toLowerCase().startsWith(command.toLowerCase())) {
+
+                if (!utils.checkPermissions(roles, process.env.ALLOW_SET_PERSONALITY)) {
+                    resolve(true)
+                    return
+                }
+
                 if (conf.changePersonalityChannelBlacklist.includes(channel)) {
                     resolve({message: "Sorry, but this channel personality is locked.", channel})
                     return
@@ -352,11 +416,16 @@ class CommandService {
         })
     }
 
-    static setVoice(msg, from, channel) {
+    static setVoice(msg, from, channel, roles) {
         const command = "!setVoice "
         return new Promise((resolve) => {
             if (msg.toLowerCase().startsWith(command.toLowerCase())) {
-                // TODO: check if user 'from' is allowed to execute that command
+
+                if (!utils.checkPermissions(roles, process.env.ALLOW_SET_VOICE)) {
+                    resolve(true)
+                    return
+                }
+
                 const voice = msg.replace(command, "")
 
                 let message = ""
@@ -397,10 +466,14 @@ class CommandService {
         })
     }
 
-    static rpgPutEvent(msg, from, channel) {
+    static rpgPutEvent(msg, from, channel, roles) {
         const command = "!event "
 
         if (msg.startsWith(command)) {
+
+            if (!utils.checkPermissions(roles, process.env.ALLOW_EVENT_INJECTION_MESSAGE)) return true
+
+
             const event = msg.replace(command, "")
             if (event) {
                 const formattedEvent = event.startsWith("[") && event.endsWith("]") ? event :
@@ -415,10 +488,13 @@ class CommandService {
         }
     }
 
-    static rpgContext(msg, from, channel) {
+    static rpgContext(msg, from, channel, roles) {
         const command = "!rpg "
 
         if (msg.startsWith(command)) {
+
+            if (!utils.checkPermissions(roles, process.env.ALLOW_PROPERTY_INJECTION_MESSAGE)) return true
+
             const fullCommand = msg.replace(command, "").trim()
             const words = fullCommand.split(" ")
             const key = words.shift()
@@ -436,16 +512,22 @@ class CommandService {
         }
     }
 
-    static setJSONPersonality(msg, from, channel) {
+    static setJSONPersonality(msg, from, channel, roles) {
         const command = "!setJSONPersonality"
         return !!msg.startsWith(command);
 
     }
 
-    static r34(msg, from, channel) {
+    static r34(msg, from, channel, roles) {
         const command = "!r34"
         return new Promise((resolve) => {
             if (msg.startsWith(command)) {
+
+                if (!utils.checkPermissions(roles, process.env.ALLOW_RULE34)) {
+                    resolve(true)
+                    return
+                }
+
                 if (this.isChannelMuted(channel)) {
                     resolve(true)
                     return

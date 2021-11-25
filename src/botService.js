@@ -9,33 +9,33 @@ function prepareIncomingMessage(message, botName, nick) {
 }
 
 class BotService {
-    static async onChannelMessage(from, channel, message, botNick = process.env.BOTNAME) {
+    static async onChannelMessage(from, channel, message, botNick = process.env.BOTNAME, roles=[]) {
         if (!utils.isMessageFromChannel(channel, conf.channels)) {
             return
         }
 
         const msg = prepareIncomingMessage(message, process.env.BOTNAME, botNick)
 
-        return commandService.comment(msg, from, channel)
-            || commandService.remember(msg, from, channel)
-            || commandService.setJSONPersonality(msg, from, channel)
-            || await commandService.r34(msg, from, channel)
-            || await commandService.retryMessage(msg, from, channel)
-            || commandService.forgetRemember(msg, from, channel)
-            || await commandService.setPersonality(msg, from, channel)
-            || await commandService.setVoice(msg, from, channel)
-            || await commandService.changeLanguage(msg, from, channel)
-            || await commandService.prompt(msg, from, channel)
-            || commandService.rpgPutEvent(msg, from, channel)
-            || commandService.rpgContext(msg, from, channel)
-            || commandService.forgetAllRemember(msg, from, channel)
-            || commandService.deleteChannelHistory(msg, from, channel)
-            || commandService.mute(msg, from, channel)
-            || commandService.unmute(msg, from, channel)
-            || await commandService.noContextMessage(msg, from, channel)
-            || await commandService.continueMessage(msg, from, channel)
-            || await commandService.answerMessage(msg, from, channel)
-            || await commandService.answerToName(msg, from, channel)
+        return commandService.comment(msg, from, channel, roles)
+            || commandService.remember(msg, from, channel, roles)
+            || commandService.setJSONPersonality(msg, from, channel, roles)
+            || await commandService.r34(msg, from, channel, roles)
+            || await commandService.retryMessage(msg, from, channel, roles)
+            || commandService.forgetRemember(msg, from, channel, roles)
+            || await commandService.setPersonality(msg, from, channel, roles)
+            || await commandService.setVoice(msg, from, channel, roles)
+            || await commandService.changeLanguage(msg, from, channel, roles)
+            || await commandService.prompt(msg, from, channel, roles)
+            || commandService.rpgPutEvent(msg, from, channel, roles)
+            || commandService.rpgContext(msg, from, channel, roles)
+            || commandService.forgetAllRemember(msg, from, channel, roles)
+            || commandService.deleteChannelHistory(msg, from, channel, roles)
+            || commandService.mute(msg, from, channel, roles)
+            || commandService.unmute(msg, from, channel, roles)
+            || await commandService.noContextMessage(msg, from, channel, roles)
+            || await commandService.continueMessage(msg, from, channel, roles)
+            || await commandService.answerMessage(msg, from, channel, roles)
+            || await commandService.answerToName(msg, from, channel, roles)
     }
 
     static onPrivateMessage() {

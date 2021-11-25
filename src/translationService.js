@@ -11,12 +11,12 @@ class TranslationsService {
         return this._translations
     }
 
-    static changeLanguage(code = conf.translationFile) {
+    static changeLanguage(code = "en-EN") {
         try {
             this._translations = require(`../translations/${code}.json`)
             return true
         } catch (e) {
-            this._translations = require(`../translations/${conf.translationFile}.json`)
+            this._translations = require(`../translations/en-EN.json`)
         }
         return false
     }

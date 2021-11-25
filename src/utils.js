@@ -34,18 +34,18 @@ class Utils {
             )
     }
 
-    static async synthesizeText  (text, voiceConfig) {
+    static async synthesizeText(text, voiceConfig) {
         const request = {
-            input: { text },
+            input: {text},
             voice: voiceConfig,
-            audioConfig: { audioEncoding: 'OGG_OPUS' },
+            audioConfig: {audioEncoding: 'OGG_OPUS'},
         };
 
         const [response] = await client.synthesizeSpeech(request);
         return response.audioContent;
     };
 
-    static async tts (connection, text, voiceConfig) {
+    static async tts(connection, text, voiceConfig) {
         const buffer = await Utils.synthesizeText(text, voiceConfig)
         const stream = new Duplex()
         stream.push(buffer)
@@ -57,6 +57,28 @@ class Utils {
         if (to.startsWith("##")) return true
         if (process.env.UNIQUE_CHANNEL) return to === "#" + process.env.UNIQUE_CHANNEL
         return channels.some((channel) => Utils.caseInsensitiveStringEquals(to, channel))
+    }
+
+    static getBoolFromString(value) {
+        return value && value.toLowerCase() === "true"
+    }
+
+    static hasRole(roles, roleName) {
+        return roles.some(r => r.name === roleName)
+    }
+
+    static checkPermissions(roles, roleName) {
+        if (!roleName) return true
+        if (roleName === "false") return false
+        if (roleName === "true") return true
+
+        let roleNames = roleName.split(",")
+        if (roleNames.length > 1) {
+            roleNames = roleNames.map(r => r.trim())
+            return roles.some(r => roleNames.some(r_ => r_ === r))
+        } else {
+            return this.hasRole(roles, roleName)
+        }
     }
 }
 
