@@ -10,7 +10,7 @@ function prepareIncomingMessage(message, botName, nick) {
 
 class BotService {
     static async onChannelMessage(from, channel, message, botNick = process.env.BOTNAME, roles=[]) {
-        if (!utils.isMessageFromChannel(channel, conf.channels)) {
+        if (!utils.isMessageFromAllowedChannel(channel, conf.channels)) {
             return
         }
 
@@ -67,7 +67,7 @@ class BotService {
     }
 
     static async onAction(channel, nick, action) {
-        if (utils.isMessageFromChannel(channel, conf.channels)) {
+        if (utils.isMessageFromAllowedChannel(channel, conf.channels)) {
             return await commandService.reactToAction(
                 action,
                 nick,

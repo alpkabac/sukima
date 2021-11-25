@@ -320,7 +320,7 @@ bot.on('message', async msg => {
         "##" + replaceAliases(msg.channel.id)
         : "#" + msg.channel.name
 
-    if (!Utils.isMessageFromChannel(channelName, conf.channels)) {
+    if (!Utils.isMessageFromAllowedChannel(channelName, conf.channels)) {
         return
     }
 

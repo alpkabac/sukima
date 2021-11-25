@@ -1,6 +1,5 @@
 {
-  "maxHistory": 30,
-  "ircServer": "irc.libera.chat",
+  "maxHistory": 120,
   "channels": [
     "#CBNA",
     "#alicebot",

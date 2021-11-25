@@ -53,9 +53,9 @@ class Utils {
         connection.play(stream)
     }
 
-    static isMessageFromChannel(to, channels) {
+    static isMessageFromAllowedChannel(to, channels) {
         if (to.startsWith("##")) return true
-        if (process.env.UNIQUE_CHANNEL) return to === "#" + process.env.UNIQUE_CHANNEL
+        if (process.env.UNIQUE_CHANNEL) return to === ("#" + process.env.UNIQUE_CHANNEL)
         return channels.some((channel) => Utils.caseInsensitiveStringEquals(to, channel))
     }
 
@@ -75,7 +75,7 @@ class Utils {
         let roleNames = roleName.split(",")
         if (roleNames.length > 1) {
             roleNames = roleNames.map(r => r.trim())
-            return roles.some(r => roleNames.some(r_ => r_ === r))
+            return roleNames.some(r => this.hasRole(roles, r))
         } else {
             return this.hasRole(roles, roleName)
         }

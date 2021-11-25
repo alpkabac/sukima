@@ -144,7 +144,7 @@ class CommandService {
                     const message = utils.upperCaseFirstLetter(msg.slice(1))
                     historyService.pushIntoHistory(message, from, channel)
 
-                    const prompt = promptService.getPrompt(message, from, channel, false, false)
+                    const prompt = promptService.getNoContextPrompt(message, from, channel)
                     aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
@@ -170,15 +170,12 @@ class CommandService {
                 }
 
                 if (!this.isChannelMuted(channel)) {
-                    const prompt = promptService.getPrompt(msg, from, channel, true, true, true)
+                    const prompt = promptService.getPrompt(msg, from, channel, true, false)
                     aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
 
                         historyService.getChannelHistory(channel).reverse()
                         for (let h of historyService.getChannelHistory(channel)) {
                             if (h.from === process.env.BOTNAME) {
-                                if (h.msg.substr(h.msg.length - 1).match(/[,.;?!:]/)) {
-                                    h.msg += " "
-                                }
                                 h.msg += answer
                                 break
                             }
@@ -208,7 +205,7 @@ class CommandService {
                 }
 
                 if (!this.isChannelMuted(channel)) {
-                    const prompt = promptService.getPrompt(msg, from, channel, true, true, false, true)
+                    const prompt = promptService.getPrompt(msg, from, channel, false, true)
                     aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
 
                         historyService.getChannelHistory(channel).reverse()
@@ -246,7 +243,7 @@ class CommandService {
                     if (message) {
                         historyService.pushIntoHistory(message, from, channel)
                     }
-                    const prompt = promptService.getPrompt(message, from, channel)
+                    const prompt = promptService.getPrompt(msg, from, channel)
                     aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
@@ -280,7 +277,7 @@ class CommandService {
             if (!this.isChannelMuted(channel)) {
                 historyService.pushIntoHistory(msg, from, channel, roles)
                 if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
-                    const prompt = promptService.getPrompt(msg, from, channel, roles)
+                    const prompt = promptService.getPrompt(msg, from, channel)
                     aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         resolve({message: answer, channel})
@@ -332,7 +329,7 @@ class CommandService {
                 const action = translationsService.translations.onAction
                     .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
                 historyService.pushIntoHistory(action, from, channel)
-                const prompt = promptService.getPrompt(msg, from, channel, roles)
+                const prompt = promptService.getPrompt(msg, from, channel)
                 aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
                     historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                     resolve({message: answer, channel})

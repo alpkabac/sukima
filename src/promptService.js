@@ -15,11 +15,11 @@ class PromptService {
                 : botTranslations.introduction
         )
             .map((e) => {
-            return {
-                from: e.from.replace("${botName}", process.env.BOTNAME),
-                msg: e.msg.replace("${botName}", process.env.BOTNAME)
-            }
-        })
+                return {
+                    from: e.from.replace("${botName}", process.env.BOTNAME),
+                    msg: e.msg.replace("${botName}", process.env.BOTNAME)
+                }
+            })
     }
 
     static getChannelMemory(channel, usesMemory = true) {
@@ -30,11 +30,22 @@ class PromptService {
             })
     }
 
-    // FIXME: refacto whole method
-    static getPrompt(msg, from, channel, usesIntroduction = true, usesHistory = true, isContinuation = false, isRetry = false) {
-        // Preparing the prompt
-        let filter = false
+    static mapJoinMessages(messages) {
+        return messages
+            .map((msg) => msg.from ? `${msg.from}: ${msg.msg}` : msg.msg)
+            .join("\n")
+    }
 
+    static getNoContextPrompt(msg, from, channel) {
+        const botTranslations = channelBotTranslationService.getChannelBotTranslations(channel)
+
+        return PromptService.mapJoinMessages([
+            {from: process.env.BOTNAME, msg: botTranslations.noContextSentence},
+            {from, msg}
+        ]) + "\n" + process.env.BOTNAME + ":"
+    }
+
+    static getPrompt(msg, from, channel, isContinuation = false, isRetry = false) {
         const privateConversation = channel.startsWith("##")
         const botTranslations = channelBotTranslationService.getChannelBotTranslations(channel)
         const channelContext = privateConversation ?
@@ -45,45 +56,73 @@ class PromptService {
         const channelMemory = this.getChannelMemory(channel)
             .map(m => m.msg).join("\n")         // Insert channel `!remember`s
 
-        return (
-                usesHistory ?
-                    (
-                        channelContext + "\n" + botDescription + "\n"
-                        + (channelMemory ? channelMemory + `\n` : '')
-                    )
-                    : ""
-            ) +
-            (this.getIntroduction(botTranslations, usesIntroduction)
-                    .concat(
-                        !usesHistory ?
-                            [{from: process.env.BOTNAME, msg: botTranslations.noContextSentence}, {
-                                from,
-                                msg
-                            }]
-                            : historyService
-                                .getChannelHistory(channel)
-                                .slice(-conf.maxHistory)   // Concat the last X messages from history
-                    )
-                    .reverse()  // If continuation, reverse and remove messages until the last message from the bot
-                    .filter((msg) => {
-                        if (!isContinuation && !isRetry) return true
-                        if (isContinuation) {
-                            if (msg.from === process.env.BOTNAME && !filter) {
-                                filter = true
-                            }
-                        } else if (isRetry) {
-                            if (msg.from === process.env.BOTNAME && !filter) {
-                                filter = true
-                                return false
-                            }
-                        }
-                        return filter
-                    })
-                    .reverse()  // Unreverse
-                    .map((msg) => msg.from ? `${msg.from}: ${msg.msg}` : msg.msg)        // Formatting the line
-                    .join("\n")         // Concat the array into multiline string
-            )
-            + (isContinuation ? "" : ("\n" + process.env.BOTNAME + ":")) // Add the process.env.BOTNAME so the AI knows it's its turn to speak
+        const introduction = this.getIntroduction(botTranslations, true, privateConversation)
+
+        const history = JSON.parse(JSON.stringify(
+            historyService
+                .getChannelHistory(channel)
+        ))
+
+        let promptContext = ""
+        if (channelContext) {
+            promptContext += channelContext + '\n'
+        }
+        if (botDescription) {
+            promptContext += botDescription + '\n'
+        }
+        if (channelMemory) {
+            promptContext += channelMemory + '\n'
+        }
+        if (introduction) {
+            promptContext += PromptService.mapJoinMessages(introduction) + '\n'
+        }
+
+        const contextLength = encoder.encode(promptContext).length
+        const lastLine = process.env.BOTNAME + ":"
+        const lastLineLength = encoder.encode(lastLine).length
+
+        // Inserts as much history as possible in the 2048 token limits (including context and last line)
+        let promptHistory = ""
+        let couldInsertAllHistory = true
+        let lastBotMessageFound = false
+        for (let i = history.length - 1; i >= 0; i--) {
+
+            if ((isRetry || isContinuation) && !lastBotMessageFound) {
+                if (history[i].from === process.env.BOTNAME) {
+                    lastBotMessageFound = true
+                    if (isRetry) {
+                        continue
+                    }
+                } else {
+                    continue
+                }
+            }
+
+            const promptHistoryLength = encoder.encode(promptHistory).length
+            const line = (history[i].from ? `${history[i].from}: ${history[i].msg}` : history[i].msg) + '\n'
+            const lineLength = encoder.encode(line).length
+            if (contextLength + promptHistoryLength + lineLength + lastLineLength < (2048 - 152)) {
+                promptHistory = line + promptHistory
+            } else {
+                couldInsertAllHistory = false
+                break
+            }
+        }
+
+        // General context
+        // Bot context
+        // Remembered things
+        // Bot presentation message
+        // ...
+        // History messages
+        let completePrompt = promptContext + (couldInsertAllHistory ? "" : "...\n") + promptHistory
+        if (isContinuation) {
+            completePrompt = completePrompt.substr(0, completePrompt.length - 1)
+        } else {
+            completePrompt += lastLine
+        }
+
+        return completePrompt
     }
 }
 
