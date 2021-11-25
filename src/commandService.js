@@ -236,7 +236,7 @@ class CommandService {
         return new Promise((resolve) => {
             if (msg.startsWith(command)) {
 
-                if (!utils.checkPermissions(roles, process.env.ALLOW_ANWSER_MESSAGE)) {
+                if (!utils.checkPermissions(roles, process.env.ALLOW_ANSWER_MESSAGE)) {
                     resolve(true)
                     return
                 }
@@ -272,7 +272,7 @@ class CommandService {
     static answerToName(msg, from, channel, roles) {
         return new Promise((resolve) => {
 
-            if (!utils.checkPermissions(roles, process.env.ALLOW_ANWSER_MESSAGE)) {
+            if (!utils.checkPermissions(roles, process.env.ALLOW_ANSWER_MESSAGE)) {
                 resolve(true)
                 return
             }

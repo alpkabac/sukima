@@ -353,7 +353,7 @@ bot.on('message', async msg => {
         }
     } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
         await originalMsg.react("⏩")
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_ANWSER_MESSAGE)){
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_ANSWER_MESSAGE)){
             await originalMsg.react("🛑")
         }
     } else if (cleanContent === "!forget") {
