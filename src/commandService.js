@@ -326,9 +326,6 @@ class CommandService {
                 return true
             }
 
-            if (conf.changePersonalityChannelBlacklist.includes(channel)) {
-                return {message: "Sorry, but this channel personality is locked.", channel}
-            }
             const personality = msg.replace(command, "")
 
             let message = ""

@@ -126,7 +126,10 @@ async function main() {
         if (Date.now() - lastMessageTimestamp >= timeStep) {
             timeStep = getInterval()
             messagePenalty = 0
-            const msg = await commandService.talk(conf.channels[0])
+            const allowedChannels = process.env.ALLOWED_CHANNEL_NAMES
+                .split(',')
+                .map(c => c.trim())
+            const msg = await commandService.talk(allowedChannels[0])
             if (msg && msg.message && msg.message.trim()) {
                 ircClient.say(msg.channel, msg.message.trim())
                 resetLastMessageTimestamp()

@@ -2,8 +2,6 @@ require('dotenv').config()
 const {Client} = require("discord.js")
 require("../discord/ExtAPIMessage");
 const voices = JSON.parse(JSON.stringify(require('../tts/languages.json')))
-const conf = require("../../conf.json")
-const aiService = require('../aiService')
 
 const bot = new Client({
     allowedMentions: {
@@ -18,6 +16,7 @@ const commandService = require("../commandService")
 const {getInterval} = require("../utils")
 const Utils = require("../utils")
 const utils = require("../utils")
+const updateBotInfo = require("./discordUtils");
 
 bot.login(process.env.TOKEN)
 const channels = []
@@ -229,7 +228,7 @@ bot.on('ready', async () => {
     }
 
     speak = async function (msg, channel) {
-        if (process.env.ENABLE_TTS && process.env.ENABLE_TTS.toLowerCase() === "true") {
+        if (utils.getBoolFromString(process.env.ENABLE_TTS)) {
 
             if (voiceChannel) {
                 connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
@@ -262,20 +261,23 @@ bot.on('ready', async () => {
         })
     }
 
-    if (!utils.getBoolFromString(process.env.ENABLE_INTRO)) return
-    if (process.env.SEND_INTRO_TO_CHANNELS) {
-        const introChannels = process.env.SEND_INTRO_TO_CHANNELS
-            .split(",")
-            .map(v => v.trim())
+    if (utils.getBoolFromString(process.env.ENABLE_INTRO)) {
+        if (process.env.SEND_INTRO_TO_CHANNELS) {
+            const introChannels = process.env.SEND_INTRO_TO_CHANNELS
+                .split(",")
+                .map(v => v.trim())
 
-        bot.channels.cache.forEach(c => {
-            if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
-                if (channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction.length > 0) {
-                    c.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction[0].msg}`))
+            bot.channels.cache.forEach(c => {
+                if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
+                    if (channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction.length > 0) {
+                        c.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction[0].msg}`))
+                    }
                 }
-            }
-        })
+            })
+        }
     }
+
+    updateBotInfo(bot)
 });
 
 // TODO: add configurations for aliases
@@ -433,10 +435,10 @@ async function loop() {
     // Waits two seconds if an answer is still generating
     if (locked) return setTimeout(loop, 2000)
 
-    if (process.env.ENABLE_AUTO_ANSWER && process.env.ENABLE_AUTO_ANSWER.toLowerCase() === "true") {
+    if (utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) {
         for (let channel in channels) {
             const msg = await commandService.talk(channel)
-            if (msg && msg.message && msg.message.trim()) {
+            if (msg && msg.message?.trim()) {
                 const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
                 channels[channel].send(parsedMessage)
                 if (!channel.startsWith("##")) {
