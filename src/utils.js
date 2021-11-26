@@ -53,10 +53,12 @@ class Utils {
         connection.play(stream)
     }
 
-    static isMessageFromAllowedChannel(to, channels) {
+    static isMessageFromAllowedChannel(to) {
         if (to.startsWith("##")) return true
-        if (process.env.UNIQUE_CHANNEL) return to === ("#" + process.env.UNIQUE_CHANNEL)
-        return channels.some((channel) => Utils.caseInsensitiveStringEquals(to, channel))
+        const allowedChannels = process.env.ALLOWED_CHANNEL_NAMES
+            .split(',')
+            .map(c => c.trim())
+        return allowedChannels.some((channel) => Utils.caseInsensitiveStringEquals(to, channel))
     }
 
     static getBoolFromString(value) {
@@ -64,7 +66,11 @@ class Utils {
     }
 
     static hasRole(roles, roleName) {
-        return roles.some(r => r.name === roleName)
+
+        return roles.some(r => {
+            console.log(`hasRole("${r.name.toLowerCase()}", "${roleName.toLowerCase()}") (${r.name.toLowerCase() === roleName.toLowerCase()})`)
+            return r.name.toLowerCase() === roleName.toLowerCase()
+        })
     }
 
     static checkPermissions(roles, roleName) {
@@ -72,9 +78,11 @@ class Utils {
         if (roleName === "false") return false
         if (roleName === "true") return true
 
-        let roleNames = roleName.split(",")
+        let roleNames = roleName.split(",").map(r => r.trim())
+        console.log("roleName", roleName)
         if (roleNames.length > 1) {
             roleNames = roleNames.map(r => r.trim())
+            console.log("roleNames", roleNames)
             return roleNames.some(r => this.hasRole(roles, r))
         } else {
             return this.hasRole(roles, roleName)

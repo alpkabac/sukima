@@ -10,11 +10,13 @@ function prepareIncomingMessage(message, botName, nick) {
 
 class BotService {
     static async onChannelMessage(from, channel, message, botNick = process.env.BOTNAME, roles=[]) {
-        if (!utils.isMessageFromAllowedChannel(channel, conf.channels)) {
+
+        if (!utils.isMessageFromAllowedChannel(channel)) {
             return
         }
 
         const msg = prepareIncomingMessage(message, process.env.BOTNAME, botNick)
+
 
         return commandService.comment(msg, from, channel, roles)
             || commandService.remember(msg, from, channel, roles)
@@ -67,7 +69,7 @@ class BotService {
     }
 
     static async onAction(channel, nick, action) {
-        if (utils.isMessageFromAllowedChannel(channel, conf.channels)) {
+        if (utils.isMessageFromAllowedChannel(channel)) {
             return await commandService.reactToAction(
                 action,
                 nick,

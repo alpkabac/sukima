@@ -249,44 +249,35 @@ bot.on('ready', async () => {
         }
     }
 
+    if (process.env.LOAD_CHANNEL_PERSONALITIES) {
+        const personalityCodes = process.env.LOAD_CHANNEL_PERSONALITIES
+            .split(",")
+            .map(p => {
+                const [channelName, personalityCode] = p.split(':')
+                return {channelName, personalityCode}
+            })
+
+        personalityCodes.forEach(pc=>{
+            console.log(`channelName ${pc.channelName}`, `personalityCode ${pc.personalityCode}`)
+            channelBotTranslationService.changeChannelBotTranslations(pc.channelName, pc.personalityCode)
+        })
+    }
+
     if (!utils.getBoolFromString(process.env.ENABLE_INTRO)) return
+    if (process.env.SEND_INTRO_TO_CHANNELS) {
+        const introChannels = process.env.SEND_INTRO_TO_CHANNELS
+            .split(",")
+            .map(v => v.trim())
 
-    // TODO: conf for channels to send intro into at startup
-    sendIntro("908046238887333888")
-    sendIntro("910345920481206273")
-    if (process.env.BOTNAME === "Lulune") return
-
-    //sendIntro("853322311268171816")
-    sendIntro("852192504862605312")
-    sendIntro("883501924954042438")
-    sendIntro("883504359739125790")
-    sendIntro("892776322932281386")
-});
-
-function sendIntro(id) {
-    bot.channels.fetch(id)
-        .then(channel => {
-            // TODO: move bot personality setup elsewhere
-            if (id === "883501924954042438") {
-                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-EVIL")
-            } else if (id === "883504359739125790") {
-                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-NSFW")
-            } else if (id === "910345920481206273") {
-                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-NSFW-DOM")
-            } else if (id === "892776322932281386") {
-                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-ROCK")
-            } else if (id === "908046238887333888") {
-                channelBotTranslationService.changeChannelBotTranslations("#" + channel.name, "en-RPG")
-            }
-            if (process.env.LMI && id !== "908046238887333888") {
-                channel.send(replaceAsterisksByBackQuotes(`Bot started. Current LMI: ${process.env.LMI}\n${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
-            } else {
-                if (channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction.length > 0) {
-                    channel.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + channel.name).introduction[0].msg}`))
+        bot.channels.cache.forEach(c => {
+            if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
+                if (channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction.length > 0) {
+                    c.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction[0].msg}`))
                 }
             }
         })
-}
+    }
+});
 
 // TODO: add configurations for aliases
 function replaceAliases(nick) {
@@ -327,7 +318,9 @@ bot.on('message', async msg => {
         "##" + replaceAliases(msg.channel.id)
         : "#" + msg.channel.name
 
-    if (!Utils.isMessageFromAllowedChannel(channelName, conf.channels)) {
+
+    console.log(channelName)
+    if (!Utils.isMessageFromAllowedChannel(channelName)) {
         return
     }
 
@@ -394,8 +387,6 @@ bot.on('message', async msg => {
     }
 
     locked = true
-
-
     const message = await botService.onChannelMessage(
         replaceAliases(originalMsg.author.username),
         channelName,
