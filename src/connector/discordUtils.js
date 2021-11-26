@@ -33,7 +33,7 @@ function updateBotInfo(botClient) {
                 //.setURL('https://discord.js.org/')
                 //.setDescription("")
                 .setThumbnail(botClient.user.avatarURL())
-                
+
                 .addField('Latest Model Input', `http://54.37.153.103:${process.env.LMI_PORT}/`)
                 .addField('Public context', botPersonality.context)
                 .addField('DM context', botPersonality.contextDm)
