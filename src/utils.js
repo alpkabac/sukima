@@ -68,7 +68,6 @@ class Utils {
     static hasRole(roles, roleName) {
 
         return roles.some(r => {
-            console.log(`hasRole("${r.name.toLowerCase()}", "${roleName.toLowerCase()}") (${r.name.toLowerCase() === roleName.toLowerCase()})`)
             return r.name.toLowerCase() === roleName.toLowerCase()
         })
     }
@@ -79,10 +78,8 @@ class Utils {
         if (roleName === "true") return true
 
         let roleNames = roleName.split(",").map(r => r.trim())
-        console.log("roleName", roleName)
         if (roleNames.length > 1) {
             roleNames = roleNames.map(r => r.trim())
-            console.log("roleNames", roleNames)
             return roleNames.some(r => this.hasRole(roles, r))
         } else {
             return this.hasRole(roles, roleName)

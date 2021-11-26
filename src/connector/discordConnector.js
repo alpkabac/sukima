@@ -257,8 +257,7 @@ bot.on('ready', async () => {
                 return {channelName, personalityCode}
             })
 
-        personalityCodes.forEach(pc=>{
-            console.log(`channelName ${pc.channelName}`, `personalityCode ${pc.personalityCode}`)
+        personalityCodes.forEach(pc => {
             channelBotTranslationService.changeChannelBotTranslations(pc.channelName, pc.personalityCode)
         })
     }
@@ -319,7 +318,6 @@ bot.on('message', async msg => {
         : "#" + msg.channel.name
 
 
-    console.log(channelName)
     if (!Utils.isMessageFromAllowedChannel(channelName)) {
         return
     }
