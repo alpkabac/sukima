@@ -29,6 +29,7 @@ function updateBotInfo(botClient) {
                 .addField('DM context', botPersonality.contextDm)
                 .addField('Personality context', botPersonality.description)
                 .addField('Allowed channels', process.env.ALLOWED_CHANNEL_NAMES)
+                .addField('Send intro to channels', process.env.SEND_INTRO_TO_CHANNELS)
 
                 .addField('\u200B', '\u200B')
                 .addField('Personality edition commands',
