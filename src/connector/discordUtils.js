@@ -28,16 +28,16 @@ function updateBotInfo(botClient) {
                 .addField('Public context', botPersonality.context)
                 .addField('DM context', botPersonality.contextDm)
                 .addField('Personality context', botPersonality.description)
-
-                .addField('\u200B', '\u200B')
                 .addField('Allowed channels', process.env.ALLOWED_CHANNEL_NAMES)
 
                 .addField('\u200B', '\u200B')
-                .addField('Voice', botPersonality.voice.name, true)
-                .addField('Auto answer', utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER), true)
-                .addField('Text-To-Speech', utils.getBoolFromString(process.env.ENABLE_TTS), true)
-                .addField('DMs enabled', utils.getBoolFromString(process.env.ENABLE_DM), true)
-                .addField('Intro enabled', utils.getBoolFromString(process.env.ENABLE_INTRO), true)
+                .addField('Personality edition commands',
+                    `Voice: ${botPersonality.voice.name}`
+                    + `\nAuto answer: ${utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER) ? 'enabled' : 'disabled'}`
+                    + `\nText-To-Speech: ${utils.getBoolFromString(process.env.ENABLE_TTS) ? 'enabled' : 'disabled'}`
+                    + `\nDMs enabled: ${utils.getBoolFromString(process.env.ENABLE_DM) ? 'enabled' : 'disabled'}`
+                    + `\nIntro enabled: ${utils.getBoolFromString(process.env.ENABLE_INTRO) ? 'enabled' : 'disabled'}`
+                )
 
                 .addField('\u200B', '\u200B')
                 .addField('Personality edition commands',
@@ -85,7 +85,6 @@ function updateBotInfo(botClient) {
         }
     })
 }
-
 
 
 module.exports = updateBotInfo
