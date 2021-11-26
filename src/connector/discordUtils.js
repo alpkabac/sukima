@@ -2,6 +2,16 @@ const channelBotTranslationService = require("../channelBotTranslationService");
 const {MessageEmbed} = require("discord.js");
 const utils = require('../utils')
 
+function fromBoolToState(bool) {
+    return bool ? 'enabled' : 'disabled'
+}
+
+function fromStringToBoolOrString(s) {
+    if (s && s === "true") return 'anybody'
+    if (!s || s === "false") return 'nobody'
+    return s
+}
+
 function updateBotInfo(botClient) {
 
     botClient.channels.cache.forEach(async channel => {
@@ -23,8 +33,8 @@ function updateBotInfo(botClient) {
                 //.setURL('https://discord.js.org/')
                 //.setDescription("")
                 .setThumbnail(botClient.user.avatarURL())
-
-
+                
+                .addField('Latest Model Input', `http://54.37.153.103:${process.env.LMI_PORT}/`)
                 .addField('Public context', botPersonality.context)
                 .addField('DM context', botPersonality.contextDm)
                 .addField('Personality context', botPersonality.description)
@@ -42,36 +52,36 @@ function updateBotInfo(botClient) {
 
                 .addField('\u200B', '\u200B')
                 .addField('Personality edition commands',
-                    `Set personality: ${process.env.ALLOW_SET_PERSONALITY}`
-                    + `\nSet JSON personality: ${process.env.ALLOW_SET_JSON_PERSONALITY}`
-                    + `\nSet voice: ${process.env.ALLOW_SET_VOICE}`
-                    + `\nSet language: ${process.env.ALLOW_CHANGE_LANGUAGE}`
+                    `Set personality: ${fromStringToBoolOrString(process.env.ALLOW_SET_PERSONALITY)}`
+                    + `\nSet JSON personality: ${fromStringToBoolOrString(process.env.ALLOW_SET_JSON_PERSONALITY)}`
+                    + `\nSet voice: ${fromStringToBoolOrString(process.env.ALLOW_SET_VOICE)}`
+                    + `\nSet language: ${fromStringToBoolOrString(process.env.ALLOW_CHANGE_LANGUAGE)}`
                 )
 
                 .addField('\u200B', '\u200B')
                 .addField('Channel commands',
-                    `Mute/Unmute: ${process.env.ALLOW_MUTE}`
-                    + `\nRemember: ${process.env.ALLOW_REMEMBER}`
-                    + `\nForget: ${process.env.ALLOW_FORGET}`
-                    + `\nWipe memory: ${process.env.ALLOW_WIPE_REMEMBER}`
+                    `Mute/Unmute: ${fromStringToBoolOrString(process.env.ALLOW_MUTE)}`
+                    + `\nRemember: ${fromStringToBoolOrString(process.env.ALLOW_REMEMBER)}`
+                    + `\nForget: ${fromStringToBoolOrString(process.env.ALLOW_FORGET)}`
+                    + `\nWipe memory: ${fromStringToBoolOrString(process.env.ALLOW_WIPE_REMEMBER)}`
                 )
 
                 .addField('\u200B', '\u200B')
                 .addField('Message commands',
-                    `No context message: ${process.env.ALLOW_NO_CONTEXT_MESSAGE}`
-                    + `\nContinue message: ${process.env.ALLOW_CONTINUE_MESSAGE}`
-                    + `\nRetry message: ${process.env.ALLOW_RETRY_MESSAGE}`
-                    + `\nAnswer message: ${process.env.ALLOW_ANSWER_MESSAGE}`
-                    + `\nComment message: ${process.env.ALLOW_COMMENT_MESSAGE}`
-                    + `\nReaction message: ${process.env.ALLOW_REACTIONS}`
+                    `No context message: ${fromStringToBoolOrString(process.env.ALLOW_NO_CONTEXT_MESSAGE)}`
+                    + `\nContinue message: ${fromStringToBoolOrString(process.env.ALLOW_CONTINUE_MESSAGE)}`
+                    + `\nRetry message: ${fromStringToBoolOrString(process.env.ALLOW_RETRY_MESSAGE)}`
+                    + `\nAnswer message: ${fromStringToBoolOrString(process.env.ALLOW_ANSWER_MESSAGE)}`
+                    + `\nComment message: ${fromStringToBoolOrString(process.env.ALLOW_COMMENT_MESSAGE)}`
+                    + `\nReaction message: ${fromStringToBoolOrString(process.env.ALLOW_REACTIONS)}`
                 )
 
                 .addField('\u200B', '\u200B')
                 .addField('Experimental commands',
-                    `Prompt: ${process.env.ALLOW_PROMPT_MESSAGE}`
-                    + `\nEvent injection: ${process.env.ALLOW_EVENT_INJECTION_MESSAGE}`
-                    + `\nProperty injection: ${process.env.ALLOW_PROPERTY_INJECTION_MESSAGE}`
-                    + `\nRule 34: ${process.env.ALLOW_RULE34}`
+                    `Prompt: ${fromStringToBoolOrString(process.env.ALLOW_PROMPT_MESSAGE)}`
+                    + `\nEvent injection: ${fromStringToBoolOrString(process.env.ALLOW_EVENT_INJECTION_MESSAGE)}`
+                    + `\nProperty injection: ${fromStringToBoolOrString(process.env.ALLOW_PROPERTY_INJECTION_MESSAGE)}`
+                    + `\nRule 34: ${fromStringToBoolOrString(process.env.ALLOW_RULE34)}`
                 )
 
                 .setImage(botClient.user.avatarURL())
