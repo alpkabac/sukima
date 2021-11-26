@@ -1,5 +1,5 @@
 require('dotenv').config()
-const {Client} = require("discord.js");
+const {Client} = require("discord.js")
 require("../discord/ExtAPIMessage");
 const voices = JSON.parse(JSON.stringify(require('../tts/languages.json')))
 const conf = require("../../conf.json")
@@ -14,13 +14,12 @@ const bot = new Client({
 
 const botService = require('../botService')
 const channelBotTranslationService = require('../channelBotTranslationService')
-const commandService = require("../commandService");
-const {getInterval} = require("../utils");
-const Utils = require("../utils");
-const utils = require("../utils");
+const commandService = require("../commandService")
+const {getInterval} = require("../utils")
+const Utils = require("../utils")
+const utils = require("../utils")
 
-const TOKEN = process.env.TOKEN;
-bot.login(TOKEN);
+bot.login(process.env.TOKEN)
 const channels = []
 let locked = false
 
@@ -42,6 +41,14 @@ function replaceBackQuotesByAsterisks(text) {
 bot.on('ready', async () => {
     console.info(`Logged in as ${bot.user.tag}!`)
     process.env.BOTNAME = replaceAliases(bot.user.tag.replace(/#.*$/, ""))
+
+    if (process.env.DISCORD_ACTIVITY_NAME) {
+        const name = process.env.DISCORD_ACTIVITY_NAME
+        const type = process.env.DISCORD_ACTIVITY_TYPE || "PLAYING"
+        await bot.user.setActivity(name, {type})
+    } else {
+        await bot.user.setActivity()
+    }
 
     setJSONPersonality = async function (msg, from, channel, roles) {
         const command = "!setJSONPersonality "
@@ -343,24 +350,24 @@ bot.on('message', async msg => {
 
     if ((cleanContent.startsWith("²") || cleanContent.startsWith("○")) && cleanContent.length === 1) {
         await originalMsg.react("🔄")
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_RETRY_MESSAGE)){
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_RETRY_MESSAGE)) {
             await originalMsg.react("🛑")
         }
     } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
         await originalMsg.react("▶")
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_CONTINUE_MESSAGE)){
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_CONTINUE_MESSAGE)) {
             await originalMsg.react("🛑")
         }
     } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
         await originalMsg.react("⏩")
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_ANSWER_MESSAGE)){
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_ANSWER_MESSAGE)) {
             await originalMsg.react("🛑")
         }
     } else if (cleanContent === "!forget") {
         await originalMsg.react("💔")
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_FORGET)){
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_FORGET)) {
             await originalMsg.react("🛑")
-        }else {
+        } else {
             setTimeout(() => {
                 if (!privateMessage) {
                     originalMsg.delete()
@@ -373,7 +380,7 @@ bot.on('message', async msg => {
             return
         }
 
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_SET_JSON_PERSONALITY)){
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_SET_JSON_PERSONALITY)) {
             await originalMsg.react("🛑")
             return
         }
@@ -387,7 +394,6 @@ bot.on('message', async msg => {
     }
 
     locked = true
-
 
 
     const message = await botService.onChannelMessage(

@@ -57,7 +57,6 @@ const DEFAULT_PARAMETERS = {
     eos_token_id: 198,
     repetition_penalty: 1.1875,
     repetition_penalty_range: 1024,
-    repetition_penalty_slope: 6.57,
     tail_free_sampling: 1,
     prefix: "vanilla",
 
@@ -611,7 +610,8 @@ const generate = async function (input, params, lowPriority = false) {
 }
 
 class AiService {
-    static async sendUntilSuccess(prompt, preventLMI = false, callback = (answer) => null) {
+
+    static async sendUntilSuccess(prompt, preventLMI = false) {
         let answer
         let parsedAnswer
         let nbTry = 0
@@ -622,7 +622,8 @@ class AiService {
         if (!preventLMI) {
             lmiService.updateLmi(prompt, answer, parsedAnswer)
         }
-        callback(parsedAnswer)
+
+        return parsedAnswer
     }
 
     static async sendLowPriority(prompt, preventLMI = false) {

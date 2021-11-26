@@ -101,161 +101,136 @@ class CommandService {
 
     static changeLanguage(msg, from, channel, roles) {
         const command = "!lang "
-        return new Promise((resolve) => {
-            if (msg.startsWith(command)) {
-                if (!utils.checkPermissions(roles, process.env.ALLOW_CHANGE_LANGUAGE)) {
-                    resolve(true)
-                    return
-                }
-
-                const language = msg.replace(command, "")
-                let message = ""
-                translationsService.changeLanguage(language)
-                if (channelBotTranslationService.changeChannelBotTranslations(channel, language, process.env.BOTNAME)) {
-                    message += `\nLoaded bot personality file: ${process.env.BOTNAME}/${language}.json`
-                } else {
-                    message += (message ? "\n" : "") + `Couldn't load bot personality for ${process.env.BOTNAME}/${language}.json`
-                }
-                if (message) {
-                    const privateMessage = channel.startsWith("##")
-                    const botTranslations = channelBotTranslationService.getChannelBotTranslations(channel)
-                    message = `${message}\n${(privateMessage ? botTranslations.introductionDm : botTranslations.introduction)[0].msg}`
-                    resolve({message, channel})
-                } else {
-                    resolve(true)
-                }
-            } else {
-                resolve(false)
+        if (msg.startsWith(command)) {
+            if (!utils.checkPermissions(roles, process.env.ALLOW_CHANGE_LANGUAGE)) {
+                return true
             }
-        })
+
+            const language = msg.replace(command, "")
+            let message = ""
+            translationsService.changeLanguage(language)
+            if (channelBotTranslationService.changeChannelBotTranslations(channel, language, process.env.BOTNAME)) {
+                message += `\nLoaded bot personality file: ${process.env.BOTNAME}/${language}.json`
+            } else {
+                message += (message ? "\n" : "") + `Couldn't load bot personality for ${process.env.BOTNAME}/${language}.json`
+            }
+            if (message) {
+                const privateMessage = channel.startsWith("##")
+                const botTranslations = channelBotTranslationService.getChannelBotTranslations(channel)
+                message = `${message}\n${(privateMessage ? botTranslations.introductionDm : botTranslations.introduction)[0].msg}`
+                return {message, channel}
+            } else {
+                return true
+            }
+        } else {
+            return false
+        }
     }
 
-    static noContextMessage(msg, from, channel, roles) {
+    static async noContextMessage(msg, from, channel, roles) {
         const command = "!"
-        return new Promise((resolve) => {
-            if (msg.startsWith(command)) {
+        if (msg.startsWith(command)) {
 
-                if (!utils.checkPermissions(roles, process.env.ALLOW_NO_CONTEXT_MESSAGE)) {
-                    resolve(true)
-                    return
-                }
-
-                if (!this.isChannelMuted(channel)) {
-                    const message = utils.upperCaseFirstLetter(msg.slice(1))
-                    historyService.pushIntoHistory(message, from, channel)
-
-                    const prompt = promptService.getNoContextPrompt(message, from, channel)
-                    aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
-                        historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                        resolve({message: answer, channel})
-                    }).then(() => {
-                    })
-                } else {
-                    resolve(true)
-                }
-            } else {
-                resolve(false)
+            if (!utils.checkPermissions(roles, process.env.ALLOW_NO_CONTEXT_MESSAGE)) {
+                return true
             }
-        })
+
+            if (!this.isChannelMuted(channel)) {
+                const message = utils.upperCaseFirstLetter(msg.slice(1))
+                historyService.pushIntoHistory(message, from, channel)
+
+                const prompt = promptService.getNoContextPrompt(message, from, channel)
+                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+                historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
+                return {message: answer, channel}
+            } else {
+                return true
+            }
+        } else {
+            return false
+        }
     }
 
-    static continueMessage(msg, from, channel, roles) {
+    static async continueMessage(msg, from, channel, roles) {
         const command = ","
-        return new Promise((resolve) => {
-            if (msg.startsWith(command) && msg.length === 1) {
+        if (msg.startsWith(command) && msg.length === 1) {
 
-                if (!utils.checkPermissions(roles, process.env.ALLOW_CONTINUE_MESSAGE)) {
-                    resolve(true)
-                    return
-                }
-
-                if (!this.isChannelMuted(channel)) {
-                    const prompt = promptService.getPrompt(msg, from, channel, true, false)
-                    aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
-
-                        historyService.getChannelHistory(channel).reverse()
-                        for (let h of historyService.getChannelHistory(channel)) {
-                            if (h.from === process.env.BOTNAME) {
-                                h.msg += answer
-                                break
-                            }
-                        }
-                        historyService.getChannelHistory(channel).reverse()
-                        resolve({message: answer, channel})
-                    }).then(() => {
-                    })
-                } else {
-                    resolve(true)
-                }
-            } else {
-                resolve(false)
+            if (!utils.checkPermissions(roles, process.env.ALLOW_CONTINUE_MESSAGE)) {
+                return true
             }
-        })
+
+            if (!this.isChannelMuted(channel)) {
+                const prompt = promptService.getPrompt(msg, from, channel, true, false)
+                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+                historyService.getChannelHistory(channel).reverse()
+                for (let h of historyService.getChannelHistory(channel)) {
+                    if (h.from === process.env.BOTNAME) {
+                        h.msg += answer
+                        break
+                    }
+                }
+                historyService.getChannelHistory(channel).reverse()
+                return {message: answer, channel}
+            } else {
+                return true
+            }
+        } else {
+            return false
+        }
     }
 
-    static retryMessage(msg, from, channel, roles) {
+    static async retryMessage(msg, from, channel, roles) {
         const command = "²"
         const command2 = "○"
-        return new Promise((resolve) => {
-            if ((msg.startsWith(command) || msg.startsWith(command2)) && msg.length === 1) {
+        if ((msg.startsWith(command) || msg.startsWith(command2)) && msg.length === 1) {
 
-                if (!utils.checkPermissions(roles, process.env.ALLOW_RETRY_MESSAGE)) {
-                    resolve(true)
-                    return
-                }
-
-                if (!this.isChannelMuted(channel)) {
-                    const prompt = promptService.getPrompt(msg, from, channel, false, true)
-                    aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
-
-                        historyService.getChannelHistory(channel).reverse()
-                        for (let h of historyService.getChannelHistory(channel)) {
-                            if (h.from === process.env.BOTNAME) {
-                                h.msg = answer
-                                break
-                            }
-                        }
-                        historyService.getChannelHistory(channel).reverse()
-                        resolve({message: answer, channel})
-                    }).then(() => {
-                    })
-                } else {
-                    resolve(true)
-                }
-            } else {
-                resolve(false)
+            if (!utils.checkPermissions(roles, process.env.ALLOW_RETRY_MESSAGE)) {
+                return true
             }
-        })
+
+            if (!this.isChannelMuted(channel)) {
+                const prompt = promptService.getPrompt(msg, from, channel, false, true)
+                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+                historyService.getChannelHistory(channel).reverse()
+                for (let h of historyService.getChannelHistory(channel)) {
+                    if (h.from === process.env.BOTNAME) {
+                        h.msg = answer
+                        break
+                    }
+                }
+                historyService.getChannelHistory(channel).reverse()
+                return {message: answer, channel}
+            } else {
+                return true
+            }
+        } else {
+            return false
+        }
     }
 
-    static answerMessage(msg, from, channel, roles) {
+    static async answerMessage(msg, from, channel, roles) {
         const command = "?"
-        return new Promise((resolve) => {
-            if (msg.startsWith(command)) {
+        if (msg.startsWith(command)) {
 
-                if (!utils.checkPermissions(roles, process.env.ALLOW_ANSWER_MESSAGE)) {
-                    resolve(true)
-                    return
-                }
-
-                if (!this.isChannelMuted(channel)) {
-                    const message = utils.upperCaseFirstLetter(msg.slice(1))
-                    if (message) {
-                        historyService.pushIntoHistory(message, from, channel)
-                    }
-                    const prompt = promptService.getPrompt(msg, from, channel)
-                    aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
-                        historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                        resolve({message: answer, channel})
-                    }).then(() => {
-                    })
-                } else {
-                    resolve(true)
-                }
-            } else {
-                resolve(false)
+            if (!utils.checkPermissions(roles, process.env.ALLOW_ANSWER_MESSAGE)) {
+                return true
             }
-        })
+
+            if (!this.isChannelMuted(channel)) {
+                const message = utils.upperCaseFirstLetter(msg.slice(1))
+                if (message) {
+                    historyService.pushIntoHistory(message, from, channel)
+                }
+                const prompt = promptService.getPrompt(msg, from, channel)
+                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+                historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
+                return {message: answer, channel}
+            } else {
+                return true
+            }
+        } else {
+            return false
+        }
     }
 
     static comment(msg, from, channel, roles) {
@@ -266,201 +241,174 @@ class CommandService {
         return !!msg.startsWith(command);
     }
 
-    static answerToName(msg, from, channel, roles) {
-        return new Promise((resolve) => {
+    static async answerToName(msg, from, channel, roles) {
+        if (!utils.checkPermissions(roles, process.env.ALLOW_ANSWER_MESSAGE)) {
+            return true
+        }
 
-            if (!utils.checkPermissions(roles, process.env.ALLOW_ANSWER_MESSAGE)) {
-                resolve(true)
-                return
-            }
-
-            if (!this.isChannelMuted(channel)) {
-                historyService.pushIntoHistory(msg, from, channel, roles)
-                if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
-                    const prompt = promptService.getPrompt(msg, from, channel)
-                    aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
-                        historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                        resolve({message: answer, channel})
-                    }).then(() => {
-                    })
-                } else {
-                    resolve(true)
-                }
-            } else {
-                resolve(false)
-            }
-        })
-    }
-
-    static talk(channel) {
-        return new Promise((resolve) => {
-            if (!this.isChannelMuted(channel)) {
-                const history = historyService.getChannelHistory(channel)
-                const lastMessageFromChannel = history && history.length > 0 ?
-                    history[history.length - 1]
-                    : null
-                if (lastMessageFromChannel && lastMessageFromChannel.from !== process.env.BOTNAME) {
-                    const prompt = promptService.getPrompt(null, null, channel)
-                    aiService.sendLowPriority(prompt, channel.startsWith("##")).then((answer) => {
-                        if (answer) {
-                            historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                            resolve({message: answer, channel})
-                        }
-                        resolve(true)
-                    })
-                } else {
-                    resolve(true)
-                }
-            } else {
-                resolve(false)
-            }
-        })
-    }
-
-    static reactToAction(msg, from, channel, roles) {
-        return new Promise((resolve) => {
-
-            if (!utils.checkPermissions(roles, process.env.ALLOW_REACTIONS)) {
-                resolve(true)
-                return
-            }
-
-            if (!this.isChannelMuted(channel)) {
-                const action = translationsService.translations.onAction
-                    .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
-                historyService.pushIntoHistory(action, from, channel)
+        if (!this.isChannelMuted(channel)) {
+            historyService.pushIntoHistory(msg, from, channel, roles)
+            if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
                 const prompt = promptService.getPrompt(msg, from, channel)
-                aiService.sendUntilSuccess(prompt, channel.startsWith("##"), (answer) => {
-                    historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                    resolve({message: answer, channel})
-                }).then(() => {
-                })
+                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+                historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
+                return {message: answer, channel}
             } else {
-                resolve(true)
+                return true
             }
-        })
+        } else {
+            return false
+        }
     }
 
-    static prompt(msg, from, channel, roles) {
-        const command = /!prompt *([0-9]*)\n/g.exec(msg);
-        return new Promise(async (resolve) => {
-
-            if (command && command[1]) {
-
-                if (!utils.checkPermissions(roles, process.env.ALLOW_PROMPT_MESSAGE)) {
-                    resolve(true)
-                    return
+    static async talk(channel) {
+        if (!this.isChannelMuted(channel)) {
+            const history = historyService.getChannelHistory(channel)
+            const lastMessageFromChannel = history && history.length > 0 ?
+                history[history.length - 1]
+                : null
+            if (lastMessageFromChannel && lastMessageFromChannel.from !== process.env.BOTNAME) {
+                const prompt = promptService.getPrompt(null, null, channel)
+                const answer = await aiService.sendLowPriority(prompt, channel.startsWith("##"))
+                if (answer) {
+                    historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
+                    return {message: answer, channel}
                 }
-
-                const message = utils.upperCaseFirstLetter(msg.replace(command[0], ""))
-                const tokenCount = Math.min(150, parseInt(command[1]))
-                const result = await aiService.simpleEvalbot(message, tokenCount)
-                resolve({message: result, channel})
+                return true
             } else {
-                resolve(false)
+                return true
             }
-        })
+        } else {
+            return false
+        }
+    }
+
+    static async reactToAction(msg, from, channel, roles) {
+        if (!utils.checkPermissions(roles, process.env.ALLOW_REACTIONS)) {
+            return true
+        }
+
+        if (!this.isChannelMuted(channel)) {
+            const action = translationsService.translations.onAction
+                .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
+            historyService.pushIntoHistory(action, from, channel)
+            const prompt = promptService.getPrompt(msg, from, channel)
+            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+            historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
+            return {message: answer, channel}
+        } else {
+            return true
+        }
+    }
+
+    static async prompt(msg, from, channel, roles) {
+        const command = /!prompt *([0-9]*)\n/g.exec(msg);
+
+        if (command && command[1]) {
+            if (!utils.checkPermissions(roles, process.env.ALLOW_PROMPT_MESSAGE)) {
+                return true
+            }
+
+            const message = utils.upperCaseFirstLetter(msg.replace(command[0], ""))
+            const tokenCount = Math.min(150, parseInt(command[1]))
+            const result = await aiService.simpleEvalbot(message, tokenCount)
+            return {message: result, channel}
+        } else {
+            return false
+        }
     }
 
     static setPersonality(msg, from, channel, roles) {
         const command = "!setPersonality "
-        return new Promise((resolve) => {
-            if (msg.toLowerCase().startsWith(command.toLowerCase())) {
+        if (msg.toLowerCase().startsWith(command.toLowerCase())) {
 
-                if (!utils.checkPermissions(roles, process.env.ALLOW_SET_PERSONALITY)) {
-                    resolve(true)
-                    return
-                }
+            if (!utils.checkPermissions(roles, process.env.ALLOW_SET_PERSONALITY)) {
+                return true
+            }
 
-                if (conf.changePersonalityChannelBlacklist.includes(channel)) {
-                    resolve({message: "Sorry, but this channel personality is locked.", channel})
-                    return
-                }
-                // TODO: check if user 'from' is allowed to execute that command
-                const personality = msg.replace(command, "")
+            if (conf.changePersonalityChannelBlacklist.includes(channel)) {
+                return {message: "Sorry, but this channel personality is locked.", channel}
+            }
+            const personality = msg.replace(command, "")
 
-                let message = ""
-                const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
+            let message = ""
+            const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
 
-                if (personality && personality.length > 0) {
-                    const lines = personality.split("\n")
+            if (personality && personality.length > 0) {
+                const lines = personality.split("\n")
 
-                    aiPersonality.description = lines[0]
-                    message += "Custom AI Personality " + aiPersonality.description + " loaded!\n"
+                aiPersonality.description = lines[0]
+                message += "Custom AI Personality " + aiPersonality.description + " loaded!\n"
 
-                    if (lines.length > 1) {
-                        for (let i = 1; i < lines.length; i++) {
-                            if (!aiPersonality.introduction[i - 1]) {
-                                aiPersonality.introduction[i - 1] = {
-                                    from: process.env.BOTNAME,
-                                    msg: lines[i]
-                                }
-                            } else {
-                                aiPersonality.introduction[i - 1].msg = lines[i]
+                if (lines.length > 1) {
+                    for (let i = 1; i < lines.length; i++) {
+                        if (!aiPersonality.introduction[i - 1]) {
+                            aiPersonality.introduction[i - 1] = {
+                                from: process.env.BOTNAME,
+                                msg: lines[i]
                             }
-                            message += aiPersonality.introduction[i - 1].msg
+                        } else {
+                            aiPersonality.introduction[i - 1].msg = lines[i]
                         }
+                        message += aiPersonality.introduction[i - 1].msg
                     }
-
-                } else {
-                    message = "Sorry, you did something wrong"
                 }
-                resolve({message, channel})
 
             } else {
-                resolve(false)
+                message = "Sorry, you did something wrong"
             }
-        })
+            return {message, channel}
+
+        } else {
+            return false
+        }
     }
 
     static setVoice(msg, from, channel, roles) {
         const command = "!setVoice "
-        return new Promise((resolve) => {
-            if (msg.toLowerCase().startsWith(command.toLowerCase())) {
+        if (msg.toLowerCase().startsWith(command.toLowerCase())) {
 
-                if (!utils.checkPermissions(roles, process.env.ALLOW_SET_VOICE)) {
-                    resolve(true)
-                    return
-                }
+            if (!utils.checkPermissions(roles, process.env.ALLOW_SET_VOICE)) {
+                return true
+            }
 
-                const voice = msg.replace(command, "")
+            const voice = msg.replace(command, "")
 
-                let message = ""
-                const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
+            let message = ""
+            const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
 
-                if (voice && voice.length > 0) {
-                    const params = voice.split(" ")
+            if (voice && voice.length > 0) {
+                const params = voice.split(" ")
 
-                    if (params.length === 1 || params.length === 3) {
-                        if (params.length === 1) {
-                            const selectedVoice = voices.voices
-                                .find(v => v.name.toLowerCase() === params[0].toLowerCase())
-                            if (selectedVoice) {
-                                aiPersonality.voice = selectedVoice
-                                message = "AI Personality voice set to " + JSON.stringify(selectedVoice)
-                            } else {
-                                message = "Voice not found, check out https://cloud.google.com/text-to-speech/docs/voices for available voices"
-                            }
-                        } else if (params.length === 3) {
-                            aiPersonality.voice = {
-                                languageCode: params[0],
-                                name: params[1],
-                                ssmlGender: params[2]
-                            }
-                            message = "AI Personality voice set to " + JSON.stringify(aiPersonality.voice)
+                if (params.length === 1 || params.length === 3) {
+                    if (params.length === 1) {
+                        const selectedVoice = voices.voices
+                            .find(v => v.name.toLowerCase() === params[0].toLowerCase())
+                        if (selectedVoice) {
+                            aiPersonality.voice = selectedVoice
+                            message = "AI Personality voice set to " + JSON.stringify(selectedVoice)
+                        } else {
+                            message = "Voice not found, check out https://cloud.google.com/text-to-speech/docs/voices for available voices"
                         }
-                    } else {
-                        message = "Wrong usage. Command for default voice: \"!setVoice en-US en-US-Wavenet-F FEMALE\" or simpler: \"!setVoice en-US-Wavenet-F\""
+                    } else if (params.length === 3) {
+                        aiPersonality.voice = {
+                            languageCode: params[0],
+                            name: params[1],
+                            ssmlGender: params[2]
+                        }
+                        message = "AI Personality voice set to " + JSON.stringify(aiPersonality.voice)
                     }
                 } else {
-                    message = "Sorry, you did something wrong"
+                    message = "Wrong usage. Command for default voice: \"!setVoice en-US en-US-Wavenet-F FEMALE\" or simpler: \"!setVoice en-US-Wavenet-F\""
                 }
-                resolve({message, channel})
-
             } else {
-                resolve(false)
+                message = "Sorry, you did something wrong"
             }
-        })
+            return {message, channel}
+
+        } else {
+            return false
+        }
     }
 
     static rpgPutEvent(msg, from, channel, roles) {
