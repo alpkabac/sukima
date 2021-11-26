@@ -2,8 +2,9 @@ const channelBotTranslationService = require("../channelBotTranslationService");
 const {MessageEmbed} = require("discord.js");
 const utils = require('../utils')
 
-function fromBoolToState(bool) {
-    return bool ? 'enabled' : 'disabled'
+function fromBoolToState(s) {
+    if (s && s === "true") return 'true'
+    if (!s || s === "false") return 'false'
 }
 
 function fromStringToBoolOrString(s) {
@@ -46,8 +47,8 @@ function updateBotInfo(botClient) {
                     `Voice: ${botPersonality.voice.name}`
                     + `\nAuto answer: ${utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER) ? 'enabled' : 'disabled'}`
                     + `\nText-To-Speech: ${utils.getBoolFromString(process.env.ENABLE_TTS) ? 'enabled' : 'disabled'}`
-                    + `\nDMs enabled: ${utils.getBoolFromString(process.env.ENABLE_DM) ? 'enabled' : 'disabled'}`
-                    + `\nIntro enabled: ${utils.getBoolFromString(process.env.ENABLE_INTRO) ? 'enabled' : 'disabled'}`
+                    + `\nDMs enabled: ${fromBoolToState(process.env.ENABLE_DM)}`
+                    + `\nIntro enabled: ${fromBoolToState(process.env.ENABLE_INTRO)}`
                 )
 
                 .addField('\u200B', '\u200B')
