@@ -337,9 +337,9 @@ bot.on('message', async msg => {
     if (originalMsg.content === ";ai me") return                        // Prevents commands from other bots
 
     const cleanContent = replaceAliasesInMessage(replaceBackQuotesByAsterisks(originalMsg.cleanContent), process.env.BOTNAME)
-    const userRoles = originalMsg.member.roles.cache.map(r => {
+    const userRoles = originalMsg.member?.roles?.cache.map(r => {
         return {id: r.id, name: r.name}
-    })
+    }) || []
 
     if ((cleanContent.startsWith("²") || cleanContent.startsWith("○")) && cleanContent.length === 1) {
         await originalMsg.react("🔄")
