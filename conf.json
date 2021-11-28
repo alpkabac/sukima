@@ -1,6 +1,6 @@
 {
   "maxHistory": 120,
-  "minBotMessageIntervalInSeconds": 50,
-  "maxBotMessageIntervalInSeconds": 70,
+  "minBotMessageIntervalInSeconds": 20,
+  "maxBotMessageIntervalInSeconds": 40,
   "minTimeBetweenApiRequestsInSeconds": 2
 }

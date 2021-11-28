@@ -44,9 +44,9 @@ function updateBotInfo(botClient) {
 
                 .addField('\u200B', '\u200B')
                 .addField('Personality edition commands',
-                    `Voice: ${botPersonality.voice.name}`
-                    + `\nAuto answer: ${utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER) ? 'enabled' : 'disabled'}`
+                    `Auto answer: ${utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER) ? 'enabled' : 'disabled'}`
                     + `\nText-To-Speech: ${utils.getBoolFromString(process.env.ENABLE_TTS) ? 'enabled' : 'disabled'}`
+                    + `\nVoice: ${botPersonality.voice.name}`
                     + `\nDMs enabled: ${fromBoolToState(process.env.ENABLE_DM)}`
                     + `\nIntro enabled: ${fromBoolToState(process.env.ENABLE_INTRO)}`
                 )
