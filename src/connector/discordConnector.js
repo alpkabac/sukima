@@ -17,6 +17,10 @@ const {getInterval} = require("../utils")
 const Utils = require("../utils")
 const utils = require("../utils")
 const updateBotInfo = require("./discordUtils");
+const promptService = require("../promptService");
+const aiService = require("../aiService");
+const encoder = require("gpt-3-encoder")
+const historyService = require("../historyService");
 
 bot.login(process.env.TOKEN)
 const channels = []
@@ -438,11 +442,30 @@ async function loop() {
     if (utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) {
         for (let channel in channels) {
             const msg = await commandService.talk(channel)
+            // If normal answer
             if (msg && msg.message?.trim()) {
                 const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
                 channels[channel].send(parsedMessage)
                 if (!channel.startsWith("##")) {
                     await speak(parsedMessage, channel)
+                }
+            }
+
+            // Auto messaging part
+            else {
+                const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
+                const prompt = promptService.getPrompt(null, null, channel, true) + "\n"
+                const result = await aiService.simpleEvalbot(prompt, tokenCount)
+
+                // If next message is from the AI
+                if (result === process.env.BOTNAME) {
+                    const prompt = promptService.getPrompt(null, null, channel)
+                    const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+                    if (answer) {
+                        const parsedMessage = replaceAsterisksByBackQuotes(answer)
+                        historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
+                        channels[channel].send(parsedMessage)
+                    }
                 }
             }
         }

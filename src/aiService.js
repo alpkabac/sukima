@@ -664,7 +664,7 @@ class AiService {
         delete params.bad_words_ids
 
         const result = await this.sendPromptDefault(prompt, params)
-        const parsedResult = result.split("\n")[0]
+        const parsedResult = result
         lmiService.updateLmi(prompt, result, parsedResult)
         return parsedResult
     }

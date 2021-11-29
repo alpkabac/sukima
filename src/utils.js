@@ -26,11 +26,14 @@ class Utils {
     }
 
     static getInterval() {
+        const min = parseInt(process.env.MIN_BOT_MESSAGE_INTERVAL) || conf.minBotMessageIntervalInSeconds
+        const max = parseInt(process.env.MAX_BOT_MESSAGE_INTERVAL) || conf.maxBotMessageIntervalInSeconds
+
         return 1000 *
             (
                 Math.random()
-                * (conf.maxBotMessageIntervalInSeconds - conf.minBotMessageIntervalInSeconds)
-                + conf.minBotMessageIntervalInSeconds
+                * (max - min)
+                + min
             )
     }
 
