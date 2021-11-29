@@ -401,7 +401,9 @@ bot.on('message', async msg => {
     if (message && message.message && message.message.trim().length > 0) {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
         voiceChannel = msg.member?.voice?.channel
-
+        const timeToWait = encoder.encode(message.message).length * 50
+        originalMsg.channel.startTyping().then()
+        await utils.sleep(timeToWait)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(parsedMessage)
             if (!privateMessage) {
@@ -429,6 +431,7 @@ bot.on('message', async msg => {
             await originalMsg.inlineReply(parsedMessage)
         }
 
+        originalMsg.channel.stopTyping(true)
         if (speak) {
             await speak(message.message, channelName)
         }
@@ -445,10 +448,14 @@ async function loop() {
             // If normal answer
             if (msg && msg.message?.trim()) {
                 const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
+                const timeToWait = encoder.encode(parsedMessage).length * 50
+                channels[channel].startTyping().then()
+                await utils.sleep(timeToWait)
                 channels[channel].send(parsedMessage)
                 if (!channel.startsWith("##")) {
                     await speak(parsedMessage, channel)
                 }
+                channels[channel].stopTyping(true)
             }
 
             // Auto messaging part
@@ -463,8 +470,12 @@ async function loop() {
                     const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
                     if (answer) {
                         const parsedMessage = replaceAsterisksByBackQuotes(answer)
+                        const timeToWait = encoder.encode(parsedMessage).length * 50
+                        channels[channel].startTyping().then()
+                        await utils.sleep(timeToWait)
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                         channels[channel].send(parsedMessage)
+                        channels[channel].stopTyping(true)
                     }
                 }
             }
