@@ -8,6 +8,8 @@ const utils = require('./utils')
 const aiService = require("./aiService")
 const promptService = require("./promptService")
 const {getMap, getTags} = require("./r34Service")
+const axios = require("axios")
+const DanbooruService = require("./danbooruService");
 const voices = JSON.parse(JSON.stringify(require('./tts/languages.json')))
 
 // TODO: split this class
@@ -247,7 +249,7 @@ class CommandService {
         }
 
         if (!this.isChannelMuted(channel)) {
-            historyService.pushIntoHistory(msg, from, channel, roles)
+            historyService.pushIntoHistory(msg, from, channel)
             if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
                 const prompt = promptService.getPrompt(msg, from, channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
@@ -454,10 +456,125 @@ class CommandService {
         }
     }
 
+    // Discord only
     static setJSONPersonality(msg, from, channel, roles) {
         const command = "!setJSONPersonality"
         return !!msg.startsWith(command);
 
+    }
+
+    static async wiki(msg, from, channel, roles) {
+        const command = "!wiki"
+        if (msg.startsWith(command)) {
+            if (!utils.checkPermissions(roles, process.env.ALLOW_WIKI)) {
+                return true
+            }
+
+            const search = msg.replace(command, '').trim()
+
+            if (!search || search.length === 0) {
+                return {message: "# You have to provide at least one keyword for the search. Use like this: `!wiki KEYWORD`"}
+            }
+
+            const url = encodeURI(`https://en.wikipedia.org/w/api.php?action=opensearch&search=${search}&format=json`)
+
+            const preResult = (await axios.get(url, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }))?.data
+
+            if (preResult) {
+                historyService.pushIntoHistory(msg, from, channel)
+                const formattedEvent = `[ Event: ${process.env.BOTNAME} sends the wikipedia link ${preResult[3][0]} to ${from} ]`
+                historyService.pushIntoHistory(formattedEvent, null, channel, true)
+
+                return {message: `# You searched for ${preResult[1][0]} — Follow this link to read more: ${preResult[3][0]}`}
+            } else {
+                return {message: `# Nothing was found... Sorry!`}
+            }
+        } else {
+            return false
+        }
+    }
+
+    static async danbooru(msg, from, channel, roles) {
+        const command = "!danbooru"
+        if (msg.startsWith(command)) {
+            if (!utils.checkPermissions(roles, process.env.ALLOW_DANBOORU)) {
+                return true
+            }
+
+            const search = msg.replace(command, '').trim()
+
+            const result = await DanbooruService.getTags(search || null)
+
+            if (result) {
+                historyService.pushIntoHistory(msg, from, channel)
+                const formattedEvent = `[ Event: ${process.env.BOTNAME} sends a random hentai picture from the website "danbooru" to ${from}. The picture is titled contains the tags "${result.tag_string_general}" ]`
+                historyService.pushIntoHistory(formattedEvent, null, channel, true)
+                return {message: `Id: ${result?.id}\nTags_string_general: ${result.tag_string_general}\nTag_string_character: ${result.tag_string_character}\nArtist: ${result.tag_string_artist}\nDate: ${result.created_at}\nURL: ${result.large_file_url}`}
+            } else {
+                return {message: `# I'm sorry, but your search didn't return any result... Maybe try another keyword!`}
+            }
+
+        } else {
+            return false
+        }
+    }
+
+    static async eporner(msg, from, channel, roles) {
+        const command = "!eporner"
+        if (msg.startsWith(command)) {
+            if (!utils.checkPermissions(roles, process.env.ALLOW_EPORNER)) {
+                return true
+            }
+
+            const search = msg.replace(command, '').trim()
+
+            if (!search || search.length === 0) {
+                return {message: "# You have to provide at least one keyword for the search. Use like this: `!eporner KEYWORD`"}
+            }
+
+            const ORDER = ["latest", "longest", "shortest", "top-rated", "most-popular", "top-weekly", "top-monthly"]
+            const THUMBNAIL_SIZE = ["small", "medium", "big"]
+            const page = 0
+            const nbResultPerPage = 1
+            let params = `?query=${search}&per_page=${nbResultPerPage}&page=${page}&thumbsize=${THUMBNAIL_SIZE[0]}&order=${ORDER[0]}&gay=1&lq=1&format=json`
+
+            const preResult = (await axios.get("https://www.eporner.com/api/v2/video/search/" + params, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }))?.data
+
+            if (preResult?.videos?.length > 0) {
+                const randomPage = Math.floor(Math.random() * preResult.total_pages)
+                params = `?query=${search}&per_page=${nbResultPerPage}&page=${randomPage}&thumbsize=${THUMBNAIL_SIZE[2]}&order=${ORDER[0]}&gay=1&lq=1&format=json`
+
+                const result = (await axios.get("https://www.eporner.com/api/v2/video/search/" + params, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }))?.data
+
+                if (result?.videos?.length > 0) {
+                    const vid = result.videos[0]
+
+                    historyService.pushIntoHistory(msg, from, channel)
+                    const formattedEvent = `[ Event: ${process.env.BOTNAME} sends a random porn video from the website "eporner" to ${from}. The video is titled "${vid.title}" and contains the keywords "${vid.keywords}" ]`
+                    historyService.pushIntoHistory(formattedEvent, null, channel, true)
+                    return {message: `Id: ${vid?.id}\nTitle: ${vid.title}\nKeywords: ${vid.keywords}\nLength: ${vid.length_min}\nDate: ${vid.added}\nURL: ${vid.url}`}
+                } else {
+                    return {message: `# I'm sorry, but your search didn't return any result... Maybe try another keyword!`}
+                }
+            } else {
+                return {message: `# I'm sorry, but your search didn't return any result... Maybe try another keyword!`}
+            }
+
+        } else {
+            return false
+        }
     }
 
     static r34(msg, from, channel, roles) {
@@ -507,6 +624,11 @@ class CommandService {
                                     resolve(true)
                                 } else {
                                     const id = Math.floor(Math.random() * posts.length)
+
+                                    historyService.pushIntoHistory(msg, from, channel)
+                                    const formattedEvent = `[ Event: ${process.env.BOTNAME} sends a random picture from the website "rule34.xxx" to ${from}" with the tags "${tags}" ]`
+                                    historyService.pushIntoHistory(formattedEvent, null, channel, true)
+
                                     resolve({message: posts[id].file_url, channel})
                                 }
                             } else {

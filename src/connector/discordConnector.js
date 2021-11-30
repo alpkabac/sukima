@@ -388,6 +388,21 @@ bot.on('message', async msg => {
         } else if (r && r.error) {
             await originalMsg.react("❌")
         }
+    }else if(cleanContent.startsWith("!eporner")){
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_EPORNER)) {
+            await originalMsg.react("🛑")
+            return
+        }
+    }else if(cleanContent.startsWith("!wiki")){
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_WIKI)) {
+            await originalMsg.react("🛑")
+            return
+        }
+    }else if(cleanContent.startsWith("!danbooru")){
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_DANBOORU)) {
+            await originalMsg.react("🛑")
+            return
+        }
     }
 
     locked = true
@@ -402,7 +417,7 @@ bot.on('message', async msg => {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
         voiceChannel = msg.member?.voice?.channel
         const timeToWait = encoder.encode(message.message).length * 50
-        originalMsg.channel.startTyping().then()
+        channels[channelName].startTyping().then()
         await utils.sleep(timeToWait)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(parsedMessage)
@@ -422,6 +437,7 @@ bot.on('message', async msg => {
         } else if (message.message.startsWith("\nLoaded bot")) {
             await originalMsg.inlineReply(parsedMessage)
             if (speak) await speak(message.message.split("\n")[2], channelName)
+            channels[channelName].stopTyping(true)
             return
         } else if (cleanContent.startsWith("!rpg") || cleanContent.startsWith("!event")) {
             if (!privateMessage) {
@@ -431,7 +447,7 @@ bot.on('message', async msg => {
             await originalMsg.inlineReply(parsedMessage)
         }
 
-        originalMsg.channel.stopTyping(true)
+        channels[channelName].stopTyping(true)
         if (speak) {
             await speak(message.message, channelName)
         }

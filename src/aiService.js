@@ -60,7 +60,8 @@ const DEFAULT_PARAMETERS = {
     tail_free_sampling: 1,
     prefix: "vanilla",
 
-    bad_words_ids: [
+    bad_words_ids: null,
+    /*[
         [
             27,
             91,
@@ -556,7 +557,7 @@ const DEFAULT_PARAMETERS = {
         [
             50256
         ]
-    ]
+    ]*/
 }
 
 const generateUnthrottled = async (accessToken, input, params) => {
