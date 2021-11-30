@@ -7,9 +7,9 @@ const conf = require('../conf.json')
 const utils = require('./utils')
 const aiService = require("./aiService")
 const promptService = require("./promptService")
-const {getMap, getTags} = require("./r34Service")
+const {getMap, getTags} = require("./externalApi/r34Service")
 const axios = require("axios")
-const DanbooruService = require("./danbooruService");
+const DanbooruService = require("./externalApi/danbooruService");
 const voices = JSON.parse(JSON.stringify(require('./tts/languages.json')))
 
 // TODO: split this class

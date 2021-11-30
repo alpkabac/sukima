@@ -36,6 +36,7 @@ function updateBotInfo(botClient) {
                 .setThumbnail(botClient.user.avatarURL())
 
                 .addField('Latest Model Input', `http://54.37.153.103:${process.env.LMI_PORT}/`)
+                .addField('General description', botPersonality.displayDescription)
                 .addField('Public context', botPersonality.context)
                 .addField('DM context', botPersonality.contextDm)
                 .addField('Personality context', botPersonality.description)
