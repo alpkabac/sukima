@@ -83,7 +83,10 @@ function updateBotInfo(botClient) {
                     `Prompt: ${fromStringToBoolOrString(process.env.ALLOW_PROMPT_MESSAGE)}`
                     + `\nEvent injection: ${fromStringToBoolOrString(process.env.ALLOW_EVENT_INJECTION_MESSAGE)}`
                     + `\nProperty injection: ${fromStringToBoolOrString(process.env.ALLOW_PROPERTY_INJECTION_MESSAGE)}`
+                    + `\nWiki: ${fromStringToBoolOrString(process.env.ALLOW_WIKI)}`
                     + `\nRule 34: ${fromStringToBoolOrString(process.env.ALLOW_RULE34)}`
+                    + `\nEporner: ${fromStringToBoolOrString(process.env.ALLOW_EPORNER)}`
+                    + `\nDanbooru: ${fromStringToBoolOrString(process.env.ALLOW_DANBOORU)}`
                 )
 
                 .setImage(botClient.user.avatarURL())
