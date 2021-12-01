@@ -375,7 +375,7 @@ bot.on('message', async msg => {
         }
     } else if (cleanContent.startsWith("!setJSONPersonality ")) {
         if (!setJSONPersonality) {
-            await originalMsg.inlineReply("Sorry, but this command is not fully loaded. Please try again later!")
+            await originalMsg.inlineReply("# Sorry, but this command is not fully loaded. Please try again later!")
             return
         }
 
@@ -472,7 +472,7 @@ bot.on('message', async msg => {
         }
 
         channels[channelName].stopTyping(true)
-        if (speak) {
+        if (speak && !message.message.startsWith("#")) {
             await speak(message.message, channelName)
         }
     }
