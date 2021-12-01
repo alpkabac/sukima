@@ -14,11 +14,9 @@ class DanbooruService {
                 }
             }))?.data
 
-            console.log(r)
             return r
         } catch (e) {
             console.error("error", e)
-            //console.error(e)
         }
     }
 }

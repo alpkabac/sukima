@@ -567,7 +567,7 @@ const generateUnthrottled = async (accessToken, input, params) => {
             "https://api.novelai.net/ai/generate",
             {
                 input,
-                model: "6B-v4",
+                model: process.env.AI_MODEL || "6B-v4",
                 parameters: params
             },
             {
