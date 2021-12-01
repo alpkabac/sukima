@@ -486,7 +486,7 @@ class CommandService {
 
             if (preResult) {
                 historyService.pushIntoHistory(msg, from, channel)
-                const formattedEvent = `[ Event: ${process.env.BOTNAME} sends the wikipedia link "${preResult[3][0]} to ${from}" ]`
+                const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by sending the wikipedia link "${preResult[3][0]} to ${from}" ]`
                 historyService.pushIntoHistory(formattedEvent, null, channel, true)
 
                 return {message: `# You searched for ${preResult[1][0]} — Follow this link to read more: ${preResult[3][0]}`}
@@ -511,7 +511,7 @@ class CommandService {
 
             if (result) {
                 historyService.pushIntoHistory(msg, from, channel)
-                const formattedEvent = `[ Event: ${process.env.BOTNAME} sends a random hentai picture from the website "danbooru" to ${from}. The picture has the tags "${result.tag_string_general}" ]`
+                const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by sending a random hentai picture from the website "danbooru" to ${from}. The picture has the tags "${result.tag_string_general}" ]`
                 historyService.pushIntoHistory(formattedEvent, null, channel, true)
                 return {message: `Id: ${result?.id}\nTags_string_general: ${result.tag_string_general}\nTag_string_character: ${result.tag_string_character}\nArtist: ${result.tag_string_artist}\nDate: ${result.created_at}\nURL: ${result.large_file_url}`}
             } else {
@@ -562,7 +562,7 @@ class CommandService {
                     const vid = result.videos[0]
 
                     historyService.pushIntoHistory(msg, from, channel)
-                    const formattedEvent = `[ Event: ${process.env.BOTNAME} sends a random porn video from the website "eporner" to ${from}. The video is titled "${vid.title}" and contains the keywords "${vid.keywords}" ]`
+                    const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by sending a random porn video from the website "eporner" to ${from}. The video is titled "${vid.title}" and contains the keywords "${vid.keywords}" ]`
                     historyService.pushIntoHistory(formattedEvent, null, channel, true)
                     return {message: `Id: ${vid?.id}\nTitle: ${vid.title}\nKeywords: ${vid.keywords}\nLength: ${vid.length_min}\nDate: ${vid.added}\nURL: ${vid.url}`}
                 } else {
