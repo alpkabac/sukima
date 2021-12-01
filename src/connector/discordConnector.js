@@ -434,6 +434,20 @@ bot.on('message', async msg => {
             if (!privateMessage) {
                 originalMsg.delete()
             }
+        } else if (cleanContent.startsWith("!danbooru") && message.message.startsWith("#")) {
+            await originalMsg.react("🤷")
+            channels[channelName].stopTyping(true)
+            await originalMsg.react("🇹")
+            await utils.sleep(200)
+            await originalMsg.react("🇷")
+            await utils.sleep(200)
+            await originalMsg.react("🇾")
+            await utils.sleep(200)
+            await originalMsg.react("🔄")
+            await utils.sleep(3000)
+            originalMsg.delete()
+            channels[channelName].stopTyping(true)
+            return
         } else if (message.message.startsWith("\nLoaded bot")) {
             await originalMsg.inlineReply(parsedMessage)
             if (speak) await speak(message.message.split("\n")[2], channelName)

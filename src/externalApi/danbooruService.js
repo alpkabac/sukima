@@ -4,23 +4,21 @@ class DanbooruService {
     static async getTags(tags) {
 
         try {
-            const r = (await axios.get("https://danbooru.donmai.us/posts/random.json?limit=1&tags=" + encodeURI(tags), {
+            const r = (await axios.get("https://danbooru.donmai.us/posts/random.json?limit=1&tags=" + encodeURI(tags.toLowerCase()), {
                 params: {
                     "limit": 1
                 },
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Basic ' + (Buffer.from("Noli:cTR2osoXdmNnZVuFkAbKAFHt")).toString("base64")
+                    'Authorization': 'Basic ' + (Buffer.from(process.env.DANBOORU_LOGIN + ":" + process.env.DANBOORU_API_KEY)).toString("base64")
                 }
             }))?.data
 
             return r
         } catch (e) {
-            console.error("error", e)
+            //console.error("error", e)
         }
     }
 }
-
-DanbooruService.getTags("alice_in_wonderland").then()
 
 module.exports = DanbooruService

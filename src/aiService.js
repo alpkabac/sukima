@@ -2,6 +2,7 @@ const axios = require("axios");
 const conf = require("../conf.json");
 const messageService = require("./messageService");
 const lmiService = require("./lmiService");
+const {sleep} = require("./utils");
 
 let lastGenerationTimestamp = Date.now()
 
@@ -577,7 +578,7 @@ const generateUnthrottled = async (accessToken, input, params) => {
                 }
             }
         )
-    }catch{
+    } catch {
         res = null
     }
 
@@ -590,24 +591,17 @@ const generate = async function (input, params, lowPriority = false) {
     if (!ACCESS_TOKEN) ACCESS_TOKEN = await getAccessToken(process.env.NOVEL_AI_API_KEY)
     const timeStep = conf.minTimeBetweenApiRequestsInSeconds * 1000
 
-    return new Promise((resolve, reject) => {
-        if (lowPriority && isProcessing) {
-            resolve(null)
-        } else {
-            isProcessing = true
-            const timeDiff = Date.now() - lastGenerationTimestamp
-            lastGenerationTimestamp = Date.now()
-            setTimeout(async () => {
-                try {
-                    const res = await generateUnthrottled(ACCESS_TOKEN, input, params)
-                    isProcessing = false
-                    resolve(res)
-                }catch{
-                    reject(null)
-                }
-            }, timeDiff < timeStep ? timeStep - timeDiff : 0)
-        }
-    })
+    if (lowPriority && isProcessing) {
+        return null
+    } else {
+        isProcessing = true
+        const timeDiff = Date.now() - lastGenerationTimestamp
+        lastGenerationTimestamp = Date.now()
+        await sleep(timeDiff < timeStep ? timeStep - timeDiff : 0)
+        const res = await generateUnthrottled(ACCESS_TOKEN, input, params)
+        isProcessing = false
+        return res
+    }
 }
 
 class AiService {
@@ -644,11 +638,7 @@ class AiService {
     }
 
     static async sendPromptDefault(prompt, params = DEFAULT_PARAMETERS, lowPriority = false) {
-        return new Promise((resolve, reject) => {
-            generate(prompt, params, lowPriority)
-                .then(r => resolve(r))
-                .catch(err => reject(err))
-        })
+        return await generate(prompt, params, lowPriority)
     }
 
     /**
