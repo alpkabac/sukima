@@ -17,7 +17,6 @@ class BotService {
 
         const msg = prepareIncomingMessage(message, process.env.BOTNAME, botNick)
 
-
         return commandService.comment(msg, from, channel, roles)
             || commandService.remember(msg, from, channel, roles)
             || commandService.setJSONPersonality(msg, from, channel, roles)

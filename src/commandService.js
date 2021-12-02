@@ -10,30 +10,17 @@ const promptService = require("./promptService")
 const {getMap, getTags} = require("./externalApi/r34Service")
 const axios = require("axios")
 const DanbooruService = require("./externalApi/danbooruService");
+const MuteService = require("./muteService");
 const voices = JSON.parse(JSON.stringify(require('./tts/languages.json')))
 
-// TODO: split this class
+// TODO: split and refactor this class using the Command class
 class CommandService {
-    static mutedChannels
-
-    static loadMutedChannels() {
-        if (!this.mutedChannels || this.mutedChannels === {}) {
-            this.mutedChannels = conf.mutedChannels || {}
-        }
-    }
-
-    static isChannelMuted(channel) {
-        this.loadMutedChannels()
-        return this.mutedChannels[channel]
-    }
 
     static mute(msg, from, channel, roles) {
         const command = "!mute"
         if (msg.startsWith(command)) {
             if (!utils.checkPermissions(roles, process.env.ALLOW_MUTE)) return true
-
-            this.loadMutedChannels()
-            this.mutedChannels[channel] = true
+            MuteService.setChannelMuteStatus(channel, true)
             return true
         }
         return false
@@ -43,9 +30,7 @@ class CommandService {
         const command = "!unmute"
         if (msg.startsWith(command)) {
             if (!utils.checkPermissions(roles, process.env.ALLOW_MUTE)) return true
-
-            this.loadMutedChannels()
-            delete this.mutedChannels[channel]
+            MuteService.setChannelMuteStatus(channel, true)
             return true
         }
         return false
@@ -137,7 +122,7 @@ class CommandService {
                 return true
             }
 
-            if (!this.isChannelMuted(channel)) {
+            if (!MuteService.isChannelMuted(channel)) {
                 const message = utils.upperCaseFirstLetter(msg.slice(1))
                 historyService.pushIntoHistory(message, from, channel)
 
@@ -161,7 +146,7 @@ class CommandService {
                 return true
             }
 
-            if (!this.isChannelMuted(channel)) {
+            if (!MuteService.isChannelMuted(channel)) {
                 const prompt = promptService.getPrompt(msg, from, channel, true, false)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
                 historyService.getChannelHistory(channel).reverse()
@@ -190,7 +175,7 @@ class CommandService {
                 return true
             }
 
-            if (!this.isChannelMuted(channel)) {
+            if (!MuteService.isChannelMuted(channel)) {
                 const prompt = promptService.getPrompt(msg, from, channel, false, true)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
                 historyService.getChannelHistory(channel).reverse()
@@ -218,7 +203,7 @@ class CommandService {
                 return true
             }
 
-            if (!this.isChannelMuted(channel)) {
+            if (!MuteService.isChannelMuted(channel)) {
                 const message = utils.upperCaseFirstLetter(msg.slice(1))
                 if (message) {
                     historyService.pushIntoHistory(message, from, channel)
@@ -248,7 +233,7 @@ class CommandService {
             return true
         }
 
-        if (!this.isChannelMuted(channel)) {
+        if (!MuteService.isChannelMuted(channel)) {
             historyService.pushIntoHistory(msg, from, channel)
             if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
                 const prompt = promptService.getPrompt(msg, from, channel)
@@ -264,7 +249,7 @@ class CommandService {
     }
 
     static async talk(channel) {
-        if (!this.isChannelMuted(channel)) {
+        if (!MuteService.isChannelMuted(channel)) {
             const history = historyService.getChannelHistory(channel)
             const lastMessageFromChannel = history && history.length > 0 ?
                 history[history.length - 1]
@@ -290,7 +275,7 @@ class CommandService {
             return true
         }
 
-        if (!this.isChannelMuted(channel)) {
+        if (!MuteService.isChannelMuted(channel)) {
             const action = translationsService.translations.onAction
                 .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
             historyService.pushIntoHistory(action, from, channel)
@@ -304,7 +289,7 @@ class CommandService {
     }
 
     static async prompt(msg, from, channel, roles) {
-        const command = /!prompt *([0-9]*)\n/g.exec(msg);
+        const command = /!prompt *(\d*)\n/g.exec(msg);
 
         if (command && command[1]) {
             if (!utils.checkPermissions(roles, process.env.ALLOW_PROMPT_MESSAGE)) {
@@ -587,7 +572,7 @@ class CommandService {
                     return
                 }
 
-                if (this.isChannelMuted(channel)) {
+                if (MuteService.isChannelMuted(channel)) {
                     resolve(true)
                     return
                 }
@@ -645,8 +630,6 @@ class CommandService {
         })
     }
 }
-
-CommandService.loadMutedChannels()
 
 module
     .exports = CommandService
