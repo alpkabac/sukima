@@ -459,7 +459,7 @@ bot.on('message', async msg => {
             if (!privateMessage) {
                 await originalMsg.react("✅")
             }
-        } else if (!cleanContent.startsWith("!forget") && originalMsg) {
+        } else if (originalMsg) {
             await originalMsg.inlineReply(parsedMessage)
         }
 
