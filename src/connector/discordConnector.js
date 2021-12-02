@@ -366,10 +366,8 @@ bot.on('message', async msg => {
             await originalMsg.react("🛑")
         } else {
             setTimeout(() => {
-                if (!privateMessage) {
-                    try {
-                        originalMsg.delete()
-                    }catch(e){}
+                if (!privateMessage && originalMsg) {
+                    originalMsg.delete()
                 }
             }, 3000)
         }
@@ -390,17 +388,17 @@ bot.on('message', async msg => {
         } else if (r && r.error) {
             await originalMsg.react("❌")
         }
-    }else if(cleanContent.startsWith("!eporner")){
+    } else if (cleanContent.startsWith("!eporner")) {
         if (!utils.checkPermissions(userRoles, process.env.ALLOW_EPORNER)) {
             await originalMsg.react("🛑")
             return
         }
-    }else if(cleanContent.startsWith("!wiki")){
+    } else if (cleanContent.startsWith("!wiki")) {
         if (!utils.checkPermissions(userRoles, process.env.ALLOW_WIKI)) {
             await originalMsg.react("🛑")
             return
         }
-    }else if(cleanContent.startsWith("!danbooru")){
+    } else if (cleanContent.startsWith("!danbooru")) {
         if (!utils.checkPermissions(userRoles, process.env.ALLOW_DANBOORU)) {
             await originalMsg.react("🛑")
             return
@@ -423,24 +421,18 @@ bot.on('message', async msg => {
         await utils.sleep(timeToWait)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(parsedMessage)
-            if (!privateMessage) {
-                try {
-                    originalMsg.delete()
-                }catch(e){}
+            if (!privateMessage && originalMsg) {
+                originalMsg.delete()
             }
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
-            if (!privateMessage) {
-                try {
-                    originalMsg.delete()
-                }catch(e){}
+            if (!privateMessage && originalMsg) {
+                originalMsg.delete()
             }
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(parsedMessage)
-            if (!privateMessage) {
-                try {
-                    originalMsg.delete()
-                }catch(e){}
+            if (!privateMessage && originalMsg) {
+                originalMsg.delete()
             }
         } else if (cleanContent.startsWith("!danbooru") && message.message.startsWith("#")) {
             await originalMsg.react("🤷")
@@ -453,9 +445,9 @@ bot.on('message', async msg => {
             await utils.sleep(200)
             await originalMsg.react("🔄")
             await utils.sleep(3000)
-            try {
+            if (!privateMessage && originalMsg) {
                 originalMsg.delete()
-            }catch(e){}
+            }
             channels[channelName].stopTyping(true)
             return
         } else if (message.message.startsWith("\nLoaded bot")) {
@@ -467,7 +459,7 @@ bot.on('message', async msg => {
             if (!privateMessage) {
                 await originalMsg.react("✅")
             }
-        } else {
+        } else if (!cleanContent.startsWith("!forget") && originalMsg) {
             await originalMsg.inlineReply(parsedMessage)
         }
 

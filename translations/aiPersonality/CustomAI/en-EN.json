@@ -1,9 +1,5 @@
 {
-  "voice": {
-    "languageCode": "en-US",
-    "name": "en-US-Wavenet-F",
-    "ssmlGender": "FEMALE"
-  },
+  "voice": null,
   "noContextSentence": null,
   "context": null,
   "contextDm": null,
