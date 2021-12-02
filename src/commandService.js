@@ -433,7 +433,7 @@ class CommandService {
     }
 
     static rpgContext(msg, from, channel, roles) {
-        const command = "!rpg "
+        const command = "!property "
 
         if (msg.startsWith(command)) {
 
