@@ -37,8 +37,8 @@ const memoryCommands = {
         }),
     showRemember: new Command(
         "Show Remember",
+        ["!showRemember"],
         [],
-        ["!showRemember "],
         process.env.ALLOW_REMEMBER,
         (msg, from, channel, command) => {
             const memory = memoryService.getChannelMemoryForUser(channel, from)
@@ -49,8 +49,8 @@ const memoryCommands = {
         }),
     showAllRemember: new Command(
         "Show All Remember",
+        ["!showAllRemember"],
         [],
-        ["!showAllRemember "],
         process.env.ALLOW_REMEMBER,
         (msg, from, channel, command) => {
             const memory = memoryService.getChannelMemory(channel)
@@ -113,6 +113,9 @@ const memoryCommands = {
 
 memoryCommands.all = [
     memoryCommands.remember,
+    memoryCommands.alsoRemember,
+    memoryCommands.showRemember,
+    memoryCommands.showAllRemember,
     memoryCommands.forgetRemember,
     memoryCommands.forgetAllRemember,
     memoryCommands.deleteChannelHistory,

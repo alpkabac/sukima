@@ -10,7 +10,11 @@ You can also create and customize every part of your AI personality and its func
   through `!remember`
 - `!remember Your text` will insert a message from you in the bot's memory formatted like `yourNick: Your text` (only
   one `!remember` per user)
-- `!forget` will delete your remembered message
+- `!alsoRemember Your text` will append `Your text` to the currently remembered things 
+- `!forget` will delete your remembered things on this channel
+- `!forgetAll` will delete everyone's things on this channel
+- `!showRemember`shows your remembered things on this channel
+- `!showAllRemember`shows everyone's remembered things on this channel
 - `!Blah blah blah` will send the message without any memory besides the `noContextSentence` included in personality
   translation file
   - You can use the `!` prefix to ask questions without using the context (it gives the **best** results)
@@ -26,6 +30,7 @@ You can also create and customize every part of your AI personality and its func
   - Available personalities for Alice: `en-EN`, `en-NSFW`, `en-GURO` and `fr-FR`
 - [NSFW] `!danbooru 2girls hand_holding` if you're a naughty person
 - [NSFW] `!eporner mathematics` is along the same lines
+- [SFW] `!wiki French Revolution` boring version of upper commands
 - `!prompt <number of tokens to generate>\n<your prompt>` will execute your prompt and return X tokens depending on your argument
   - This command can be used freely without the bot remembering either the command nor the output
   - It can be used as a tool to test evalbots, or just to use the AI model with your own prompt
