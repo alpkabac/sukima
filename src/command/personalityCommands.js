@@ -47,7 +47,7 @@ const personalityCommands = {
         ["!setJSONPersonality "],
         process.env.ALLOW_SET_JSON_PERSONALITY,
         async (msg, from, channel, command) => {
-
+            return true
         }
     ),
 }
