@@ -15,7 +15,7 @@ const promptCommands = {
                 const message = utils.upperCaseFirstLetter(msg.replace(args[0], ""))
                 const tokenCount = Math.min(150, parseInt(args[1]))
                 const result = await aiService.simpleEvalbot(message, tokenCount)
-                return {message: result}
+                return {message: result, success: true}
             }
         },
         false

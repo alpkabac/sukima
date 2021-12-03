@@ -18,7 +18,7 @@ const messageCommands = {
             const prompt = promptService.getNoContextPrompt(message, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer}
+            return {message: answer, success: true}
         },
         false
     ),
@@ -38,7 +38,7 @@ const messageCommands = {
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: answer}
+            return {message: answer, success: true}
         },
         false
     ),
@@ -58,7 +58,7 @@ const messageCommands = {
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: answer}
+            return {message: answer, success: true}
         },
         false
     ),
@@ -75,7 +75,7 @@ const messageCommands = {
             const prompt = promptService.getPrompt(msg, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer}
+            return {message: answer, success: true}
         },
         false
     ),
@@ -98,7 +98,7 @@ const messageCommands = {
                 const prompt = promptService.getPrompt(msg, from, channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
                 historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                return {message: answer}
+                return {message: answer, success: true}
             }
         },
         false
@@ -138,7 +138,7 @@ const messageCommands = {
             const prompt = promptService.getPrompt(msg, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer}
+            return {message: answer, success: true}
         },
         false
     ),

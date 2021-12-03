@@ -16,13 +16,13 @@ const languageCommands = {
             if (channelBotTranslationService.changeChannelBotTranslations(channel, language, process.env.BOTNAME)) {
                 message += `Loaded bot personality file: ${process.env.BOTNAME}/${language}.json`
             } else {
-                message += `Couldn't load bot personality for ${process.env.BOTNAME}/${language}.json`
+                return {error: `# Couldn't load bot personality for ${process.env.BOTNAME}/${language}.json`}
             }
             if (message) {
                 const privateMessage = channel.startsWith("##")
                 const botTranslations = channelBotTranslationService.getChannelBotTranslations(channel)
                 message = `${message}\n${(privateMessage ? botTranslations.introductionDm : botTranslations.introduction)[0].msg}`
-                return {message}
+                return {message, success: true}
             }
         }
     ),

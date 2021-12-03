@@ -15,10 +15,9 @@ const personalityCommands = {
 
             if (personality && personality.length > 0) {
                 const lines = personality.split("\n")
-                let message = ""
 
                 aiPersonality.description = lines[0]
-                message += "# Custom AI Personality " + aiPersonality.description + " loaded!\n"
+                let message = "# Custom AI Personality " + aiPersonality.description + " loaded!\n"
 
                 if (lines.length > 1) {
                     for (let i = 1; i < lines.length; i++) {
@@ -34,9 +33,9 @@ const personalityCommands = {
                     }
                 }
 
-                return {message}
+                return {message, success: true}
             } else {
-                return {message: "# Wrong usage of the command. Example: ```!setPersonality [ Character: Alice; gender: female ]\nHello!```"}
+                return {error: "# Wrong usage of the command. Example: ```!setPersonality [ Character: Alice; gender: female ]\nHello!```"}
             }
 
         }

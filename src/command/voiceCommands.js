@@ -31,7 +31,10 @@ const voiceCommands = {
                     return {message}
                 }
             }
-            return {message: "# Wrong usage. Command for default voice: simpler: \"!setVoice en-US-Wavenet-F\""}
+            return {
+                message: "# Wrong usage. Command for default voice: simpler: \"!setVoice en-US-Wavenet-F\"",
+                success: true
+            }
         }
     ),
 }

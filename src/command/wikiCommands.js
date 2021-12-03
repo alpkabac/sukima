@@ -28,9 +28,12 @@ const wikiCommands = {
                 const formattedEvent = `[ ${process.env.BOTNAME} responds to the !wiki command by sending the wikipedia link "${preResult[3][0]} to ${from}" ]`
                 historyService.pushIntoHistory(formattedEvent, null, channel, true)
 
-                return {message: `# Result found for ${preResult[1][0]}. Follow this link to read more: ${preResult[3][0]}`}
+                return {
+                    message: `# Result found for ${preResult[1][0]}. Follow this link to read more: ${preResult[3][0]}`,
+                    success: true
+                }
             } else {
-                return {message: `# Nothing was found... Sorry!`}
+                return {error: `# Nothing was found... Sorry!`}
             }
         },
         false

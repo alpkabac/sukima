@@ -1,6 +1,8 @@
 # AliceBot
 
-IRC/Discord chatbot that uses an AI API to generate messages
+IRC/Discord chatbot that uses an AI API to generate messages  
+The bot will talk automatically when spoken to, but also has plenty of commands to get the best out of the conversation  
+You can also create and customize every part of your AI personality and its functionalities and commands
 
 # IRC/Discord commands and usage
 

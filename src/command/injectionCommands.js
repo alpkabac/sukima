@@ -16,7 +16,7 @@ const injectionCommands = {
                     `[ Event: ${event.trim()} ]`
                 historyService.pushIntoHistory(formattedEvent, null, channel, true)
 
-                return {message: formattedEvent, channel}
+                return {message: formattedEvent, success: true}
             }
         },
         false
@@ -35,7 +35,7 @@ const injectionCommands = {
             if (key && value) {
                 const formattedEvent = `[ ${utils.upperCaseFirstLetter(key)}: ${value.trim()} ]`
                 historyService.pushIntoHistory(formattedEvent, null, channel, true)
-                return {message: formattedEvent, channel}
+                return {message: formattedEvent, success: true}
             }
         },
         false
