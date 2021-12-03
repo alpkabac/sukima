@@ -38,10 +38,10 @@ class Command {
         const noCommand = this.commands.length === 0 && this.commandsStartsWith.length === 0
 
         // If a command matched or if there is no command at all
-        if (command || commandStartsWith || (noCommand)) {
+        if (command || commandStartsWith || noCommand) {
             if (this.permission)
                 if (!utils.checkPermissions(roles, this.permission) && (command || commandStartsWith))
-                    return true
+                    return {permissionError: true}
 
             const callbackResult = await this.callback(msg, from, channel, command || commandStartsWith)
             if (callbackResult) {

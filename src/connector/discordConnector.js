@@ -345,32 +345,20 @@ bot.on('message', async msg => {
         return {id: r.id, name: r.name}
     }) || []
 
+    // React to commands
     if ((cleanContent.startsWith("²") || cleanContent.startsWith("○")) && cleanContent.length === 1) {
-        await originalMsg.react("🔄")
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_RETRY_MESSAGE)) {
-            await originalMsg.react("🛑")
-        }
+        await originalMsg.react("🔄").catch(() => null)
     } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-        await originalMsg.react("▶")
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_CONTINUE_MESSAGE)) {
-            await originalMsg.react("🛑")
-        }
+        await originalMsg.react("▶").catch(() => null)
     } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-        await originalMsg.react("⏩")
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_ANSWER_MESSAGE)) {
-            await originalMsg.react("🛑")
-        }
-    } else if (cleanContent === "!forget") {
-        await originalMsg.react("💔")
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_FORGET)) {
-            await originalMsg.react("🛑")
-        } else {
-            setTimeout(() => {
-                if (!privateMessage && originalMsg) {
-                    originalMsg.delete().catch(() => null)
-                }
-            }, 3000)
-        }
+        await originalMsg.react("⏩").catch(() => null)
+    } else if (cleanContent === "!reset") {
+        await originalMsg.react("💔").catch(() => null)
+        setTimeout(() => {
+            if (!privateMessage && originalMsg) {
+                originalMsg.delete().catch(() => null)
+            }
+        }, 3000)
     } else if (cleanContent.startsWith("!setJSONPersonality ")) {
         if (!setJSONPersonality) {
             await originalMsg.inlineReply("# Sorry, but this command is not fully loaded. Please try again later!")
@@ -378,7 +366,7 @@ bot.on('message', async msg => {
         }
 
         if (!utils.checkPermissions(userRoles, process.env.ALLOW_SET_JSON_PERSONALITY)) {
-            await originalMsg.react("🛑")
+            await originalMsg.react("🛑").catch(() => null)
             return
         }
 
@@ -386,22 +374,7 @@ bot.on('message', async msg => {
         if (r && r.message) {
             await originalMsg.inlineReply(r.message)
         } else if (r && r.error) {
-            await originalMsg.react("❌")
-        }
-    } else if (cleanContent.startsWith("!eporner")) {
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_EPORNER)) {
-            await originalMsg.react("🛑")
-            return
-        }
-    } else if (cleanContent.startsWith("!wiki")) {
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_WIKI)) {
-            await originalMsg.react("🛑")
-            return
-        }
-    } else if (cleanContent.startsWith("!danbooru")) {
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_DANBOORU)) {
-            await originalMsg.react("🛑")
-            return
+            await originalMsg.react("❌").catch(() => null)
         }
     }
 
@@ -435,15 +408,15 @@ bot.on('message', async msg => {
                 originalMsg.delete().catch(() => null)
             }
         } else if (cleanContent.startsWith("!danbooru") && message.message.startsWith("#")) {
-            await originalMsg.react("🤷")
+            await originalMsg.react("🤷").catch(() => null)
             channels[channelName].stopTyping(true)
-            await originalMsg.react("🇹")
+            await originalMsg.react("🇹").catch(() => null)
             await utils.sleep(200)
-            await originalMsg.react("🇷")
+            await originalMsg.react("🇷").catch(() => null)
             await utils.sleep(200)
-            await originalMsg.react("🇾")
+            await originalMsg.react("🇾").catch(() => null)
             await utils.sleep(200)
-            await originalMsg.react("🔄")
+            await originalMsg.react("🔄").catch(() => null)
             await utils.sleep(3000)
             if (!privateMessage && originalMsg) {
                 originalMsg.delete().catch(() => null)
@@ -455,9 +428,9 @@ bot.on('message', async msg => {
             if (speak) await speak(message.message.split("\n")[2], channelName)
             channels[channelName].stopTyping(true)
             return
-        } else if (cleanContent.startsWith("!rpg") || cleanContent.startsWith("!event")) {
+        } else if (cleanContent.startsWith("!property") || cleanContent.startsWith("!event")) {
             if (!privateMessage) {
-                await originalMsg.react("✅")
+                await originalMsg.react("✅").catch(() => null)
             }
         } else if (originalMsg) {
             await originalMsg.inlineReply(parsedMessage)
@@ -467,6 +440,9 @@ bot.on('message', async msg => {
         if (speak && !message.message.startsWith("#")) {
             await speak(message.message, channelName)
         }
+    }
+    else if (message && message.permissionError){
+        await originalMsg.react("🛑").catch(() => null)
     }
 });
 
