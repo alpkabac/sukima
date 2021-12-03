@@ -36,13 +36,23 @@ const memoryCommands = {
         process.env.ALLOW_FORGET,   // TODO: rename to ALLOW_RESET
         (msg, from, channel, command) => {
             historyService.forgetChannelHistory(channel)
-            if (channelBotTranslationService.getChannelBotTranslations(channel).introduction.length > 0) {
-                return {
-                    message:
-                        `${channelBotTranslationService.getChannelBotTranslations(channel).introduction[0].msg}`
+            let presentationMessage = ""
+            const intro = channel.startsWith("##") ?
+                channelBotTranslationService.getChannelBotTranslations(channel).introductionDm:
+                channelBotTranslationService.getChannelBotTranslations(channel).introduction
+            for (let i of intro) {
+                if (i.from === process.env.BOTNAME) {
+                    presentationMessage += i.msg + "\n"
+                }else{
+                    break
                 }
             }
-            // TODO: send all the introduction lines
+            if (presentationMessage) {
+                return {
+                    message:
+                        `${presentationMessage.trim()}`
+                }
+            }
         }),
 }
 

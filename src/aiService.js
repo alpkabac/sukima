@@ -615,7 +615,7 @@ class AiService {
             parsedAnswer = messageService.parse(answer)
         }
         if (!preventLMI) {
-            lmiService.updateLmi(prompt, answer, parsedAnswer)
+            lmiService.updateLmi(prompt.prompt, answer, parsedAnswer)
         }
 
         return parsedAnswer
@@ -627,7 +627,7 @@ class AiService {
         if (answer) {
             const parsedAnswer = messageService.parse(answer)
             if (!preventLMI) {
-                lmiService.updateLmi(prompt, answer, parsedAnswer)
+                lmiService.updateLmi(prompt.prompt, answer, parsedAnswer)
             }
             return parsedAnswer
         }

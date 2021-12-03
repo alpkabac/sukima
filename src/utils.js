@@ -75,8 +75,9 @@ class Utils {
         })
     }
 
-    static checkPermissions(roles, roleName) {
+    static checkPermissions(roles, roleName, isPrivateMessage = false) {
         if (!roleName) return true
+        if (isPrivateMessage) return true
         if (roleName === "false") return false
         if (roleName === "true") return true
 

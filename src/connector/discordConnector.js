@@ -58,7 +58,7 @@ bot.on('ready', async () => {
 
         if (msg.toLowerCase().startsWith(command.toLowerCase())) {
 
-            if (!utils.checkPermissions(roles, process.env.ALLOW_SET_JSON_PERSONALITY)) return true
+            if (!utils.checkPermissions(roles, process.env.ALLOW_SET_JSON_PERSONALITY, channel.startsWith("##"))) return true
 
             let success = true
             let errorMessages = ""
@@ -88,7 +88,7 @@ bot.on('ready', async () => {
                 }
             }
 
-            if (personality.username !== undefined) {
+            if (personality.username !== undefined && !channel.startsWith("##")) {
                 try {
                     await bot.user.setUsername(personality.username)
                     process.env.BOTNAME = personality.username
@@ -100,7 +100,7 @@ bot.on('ready', async () => {
                 }
             }
 
-            if (personality.avatar !== undefined) {
+            if (personality.avatar !== undefined && !channel.startsWith("##")) {
                 try {
                     await bot.user.setAvatar(personality.avatar)
                 } catch (e) {
@@ -363,7 +363,7 @@ bot.on('message', async msg => {
             return
         }
 
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_SET_JSON_PERSONALITY)) {
+        if (!utils.checkPermissions(userRoles, process.env.ALLOW_SET_JSON_PERSONALITY, privateMessage)) {
             await originalMsg.react("🛑").catch(() => null)
             return
         }

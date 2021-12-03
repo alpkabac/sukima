@@ -122,7 +122,6 @@ class PromptService {
             completePrompt += lastLine
         }
         const completePromptLength = encoder.encode(completePrompt).length
-
         return {prompt: completePrompt, repetition_penalty_range: completePromptLength - minimalContextLength}
     }
 }
