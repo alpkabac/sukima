@@ -26,7 +26,7 @@ const promptCommands = {
         "Lore Generation Tool",
         [],
         ["!lgt "],
-        process.env.ALLOW_PROMPT_MESSAGE,
+        process.env.ALLOW_LORE_GENERATION_TOOL,
         async (msg, from, channel, command) => {
             const input = utils.upperCaseFirstLetter(msg.replace(command, "").trim())
             if (input) {
