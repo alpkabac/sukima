@@ -45,7 +45,7 @@ const epornerCommands = {
                     historyService.pushIntoHistory(msg, from, channel)
                     const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by sending a random porn video from the website "eporner" to ${from}. The video is titled "${vid.title}" and contains the keywords "${vid.keywords}" ]`
                     historyService.pushIntoHistory(formattedEvent, null, channel, true)
-                    return {message: `Id: ${vid?.id}\nTitle: ${vid.title}\nKeywords: ${vid.keywords}\nLength: ${vid.length_min}\nDate: ${vid.added}\nURL: ${vid.url}`}
+                    return {message: `# Id: ${vid?.id}\nTitle: ${vid.title}\nKeywords: ${vid.keywords}\nLength: ${vid.length_min}\nDate: ${vid.added}\nURL: ${vid.url}`}
                 } else {
                     return {message: `# I'm sorry, but your search didn't return any result... Maybe try another keyword!`}
                 }
