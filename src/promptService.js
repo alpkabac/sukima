@@ -1,6 +1,4 @@
 require('dotenv').config()
-const conf = require("../conf.json")
-const translationService = require("./translationService")
 const channelBotTranslationService = require("./channelBotTranslationService")
 const historyService = require("./historyService")
 const memoryService = require("./memoryService")
@@ -116,11 +114,15 @@ class PromptService {
         // ...
         // History messages
         let completePrompt = promptContext + (couldInsertAllHistory ? "" : "...\n") + promptHistory
+        const completeContextLength = encoder.encode(completePrompt).length
         if (isContinuation) {
             completePrompt = completePrompt.substr(0, completePrompt.length - 1)
         } else {
             completePrompt += lastLine
         }
+        const completePromptLength = encoder.encode(completePrompt).length
+
+        const r = {result: completePrompt, repetition_penalty_range: completePromptLength - completeContextLength}
 
         return completePrompt
     }

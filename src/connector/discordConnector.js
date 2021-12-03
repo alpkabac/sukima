@@ -12,7 +12,6 @@ const bot = new Client({
 
 const botService = require('../botService')
 const channelBotTranslationService = require('../channelBotTranslationService')
-const commandService = require("../commandService")
 const {getInterval} = require("../utils")
 const Utils = require("../utils")
 const utils = require("../utils")
@@ -21,6 +20,7 @@ const promptService = require("../promptService");
 const aiService = require("../aiService");
 const encoder = require("gpt-3-encoder")
 const historyService = require("../historyService");
+const messageCommands = require("../command/messageCommands");
 
 bot.login(process.env.TOKEN)
 const channels = []
@@ -452,7 +452,7 @@ async function loop() {
 
     if (utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) {
         for (let channel in channels) {
-            const msg = await commandService.talk(channel)
+            const msg = await messageCommands.talk.call(null, null, channel, [])
             // If normal answer
             if (msg && msg.message?.trim()) {
                 const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
