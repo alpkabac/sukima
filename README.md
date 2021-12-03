@@ -54,23 +54,27 @@ You have to install and run it in order for simple prompt to work
 1. `npm i` to install node modules
 2. Edit `.env.example`, rename it `.env`
 3. Edit `.env` to configure your bot(s)
-4. Start the bot using ``
-
-# Translations and bot personality
-
-Check out the files inside the `translations` folder  
-Possible values for `translationFile`: `default`, `en-EN`
-or `fr-FR`  
-`default` is english  
-Feel free to add your own languages and bot personalities  
-Loaded folder for bot personality is the same as the `botName` in `conf.json`
-
-```
-const translations = require(`./translations/${options.translationFile}.json`)
-const botMemory = require(`./translations/aiPersonality/${options.botName}/${options.translationFile}.json`)
-```
 
 # Launch
 
+### Discord
 `node ./index_discord.js` for discord version
-`node ./index_irc.js` for irc version 
+
+### IRC
+`node ./index_irc.js` for irc version (most likely deprecated and broken)
+
+### Multiple bots running at the same time
+You can either start a single bot that will use the `.env` file as configuration, or  
+You can start multiple bots by having different `XXX.env` files and starting each one with:  
+`node -r dotenv/config index_discord.js dotenv_config_path=BOTNAME.env`  
+(replace `BOTNAME` by whatever your .env file is named)
+
+# Translations and bot personality
+
+Check out the files inside the `translations` folder   
+Feel free to add your own languages and bot personalities  
+Loaded folder for bot personality is the same as the `BOTNAME` in your `.env` file
+
+```
+const botMemory = require(`./translations/aiPersonality/${BOTNAME}/${TRANSLATION_FILE}.json`)
+```
