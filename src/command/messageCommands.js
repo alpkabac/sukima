@@ -18,7 +18,7 @@ const messageCommands = {
             const prompt = promptService.getNoContextPrompt(message, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer, success: true}
+            return {message: answer}
         },
         false
     ),
@@ -75,7 +75,7 @@ const messageCommands = {
             const prompt = promptService.getPrompt(msg, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer, success: true}
+            return {message: answer, success: !message.length}
         },
         false
     ),
@@ -98,7 +98,7 @@ const messageCommands = {
                 const prompt = promptService.getPrompt(msg, from, channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
                 historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                return {message: answer, success: true}
+                return {message: answer}
             }
         },
         false
@@ -138,7 +138,7 @@ const messageCommands = {
             const prompt = promptService.getPrompt(msg, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer, success: true}
+            return {message: answer}
         },
         false
     ),
