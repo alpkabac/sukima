@@ -112,7 +112,11 @@ Will execute your prompt and return X tokens depending on your argument
   - This command can be used freely without the bot remembering either the command nor the output
   - It can be used as a tool to test evalbots, or just to use the AI model with your own prompt
 
-
+### Pause's Lore Generation Tool
+Command: `!lgt YOUR INPUT`  
+Will use a scripted version of Pause's Lore Generation Tool to generate a context using the given input  
+Useful to create some lore for your personalities, you can then remember them using the `!remember` command  
+Planned: ability to create different list of entries and switch between them to generate more specific things your own way 
 
 # Prerequisites for NovelAI API (latest and current)
 1. A paid NovelAI account (any tier should do)
