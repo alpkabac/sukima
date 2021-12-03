@@ -655,6 +655,8 @@ class AiService {
         params.max_length = tokensToGenerate
         params.bad_words_ids = undefined
         delete params.bad_words_ids
+        params.logit_bias_exp = undefined
+        delete params.logit_bias_exp
 
         const result = await this.sendPromptDefault(prompt, params)
         const parsedResult = result

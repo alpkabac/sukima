@@ -41,7 +41,7 @@ const personalityCommands = {
         }
     ),
     setJSONPersonality: new Command(
-        "Set Personality",
+        "Set JSON Personality",
         [],
         ["!setJSONPersonality "],
         process.env.ALLOW_SET_JSON_PERSONALITY,
