@@ -12,6 +12,7 @@ const injectionCommands = require("./command/injectionCommands");
 const wikiCommands = require("./command/wikiCommands");
 const danbooruCommands = require("./command/danbooruCommands");
 const epornerCommands = require("./command/epornerCommands");
+const personalityCommands = require("./command/personalityCommands");
 
 function prepareIncomingMessage(message, botName, nick) {
     return utils.replaceNickByBotName(botName, nick, message).trim()
@@ -36,6 +37,7 @@ class BotService {
             .concat(wikiCommands.all)
             .concat(danbooruCommands.all)
             .concat(epornerCommands.all)
+            .concat(personalityCommands.all)
             .concat(messageCommands.all)    // Should always be last
 
         for (let command of allCommands) {
