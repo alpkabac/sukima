@@ -20,7 +20,7 @@ const danbooruCommands = {
                 historyService.pushIntoHistory(formattedEvent, null, channel, true)
                 return {message: `# Id: ${result?.id}\nTags_string_general: ${result.tag_string_general}\nTag_string_character: ${result.tag_string_character}\nArtist: ${result.tag_string_artist}\nDate: ${result.created_at}\nURL: ${result.large_file_url}`}
             } else {
-                return {message: `# I'm sorry, but your search didn't return any result... Maybe try another keyword!`}
+                return {error: `# I'm sorry, but your search didn't return any result... Maybe try another keyword!`}
             }
         },
         false

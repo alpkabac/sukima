@@ -402,7 +402,7 @@ bot.on('message', async msg => {
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(parsedMessage)
             originalMsg.delete().catch(() => null)
-        } else if (cleanContent.startsWith("!danbooru") && message.message.startsWith("#")) {
+        } else if (cleanContent.startsWith("!danbooru") && message.error) {
             await originalMsg.react("🤷").catch(() => null)
             channels[channelName].stopTyping(true)
             await originalMsg.react("🇹").catch(() => null)
