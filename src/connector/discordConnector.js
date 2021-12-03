@@ -64,7 +64,7 @@ bot.on('ready', async () => {
             let errorMessages = ""
 
             if (!process.env.ENABLE_CUSTOM_AI || process.env.ENABLE_CUSTOM_AI.toLowerCase() !== "true") {
-                return {error: "# Sorry, but this command is not enabled on this AI.", channel}
+                return {message: "# Sorry, but this command is not enabled on this AI.", channel}
             }
 
             const personalityJSON = msg.replace(command, "")
@@ -367,7 +367,7 @@ bot.on('message', async msg => {
         } else {
             setTimeout(() => {
                 if (!privateMessage && originalMsg) {
-                    originalMsg.delete()
+                    originalMsg.delete().catch(() => null)
                 }
             }, 3000)
         }
@@ -422,17 +422,17 @@ bot.on('message', async msg => {
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(parsedMessage)
             if (!privateMessage && originalMsg) {
-                originalMsg.delete()
+                originalMsg.delete().catch(() => null)
             }
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
             if (!privateMessage && originalMsg) {
-                originalMsg.delete()
+                originalMsg.delete().catch(() => null)
             }
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(parsedMessage)
             if (!privateMessage && originalMsg) {
-                originalMsg.delete()
+                originalMsg.delete().catch(() => null)
             }
         } else if (cleanContent.startsWith("!danbooru") && message.message.startsWith("#")) {
             await originalMsg.react("🤷")
@@ -446,7 +446,7 @@ bot.on('message', async msg => {
             await originalMsg.react("🔄")
             await utils.sleep(3000)
             if (!privateMessage && originalMsg) {
-                originalMsg.delete()
+                originalMsg.delete().catch(() => null)
             }
             channels[channelName].stopTyping(true)
             return

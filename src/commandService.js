@@ -204,7 +204,7 @@ class CommandService {
             }
 
             if (!MuteService.isChannelMuted(channel)) {
-                const message = utils.upperCaseFirstLetter(msg.slice(1))
+                const message = utils.upperCaseFirstLetter(msg.slice(1)).trim()
                 if (message) {
                     historyService.pushIntoHistory(message, from, channel)
                 }
@@ -402,7 +402,6 @@ class CommandService {
 
             if (!utils.checkPermissions(roles, process.env.ALLOW_EVENT_INJECTION_MESSAGE)) return true
 
-
             const event = msg.replace(command, "")
             if (event) {
                 const formattedEvent = event.startsWith("[") && event.endsWith("]") ? event :
@@ -441,7 +440,7 @@ class CommandService {
         }
     }
 
-    // Discord only
+    // Discord only, see implementation in the discord connector
     static setJSONPersonality(msg, from, channel, roles) {
         const command = "!setJSONPersonality"
         return !!msg.startsWith(command);

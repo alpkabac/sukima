@@ -1,45 +1,49 @@
 require('dotenv').config()
 const utils = require('./utils')
-const conf = require('../conf.json')
 const commandService = require('./commandService')
 const translationsService = require('./translationService')
+const muteCommands = require('./command/muteCommands')
+const memoryCommands = require("./command/memoryCommands");
+const languageCommands = require("./command/languageCommands");
+const messageCommands = require("./command/messageCommands");
+const promptCommands = require("./command/promptCommands");
+const voiceCommands = require("./command/voiceCommands");
+const injectionCommands = require("./command/injectionCommands");
+const wikiCommands = require("./command/wikiCommands");
+const danbooruCommands = require("./command/danbooruCommands");
+const epornerCommands = require("./command/epornerCommands");
 
 function prepareIncomingMessage(message, botName, nick) {
     return utils.replaceNickByBotName(botName, nick, message).trim()
 }
 
 class BotService {
-    static async onChannelMessage(from, channel, message, botNick = process.env.BOTNAME, roles=[]) {
 
+    static async onChannelMessage(from, channel, message, botNick = process.env.BOTNAME, roles = []) {
         if (!utils.isMessageFromAllowedChannel(channel)) {
             return
         }
 
         const msg = prepareIncomingMessage(message, process.env.BOTNAME, botNick)
 
-        return commandService.comment(msg, from, channel, roles)
-            || commandService.remember(msg, from, channel, roles)
-            || commandService.setJSONPersonality(msg, from, channel, roles)
-            || await commandService.r34(msg, from, channel, roles)
-            || await commandService.danbooru(msg, from, channel, roles)
-            || await commandService.eporner(msg, from, channel, roles)
-            || await commandService.wiki(msg, from, channel, roles)
-            || await commandService.retryMessage(msg, from, channel, roles)
-            || commandService.forgetRemember(msg, from, channel, roles)
-            || await commandService.setPersonality(msg, from, channel, roles)
-            || await commandService.setVoice(msg, from, channel, roles)
-            || await commandService.changeLanguage(msg, from, channel, roles)
-            || await commandService.prompt(msg, from, channel, roles)
-            || commandService.rpgPutEvent(msg, from, channel, roles)
-            || commandService.rpgContext(msg, from, channel, roles)
-            || commandService.forgetAllRemember(msg, from, channel, roles)
-            || commandService.deleteChannelHistory(msg, from, channel, roles)
-            || commandService.mute(msg, from, channel, roles)
-            || commandService.unmute(msg, from, channel, roles)
-            || await commandService.noContextMessage(msg, from, channel, roles)
-            || await commandService.continueMessage(msg, from, channel, roles)
-            || await commandService.answerMessage(msg, from, channel, roles)
-            || await commandService.answerToName(msg, from, channel, roles)
+        const allCommands = []
+            .concat(muteCommands.all)
+            .concat(memoryCommands.all)
+            .concat(languageCommands.all)
+            .concat(promptCommands.all)
+            .concat(voiceCommands.all)
+            .concat(injectionCommands.all)
+            .concat(wikiCommands.all)
+            .concat(danbooruCommands.all)
+            .concat(epornerCommands.all)
+            .concat(messageCommands.all)    // Should always be last
+
+        for (let command of allCommands) {
+            const commandResult = await command.call(msg, from, channel, roles)
+            if (commandResult) {
+                return commandResult
+            }
+        }
     }
 
     static onPrivateMessage() {
@@ -48,7 +52,7 @@ class BotService {
 
     static async onJoin(channel, nick) {
         if (nick !== process.env.BOTNAME) {
-            return await commandService.reactToAction(translationsService.translations.onJoin, nick, channel)
+            return messageCommands.reactToAction.call(translationsService.translations.onJoin, nick, channel, []);
         }
         return false
     }
