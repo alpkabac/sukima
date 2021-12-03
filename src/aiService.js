@@ -28,7 +28,7 @@ const DEFAULT_PARAMETERS = {
     use_string: true,
     min_length: 1,
     max_length: 150,
-    temperature: 0.75,
+    temperature: 0.6,
     logit_bias_exp: [
         {
             sequence: [
