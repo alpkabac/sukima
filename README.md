@@ -6,41 +6,113 @@ You can also create and customize every part of your AI personality and its func
 
 # IRC/Discord commands and usage
 
-- `!reset` will make the bot forget the current conversation, only keeping her presentation and memories acquired
-  through `!remember`
-- `!remember Your text` will insert a message from you in the bot's memory formatted like `yourNick: Your text` (only
-  one `!remember` per user)
-- `!alsoRemember Your text` will append `Your text` to the currently remembered things 
-- `!forget` will delete your remembered things on this channel
-- `!forgetAll` will delete everyone's things on this channel
-- `!showRemember`shows your remembered things on this channel
-- `!showAllRemember`shows everyone's remembered things on this channel
-- `!Blah blah blah` will send the message without any memory besides the `noContextSentence` included in personality
-  translation file
-  - You can use the `!` prefix to ask questions without using the context (it gives the **best** results)
-- `?Blah blah blah` will simply trigger the bot to talk after your message
-- `?` will simply trigger the bot to talk
-- `,` is a special command **only to be used when the bot sends an incomplete message**
-- `²` or `○` will make the bot rewrite entirely its last message
-- `# Blah blah` comment text, the bot doesn't see it not react to it
-- `!mute` Prevents the bot from receiving and sending messages (PMs still work)
-- `!unmute`
-- `!lang <language>` will load the `translations/aiPersonality/${process.env.BOTNAME}/<language>.json`
-  file, useful to change the bot personality
-  - Available personalities for Alice: `en-EN`, `en-NSFW`, `en-GURO` and `fr-FR`
-- [NSFW] `!danbooru 2girls hand_holding` if you're a naughty person
-- [NSFW] `!eporner mathematics` is along the same lines
-- [SFW] `!wiki French Revolution` boring version of upper commands
-- `!prompt <number of tokens to generate>\n<your prompt>` will execute your prompt and return X tokens depending on your argument
-  - This command can be used freely without the bot remembering either the command nor the output
-  - It can be used as a tool to test evalbots, or just to use the AI model with your own prompt
-- `!setPersonality <context>\n<presentation message>` sets the AI personality for the current channel or DM channel
-  - use like this:
+## Memory Commands
+
+### Reset
+Command: `!reset`  
+Will make the bot forget the current conversation, only keeping its presentation messages and memories acquired
+  through the `!remember` command
+
+### Remember
+Command: `!remember Your text`  
+Will insert a message from you in the bot's memory formatted like `yourNick: Your text`  
+Be careful, you if you reuse the `!remember` command it will replace the previous things you remembered
+
+### Also Remember
+Command: `!alsoRemember [ Your text ]`  
+Will append `[ Your text ]` to the currently remembered things
+
+### Forget
+Command: `!forget`  
+Will delete your remembered things on this channel
+
+### Forger All
+Command: `!forgetAll`  
+Will delete everyone's things on this channel
+
+### Show Remember
+Command: `!showRemember`  
+Shows your remembered things on this channel
+
+### Show All Remember
+Command: `!showAllRemember`  
+Shows everyone's remembered things on this channel
+
+## Message Commands
+### No Context Message
+Command: `!Blah blah blah` or `! Blah blah blah` (it's the same)  
+Will send the message without any memory besides the `noContextSentence` included in personality translation file  
+You can use the `!` prefix to ask questions without using the context or the conversation history (and it gives the **best** results)
+
+### Instant Answer Message
+Command: `?Blah blah blah` or `? Blah blah blah` (again, it's the same)  
+Will make the bot answer immediately after your message
+
+### Force Bot Message
+Command: `?`  
+Will force the bot to send a new message
+
+### Finish Last Bot Message
+Command: `,`  
+Special command **only to be used when the bot sends an incomplete message**  
+The bot will generate the end of its last message and edit its content to update it
+
+### Retry Last Bot Message
+Command: `²` or `○`  
+Will make the bot regenerate its last message and edit it to update its content
+
+### Comment Message
+Command: `# Blah blah`  
+Comment text, the bot doesn't see nor react to it
+
+### Mute and Unmute
+Commands: `!mute` and `!unmute`    
+Prevents the bot from receiving and sending messages in the current channel
+
+## Personality Commands
+### Set Bot Personality
+Command: `!setPersonality <context>\n<presentation message>`  
+Sets the AI personality for the current channel (or DM channel)  
+Use like this:
 ```
 !setPersonality [ character: Alice; gender: female; hair: golden; personality: joyful, helpful, talkative; writing style: purple prose ]
 Hello everyone! My name is Alice, and I'm an AI *She smiles cutely as she bows down before everyone*
 ```
-- `!setVoice <voice>` use like this: `!setVoice en-US-Wavenet-F` and see https://cloud.google.com/text-to-speech/docs/voices for supported languages
+
+### Change Personality File
+Command: `!lang <language>`  
+Will try to load the `translations/aiPersonality/${process.env.BOTNAME}/<language>.json`
+  file, useful to have multiple alternative personalities, but requires the files to exist
+
+### Change TTS Voice
+Command: `!setVoice <voice>`  
+Use like this: `!setVoice en-US-Wavenet-F`  
+See [HERE](https://cloud.google.com/text-to-speech/docs/voices) for supported languages
+
+
+# Experimental Commands
+### Wiki
+Command: `!wiki French Revolution`  
+Will perform a wikipedia search and return a link of the first result  
+When using this command, a hidden context is injected into the bot conversation memory that says something like `[ The bot sends you a wikipedia link about French Revolution ]`
+
+### [NSFW] Danbooru
+Command `!danbooru 2girls hand_holding`  
+If you're a naughty person  
+Will also insert contextual data indicated the bot it successfully returned lewd stuff (it'll see the tags)
+
+### [NSFW] Eporner
+Command: `!eporner mathematics`  
+Along the same lines but for videos  
+Will also insert contextual data indicated the bot it successfully returned lewd stuff (it'll see the tags and the name of the video)
+
+### Prompt
+Command: `!prompt <number of tokens to generate>\n<your prompt>`  
+Will execute your prompt and return X tokens depending on your argument
+  - This command can be used freely without the bot remembering either the command nor the output
+  - It can be used as a tool to test evalbots, or just to use the AI model with your own prompt
+
+
 
 # Prerequisites for NovelAI API (latest and current)
 1. A paid NovelAI account (any tier should do)

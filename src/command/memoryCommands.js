@@ -53,7 +53,7 @@ const memoryCommands = {
         [],
         process.env.ALLOW_REMEMBER,
         (msg, from, channel, command) => {
-            const memory = memoryService.getChannelMemory(channel)
+            const memory = JSON.stringify(memoryService.getChannelMemory(channel), null, 4)
             return {
                 message: "# Channel memory:\n" + memory,
                 success: true
