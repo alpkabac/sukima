@@ -71,6 +71,8 @@ class PromptService {
         if (channelMemory) {
             promptContext += channelMemory + '\n'
         }
+
+        const minimalContextLength = encoder.encode(promptContext).length
         if (introduction) {
             promptContext += PromptService.mapJoinMessages(introduction) + '\n'
         }
@@ -114,7 +116,6 @@ class PromptService {
         // ...
         // History messages
         let completePrompt = promptContext + (couldInsertAllHistory ? "" : "...\n") + promptHistory
-        const completeContextLength = encoder.encode(completePrompt).length
         if (isContinuation) {
             completePrompt = completePrompt.substr(0, completePrompt.length - 1)
         } else {
@@ -122,9 +123,7 @@ class PromptService {
         }
         const completePromptLength = encoder.encode(completePrompt).length
 
-        const r = {result: completePrompt, repetition_penalty_range: completePromptLength - completeContextLength}
-
-        return completePrompt
+        return {prompt: completePrompt, repetition_penalty_range: completePromptLength - minimalContextLength}
     }
 }
 

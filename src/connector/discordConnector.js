@@ -355,9 +355,7 @@ bot.on('message', async msg => {
     } else if (cleanContent === "!reset") {
         await originalMsg.react("💔").catch(() => null)
         setTimeout(() => {
-            if (!privateMessage && originalMsg) {
-                originalMsg.delete().catch(() => null)
-            }
+            originalMsg.delete().catch(() => null)
         }, 3000)
     } else if (cleanContent.startsWith("!setJSONPersonality ")) {
         if (!setJSONPersonality) {
@@ -386,7 +384,10 @@ bot.on('message', async msg => {
         process.env.BOTNAME,
         userRoles)
     locked = false
-    if (message && message.message && message.message.trim().length > 0) {
+
+    if (message && message.permissionError) {
+        await originalMsg.react("🛑").catch(() => null)
+    } else if (message && message.message && message.message.trim().length > 0) {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
         voiceChannel = msg.member?.voice?.channel
         const timeToWait = encoder.encode(message.message).length * 50
@@ -394,19 +395,13 @@ bot.on('message', async msg => {
         await utils.sleep(timeToWait)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(parsedMessage)
-            if (!privateMessage && originalMsg) {
-                originalMsg.delete().catch(() => null)
-            }
+            originalMsg.delete().catch(() => null)
         } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
             channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
-            if (!privateMessage && originalMsg) {
-                originalMsg.delete().catch(() => null)
-            }
+            originalMsg.delete().catch(() => null)
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
             await originalMsg.channel.send(parsedMessage)
-            if (!privateMessage && originalMsg) {
-                originalMsg.delete().catch(() => null)
-            }
+            originalMsg.delete().catch(() => null)
         } else if (cleanContent.startsWith("!danbooru") && message.message.startsWith("#")) {
             await originalMsg.react("🤷").catch(() => null)
             channels[channelName].stopTyping(true)
@@ -418,9 +413,7 @@ bot.on('message', async msg => {
             await utils.sleep(200)
             await originalMsg.react("🔄").catch(() => null)
             await utils.sleep(3000)
-            if (!privateMessage && originalMsg) {
-                originalMsg.delete().catch(() => null)
-            }
+            originalMsg.delete().catch(() => null)
             channels[channelName].stopTyping(true)
             return
         } else if (message.message.startsWith("\nLoaded bot")) {
@@ -429,9 +422,7 @@ bot.on('message', async msg => {
             channels[channelName].stopTyping(true)
             return
         } else if (cleanContent.startsWith("!property") || cleanContent.startsWith("!event")) {
-            if (!privateMessage) {
-                await originalMsg.react("✅").catch(() => null)
-            }
+            await originalMsg.react("✅").catch(() => null)
         } else if (originalMsg) {
             await originalMsg.inlineReply(parsedMessage)
         }
@@ -440,9 +431,6 @@ bot.on('message', async msg => {
         if (speak && !message.message.startsWith("#")) {
             await speak(message.message, channelName)
         }
-    }
-    else if (message && message.permissionError){
-        await originalMsg.react("🛑").catch(() => null)
     }
 });
 

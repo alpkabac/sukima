@@ -634,7 +634,9 @@ class AiService {
     }
 
     static async sendPrompt(prompt, lowPriority = false) {
-        return await this.sendPromptDefault(prompt, undefined, lowPriority)
+        const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
+        params.repetition_penalty_range = prompt.repetition_penalty_range
+        return await this.sendPromptDefault(prompt.prompt, params, lowPriority)
     }
 
     static async sendPromptDefault(prompt, params = DEFAULT_PARAMETERS, lowPriority = false) {
