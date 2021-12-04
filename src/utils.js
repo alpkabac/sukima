@@ -56,6 +56,10 @@ class Utils {
         connection.play(stream)
     }
 
+    static shuffleArray(array) {
+        return Utils.shuffleArrayInPlace(JSON.parse(JSON.stringify(array)))
+    }
+
     static shuffleArrayInPlace(array) {
         let currentIndex = array.length, randomIndex;
 
