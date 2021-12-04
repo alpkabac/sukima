@@ -35,7 +35,7 @@ function updateBotInfo(botClient) {
                 //.setDescription("")
                 .setThumbnail(botClient.user.avatarURL())
 
-                .addField('Latest Model Input', `http://54.37.153.103:${process.env.LMI_PORT}/`)
+                .addField('Latest Model Input', `${process.env.LMI_URL || "http://54.37.153.103"}:${process.env.LMI_PORT}/`)
                 .addField('General description', botPersonality.displayDescription)
                 .addField('Public context', botPersonality.context)
                 .addField('DM context', botPersonality.contextDm)
@@ -81,6 +81,7 @@ function updateBotInfo(botClient) {
                 .addField('\u200B', '\u200B')
                 .addField('Experimental commands',
                     `Prompt: ${fromStringToBoolOrString(process.env.ALLOW_PROMPT_MESSAGE)}`
+                    + `\nLore Generation Tool: ${fromStringToBoolOrString(process.env.ALLOW_LORE_GENERATION_TOOL)}`
                     + `\nEvent injection: ${fromStringToBoolOrString(process.env.ALLOW_EVENT_INJECTION_MESSAGE)}`
                     + `\nProperty injection: ${fromStringToBoolOrString(process.env.ALLOW_PROPERTY_INJECTION_MESSAGE)}`
                     + `\nWiki: ${fromStringToBoolOrString(process.env.ALLOW_WIKI)}`

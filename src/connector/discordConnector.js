@@ -464,9 +464,8 @@ async function loop() {
             // Auto messaging part
             else {
                 const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
-                const prompt = promptService.getPrompt(null, null, channel, true) + "\n"
+                const prompt = promptService.getPrompt(null, null, channel, true).prompt + "\n"
                 const result = await aiService.simpleEvalbot(prompt, tokenCount)
-
                 // If next message is from the AI
                 if (result === process.env.BOTNAME) {
                     const prompt = promptService.getPrompt(null, null, channel)
