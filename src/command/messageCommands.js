@@ -145,13 +145,13 @@ const messageCommands = {
 }
 
 messageCommands.all = [
+    messageCommands.comment,
     messageCommands.noContextMessage,
     messageCommands.continueMessage,
     messageCommands.retryMessage,
     messageCommands.answerMessage,
     messageCommands.answerToName,
     messageCommands.answerToName,
-    messageCommands.comment,
     // messageCommands.talk,
     // messageCommands.reactToAction,
 ]
