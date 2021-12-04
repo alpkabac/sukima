@@ -95,7 +95,7 @@ const memoryCommands = {
                 channelBotTranslationService.getChannelBotTranslations(channel).introductionDm :
                 channelBotTranslationService.getChannelBotTranslations(channel).introduction
             for (let i of intro) {
-                if (i.from === process.env.BOTNAME) {
+                if (i.from === process.env.BOTNAME || i.from === "${botName}") {
                     presentationMessage += i.msg + "\n"
                 } else {
                     break
@@ -107,6 +107,8 @@ const memoryCommands = {
                         `${presentationMessage.trim()}`,
                     success: true
                 }
+            } else {
+                return {error: "# Something went wrong..."}
             }
         }),
 }
