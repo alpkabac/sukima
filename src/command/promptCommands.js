@@ -30,7 +30,7 @@ const promptCommands = {
         async (msg, from, channel, command) => {
             const input = utils.upperCaseFirstLetter(msg.replace(command, "").trim())
             if (input) {
-                const placeholder = `INPUT: ${input}\nOUTPUT: `
+                const placeholder = `INPUT: ${input}\nOUTPUT: [`
                 const placeholderLength = encoder.encode(placeholder).length
                 const entries = utils.shuffleArrayInPlace(JSON.parse(JSON.stringify(loreGenerationToolEntries)))
                 let prompt = ``
