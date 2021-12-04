@@ -1,5 +1,6 @@
 const conf = require('../conf.json')
 const textToSpeech = require('@google-cloud/text-to-speech')
+const fs = require("fs");
 const Duplex = require('stream').Duplex
 
 const client = new textToSpeech.TextToSpeechClient()
@@ -114,6 +115,25 @@ class Utils {
 
     static sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    static save(filename, content) {
+        try{
+            fs.writeFileSync(filename,content)
+        }catch(e){
+            return false
+        }
+        return true
+    }
+
+    static load(filename) {
+        let file
+        try {
+            file = fs.readFileSync(filename)
+            return file
+        }catch(e){
+            return null
+        }
     }
 }
 

@@ -231,6 +231,7 @@ bot.on('ready', async () => {
 
     speak = async function (msg, channel) {
         if (utils.getBoolFromString(process.env.ENABLE_TTS)) {
+            if (!channelBotTranslationService.getChannelBotTranslations(channel).voice) return
 
             if (voiceChannel) {
                 connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
