@@ -28,7 +28,7 @@ const DEFAULT_PARAMETERS = {
     use_string: true,
     min_length: 1,
     max_length: 150,
-    temperature: 0.6,
+    temperature: 0.8,
     logit_bias_exp: [
         {
             sequence: [
@@ -58,6 +58,7 @@ const DEFAULT_PARAMETERS = {
     eos_token_id: 198,
     repetition_penalty: 1.1875,
     repetition_penalty_range: 1024,
+    repetition_penalty_slope: 6.66,
     tail_free_sampling: 1,
     prefix: "vanilla",
     bad_words_ids: null,

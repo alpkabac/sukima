@@ -363,7 +363,7 @@ bot.on('message', async msg => {
         }
 
         if (!utils.checkPermissions(userRoles, process.env.ALLOW_SET_JSON_PERSONALITY, privateMessage)) {
-            await originalMsg.react("🛑").catch(() => null)
+            await originalMsg.react("⛔").catch(() => null)
             return
         }
 
