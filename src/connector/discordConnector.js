@@ -311,7 +311,6 @@ function replaceAliasesInMessage(message, nick) {
             .replace("Lulu", nick)
     }
     return message
-
 }
 
 bot.on('message', async msg => {

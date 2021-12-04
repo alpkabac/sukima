@@ -58,14 +58,14 @@ const promptCommands = {
                         }
                     }
                     const result = await aiService.simpleEvalbot(prompt + placeholder, 150, channel.startsWith("##"))
-                    results.push(result)
+                    results.push(result.trimEnd())
                 }
 
                 if (results.length === 1) {
                     return {message: "# " + results[0], success: true}
                 } else {
                     return {
-                        message: results.map((result, index) => `# Result ${index + 1}: ${result}`).join("\n"),
+                        message: results.map((result, index) => `# Result ${index + 1}:${result}`).join('\n'),
                         success: true
                     }
                 }

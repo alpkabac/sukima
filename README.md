@@ -113,7 +113,9 @@ Will execute your prompt and return X tokens depending on your argument
   - It can be used as a tool to test evalbots, or just to use the AI model with your own prompt
 
 ### Pause's Lore Generation Tool
-Command: `!lgt YOUR INPUT`  
+Command: `!lgt ([1-3]) YOUR INPUT`  
+Example 1: `!lgt Noli, male, developer, adventurer` will generate a result for the input `Noli, male, developer, adventurer`  
+Example 2: `!lgt 3 Noli, male, developer, adventurer` will generate 3 results for the input `Noli, male, developer, adventurer`  
 Will use a scripted version of Pause's Lore Generation Tool to generate a context using the given input  
 Useful to create some lore for your personalities, you can then remember them using the `!remember` command  
 Planned: ability to create different list of entries and switch between them to generate more specific things your own way 
