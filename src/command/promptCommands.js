@@ -65,7 +65,7 @@ const promptCommands = {
                     return {message: "# " + results[0], success: true}
                 } else {
                     return {
-                        message: results.map((result, index) => `# Result ${index + 1}:${result}`).join('\n'),
+                        message: results.map((result, index) => `# Result ${index + 1}:${result}`.trim()).join('\n'),
                         success: true
                     }
                 }
