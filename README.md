@@ -49,16 +49,16 @@ Command: `?Blah blah blah` or `? Blah blah blah` (again, it's the same)
 Will make the bot answer immediately after your message
 
 ### Force Bot Message
-Command: `?`  
+Command: `?` or `!talk`  
 Will force the bot to send a new message
 
 ### Finish Last Bot Message
-Command: `,`  
+Command: `,` or `!continue`  
 Special command **only to be used when the bot sends an incomplete message**  
 The bot will generate the end of its last message and edit its content to update it
 
 ### Retry Last Bot Message
-Command: `²` or `○`  
+Command: `²` or `○` or `!retry`  
 Will make the bot regenerate its last message and edit it to update its content
 
 ### Comment Message
@@ -113,7 +113,7 @@ Will execute your prompt and return X tokens depending on your argument
   - It can be used as a tool to test evalbots, or just to use the AI model with your own prompt
 
 ### Pause's Lore Generation Tool
-Command: `!lgt ([1-3]) YOUR INPUT`  
+Command: `!lgt (1-3) YOUR INPUT`  
 Example 1: `!lgt Noli, male, developer, adventurer` will generate a result for the input `Noli, male, developer, adventurer`  
 Example 2: `!lgt 3 Noli, male, developer, adventurer` will generate 3 results for the input `Noli, male, developer, adventurer`  
 Will use a scripted version of Pause's Lore Generation Tool to generate a context using the given input  
