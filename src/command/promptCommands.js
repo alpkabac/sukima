@@ -35,7 +35,7 @@ const promptCommands = {
                 if (nbResults){
 
                 }
-                const placeholder = `INPUT: ${input}\nOUTPUT: [`
+                const placeholder = `INPUT: ${input}\nOUTPUT:`
                 const placeholderLength = encoder.encode(placeholder).length
                 const entries = utils.shuffleArrayInPlace(JSON.parse(JSON.stringify(loreGenerationToolEntries)))
                 let prompt = ``
