@@ -150,8 +150,9 @@ class AiService {
      * Retries until fulfillment
      * @param prompt
      * @param tokensToGenerate
+     * @param preventLMI
      */
-    static async simpleEvalbot(prompt, tokensToGenerate = 1) {
+    static async simpleEvalbot(prompt, tokensToGenerate = 1, preventLMI = false) {
         const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
 
         params.max_length = tokensToGenerate
@@ -169,7 +170,9 @@ class AiService {
 
         const result = await this.sendPromptDefault(prompt, params)
         const parsedResult = result
-        lmiService.updateLmi(prompt, result, parsedResult)
+        if (!preventLMI) {
+            lmiService.updateLmi(prompt, result, parsedResult)
+        }
         return parsedResult
     }
 }

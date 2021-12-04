@@ -298,7 +298,7 @@ class CommandService {
 
             const message = utils.upperCaseFirstLetter(msg.replace(command[0], ""))
             const tokenCount = Math.min(150, parseInt(command[1]))
-            const result = await aiService.simpleEvalbot(message, tokenCount)
+            const result = await aiService.simpleEvalbot(message, tokenCount, channel.startsWith("##"))
             return {message: result, channel}
         } else {
             return false

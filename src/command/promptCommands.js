@@ -16,7 +16,7 @@ const promptCommands = {
             if (args && args[1]) {
                 const message = utils.upperCaseFirstLetter(msg.replace(args[0], ""))
                 const tokenCount = Math.min(150, parseInt(args[1]))
-                const result = await aiService.simpleEvalbot(message, tokenCount)
+                const result = await aiService.simpleEvalbot(message, tokenCount, channel.startsWith("##"))
                 return {message: result, success: true}
             }
         },
@@ -45,7 +45,7 @@ const promptCommands = {
                         prompt += entryText
                     }
                 }
-                const result = await aiService.simpleEvalbot(prompt + placeholder, 150)
+                const result = await aiService.simpleEvalbot(prompt + placeholder, 150, channel.startsWith("##"))
                 return {message: "# " + result, success: true}
             } else {
                 return {error: "# You have to provide an input after the command"}
