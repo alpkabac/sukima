@@ -472,9 +472,9 @@ setInterval(async () => {
         for (let channel in channels) {
             // TODO: put into a command
             const history = historyService.getChannelHistory(channel)
-            if (history.length > 0 && history[history.length - 1].timestamp >
+            if (history.length > 0 && (history[history.length - 1].timestamp >
                 Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "30") * 1000)
-            || history[history.length - 1].from !== process.env.BOTNAME) {
+            || history[history.length - 1].from !== process.env.BOTNAME)) {
                 continue
             }
             const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
