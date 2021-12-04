@@ -25,7 +25,7 @@ class Message extends Structures.get("Message") {
     }
 
     edit(content, options) {
-        return super.edit(ExtAPIMessage.create(this, content, options).resolveData());
+        return super.edit(ExtAPIMessage.create(this, content, options).resolveData()).catch(e=>{})
     }
 }
 
