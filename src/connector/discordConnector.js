@@ -464,33 +464,38 @@ async function loop() {
     setTimeout(loop, getInterval())
 }
 
-setInterval(async() => {
+setInterval(async () => {
 // Waits two seconds if an answer is still generating
     if (locked) return setTimeout(loop, 2000)
 
     if (utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) {
         for (let channel in channels) {
-            const msg = await messageCommands.talk.call(null, null, channel, [])
-                // TODO: put into a command
-                const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
-                const prompt = promptService.getPrompt(null, null, channel, true).prompt + "\n"
-                const result = await aiService.simpleEvalbot(prompt, tokenCount, channel.startsWith("##"))
-                // If next message is from the AI
-                if (result === process.env.BOTNAME) {
-                    const prompt = promptService.getPrompt(null, null, channel)
-                    const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
-                    if (answer) {
-                        const parsedMessage = replaceAsterisksByBackQuotes(answer)
-                        const timeToWait = encoder.encode(parsedMessage).length * 50
-                        channels[channel].startTyping().then()
-                        await utils.sleep(timeToWait)
-                        historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                        channels[channel].send(parsedMessage).catch(() => null)
-                        channels[channel].stopTyping(true)
-                    }
+            // TODO: put into a command
+            const history = historyService.getChannelHistory(channel)
+            if (history[history.length - 1].timestamp >
+                Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "30") * 1000)
+            || history[history.length - 1].from !== process.env.BOTNAME) {
+                continue
+            }
+            const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
+            const prompt = promptService.getPrompt(null, null, channel, true).prompt + "\n"
+            const result = await aiService.simpleEvalbot(prompt, tokenCount, channel.startsWith("##"))
+            // If next message is from the AI
+            if (result === process.env.BOTNAME) {
+                const prompt = promptService.getPrompt(null, null, channel)
+                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+                if (answer) {
+                    const parsedMessage = replaceAsterisksByBackQuotes(answer)
+                    const timeToWait = encoder.encode(parsedMessage).length * 50
+                    channels[channel].startTyping().then()
+                    await utils.sleep(timeToWait)
+                    historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
+                    channels[channel].send(parsedMessage).catch(() => null)
+                    channels[channel].stopTyping(true)
                 }
             }
         }
+    }
 }, parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
 
 setTimeout(loop, getInterval())
