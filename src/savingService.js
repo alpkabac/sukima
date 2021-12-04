@@ -11,7 +11,19 @@ class SavingService{
 
     }
 
-    static saveAll(channel){
+    static save(channel){
+
+    }
+
+    static loadHistory(channel){
+
+    }
+
+    static loadMemories(channel){
+
+    }
+
+    static load(channel){
 
     }
 }

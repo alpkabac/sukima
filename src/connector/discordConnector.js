@@ -458,9 +458,19 @@ async function loop() {
                 }
                 channels[channel].stopTyping(true)
             }
+        }
+    }
 
-            // Auto messaging part
-            else {
+    setTimeout(loop, getInterval())
+}
+
+setInterval(async() => {
+// Waits two seconds if an answer is still generating
+    if (locked) return setTimeout(loop, 2000)
+
+    if (utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) {
+        for (let channel in channels) {
+            const msg = await messageCommands.talk.call(null, null, channel, [])
                 // TODO: put into a command
                 const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
                 const prompt = promptService.getPrompt(null, null, channel, true).prompt + "\n"
@@ -481,13 +491,6 @@ async function loop() {
                 }
             }
         }
-    }
-
-    setTimeout(loop, getInterval())
-}
-
-setInterval(() => {
-
 }, parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
 
 setTimeout(loop, getInterval())
