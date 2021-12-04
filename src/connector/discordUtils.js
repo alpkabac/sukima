@@ -97,7 +97,7 @@ function updateBotInfo(botClient) {
             if (existingMessage) {
                 await existingMessage.edit(embed)
             } else {
-                channel.send(embed)
+                channel.send(embed).catch(() => null)
             }
         }
     })

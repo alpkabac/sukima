@@ -274,7 +274,7 @@ bot.on('ready', async () => {
             bot.channels.cache.forEach(c => {
                 if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
                     if (channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction.length > 0) {
-                        c.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction[0].msg}`))
+                        c.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction[0].msg}`)).catch(() => null)
                     }
                 }
             })
@@ -406,7 +406,7 @@ bot.on('message', async msg => {
             channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
             originalMsg.delete().catch(() => null)
         } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-            await originalMsg.channel.send(parsedMessage)
+            await originalMsg.channel.send(parsedMessage).catch(() => null)
             originalMsg.delete().catch(() => null)
         } else if (cleanContent.startsWith("!danbooru") && message.error) {
             await originalMsg.react("🤷").catch(() => null)
@@ -453,7 +453,7 @@ async function loop() {
                 const timeToWait = encoder.encode(parsedMessage).length * 50
                 channels[channel].startTyping().then()
                 await utils.sleep(timeToWait)
-                channels[channel].send(parsedMessage)
+                channels[channel].send(parsedMessage).catch(() => null)
                 if (!channel.startsWith("##")) {
                     await speak(parsedMessage, channel)
                 }
@@ -475,7 +475,7 @@ async function loop() {
                         channels[channel].startTyping().then()
                         await utils.sleep(timeToWait)
                         historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                        channels[channel].send(parsedMessage)
+                        channels[channel].send(parsedMessage).catch(() => null)
                         channels[channel].stopTyping(true)
                     }
                 }
