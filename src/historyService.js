@@ -10,7 +10,11 @@ class HistoryService {
 
     static pushIntoHistory(msg, from, channel, raw = false) {
         if (!this.channelHistories[channel]) this.channelHistories[channel] = []
-        this.channelHistories[channel].push({from, msg: raw ? msg.trim() : msg.replace(/([ a-zA-Z0-9-_'`\[\]]+):/, "$1,").trim()})
+        this.channelHistories[channel].push({
+            from,
+            msg: raw ? msg.trim() : msg.replace(/([ a-zA-Z0-9-_'`\[\]]+):/, "$1,").trim(),
+            timestamp: Date.now()
+        })
         while (this.channelHistories[channel].length > conf.maxHistory) this.channelHistories[channel].shift()
     }
 

@@ -4,6 +4,7 @@ const botService = require('../botService')
 const conf = require('../../conf.json')
 const commandService = require("../commandService");
 const {getInterval} = require("../utils");
+const messageCommands = require("../command/messageCommands");
 
 let lastMessageTimestamp = Date.now()
 let timeStep = getInterval()
@@ -129,7 +130,13 @@ async function main() {
             const allowedChannels = process.env.ALLOWED_CHANNEL_NAMES
                 .split(',')
                 .map(c => c.trim())
-            const msg = await commandService.talk(allowedChannels[0])
+            const msg = await messageCommands.talk.call(
+                null,
+                null,
+                process.env.ALLOWED_CHANNEL_NAMES
+                    .split(',')
+                    .map(c => c.trim())[0]
+            )
             if (msg && msg.message && msg.message.trim()) {
                 ircClient.say(msg.channel, msg.message.trim())
                 resetLastMessageTimestamp()

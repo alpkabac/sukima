@@ -24,7 +24,7 @@ const messageCommands = {
     ),
     continueMessage: new Command(
         "Continue Message",
-        [","],
+        [",", "!continue"],
         [],
         process.env.ALLOW_CONTINUE_MESSAGE,
         async (msg, from, channel, command) => {
@@ -44,7 +44,7 @@ const messageCommands = {
     ),
     retryMessage: new Command(
         "Retry Message",
-        ["²", "○"],
+        ["²", "○", "!retry"],
         [],
         process.env.ALLOW_RETRY_MESSAGE,
         async (msg, from, channel, command) => {
@@ -65,7 +65,7 @@ const messageCommands = {
     answerMessage: new Command(
         "Answer Message",
         [],
-        ["?"],
+        ["?", "!talk"],
         process.env.ALLOW_ANSWER_MESSAGE,
         async (msg, from, channel, command) => {
             const message = utils.upperCaseFirstLetter(msg.slice(1)).trim()

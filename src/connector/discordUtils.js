@@ -40,8 +40,15 @@ function updateBotInfo(botClient) {
                 .addField('Public context', botPersonality.context)
                 .addField('DM context', botPersonality.contextDm)
                 .addField('Personality context', botPersonality.description)
-                .addField('Allowed channels', process.env.ALLOWED_CHANNEL_NAMES)
-                .addField('Send intro to channels', process.env.SEND_INTRO_TO_CHANNELS)
+                .addField('Channel Settings',
+                    `Allowed channels: ${process.env.ALLOWED_CHANNEL_NAMES}`
+                    + `\nSend intro to channels: ${process.env.SEND_INTRO_TO_CHANNELS}`
+                )
+                .addField('Timer Settings',
+                    `Auto answer min interval: ${process.env.MIN_BOT_MESSAGE_INTERVAL}`
+                    + `\nAuto answer max interval: ${process.env.MAX_BOT_MESSAGE_INTERVAL}`
+                    + `\nAuto additional message check interval: ${process.env.INTERVAL_AUTO_MESSAGE_CHECK}`
+                )
 
                 .addField('\u200B', '\u200B')
                 .addField('Personality edition commands',

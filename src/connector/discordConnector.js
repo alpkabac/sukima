@@ -223,8 +223,6 @@ bot.on('ready', async () => {
                         `Personality successfully loaded! `
                         : `Personality loaded, but there were errors while trying to edit the AI personality:\n${errorMessages}\n`)
                     + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`
-                ,
-                channel
             }
         } else {
             return false
@@ -358,7 +356,7 @@ bot.on('message', async msg => {
         }, 3000)
     } else if (cleanContent.startsWith("!setJSONPersonality ")) {
         if (!setJSONPersonality) {
-            await originalMsg.inlineReply("# Sorry, but this command is not fully loaded. Please try again later!")
+            await originalMsg.inlineReply("# Sorry, but this command is not fully loaded. Please try again later!").catch(() => null)
             return
         }
 
@@ -369,7 +367,7 @@ bot.on('message', async msg => {
 
         const r = await setJSONPersonality(originalMsg.cleanContent, replaceAliases(originalMsg.author.username), channelName, userRoles)
         if (r && r.message) {
-            await originalMsg.inlineReply(r.message)
+            await originalMsg.inlineReply(r.message).catch(() => null)
         } else if (r && r.error) {
             await originalMsg.react("❌").catch(() => null)
         }
@@ -386,7 +384,7 @@ bot.on('message', async msg => {
 
     if (message && message.error) {
         await originalMsg.react("❌").catch(() => null)
-        await originalMsg.inlineReply(message.error)
+        await originalMsg.inlineReply(message.error).catch(() => null)
     }
     if (message && message.permissionError) {
         await originalMsg.react("⛔").catch(() => null)
@@ -423,14 +421,14 @@ bot.on('message', async msg => {
             channels[channelName].stopTyping(true)
             return
         } else if (message.message.startsWith("\nLoaded bot")) {
-            await originalMsg.inlineReply(parsedMessage)
+            await originalMsg.inlineReply(parsedMessage).catch(() => null)
             if (speak) await speak(message.message.split("\n")[2], channelName)
             channels[channelName].stopTyping(true)
             return
         } else if (cleanContent.startsWith("!property") || cleanContent.startsWith("!event")) {
             await originalMsg.react("✅").catch(() => null)
         } else if (originalMsg) {
-            await originalMsg.inlineReply(parsedMessage)
+            await originalMsg.inlineReply(parsedMessage).catch(() => null)
         }
 
         channels[channelName].stopTyping(true)
@@ -462,6 +460,7 @@ async function loop() {
 
             // Auto messaging part
             else {
+                // TODO: put into a command
                 const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
                 const prompt = promptService.getPrompt(null, null, channel, true).prompt + "\n"
                 const result = await aiService.simpleEvalbot(prompt, tokenCount, channel.startsWith("##"))
@@ -485,6 +484,10 @@ async function loop() {
 
     setTimeout(loop, getInterval())
 }
+
+setInterval(() => {
+
+}, parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
 
 setTimeout(loop, getInterval())
 
