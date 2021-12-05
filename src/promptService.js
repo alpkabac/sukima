@@ -1,5 +1,5 @@
 require('dotenv').config()
-const channelBotTranslationService = require("./channelBotTranslationService")
+const channelBotTranslationService = require("./personalityService")
 const historyService = require("./historyService")
 const memoryService = require("./memoryService")
 const encoder = require("gpt-3-encoder")
@@ -35,7 +35,7 @@ class PromptService {
     }
 
     static getNoContextPrompt(msg, from, channel) {
-        const botTranslations = channelBotTranslationService.getChannelBotTranslations(channel)
+        const botTranslations = channelBotTranslationService.getChannelPersonality(channel)
 
         return PromptService.mapJoinMessages([
             {from: process.env.BOTNAME, msg: botTranslations.noContextSentence},
@@ -45,7 +45,7 @@ class PromptService {
 
     static getPrompt(msg, from, channel, isContinuation = false, isRetry = false) {
         const privateConversation = channel.startsWith("##")
-        const botTranslations = channelBotTranslationService.getChannelBotTranslations(channel)
+        const botTranslations = channelBotTranslationService.getChannelPersonality(channel)
         const channelContext = privateConversation ?
             botTranslations.contextDm
             : botTranslations.context

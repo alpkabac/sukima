@@ -1,6 +1,6 @@
 require('dotenv').config()
 const Command = require("./Command");
-const channelBotTranslationService = require("../channelBotTranslationService");
+const channelBotTranslationService = require("../personalityService");
 
 const personalityCommands = {
     setPersonality: new Command(
@@ -11,7 +11,7 @@ const personalityCommands = {
         async (msg, from, channel, command) => {
             const personality = msg.replace(command, "")
 
-            const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
+            const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
 
             if (personality && personality.length > 0) {
                 const lines = personality.split("\n")
@@ -54,7 +54,7 @@ const personalityCommands = {
         [],
         process.env.ALLOW_DISPLAY_PERSONALITY,
         async (msg, from, channel, command) => {
-            const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
+            const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
             const JSONPersonality = JSON.parse(JSON.stringify(aiPersonality))
             const message = `Complete JSON for personality:\n`
 

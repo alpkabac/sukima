@@ -2,7 +2,7 @@ require('dotenv').config()
 const Command = require("./Command");
 const memoryService = require("../memoryService");
 const historyService = require("../historyService");
-const channelBotTranslationService = require("../channelBotTranslationService");
+const channelBotTranslationService = require("../personalityService");
 
 const memoryCommands = {
     remember: new Command(
@@ -92,8 +92,8 @@ const memoryCommands = {
             historyService.forgetChannelHistory(channel)
             let presentationMessage = ""
             const intro = channel.startsWith("##") ?
-                channelBotTranslationService.getChannelBotTranslations(channel).introductionDm :
-                channelBotTranslationService.getChannelBotTranslations(channel).introduction
+                channelBotTranslationService.getChannelPersonality(channel).introductionDm :
+                channelBotTranslationService.getChannelPersonality(channel).introduction
             for (let i of intro) {
                 if (i.from === process.env.BOTNAME || i.from === "${botName}") {
                     presentationMessage += i.msg + "\n"

@@ -1,17 +1,16 @@
 require('dotenv').config()
-const conf = require('../conf.json')
 
-class ChannelBotTranslationService {
+class PersonalityService {
     static channelBotTranslations = {}
 
-    static getChannelBotTranslations(channel) {
+    static getChannelPersonality(channel) {
         if (!this.channelBotTranslations[channel]) {
-            this.changeChannelBotTranslations(channel)
+            this.changeChannelPersonality(channel)
         }
         return this.channelBotTranslations[channel]
     }
 
-    static changeChannelBotTranslations(channel, code = process.env.TRANSLATION_FILE || "en-EN", botName = process.env.BOTNAME) {
+    static changeChannelPersonality(channel, code = process.env.TRANSLATION_FILE || "en-EN", botName = process.env.BOTNAME) {
         try {
             this.channelBotTranslations[channel] = JSON.parse(JSON.stringify(require(`../translations/aiPersonality/${botName}/${code}.json`)))
             return true
@@ -26,4 +25,4 @@ class ChannelBotTranslationService {
     }
 }
 
-module.exports = ChannelBotTranslationService
+module.exports = PersonalityService

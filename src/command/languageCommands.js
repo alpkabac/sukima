@@ -1,7 +1,7 @@
 require('dotenv').config()
 const Command = require("./Command");
 const translationsService = require("../translationService");
-const channelBotTranslationService = require("../channelBotTranslationService");
+const channelBotTranslationService = require("../personalityService");
 
 const languageCommands = {
     changeLanguage: new Command(
@@ -13,14 +13,14 @@ const languageCommands = {
             const language = msg.replace(command, "")
             let message = ""
             translationsService.changeLanguage(language)
-            if (channelBotTranslationService.changeChannelBotTranslations(channel, language, process.env.BOTNAME)) {
+            if (channelBotTranslationService.changeChannelPersonality(channel, language, process.env.BOTNAME)) {
                 message += `Loaded bot personality file: ${process.env.BOTNAME}/${language}.json`
             } else {
                 return {error: `# Couldn't load bot personality for ${process.env.BOTNAME}/${language}.json`}
             }
             if (message) {
                 const privateMessage = channel.startsWith("##")
-                const botTranslations = channelBotTranslationService.getChannelBotTranslations(channel)
+                const botTranslations = channelBotTranslationService.getChannelPersonality(channel)
                 message = `${message}\n${(privateMessage ? botTranslations.introductionDm : botTranslations.introduction)[0].msg}`
                 return {message, success: true}
             }

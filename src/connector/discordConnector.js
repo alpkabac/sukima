@@ -11,7 +11,7 @@ const bot = new Client({
 });
 
 const botService = require('../botService')
-const channelBotTranslationService = require('../channelBotTranslationService')
+const channelBotTranslationService = require('../personalityService')
 const {getInterval} = require("../utils")
 const Utils = require("../utils")
 const utils = require("../utils")
@@ -53,6 +53,7 @@ bot.on('ready', async () => {
         await bot.user.setActivity()
     }
 
+    // TODO: split into a generic command and a discord command
     setJSONPersonality = async function (msg, from, channel, roles) {
         const command = "!setJSONPersonality "
 
@@ -74,7 +75,7 @@ bot.on('ready', async () => {
                 return {message: "# JSON could not be parsed", channel}
             }
 
-            const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
+            const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
 
             if (personality.target !== undefined) {
                 if (personality.target.toLowerCase() !== process.env.BOTNAME.toLowerCase()) {
@@ -230,7 +231,7 @@ bot.on('ready', async () => {
 
     speak = async function (msg, channel) {
         if (utils.getBoolFromString(process.env.ENABLE_TTS)) {
-            if (!channelBotTranslationService.getChannelBotTranslations(channel)?.voice?.languageCode) return
+            if (!channelBotTranslationService.getChannelPersonality(channel)?.voice?.languageCode) return
 
             if (voiceChannel) {
                 connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
@@ -242,7 +243,7 @@ bot.on('ready', async () => {
                     }
                 }
                 if (connection) {
-                    await Utils.tts(connection, msg, channelBotTranslationService.getChannelBotTranslations(channel).voice)
+                    await Utils.tts(connection, msg, channelBotTranslationService.getChannelPersonality(channel).voice)
                 } else {
                     console.log("Could not establish TTS connection.")
                 }
@@ -259,7 +260,7 @@ bot.on('ready', async () => {
             })
 
         personalityCodes.forEach(pc => {
-            channelBotTranslationService.changeChannelBotTranslations(pc.channelName, pc.personalityCode)
+            channelBotTranslationService.changeChannelPersonality(pc.channelName, pc.personalityCode)
         })
     }
 
@@ -271,8 +272,8 @@ bot.on('ready', async () => {
 
             bot.channels.cache.forEach(c => {
                 if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
-                    if (channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction.length > 0) {
-                        c.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelBotTranslations("#" + c.name.toLowerCase()).introduction[0].msg}`)).catch(() => null)
+                    if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction.length > 0) {
+                        c.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction[0].msg}`)).catch(() => null)
                     }
                 }
             })
@@ -313,9 +314,17 @@ function replaceAliasesInMessage(message, nick) {
 
 bot.on('message', async msg => {
     const privateMessage = msg.channel.type === "dm"
+
+    if (privateMessage && msg.author.username !== bot.user.username) {
+        const date = new Date()
+        console.log(`[${((date.getHours() < 10) ? "0" : "") + date.getHours() + ":" + ((date.getMinutes() < 10) ? "0" : "") + date.getMinutes() + ":" + ((date.getSeconds() < 10) ? "0" : "") + date.getSeconds()}]`
+            + ` User ${msg.author.id} sent a DM to ${process.env.BOTNAME}`)
+    }
+
     if (privateMessage && (!process.env.ENABLE_DM || process.env.ENABLE_DM.toLowerCase() !== "true")) {
         return
     }
+
     const channelName = privateMessage ?
         "##" + replaceAliases(msg.channel.id)
         : "#" + msg.channel.name
@@ -428,7 +437,16 @@ bot.on('message', async msg => {
         } else if (cleanContent.startsWith("!property") || cleanContent.startsWith("!event")) {
             await originalMsg.react("✅").catch(() => null)
         } else if (originalMsg) {
-            await originalMsg.inlineReply(parsedMessage).catch(() => null)
+            if (message.image) {
+                await originalMsg.inlineReply({
+                    message: parsedMessage, files: [{
+                        attachment: message.image,
+                        name: "SPOILER_FILE.jpg"
+                    }]
+                }).catch((e) => console.error(e))
+            } else {
+                await originalMsg.inlineReply(parsedMessage).catch(() => null)
+            }
         }
 
         channels[channelName].stopTyping(true)
@@ -472,6 +490,7 @@ setInterval(async () => {
             // TODO: put into a command
             const history = historyService.getChannelHistory(channel)
 
+            // Checks if the conditions for new message are met
             const historyIsntEmpty = history.length > 0
             const lastMessage = historyIsntEmpty ? history[history.length - 1] : null
             const timePassed = Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "30") * 1000)

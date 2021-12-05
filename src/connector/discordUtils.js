@@ -1,4 +1,4 @@
-const channelBotTranslationService = require("../channelBotTranslationService");
+const channelBotTranslationService = require("../personalityService");
 const {MessageEmbed} = require("discord.js");
 const utils = require('../utils')
 
@@ -26,7 +26,7 @@ function updateBotInfo(botClient) {
                 }
             })
 
-            const botPersonality = channelBotTranslationService.getChannelBotTranslations("#" + channel.name.toLowerCase())
+            const botPersonality = channelBotTranslationService.getChannelPersonality("#" + channel.name.toLowerCase())
 
             const embed = new MessageEmbed()
                 .setColor('#0099ff')

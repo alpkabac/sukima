@@ -1,6 +1,6 @@
 require('dotenv').config()
 const Command = require("./Command");
-const channelBotTranslationService = require("../channelBotTranslationService");
+const channelBotTranslationService = require("../personalityService");
 const voices = JSON.parse(JSON.stringify(require('../tts/languages.json')))
 
 const voiceCommands = {
@@ -12,7 +12,7 @@ const voiceCommands = {
         async (msg, from, channel, command) => {
             const voice = msg.replace(command, "")
 
-            const aiPersonality = channelBotTranslationService.getChannelBotTranslations(channel)
+            const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
 
             if (voice && voice.length > 0) {
                 let message = ""
