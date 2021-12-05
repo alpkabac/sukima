@@ -15,8 +15,9 @@ Will make the bot forget the current conversation, only keeping its presentation
 
 ### Remember
 Command: `!remember [ Your text ]`  
-Will insert a message from you at the top of the bot's memory  
-Be careful, you if you reuse the `!remember` command it will replace the previous things you remembered
+Will insert a message containing `[ Your text]` from you at the top of the bot's memory  
+Be careful, you if you reuse the `!remember` command it will replace the previous things you remembered  
+Also, know that the square brackets `[]` are important for the AI to know that the text is contextual text and not part of the conversation 
 
 ### Also Remember
 Command: `!alsoRemember [ Your text ]`  
