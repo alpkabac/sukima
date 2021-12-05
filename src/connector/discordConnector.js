@@ -57,7 +57,6 @@ bot.on('ready', async () => {
         const command = "!setJSONPersonality "
 
         if (msg.toLowerCase().startsWith(command.toLowerCase())) {
-
             if (!utils.checkPermissions(roles, process.env.ALLOW_SET_JSON_PERSONALITY, channel.startsWith("##"))) return true
 
             let success = true
@@ -162,22 +161,22 @@ bot.on('ready', async () => {
 
             const JSONPersonality = JSON.parse(JSON.stringify(aiPersonality))
 
-            if (personality.ENABLE_DM !== undefined) {
+            if (personality.ENABLE_DM !== undefined && !channel.startsWith("##")) {
                 process.env.ENABLE_DM = "" + personality.ENABLE_DM
                 JSONPersonality.ENABLE_DM = "" + personality.ENABLE_DM
             }
 
-            if (personality.ENABLE_TTS !== undefined) {
+            if (personality.ENABLE_TTS !== undefined && !channel.startsWith("##")) {
                 process.env.ENABLE_TTS = "" + personality.ENABLE_TTS
                 JSONPersonality.ENABLE_TTS = "" + personality.ENABLE_TTS
             }
 
-            if (personality.ENABLE_INTRO !== undefined) {
+            if (personality.ENABLE_INTRO !== undefined && !channel.startsWith("##")) {
                 process.env.ENABLE_INTRO = "" + personality.ENABLE_INTRO
                 JSONPersonality.ENABLE_INTRO = "" + personality.ENABLE_INTRO
             }
 
-            if (personality.ENABLE_AUTO_ANSWER !== undefined) {
+            if (personality.ENABLE_AUTO_ANSWER !== undefined && !channel.startsWith("##")) {
                 process.env.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
                 JSONPersonality.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
             }
@@ -395,7 +394,7 @@ bot.on('message', async msg => {
             await originalMsg.react("✅").catch(() => null)
         }
         voiceChannel = msg.member?.voice?.channel
-        const timeToWait = encoder.encode(message.message).length * 50
+        const timeToWait = message.instantReply ? 0 : encoder.encode(message.message).length * 50
         channels[channelName].startTyping().then()
         await utils.sleep(timeToWait)
         if (cleanContent.startsWith("²") && cleanContent.length === 1) {
@@ -472,11 +471,16 @@ setInterval(async () => {
         for (let channel in channels) {
             // TODO: put into a command
             const history = historyService.getChannelHistory(channel)
-            if (history.length > 0 && (history[history.length - 1].timestamp >
-                Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "30") * 1000)
-            || history[history.length - 1].from !== process.env.BOTNAME)) {
+
+            const historyIsntEmpty = history.length > 0
+            const lastMessage = historyIsntEmpty ? history[history.length - 1] : null
+            const timePassed = Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "30") * 1000)
+            const enoughPassedTime = lastMessage?.timestamp > timePassed
+            const isLastMessageFromUser = lastMessage?.from !== process.env.BOTNAME && !!lastMessage?.from
+            if (!historyIsntEmpty || !enoughPassedTime || isLastMessageFromUser) {
                 continue
             }
+
             const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
             const prompt = promptService.getPrompt(null, null, channel, true).prompt + "\n"
             const result = await aiService.simpleEvalbot(prompt, tokenCount, channel.startsWith("##"))

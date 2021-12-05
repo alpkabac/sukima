@@ -8,13 +8,15 @@ class HistoryService {
         return !this.channelHistories[channel] ? [] : this.channelHistories[channel]
     }
 
-    static pushIntoHistory(msg, from, channel, raw = false) {
+    static pushIntoHistory(msg, from, channel, raw = false, messageId = null) {
         if (!this.channelHistories[channel]) this.channelHistories[channel] = []
-        this.channelHistories[channel].push({
+        const historyEntry = {
             from,
             msg: raw ? msg.trim() : msg.replace(/([ a-zA-Z0-9-_'`\[\]]+):/, "$1,").trim(),
-            timestamp: Date.now()
-        })
+            timestamp: Date.now(),
+        }
+        if (messageId) historyEntry.messageId = messageId
+        this.channelHistories[channel].push(historyEntry)
         while (this.channelHistories[channel].length > conf.maxHistory) this.channelHistories[channel].shift()
     }
 

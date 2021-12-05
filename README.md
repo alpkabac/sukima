@@ -14,8 +14,8 @@ Will make the bot forget the current conversation, only keeping its presentation
   through the `!remember` command
 
 ### Remember
-Command: `!remember Your text`  
-Will insert a message from you in the bot's memory formatted like `yourNick: Your text`  
+Command: `!remember [ Your text ]`  
+Will insert a message from you at the top of the bot's memory  
 Be careful, you if you reuse the `!remember` command it will replace the previous things you remembered
 
 ### Also Remember
@@ -40,9 +40,9 @@ Shows everyone's remembered things on this channel
 
 ## Message Commands
 ### No Context Message
-Command: `!Blah blah blah` or `! Blah blah blah` (it's the same)  
+Command: `!!Blah blah blah` or `!! Blah blah blah` (it's the same)  
 Will send the message without any memory besides the `noContextSentence` included in personality translation file  
-You can use the `!` prefix to ask questions without using the context or the conversation history (and it gives the **best** results)
+You can use the `!!` prefix to ask questions without using the context or the conversation history (and it gives the **best** results)
 
 ### Instant Answer Message
 Command: `?Blah blah blah` or `? Blah blah blah` (again, it's the same)  
@@ -70,6 +70,11 @@ Commands: `!mute` and `!unmute`
 Prevents the bot from receiving and sending messages in the current channel
 
 ## Personality Commands
+
+### Show Current Bot Personality
+Command: `!showPersonality` or `!displayPersonality`  
+Will display most of the AIs parameters
+
 ### Set Bot Personality
 Command: `!setPersonality <context>\n<presentation message>`  
 Sets the AI personality for the current channel (or DM channel)  
@@ -111,6 +116,13 @@ Command: `!prompt <number of tokens to generate>\n<your prompt>`
 Will execute your prompt and return X tokens depending on your argument
   - This command can be used freely without the bot remembering either the command nor the output
   - It can be used as a tool to test evalbots, or just to use the AI model with your own prompt
+  - First line should only contain the command and number tokens to generate (150 max)
+Use like this:  
+```
+!prompt 150
+This document is
+```
+The AI will complete your text and return the result
 
 ### Pause's Lore Generation Tool
 Command: `!lgt (1-3) YOUR INPUT`  

@@ -10,7 +10,7 @@ const messageCommands = {
     noContextMessage: new Command(
         "No Context Message",
         [],
-        ["!"],
+        ["!!"],
         process.env.ALLOW_NO_CONTEXT_MESSAGE,
         async (msg, from, channel, command) => {
             const message = utils.upperCaseFirstLetter(msg.slice(1))

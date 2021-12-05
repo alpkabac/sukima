@@ -48,7 +48,7 @@ const personalityCommands = {
         async (msg, from, channel, command) => {
             return true
         }
-    ),displayPersonality: new Command(
+    ), displayPersonality: new Command(
         "Display Personality",
         ["!displayPersonality", "!showPersonality"],
         [],
@@ -90,8 +90,8 @@ const personalityCommands = {
             }
 
             return {
-                message: message+stringJSONPersonality,
-                success:true
+                message: message + stringJSONPersonality,
+                success: true
             }
         }
     ),

@@ -1,10 +1,9 @@
 require('dotenv').config()
 const ircClient = require('../ircClient')
 const botService = require('../botService')
-const conf = require('../../conf.json')
-const commandService = require("../commandService");
 const {getInterval} = require("../utils");
 const messageCommands = require("../command/messageCommands");
+const historyCommands = require("../command/memoryCommands");
 
 let lastMessageTimestamp = Date.now()
 let timeStep = getInterval()
@@ -51,7 +50,7 @@ ircClient.addListener('message', async function (from, to, message) {
 ircClient.addListener('join', async function (channel, nick) {
     resetLastMessageTimestamp()
     if (nick === process.env.BOTNAME) {
-        const msg = commandService.deleteChannelHistory("!forget", "Noli", channel)
+        const msg = historyCommands.deleteChannelHistory.call("!forget", "Noli", channel, [])
         if (msg && msg.message) {
             //ircClient.say(msg.channel, msg.message.trim())
             resetLastMessageTimestamp()

@@ -23,9 +23,9 @@ const wikiCommands = {
                 }
             }))?.data
 
-            if (preResult) {
+            if (preResult && preResult[1][0] && preResult[3][0]) {
                 historyService.pushIntoHistory(msg, from, channel)
-                const formattedEvent = `[ ${process.env.BOTNAME} responds to the !wiki command by sending the wikipedia link "${preResult[3][0]} to ${from}" ]`
+                const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by searching for "${search}" on wikipedia and sending the link "${preResult[3][0]}" to "${from}" ]`
                 historyService.pushIntoHistory(formattedEvent, null, channel, true)
 
                 return {
