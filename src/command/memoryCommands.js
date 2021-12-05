@@ -14,7 +14,6 @@ const memoryCommands = {
             const newRememberedThing = msg.replace(command, '').trim()
             memoryService.setUserMemoryInChannel(newRememberedThing, from, channel)
             return {
-                message: "# Successfully added the memory!\nNew complete memory:\n" + newRememberedThing,
                 success: true
             }
         }),
@@ -67,7 +66,6 @@ const memoryCommands = {
         (msg, from, channel, command) => {
             memoryService.forgetUserMemoryInChannel(from, channel)
             return {
-                message: "# Successfully forgot the memory!",
                 success: true
             }
         }),
@@ -79,7 +77,6 @@ const memoryCommands = {
         (msg, from, channel, command) => {
             memoryService.forgetAllUserMemoryInChannel(channel)
             return {
-                message: "# Successfully forgot the memories of everyone!",
                 success: true
             }
         }),

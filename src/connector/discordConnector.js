@@ -395,13 +395,15 @@ bot.on('message', async msg => {
         await originalMsg.react("❌").catch(() => null)
         await originalMsg.inlineReply(message.error).catch(() => null)
     }
+    if (message && message.success) {
+        await originalMsg.react("✅").catch(() => null)
+    }
+
     if (message && message.permissionError) {
         await originalMsg.react("⛔").catch(() => null)
     } else if (message?.message?.trim().length > 0) {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
-        if (message.success) {
-            await originalMsg.react("✅").catch(() => null)
-        }
+
         voiceChannel = msg.member?.voice?.channel
         const timeToWait = message.instantReply ? 0 : encoder.encode(message.message).length * 50
         channels[channelName].startTyping().then()
