@@ -30,9 +30,6 @@ const promptCommands = {
         async (msg, from, channel, command) => {
             let input = utils.upperCaseFirstLetter(msg.replace(command, "").trim())
             if (input) {
-                const placeholder = `INPUT: ${input}\nOUTPUT:`
-                const placeholderLength = encoder.encode(placeholder).length
-
                 const match = input.match(/^([1-3]) ([^\n]*)/)
                 let nbResults
                 if (match && match[1] && match[2]) {
@@ -41,6 +38,9 @@ const promptCommands = {
                 } else {
                     nbResults = 1
                 }
+
+                const placeholder = `INPUT: ${input}\nOUTPUT:`
+                const placeholderLength = encoder.encode(placeholder).length
 
                 let results = []
                 for (let i = 0; i < nbResults; i++) {

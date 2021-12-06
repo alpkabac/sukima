@@ -218,6 +218,8 @@ bot.on('ready', async () => {
                     stringJSONPersonality = "{ ...JSON was too long to fit into discord's 2000 character limit per message... }"
                 }
             }
+
+            updateBotInfo(bot)
             return {
                 message: "# " + (success ?
                         `Personality successfully loaded! `
@@ -281,6 +283,27 @@ bot.on('ready', async () => {
     }
 
     updateBotInfo(bot)
+});
+
+/*
+TODO: Greeting feature
+*/
+bot.on('guildMemberAdd', async (member) => {
+    if (utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS)) {
+        const channel = member.guild.channels.get(process.env.GREET_NEW_USERS_IN_CHANNEL)
+
+        const message = await botService.onChannelMessage(
+            "[SERVER MESSAGE]",
+            process.env.SEND_INTRO_TO_CHANNELS,
+            `User ${member.user.username} joined the discord server!`,
+            process.env.BOTNAME,
+            [])
+
+        if (message?.message?.trim().length > 0) {
+            const parsedMessage = replaceAsterisksByBackQuotes(message.message.trim())
+            channel.send(parsedMessage).catch(() => null)
+        }
+    }
 });
 
 // TODO: add configurations for aliases
@@ -487,7 +510,7 @@ setInterval(async () => {
 // Waits two seconds if an answer is still generating
     if (locked) return setTimeout(loop, 2000)
 
-    if (utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) {
+    if (utils.getBoolFromString(process.env.ENABLE_AUTO_MESSAGE)) {
         for (let channel in channels) {
             // TODO: put into a command
             const history = historyService.getChannelHistory(channel)

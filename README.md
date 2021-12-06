@@ -6,6 +6,38 @@ You can also create and customize every part of your AI personality and its func
 
 # IRC/Discord commands and usage
 
+## Message Commands
+### No Context Message
+Command: `!!Blah blah blah` or `!! Blah blah blah` (it's the same)  
+Will send the message without any memory besides the `noContextSentence` included in personality translation file  
+You can use the `!!` prefix to ask questions without using the context or the conversation history (and it gives the **best** results)
+
+### Instant Answer Message
+Command: `?Blah blah blah` or `? Blah blah blah` (again, it's the same)  
+Will make the bot answer immediately after your message
+
+### Force Bot Message
+Command: `?` or `!talk`  
+Will force the bot to send a new message
+
+### Finish Last Bot Message
+Command: `,` or `!continue`  
+Special command **only to be used when the bot sends an incomplete message**  
+The bot will generate the end of its last message and edit its content to update it
+
+### Retry Last Bot Message
+Command: `²` or `○` or `!retry`  
+Will make the bot regenerate its last message and edit it to update its content
+
+### Comment Message
+Command: `# Blah blah`  
+Comment text, the bot doesn't see nor react to it
+
+### Mute and Unmute
+Commands: `!mute` and `!unmute`    
+Prevents the bot from receiving and sending messages in the current channel
+
+
 ## Memory Commands
 
 ### Reset
@@ -38,37 +70,6 @@ Shows your remembered things on this channel
 ### Show All Remember
 Command: `!showAllRemember`  
 Shows everyone's remembered things on this channel
-
-## Message Commands
-### No Context Message
-Command: `!!Blah blah blah` or `!! Blah blah blah` (it's the same)  
-Will send the message without any memory besides the `noContextSentence` included in personality translation file  
-You can use the `!!` prefix to ask questions without using the context or the conversation history (and it gives the **best** results)
-
-### Instant Answer Message
-Command: `?Blah blah blah` or `? Blah blah blah` (again, it's the same)  
-Will make the bot answer immediately after your message
-
-### Force Bot Message
-Command: `?` or `!talk`  
-Will force the bot to send a new message
-
-### Finish Last Bot Message
-Command: `,` or `!continue`  
-Special command **only to be used when the bot sends an incomplete message**  
-The bot will generate the end of its last message and edit its content to update it
-
-### Retry Last Bot Message
-Command: `²` or `○` or `!retry`  
-Will make the bot regenerate its last message and edit it to update its content
-
-### Comment Message
-Command: `# Blah blah`  
-Comment text, the bot doesn't see nor react to it
-
-### Mute and Unmute
-Commands: `!mute` and `!unmute`    
-Prevents the bot from receiving and sending messages in the current channel
 
 ## Personality Commands
 
