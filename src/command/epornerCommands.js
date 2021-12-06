@@ -48,7 +48,8 @@ const epornerCommands = {
                     return {
                         message: `# Id: ${vid?.id}\nTitle: ${vid.title}\nKeywords: ${vid.keywords}\nLength: ${vid.length_min}\nDate: ${vid.added}\nURL: ${vid.url}`,
                         success: true,
-                        instantReply: true
+                        instantReply: true,
+                        image: vid.url
                     }
                 } else {
                     return {message: `# I'm sorry, but your search didn't return any result... Maybe try another keyword!`}
