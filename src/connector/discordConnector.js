@@ -339,10 +339,6 @@ function replaceAliasesInMessage(message, nick) {
             .replace("Glados", nick)
     }
 
-    if (nick === "Lulune") {
-        return message
-            .replace("Lulu", nick)
-    }
     return message
 }
 
