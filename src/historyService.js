@@ -2,7 +2,6 @@ const conf = require('../conf.json')
 
 class HistoryService {
     static channelHistories = {}
-    static privateHistories = {}
 
     static getChannelHistory(channel) {
         return !this.channelHistories[channel] ? [] : this.channelHistories[channel]

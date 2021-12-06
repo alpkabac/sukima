@@ -15,12 +15,16 @@ const channelBotTranslationService = require('../personalityService')
 const {getInterval} = require("../utils")
 const Utils = require("../utils")
 const utils = require("../utils")
-const updateBotInfo = require("./discordUtils");
+const updateBotInfo = require("../discord/discordUtils");
 const promptService = require("../promptService");
 const aiService = require("../aiService");
 const encoder = require("gpt-3-encoder")
 const historyService = require("../historyService");
 const messageCommands = require("../command/messageCommands");
+
+
+const savingService = require("../savingService");
+savingService.loadAllChannels()
 
 bot.login(process.env.TOKEN)
 const channels = []
@@ -42,6 +46,34 @@ function replaceBackQuotesByAsterisks(text) {
 }
 
 bot.on('ready', async () => {
+    /*
+    TODO: Greeting feature
+    */
+    bot.on('guildMemberAdd', async (member) => {
+        console.log("New member!")
+        if (utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS)) {
+            console.log("process.env.ENABLE_GREET_NEW_USERS", utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS))
+            const channel = member.guild.channels.cache.find(channel => channel.name === process.env.GREET_NEW_USERS_IN_CHANNEL)
+            console.log("process.env.GREET_NEW_USERS_IN_CHANNEL", process.env.GREET_NEW_USERS_IN_CHANNEL)
+            console.log("channel", channel)
+
+            if (!channel) return
+
+            const message = await botService.onChannelMessage(
+                "[SERVER MESSAGE]",
+                process.env.SEND_INTRO_TO_CHANNELS,
+                `User ${member.user.username} joined the discord server!`,
+                process.env.BOTNAME,
+                [])
+
+            if (message?.message?.trim().length > 0) {
+                const parsedMessage = replaceAsterisksByBackQuotes(message.message.trim())
+                channel.send(parsedMessage).catch(() => null)
+            }
+        }
+    });
+
+
     console.info(`Logged in as ${bot.user.tag}!`)
     process.env.BOTNAME = replaceAliases(bot.user.tag.replace(/#.*$/, ""))
 
@@ -285,27 +317,6 @@ bot.on('ready', async () => {
     updateBotInfo(bot)
 });
 
-/*
-TODO: Greeting feature
-*/
-bot.on('guildMemberAdd', async (member) => {
-    if (utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS)) {
-        const channel = member.guild.channels.get(process.env.GREET_NEW_USERS_IN_CHANNEL)
-
-        const message = await botService.onChannelMessage(
-            "[SERVER MESSAGE]",
-            process.env.SEND_INTRO_TO_CHANNELS,
-            `User ${member.user.username} joined the discord server!`,
-            process.env.BOTNAME,
-            [])
-
-        if (message?.message?.trim().length > 0) {
-            const parsedMessage = replaceAsterisksByBackQuotes(message.message.trim())
-            channel.send(parsedMessage).catch(() => null)
-        }
-    }
-});
-
 // TODO: add configurations for aliases
 function replaceAliases(nick) {
     if (nick === "AliceBot") {
@@ -412,6 +423,8 @@ bot.on('message', async msg => {
         cleanContent,
         process.env.BOTNAME,
         userRoles)
+
+    savingService.save(channelName)
     locked = false
 
     if (message && message.error) {

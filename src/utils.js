@@ -118,21 +118,21 @@ class Utils {
     }
 
     static save(filename, content) {
-        try{
-            fs.writeFileSync(filename,content)
-        }catch(e){
-            return false
+        try {
+            fs.writeFileSync(filename, content)
+            return true
+        } catch (err) {
+            console.error(err)
         }
-        return true
     }
 
     static load(filename) {
         let file
         try {
             file = fs.readFileSync(filename)
-            return file
-        }catch(e){
-            return null
+            return JSON.parse(file)
+        } catch (err) {
+            console.error(err)
         }
     }
 }
