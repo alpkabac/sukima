@@ -4,6 +4,7 @@
   "description": "",
   "main": "index_discord.js",
   "scripts": {
+    "start": "node index_discord.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Noli",
