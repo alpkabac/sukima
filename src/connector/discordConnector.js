@@ -1,6 +1,4 @@
 import dotenv from 'dotenv'
-dotenv.config()
-
 import {Client} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
 import botService from "../botService.js";
@@ -13,6 +11,8 @@ import promptService from "../promptService.js";
 import updateBotInfo from "../discord/discordUtils.js";
 import utils from "../utils.js";
 import channelBotTranslationService from "../personalityService.js";
+
+dotenv.config()
 
 const voices = utils.load('./src/tts/languages.json')
 savingService.loadAllChannels()
@@ -45,34 +45,6 @@ function replaceBackQuotesByAsterisks(text) {
 }
 
 bot.on('ready', async () => {
-    /*
-    TODO: Greeting feature
-    */
-    bot.on('guildMemberAdd', async (member) => {
-        console.log("New member!")
-        if (utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS)) {
-            console.log("process.env.ENABLE_GREET_NEW_USERS", utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS))
-            const channel = member.guild.channels.cache.find(channel => channel.name === process.env.GREET_NEW_USERS_IN_CHANNEL)
-            console.log("process.env.GREET_NEW_USERS_IN_CHANNEL", process.env.GREET_NEW_USERS_IN_CHANNEL)
-            console.log("channel", channel)
-
-            if (!channel) return
-
-            const message = await botService.onChannelMessage(
-                "[SERVER MESSAGE]",
-                process.env.SEND_INTRO_TO_CHANNELS,
-                `User ${member.user.username} joined the discord server!`,
-                process.env.BOTNAME,
-                [])
-
-            if (message?.message?.trim().length > 0) {
-                const parsedMessage = replaceAsterisksByBackQuotes(message.message.trim())
-                channel.send(parsedMessage).catch(() => null)
-            }
-        }
-    });
-
-
     console.info(`Logged in as ${bot.user.tag}!`)
     process.env.BOTNAME = replaceAliases(bot.user.tag.replace(/#.*$/, ""))
 
@@ -317,6 +289,22 @@ bot.on('ready', async () => {
     }
 
     updateBotInfo(bot)
+});
+
+//Greeting feature
+bot.on('guildMemberAdd', async (member) => {
+    if (utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS)) {
+        const channel = member.guild.channels.cache.find(channel => channel.name === process.env.GREET_NEW_USERS_IN_CHANNEL)
+
+        if (!channel) return
+
+        let prompt = promptService.getPrompt(null, null, channel, true)
+        prompt += `\nSERVER MESSAGE: User ${member.user.username} joined the discord server!\n${process.env.BOTNAME}`
+        const message = await aiService.sendUntilSuccess(prompt, false)
+        const parsedMessage = replaceAsterisksByBackQuotes(message)
+        if (parsedMessage)
+            channel.send(parsedMessage).catch(() => null)
+    }
 });
 
 // TODO: add configurations for aliases

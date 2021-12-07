@@ -1,10 +1,10 @@
 import {config} from "dotenv";
-
-config()
 import channelBotTranslationService from "./personalityService.js";
 import historyService from "./historyService.js";
 import memoryService from "./memoryService.js";
 import encoder from "gpt-3-encoder";
+
+config()
 
 
 class PromptService {
@@ -46,7 +46,7 @@ class PromptService {
         ]) + "\n" + process.env.BOTNAME + ":"
     }
 
-    static getPrompt(msg, from, channel, isContinuation = false, isRetry = false) {
+    static getPrompt(msg, from, channel, isContinuation = false, isRetry = false, historyEnabled = true) {
         const privateConversation = channel.startsWith("##")
         const botTranslations = channelBotTranslationService.getChannelPersonality(channel)
         const channelContext = privateConversation ?
@@ -87,28 +87,30 @@ class PromptService {
         // Inserts as much history as possible in the 2048 token limits (including context and last line)
         let promptHistory = ""
         let couldInsertAllHistory = true
-        let lastBotMessageFound = false
-        for (let i = history.length - 1; i >= 0; i--) {
+        if (historyEnabled) {
+            let lastBotMessageFound = false
+            for (let i = history.length - 1; i >= 0; i--) {
 
-            if ((isRetry || isContinuation) && !lastBotMessageFound) {
-                if (history[i].from === process.env.BOTNAME) {
-                    lastBotMessageFound = true
-                    if (isRetry) {
+                if ((isRetry || isContinuation) && !lastBotMessageFound) {
+                    if (history[i].from === process.env.BOTNAME) {
+                        lastBotMessageFound = true
+                        if (isRetry) {
+                            continue
+                        }
+                    } else {
                         continue
                     }
-                } else {
-                    continue
                 }
-            }
 
-            const promptHistoryLength = encoder.encode(promptHistory).length
-            const line = (history[i].from ? `${history[i].from}: ${history[i].msg}` : history[i].msg) + '\n'
-            const lineLength = encoder.encode(line).length
-            if (contextLength + promptHistoryLength + lineLength + lastLineLength < (2048 - 152)) {
-                promptHistory = line + promptHistory
-            } else {
-                couldInsertAllHistory = false
-                break
+                const promptHistoryLength = encoder.encode(promptHistory).length
+                const line = (history[i].from ? `${history[i].from}: ${history[i].msg}` : history[i].msg) + '\n'
+                const lineLength = encoder.encode(line).length
+                if (contextLength + promptHistoryLength + lineLength + lastLineLength < (2048 - 152)) {
+                    promptHistory = line + promptHistory
+                } else {
+                    couldInsertAllHistory = false
+                    break
+                }
             }
         }
 
