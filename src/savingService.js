@@ -1,8 +1,11 @@
-const personalityService = require('./personalityService')
-const historyService = require('./historyService')
-const memoryService = require('./memoryService')
-const utils = require('./utils')
-const fs = require("fs");
+import {config} from "dotenv";
+
+config()
+import personalityService from "./personalityService.js";
+import historyService from "./historyService.js";
+import memoryService from "./memoryService.js";
+import utils from "./utils.js";
+import fs from "fs";
 
 class SavingService {
 
@@ -70,4 +73,4 @@ class SavingService {
 
 }
 
-module.exports = SavingService
+export default SavingService

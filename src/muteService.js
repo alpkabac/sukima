@@ -17,4 +17,4 @@ class MuteService {
     }
 }
 
-module.exports = MuteService
+export default MuteService

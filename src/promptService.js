@@ -1,8 +1,11 @@
-require('dotenv').config()
-const channelBotTranslationService = require("./personalityService")
-const historyService = require("./historyService")
-const memoryService = require("./memoryService")
-const encoder = require("gpt-3-encoder")
+import {config} from "dotenv";
+
+config()
+import channelBotTranslationService from "./personalityService.js";
+import historyService from "./historyService.js";
+import memoryService from "./memoryService.js";
+import encoder from "gpt-3-encoder";
+
 
 class PromptService {
     static getIntroduction(botTranslations, usesIntroduction = true, privateMessage = false) {
@@ -126,4 +129,4 @@ class PromptService {
     }
 }
 
-module.exports = PromptService
+export default PromptService

@@ -1,4 +1,6 @@
-require('dotenv').config()
+import {config} from "dotenv";
+
+config()
 
 class MessageService {
     static parse(msg) {
@@ -13,4 +15,4 @@ class MessageService {
     }
 }
 
-module.exports = MessageService
+export default MessageService

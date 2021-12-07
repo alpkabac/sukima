@@ -1,4 +1,4 @@
-const {APIMessage, Structures} = require("discord.js");
+import {APIMessage, Structures} from "discord.js";
 
 class ExtAPIMessage extends APIMessage {
     resolveData() {
@@ -25,8 +25,11 @@ class Message extends Structures.get("Message") {
     }
 
     edit(content, options) {
-        return super.edit(ExtAPIMessage.create(this, content, options).resolveData()).catch(e=>{})
+        return super.edit(ExtAPIMessage.create(this, content, options).resolveData()).catch(e => {
+        })
     }
 }
 
 Structures.extend("Message", () => Message);
+
+export default {}

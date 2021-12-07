@@ -1,6 +1,8 @@
-require('dotenv').config()
-const Command = require("./Command");
-const MuteService = require("../muteService");
+import {config} from "dotenv";
+
+config()
+import Command from './Command.js'
+import MuteService from '../muteService.js'
 
 const muteCommands = {
     mute: new Command(
@@ -19,7 +21,7 @@ const muteCommands = {
         [],
         process.env.ALLOW_MUTE,
         (msg, from, channel, command) => {
-            MuteService.setChannelMuteStatus(channel, true)
+            MuteService.setChannelMuteStatus(channel, false)
             return {success: true}
         }
     )
@@ -30,4 +32,4 @@ muteCommands.all = [
     muteCommands.unmute
 ]
 
-module.exports = muteCommands
+export default muteCommands

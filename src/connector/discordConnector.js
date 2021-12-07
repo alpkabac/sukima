@@ -1,7 +1,22 @@
-require('dotenv').config()
-const {Client} = require("discord.js")
-require("../discord/ExtAPIMessage");
-const voices = JSON.parse(JSON.stringify(require('../tts/languages.json')))
+import dotenv from 'dotenv'
+dotenv.config()
+
+import {Client} from 'discord.js'
+import '../discord/ExtAPIMessage.js'
+import botService from "../botService.js";
+import savingService from "../savingService.js";
+import messageCommands from "../command/messageCommands.js";
+import historyService from "../historyService.js";
+import encoder from "gpt-3-encoder";
+import aiService from "../aiService.js";
+import promptService from "../promptService.js";
+import updateBotInfo from "../discord/discordUtils.js";
+import utils from "../utils.js";
+import channelBotTranslationService from "../personalityService.js";
+
+const voices = utils.load('./src/tts/languages.json')
+savingService.loadAllChannels()
+
 
 const bot = new Client({
     allowedMentions: {
@@ -9,22 +24,6 @@ const bot = new Client({
         repliedUser: false
     }
 });
-
-const botService = require('../botService')
-const channelBotTranslationService = require('../personalityService')
-const {getInterval} = require("../utils")
-const Utils = require("../utils")
-const utils = require("../utils")
-const updateBotInfo = require("../discord/discordUtils");
-const promptService = require("../promptService");
-const aiService = require("../aiService");
-const encoder = require("gpt-3-encoder")
-const historyService = require("../historyService");
-const messageCommands = require("../command/messageCommands");
-
-
-const savingService = require("../savingService");
-savingService.loadAllChannels()
 
 bot.login(process.env.TOKEN)
 const channels = []
@@ -277,7 +276,7 @@ bot.on('ready', async () => {
                     }
                 }
                 if (connection) {
-                    await Utils.tts(connection, msg, channelBotTranslationService.getChannelPersonality(channel).voice)
+                    await utils.tts(connection, msg, channelBotTranslationService.getChannelPersonality(channel).voice)
                 } else {
                     console.log("Could not establish TTS connection.")
                 }
@@ -306,9 +305,12 @@ bot.on('ready', async () => {
 
             bot.channels.cache.forEach(c => {
                 if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
-                    if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction.length > 0) {
-                        c.send(replaceAsterisksByBackQuotes(`${channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction[0].msg}`)).catch(() => null)
-                    }
+                    if (historyService.getChannelHistory(`#${c.name.toLowerCase()}`).length === 0)
+                        if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction.length > 0)
+                            c.send(replaceAsterisksByBackQuotes(
+                                `${channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction[0].msg}`
+                            ))
+                                .catch(() => null)
                 }
             })
         }
@@ -360,7 +362,7 @@ bot.on('message', async msg => {
         : "#" + msg.channel.name
 
 
-    if (!Utils.isMessageFromAllowedChannel(channelName)) {
+    if (!utils.isMessageFromAllowedChannel(channelName)) {
         return
     }
 
@@ -423,6 +425,11 @@ bot.on('message', async msg => {
     savingService.save(channelName)
     locked = false
 
+    if (message && message.permissionError) {
+        await originalMsg.react("⛔").catch(() => null)
+        return
+    }
+
     if (message && message.error) {
         await originalMsg.react("❌").catch(() => null)
         await originalMsg.inlineReply(message.error).catch(() => null)
@@ -431,46 +438,20 @@ bot.on('message', async msg => {
         await originalMsg.react("✅").catch(() => null)
     }
 
-    if (message && message.permissionError) {
-        await originalMsg.react("⛔").catch(() => null)
-    } else if (message?.message?.trim().length > 0) {
+    if (message?.message?.trim().length > 0) {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
 
         voiceChannel = msg.member?.voice?.channel
         const timeToWait = message.instantReply ? 0 : encoder.encode(message.message).length * 50
         channels[channelName].startTyping().then()
         await utils.sleep(timeToWait)
-        if (cleanContent.startsWith("²") && cleanContent.length === 1) {
+
+
+        if (message.editLastMessage) {
             channels[channelName].lastBotMessage?.edit(parsedMessage)
-            originalMsg.delete().catch(() => null)
-        } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
+        } else if (message.appendToLastMessage) {
             channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
-            originalMsg.delete().catch(() => null)
-        } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-            await originalMsg.channel.send(parsedMessage).catch(() => null)
-            originalMsg.delete().catch(() => null)
-        } else if (cleanContent.startsWith("!danbooru") && message.error) {
-            await originalMsg.react("🤷").catch(() => null)
-            channels[channelName].stopTyping(true)
-            await originalMsg.react("🇹").catch(() => null)
-            await utils.sleep(200)
-            await originalMsg.react("🇷").catch(() => null)
-            await utils.sleep(200)
-            await originalMsg.react("🇾").catch(() => null)
-            await utils.sleep(200)
-            await originalMsg.react("🔄").catch(() => null)
-            await utils.sleep(3000)
-            originalMsg.delete().catch(() => null)
-            channels[channelName].stopTyping(true)
-            return
-        } else if (message.message.startsWith("\nLoaded bot")) {
-            await originalMsg.inlineReply(parsedMessage).catch(() => null)
-            if (speak) await speak(message.message.split("\n")[2], channelName)
-            channels[channelName].stopTyping(true)
-            return
-        } else if (cleanContent.startsWith("!property") || cleanContent.startsWith("!event")) {
-            await originalMsg.react("✅").catch(() => null)
-        } else if (originalMsg) {
+        } else {
             if (message.image) {
                 await originalMsg.inlineReply({
                     message: parsedMessage, files: [{
@@ -484,9 +465,14 @@ bot.on('message', async msg => {
         }
 
         channels[channelName].stopTyping(true)
+
         if (speak && !message.message.startsWith("#")) {
-            await speak(message.message, channelName)
+            await speak(parsedMessage, channelName)
         }
+    }
+
+    if (message.deleteUserMsg) {
+        originalMsg.delete().catch(() => null)
     }
 });
 
@@ -512,7 +498,7 @@ async function loop() {
         }
     }
 
-    setTimeout(loop, getInterval())
+    setTimeout(loop, utils.getInterval())
 }
 
 setInterval(async () => {
@@ -555,6 +541,6 @@ setInterval(async () => {
     }
 }, parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
 
-setTimeout(loop, getInterval())
+setTimeout(loop, utils.getInterval())
 
-module.exports = {}
+export default {}

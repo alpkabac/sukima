@@ -1,5 +1,5 @@
-const utils = require("../utils");
-const MuteService = require("../muteService");
+import utils from "../utils.js";
+import MuteService from "../muteService.js";
 
 /**
  * Main class to define commands
@@ -59,4 +59,4 @@ class Command {
     }
 }
 
-module.exports = Command
+export default Command

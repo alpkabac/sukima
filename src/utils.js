@@ -1,9 +1,23 @@
-const conf = require('../conf.json')
-const textToSpeech = require('@google-cloud/text-to-speech')
-const fs = require("fs");
-const Duplex = require('stream').Duplex
+import {config} from "dotenv";
 
+config()
+import textToSpeech from "@google-cloud/text-to-speech";
+import fs from "fs";
+import {Duplex} from "stream";
+
+const conf = load("./conf.json")
 const client = new textToSpeech.TextToSpeechClient()
+
+
+function load (filename) {
+    let file
+    try {
+        file = fs.readFileSync(filename)
+        return JSON.parse(file)
+    } catch (err) {
+        console.error(err)
+    }
+}
 
 class Utils {
     /**
@@ -127,14 +141,8 @@ class Utils {
     }
 
     static load(filename) {
-        let file
-        try {
-            file = fs.readFileSync(filename)
-            return JSON.parse(file)
-        } catch (err) {
-            console.error(err)
-        }
+        return load(filename)
     }
 }
 
-module.exports = Utils
+export default Utils

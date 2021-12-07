@@ -1,7 +1,11 @@
-require('dotenv').config()
-const Command = require("./Command");
-const channelBotTranslationService = require("../personalityService");
-const voices = JSON.parse(JSON.stringify(require('../tts/languages.json')))
+import {config} from "dotenv";
+
+config()
+import Command from "./Command.js";
+import channelBotTranslationService from "../personalityService.js";
+import utils from '../utils.js'
+const voices = utils.load("./src/tts/languages.json")
+
 
 const voiceCommands = {
     setVoice: new Command(
@@ -43,4 +47,4 @@ voiceCommands.all = [
     voiceCommands.setVoice,
 ]
 
-module.exports = voiceCommands
+export default voiceCommands

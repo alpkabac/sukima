@@ -1,9 +1,13 @@
-require('dotenv').config()
-const Command = require("./Command");
-const utils = require("../utils");
-const aiService = require("../aiService");
-const loreGenerationToolEntries = require("../../data/generationPrompt/loreGenerationToolEntries.json");
-const encoder = require("gpt-3-encoder");
+import {config} from "dotenv";
+
+config()
+import Command from "./Command.js";
+import utils from "../utils.js";
+import aiService from "../aiService.js";
+import encoder from "gpt-3-encoder";
+
+const loreGenerationToolEntries = utils.load("./data/generationPrompt/loreGenerationToolEntries.json")
+
 
 const promptCommands = {
     prompt: new Command(
@@ -82,4 +86,4 @@ promptCommands.all = [
     promptCommands.lgt,
 ]
 
-module.exports = promptCommands
+export default promptCommands

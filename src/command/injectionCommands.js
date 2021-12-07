@@ -1,7 +1,10 @@
-require('dotenv').config()
-const Command = require("./Command");
-const historyService = require("../historyService");
-const utils = require("../utils");
+import {config} from "dotenv";
+
+config()
+import Command from "./Command.js";
+import historyService from "../historyService.js";
+import utils from "../utils.js";
+
 
 const injectionCommands = {
     event: new Command(
@@ -47,4 +50,4 @@ injectionCommands.all = [
     injectionCommands.property
 ]
 
-module.exports = injectionCommands
+export default injectionCommands

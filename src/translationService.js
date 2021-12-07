@@ -1,5 +1,7 @@
-require('dotenv').config()
-const conf = require('../conf.json')
+import {config} from "dotenv";
+import utils from "./utils.js";
+
+config()
 
 class TranslationsService {
     static _translations
@@ -13,7 +15,7 @@ class TranslationsService {
 
     static changeLanguage(code = "en-EN") {
         try {
-            this._translations = require(`../translations/${code}.json`)
+            this._translations = utils.load(`../translations/${code}.json`)
             return true
         } catch (e) {
             this._translations = require(`../translations/en-EN.json`)
@@ -22,4 +24,4 @@ class TranslationsService {
     }
 }
 
-module.exports = TranslationsService
+export default TranslationsService

@@ -1,1 +1,1 @@
-const bot = require('./src/connector/discordConnector')
+import './src/connector/discordConnector.js'

@@ -1,7 +1,10 @@
-require('dotenv').config()
-const Command = require("./Command");
-const historyService = require("../historyService");
-const DanbooruService = require("../externalApi/danbooruService");
+import {config} from "dotenv";
+
+config()
+import Command from "./Command.js";
+import historyService from "../historyService.js";
+import DanbooruService from "../externalApi/danbooruService.js";
+
 
 const danbooruCommands = {
     danbooru: new Command(
@@ -25,7 +28,9 @@ const danbooruCommands = {
                     image: result.large_file_url
                 }
             } else {
-                return {error: `# I'm sorry, but your search didn't return any result... Maybe try another keyword!`}
+                return {
+                    error: `# I'm sorry, but your search didn't return any result... Maybe try another keyword!`
+                }
             }
         },
         false
@@ -36,4 +41,4 @@ danbooruCommands.all = [
     danbooruCommands.danbooru,
 ]
 
-module.exports = danbooruCommands
+export default danbooruCommands

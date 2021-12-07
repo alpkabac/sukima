@@ -1,6 +1,8 @@
-require('dotenv').config()
-const irc = require('irc');
-const conf = require('../conf.json')
+import {config} from "dotenv";
+
+config()
+
+import irc from "irc";
 
 const allowedChannels = process.env.ALLOWED_CHANNEL_NAMES
     .split(',')
@@ -13,4 +15,4 @@ const ircClient = new irc.Client(process.env.IRC_SERVER || "irc.libera.chat", pr
     password: process.env.PASSWORD,
 });
 
-module.exports = ircClient
+export default ircClient

@@ -1,10 +1,12 @@
-require('dotenv').config()
-const Command = require("./Command");
-const historyService = require("../historyService");
-const utils = require("../utils");
-const promptService = require("../promptService");
-const aiService = require("../aiService");
-const translationsService = require("../translationService");
+import {config} from "dotenv";
+
+config()
+import Command from "./Command.js";
+import historyService from "../historyService.js";
+import utils from "../utils.js";
+import promptService from "../promptService.js";
+import aiService from "../aiService.js";
+import translationsService from "../translationService.js";
 
 const messageCommands = {
     noContextMessage: new Command(
@@ -13,7 +15,7 @@ const messageCommands = {
         ["!!"],
         process.env.ALLOW_NO_CONTEXT_MESSAGE,
         async (msg, from, channel, command) => {
-            const message = utils.upperCaseFirstLetter(msg.slice(1))
+            const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             historyService.pushIntoHistory(message, from, channel)
             const prompt = promptService.getNoContextPrompt(message, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
@@ -38,7 +40,7 @@ const messageCommands = {
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: answer, success: true}
+            return {message: answer, success: true, deleteUserMsg: true, appendToLastMessage: true}
         },
         false
     ),
@@ -58,7 +60,26 @@ const messageCommands = {
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: answer, success: true}
+            return {message: answer, success: true, deleteUserMsg: true, editLastMessage: true}
+        },
+        false
+    ),
+    editMessage: new Command(
+        "Edit Message",
+        [],
+        ["!edit "],
+        process.env.ALLOW_EDIT_MESSAGE,
+        async (msg, from, channel, command) => {
+            const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
+            historyService.getChannelHistory(channel).reverse()
+            for (let h of historyService.getChannelHistory(channel)) {
+                if (h.from === process.env.BOTNAME) {
+                    h.msg = message
+                    break
+                }
+            }
+            historyService.getChannelHistory(channel).reverse()
+            return {message: message, success: true, deleteUserMsg: true, editLastMessage: true}
         },
         false
     ),
@@ -68,14 +89,14 @@ const messageCommands = {
         ["?", "!talk"],
         process.env.ALLOW_ANSWER_MESSAGE,
         async (msg, from, channel, command) => {
-            const message = utils.upperCaseFirstLetter(msg.slice(1)).trim()
+            const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             if (message) {
                 historyService.pushIntoHistory(message, from, channel)
             }
             const prompt = promptService.getPrompt(msg, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer, success: !message.length}
+            return {message: answer, success: !message.length, deleteUserMsg: true}
         },
         false
     ),
@@ -149,6 +170,7 @@ messageCommands.all = [
     messageCommands.noContextMessage,
     messageCommands.continueMessage,
     messageCommands.retryMessage,
+    messageCommands.editMessage,
     messageCommands.answerMessage,
     messageCommands.answerToName,
     messageCommands.answerToName,
@@ -156,4 +178,4 @@ messageCommands.all = [
     // messageCommands.reactToAction,
 ]
 
-module.exports = messageCommands
+export default messageCommands

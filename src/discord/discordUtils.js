@@ -1,6 +1,6 @@
-const channelBotTranslationService = require("../personalityService");
-const {MessageEmbed} = require("discord.js");
-const utils = require('../utils')
+import channelBotTranslationService from "../personalityService.js";
+import {MessageEmbed} from "discord.js";
+import utils from "../utils.js";
 
 function fromBoolToState(s) {
     if (s && s === "true") return 'true'
@@ -111,4 +111,4 @@ function updateBotInfo(botClient) {
 }
 
 
-module.exports = updateBotInfo
+export default updateBotInfo

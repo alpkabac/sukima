@@ -1,7 +1,10 @@
-require('dotenv').config()
-const Command = require("./Command");
-const translationsService = require("../translationService");
-const channelBotTranslationService = require("../personalityService");
+import {config} from "dotenv";
+
+config()
+import Command from "./Command.js";
+import translationsService from "../translationService.js";
+import channelBotTranslationService from "../personalityService.js";
+
 
 const languageCommands = {
     changeLanguage: new Command(
@@ -32,4 +35,4 @@ languageCommands.all = [
     languageCommands.changeLanguage
 ]
 
-module.exports = languageCommands
+export default languageCommands

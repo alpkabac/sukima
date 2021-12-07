@@ -1,7 +1,9 @@
-require('dotenv').config()
-const http = require('http')
-const fs = require('fs')
-const {Server} = require("socket.io");
+import {config} from "dotenv";
+
+config()
+import http from "http";
+import fs from "fs";
+import {Server} from 'socket.io'
 
 const server = http.createServer((req, res) => {
     res.writeHead(200, {'content-type': 'text/html'})
@@ -34,4 +36,4 @@ class LmiService {
     }
 }
 
-module.exports = LmiService
+export default LmiService

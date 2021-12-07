@@ -1,6 +1,9 @@
-require('dotenv').config()
-const Command = require("./Command");
-const channelBotTranslationService = require("../personalityService");
+import {config} from "dotenv";
+
+config()
+import Command from "./Command.js";
+import channelBotTranslationService from "../personalityService.js";
+
 
 const personalityCommands = {
     setPersonality: new Command(
@@ -103,4 +106,4 @@ personalityCommands.all = [
     personalityCommands.displayPersonality,
 ]
 
-module.exports = personalityCommands
+export default personalityCommands

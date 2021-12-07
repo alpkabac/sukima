@@ -1,4 +1,5 @@
-const conf = require('../conf.json')
+import utils from './utils.js'
+const conf = utils.load("./conf.json")
 
 class HistoryService {
     static channelHistories = {}
@@ -25,4 +26,4 @@ class HistoryService {
     }
 }
 
-module.exports = HistoryService
+export default HistoryService

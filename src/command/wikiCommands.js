@@ -1,7 +1,10 @@
-require('dotenv').config()
-const Command = require("./Command");
-const axios = require("axios");
-const historyService = require("../historyService");
+import {config} from "dotenv";
+
+config()
+import Command from "./Command.js";
+import axios from "axios";
+import historyService from "../historyService.js";
+
 
 const wikiCommands = {
     wiki: new Command(
@@ -44,4 +47,4 @@ wikiCommands.all = [
     wikiCommands.wiki,
 ]
 
-module.exports = wikiCommands
+export default wikiCommands

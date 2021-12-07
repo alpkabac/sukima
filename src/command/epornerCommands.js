@@ -1,8 +1,10 @@
-require('dotenv').config()
-const Command = require("./Command");
-const historyService = require("../historyService");
-const DanbooruService = require("../externalApi/danbooruService");
-const axios = require("axios");
+import {config} from "dotenv";
+
+config()
+import Command from "./Command.js";
+import historyService from "../historyService.js";
+import axios from "axios";
+
 
 const epornerCommands = {
     eporner: new Command(
@@ -66,4 +68,4 @@ epornerCommands.all = [
     epornerCommands.eporner,
 ]
 
-module.exports = epornerCommands
+export default epornerCommands

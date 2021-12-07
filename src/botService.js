@@ -1,8 +1,11 @@
-require('dotenv').config()
-const utils = require('./utils')
-const translationsService = require('./translationService')
-const messageCommands = require("./command/messageCommands");
-const commands = require("./command/commands");
+import {config} from "dotenv";
+
+config()
+import utils from "./utils.js";
+import translationsService from "./translationService.js";
+import messageCommands from "./command/messageCommands.js";
+import commands from "./command/commands.js";
+
 
 function prepareIncomingMessage(message, botName, nick) {
     return utils.replaceNickByBotName(botName, nick, message).trim()
@@ -63,4 +66,4 @@ class BotService {
     }
 }
 
-module.exports = BotService
+export default BotService

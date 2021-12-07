@@ -1,8 +1,11 @@
-require('dotenv').config()
-const Command = require("./Command");
-const memoryService = require("../memoryService");
-const historyService = require("../historyService");
-const channelBotTranslationService = require("../personalityService");
+import {config} from "dotenv";
+
+config()
+import Command from "./Command.js";
+import memoryService from "../memoryService.js";
+import historyService from "../historyService.js";
+import channelBotTranslationService from "../personalityService.js";
+
 
 const memoryCommands = {
     remember: new Command(
@@ -120,4 +123,4 @@ memoryCommands.all = [
     memoryCommands.deleteChannelHistory,
 ]
 
-module.exports = memoryCommands
+export default memoryCommands

@@ -1,16 +1,16 @@
-const muteCommands = require("../command/muteCommands");
-const memoryCommands = require("../command/memoryCommands");
-const languageCommands = require("../command/languageCommands");
-const promptCommands = require("../command/promptCommands");
-const voiceCommands = require("../command/voiceCommands");
-const injectionCommands = require("../command/injectionCommands");
-const wikiCommands = require("../command/wikiCommands");
-const danbooruCommands = require("../command/danbooruCommands");
-const epornerCommands = require("../command/epornerCommands");
-const personalityCommands = require("../command/personalityCommands");
-const messageCommands = require("../command/messageCommands");
+import muteCommands from "../command/muteCommands.js";
+import memoryCommands from "../command/memoryCommands.js";
+import languageCommands from "../command/languageCommands.js";
+import promptCommands from "../command/promptCommands.js";
+import voiceCommands from "../command/voiceCommands.js";
+import injectionCommands from "../command/injectionCommands.js";
+import wikiCommands from "../command/wikiCommands.js";
+import danbooruCommands from "../command/danbooruCommands.js";
+import epornerCommands from "../command/epornerCommands.js";
+import personalityCommands from "../command/personalityCommands.js";
+import messageCommands from "../command/messageCommands.js";
 
-module.exports = {
+export default {
     onMessageCommands: []
         .concat(muteCommands.all)
         .concat(memoryCommands.all)

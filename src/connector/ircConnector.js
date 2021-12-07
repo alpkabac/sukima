@@ -1,9 +1,11 @@
-require('dotenv').config()
-const ircClient = require('../ircClient')
-const botService = require('../botService')
-const {getInterval} = require("../utils");
-const messageCommands = require("../command/messageCommands");
-const historyCommands = require("../command/memoryCommands");
+import {config} from "dotenv";
+
+config()
+import ircClient from "../ircClient.js";
+import botService from "../botService.js";
+import {getInterval} from "../utils.js";
+import messageCommands from "../command/messageCommands.js";
+import historyCommands from "../command/memoryCommands.js";
 
 let lastMessageTimestamp = Date.now()
 let timeStep = getInterval()
@@ -147,4 +149,4 @@ async function main() {
 
 //main()
 
-module.exports = IrcConnector
+export default IrcConnector

@@ -1,9 +1,12 @@
-const axios = require("axios");
-const conf = require("../conf.json");
-const messageService = require("./messageService");
-const lmiService = require("./lmiService");
-const {sleep} = require("./utils");
+import {config} from "dotenv";
 
+config()
+import axios from "axios";
+import utils from './utils.js'
+import messageService from "./messageService.js";
+import lmiService from "./lmiService.js";
+
+const conf = utils.load("./conf.json")
 let lastGenerationTimestamp = Date.now()
 
 const getAccessToken = async (access_key) => {
@@ -100,7 +103,7 @@ const generate = async function (input, params, lowPriority = false) {
         isProcessing = true
         const timeDiff = Date.now() - lastGenerationTimestamp
         lastGenerationTimestamp = Date.now()
-        await sleep(timeDiff < timeStep ? timeStep - timeDiff : 0)
+        await utils.sleep(timeDiff < timeStep ? timeStep - timeDiff : 0)
         const res = await generateUnthrottled(ACCESS_TOKEN, input, params)
         isProcessing = false
         return res
@@ -178,4 +181,4 @@ class AiService {
     }
 }
 
-module.exports = AiService
+export default AiService

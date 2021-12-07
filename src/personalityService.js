@@ -1,4 +1,8 @@
-require('dotenv').config()
+import {config} from "dotenv";
+
+config()
+import utils from "./utils.js";
+
 
 class PersonalityService {
     static channelBotTranslations = {}
@@ -12,17 +16,17 @@ class PersonalityService {
 
     static changeChannelPersonality(channel, code = process.env.TRANSLATION_FILE || "en-EN", botName = process.env.BOTNAME) {
         try {
-            this.channelBotTranslations[channel] = JSON.parse(JSON.stringify(require(`../translations/aiPersonality/${botName}/${code}.json`)))
+            this.channelBotTranslations[channel] = utils.load(`./translations/aiPersonality/${botName}/${code}.json`)
             return true
         } catch (e) {
             try {
-                this.channelBotTranslations[channel] = JSON.parse(JSON.stringify(require(`../translations/aiPersonality/${botName}/${process.env.TRANSLATION_FILE}.json`)))
+                this.channelBotTranslations[channel] = utils.load(`./translations/aiPersonality/${botName}/${process.env.TRANSLATION_FILE}.json`)
             } catch (e2) {
-                this.channelBotTranslations[channel] = JSON.parse(JSON.stringify(require(`../translations/aiPersonality/CustomAI/en-EN.json`)))
+                this.channelBotTranslations[channel] = utils.load(`./translations/aiPersonality/CustomAI/en-EN.json`)
             }
             return false
         }
     }
 }
 
-module.exports = PersonalityService
+export default PersonalityService

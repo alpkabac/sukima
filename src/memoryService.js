@@ -25,4 +25,4 @@ class MemoryService {
     }
 }
 
-module.exports = MemoryService
+export default MemoryService

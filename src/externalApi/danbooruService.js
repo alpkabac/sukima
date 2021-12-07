@@ -1,4 +1,4 @@
-const axios = require("axios");
+import axios from "axios";
 
 class DanbooruService {
     static async getTags(tags) {
@@ -21,4 +21,4 @@ class DanbooruService {
     }
 }
 
-module.exports = DanbooruService
+export default DanbooruService
