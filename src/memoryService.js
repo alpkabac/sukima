@@ -2,11 +2,11 @@ class MemoryService {
     static channelMemories = {}
 
     static getChannelMemory(channel) {
-        return !this.channelMemories[channel] ? [] : this.channelMemories[channel]
+        return !MemoryService.channelMemories[channel] ? [] : MemoryService.channelMemories[channel]
     }
 
     static getChannelMemoryForUser(channel, user) {
-        return MemoryService.getChannelMemory(channel)[user]
+        return MemoryService.getChannelMemory(channel)?.[user]
     }
 
     static setUserMemoryInChannel(msg, user, channel) {

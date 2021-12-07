@@ -60,199 +60,195 @@ bot.on('ready', async () => {
     setJSONPersonality = async function (msg, from, channel, roles) {
         const command = "!setJSONPersonality "
 
-        if (msg.toLowerCase().startsWith(command.toLowerCase())) {
-            if (!utils.checkPermissions(roles, process.env.ALLOW_SET_JSON_PERSONALITY, channel.startsWith("##"))) return true
+        if (!msg.toLowerCase().startsWith(command.toLowerCase())) return false
+        if (!utils.checkPermissions(roles, process.env.ALLOW_SET_JSON_PERSONALITY, channel.startsWith("##"))) return true
 
-            let success = true
-            let errorMessages = ""
+        let success = true
+        let errorMessages = ""
 
-            if (!process.env.ENABLE_CUSTOM_AI || process.env.ENABLE_CUSTOM_AI.toLowerCase() !== "true") {
-                return {message: "# Sorry, but this command is not enabled on this AI.", channel}
+        if (!process.env.ENABLE_CUSTOM_AI || process.env.ENABLE_CUSTOM_AI.toLowerCase() !== "true") {
+            return {message: "# Sorry, but this command is not enabled on this AI.", channel}
+        }
+
+        const personalityJSON = msg.replace(command, "")
+        let personality
+        try {
+            personality = JSON.parse(personalityJSON)
+        } catch (e) {
+            return {message: "# JSON could not be parsed", channel}
+        }
+
+        const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
+
+        if (personality.target !== undefined) {
+            if (personality.target.toLowerCase() !== process.env.BOTNAME.toLowerCase()) {
+                return true
             }
+        } else {
+            return {
+                message: "# The `target` property is mandatory and should be a string containing the name of the target bot",
+                channel
+            }
+        }
 
-            const personalityJSON = msg.replace(command, "")
-            let personality
+        if (personality.username !== undefined && !channel.startsWith("##")) {
             try {
-                personality = JSON.parse(personalityJSON)
+                await bot.user.setUsername(personality.username)
+                process.env.BOTNAME = personality.username
             } catch (e) {
-                return {message: "# JSON could not be parsed", channel}
-            }
-
-            const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
-
-            if (personality.target !== undefined) {
-                if (personality.target.toLowerCase() !== process.env.BOTNAME.toLowerCase()) {
-                    return true
-                }
-            } else {
                 return {
-                    message: "# The `target` property is mandatory and should be a string containing the name of the target bot",
+                    message: `# Personality failed to load: Username already taken by too many people or was changed too recently`,
                     channel
                 }
             }
+        }
 
-            if (personality.username !== undefined && !channel.startsWith("##")) {
-                try {
-                    await bot.user.setUsername(personality.username)
-                    process.env.BOTNAME = personality.username
-                } catch (e) {
-                    return {
-                        message: `# Personality failed to load: Username already taken by too many people or was changed too recently`,
-                        channel
-                    }
+        if (personality.avatar !== undefined && !channel.startsWith("##")) {
+            try {
+                await bot.user.setAvatar(personality.avatar)
+            } catch (e) {
+                return {
+                    message: `# Personality failed to load: The avatar couldn't be loaded or was changed too recently`,
+                    channel
                 }
             }
+        }
 
-            if (personality.avatar !== undefined && !channel.startsWith("##")) {
-                try {
-                    await bot.user.setAvatar(personality.avatar)
-                } catch (e) {
-                    return {
-                        message: `# Personality failed to load: The avatar couldn't be loaded or was changed too recently`,
-                        channel
-                    }
+        if (personality.description !== undefined) {
+            aiPersonality.description = personality.description
+        }
+
+        if (personality.contextDm !== undefined) {
+            aiPersonality.contextDm = personality.contextDm
+        }
+
+        if (personality.context !== undefined) {
+            aiPersonality.context = personality.context
+        }
+
+        if (personality.noContextSentence !== undefined) {
+            aiPersonality.noContextSentence = personality.noContextSentence
+        }
+
+        if (personality.noContextSentence !== undefined) {
+            aiPersonality.noContextSentence = personality.noContextSentence
+        }
+
+        if (personality.voice !== undefined) {
+            const selectedVoice = voices.voices
+                .find(v => v.name.toLowerCase() === personality.voice.toLowerCase())
+            if (selectedVoice) {
+                aiPersonality.voice = selectedVoice
+            } else {
+                success = false
+                errorMessages += "The voice isn't recognized\n"
+            }
+        }
+
+        if (personality.introduction !== undefined) {
+            aiPersonality.introduction = personality.introduction.split("\n").map((l) => {
+                return {
+                    from: process.env.BOTNAME,
+                    msg: l
                 }
-            }
+            })
+        }
 
-            if (personality.description !== undefined) {
-                aiPersonality.description = personality.description
-            }
-
-            if (personality.contextDm !== undefined) {
-                aiPersonality.contextDm = personality.contextDm
-            }
-
-            if (personality.context !== undefined) {
-                aiPersonality.context = personality.context
-            }
-
-            if (personality.noContextSentence !== undefined) {
-                aiPersonality.noContextSentence = personality.noContextSentence
-            }
-
-            if (personality.noContextSentence !== undefined) {
-                aiPersonality.noContextSentence = personality.noContextSentence
-            }
-
-            if (personality.voice !== undefined) {
-                const selectedVoice = voices.voices
-                    .find(v => v.name.toLowerCase() === personality.voice.toLowerCase())
-                if (selectedVoice) {
-                    aiPersonality.voice = selectedVoice
-                } else {
-                    success = false
-                    errorMessages += "The voice isn't recognized\n"
+        if (personality.introductionDm !== undefined) {
+            aiPersonality.introductionDm = personality.introductionDm.split("\n").map((l) => {
+                return {
+                    from: process.env.BOTNAME,
+                    msg: l
                 }
-            }
+            })
+        }
 
-            if (personality.introduction !== undefined) {
-                aiPersonality.introduction = personality.introduction.split("\n").map((l) => {
-                    return {
-                        from: process.env.BOTNAME,
-                        msg: l
-                    }
-                })
-            }
+        const JSONPersonality = JSON.parse(JSON.stringify(aiPersonality))
 
-            if (personality.introductionDm !== undefined) {
-                aiPersonality.introductionDm = personality.introductionDm.split("\n").map((l) => {
-                    return {
-                        from: process.env.BOTNAME,
-                        msg: l
-                    }
-                })
-            }
+        if (personality.ENABLE_DM !== undefined && !channel.startsWith("##")) {
+            process.env.ENABLE_DM = "" + personality.ENABLE_DM
+            JSONPersonality.ENABLE_DM = "" + personality.ENABLE_DM
+        }
 
-            const JSONPersonality = JSON.parse(JSON.stringify(aiPersonality))
+        if (personality.ENABLE_TTS !== undefined && !channel.startsWith("##")) {
+            process.env.ENABLE_TTS = "" + personality.ENABLE_TTS
+            JSONPersonality.ENABLE_TTS = "" + personality.ENABLE_TTS
+        }
 
-            if (personality.ENABLE_DM !== undefined && !channel.startsWith("##")) {
-                process.env.ENABLE_DM = "" + personality.ENABLE_DM
-                JSONPersonality.ENABLE_DM = "" + personality.ENABLE_DM
-            }
+        if (personality.ENABLE_INTRO !== undefined && !channel.startsWith("##")) {
+            process.env.ENABLE_INTRO = "" + personality.ENABLE_INTRO
+            JSONPersonality.ENABLE_INTRO = "" + personality.ENABLE_INTRO
+        }
 
-            if (personality.ENABLE_TTS !== undefined && !channel.startsWith("##")) {
-                process.env.ENABLE_TTS = "" + personality.ENABLE_TTS
-                JSONPersonality.ENABLE_TTS = "" + personality.ENABLE_TTS
-            }
-
-            if (personality.ENABLE_INTRO !== undefined && !channel.startsWith("##")) {
-                process.env.ENABLE_INTRO = "" + personality.ENABLE_INTRO
-                JSONPersonality.ENABLE_INTRO = "" + personality.ENABLE_INTRO
-            }
-
-            if (personality.ENABLE_AUTO_ANSWER !== undefined && !channel.startsWith("##")) {
-                process.env.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
-                JSONPersonality.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
-            }
+        if (personality.ENABLE_AUTO_ANSWER !== undefined && !channel.startsWith("##")) {
+            process.env.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
+            JSONPersonality.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
+        }
 
 
-            if (JSONPersonality?.voice?.name) {
-                JSONPersonality.voice = JSONPersonality.voice.name
-            }
+        if (JSONPersonality?.voice?.name) {
+            JSONPersonality.voice = JSONPersonality.voice.name
+        }
 
-            if (personality.voice !== undefined) {
-                JSONPersonality.voice = aiPersonality.voice.name
-            }
+        if (personality.voice !== undefined) {
+            JSONPersonality.voice = aiPersonality.voice.name
+        }
 
-            if (JSONPersonality.introduction) {
-                JSONPersonality.introduction = JSONPersonality.introduction.map(e => e.msg).join("\n")
-            }
+        if (JSONPersonality.introduction) {
+            JSONPersonality.introduction = JSONPersonality.introduction.map(e => e.msg).join("\n")
+        }
 
-            if (JSONPersonality.introductionDm !== undefined) {
-                JSONPersonality.introductionDm = JSONPersonality.introductionDm.map(e => e.msg).join("\n")
-            }
+        if (JSONPersonality.introductionDm !== undefined) {
+            JSONPersonality.introductionDm = JSONPersonality.introductionDm.map(e => e.msg).join("\n")
+        }
 
-            if (success && personality.avatar !== undefined) {
-                JSONPersonality.avatar = personality.avatar
-            }
+        if (success && personality.avatar !== undefined) {
+            JSONPersonality.avatar = personality.avatar
+        }
 
-            JSONPersonality.ENABLE_INTRO = process.env.ENABLE_INTRO
-            JSONPersonality.ENABLE_DM = process.env.ENABLE_DM
-            JSONPersonality.ENABLE_TTS = process.env.ENABLE_TTS
-            JSONPersonality.ENABLE_AUTO_ANSWER = process.env.ENABLE_AUTO_ANSWER
+        JSONPersonality.ENABLE_INTRO = process.env.ENABLE_INTRO
+        JSONPersonality.ENABLE_DM = process.env.ENABLE_DM
+        JSONPersonality.ENABLE_TTS = process.env.ENABLE_TTS
+        JSONPersonality.ENABLE_AUTO_ANSWER = process.env.ENABLE_AUTO_ANSWER
 
-            JSONPersonality.target = personality.target
-            JSONPersonality.username = process.env.BOTNAME
+        JSONPersonality.target = personality.target
+        JSONPersonality.username = process.env.BOTNAME
 
-            let stringJSONPersonality = JSON.stringify(JSONPersonality, null, 2)
+        let stringJSONPersonality = JSON.stringify(JSONPersonality, null, 2)
+        if (stringJSONPersonality.length > 1700) {
+            stringJSONPersonality = JSON.stringify(JSONPersonality)
             if (stringJSONPersonality.length > 1700) {
-                stringJSONPersonality = JSON.stringify(JSONPersonality)
-                if (stringJSONPersonality.length > 1700) {
-                    stringJSONPersonality = "{ ...JSON was too long to fit into discord's 2000 character limit per message... }"
-                }
+                stringJSONPersonality = "{ ...JSON was too long to fit into discord's 2000 character limit per message... }"
             }
+        }
 
-            updateBotInfo(bot)
-            return {
-                message: "# " + (success ?
-                        `Personality successfully loaded! `
-                        : `Personality loaded, but there were errors while trying to edit the AI personality:\n${errorMessages}\n`)
-                    + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`
-            }
-        } else {
-            return false
+        updateBotInfo(bot)
+        return {
+            message: "# " + (success ?
+                    `Personality successfully loaded! `
+                    : `Personality loaded, but there were errors while trying to edit the AI personality:\n${errorMessages}\n`)
+                + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`
         }
     }
 
-    speak = async function (msg, channel) {
-        if (utils.getBoolFromString(process.env.ENABLE_TTS)) {
-            if (!channelBotTranslationService.getChannelPersonality(channel)?.voice?.languageCode) return
 
-            if (voiceChannel) {
-                connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
-                if (!connection) {
-                    console.log("No connection is present for TTS, getting connection...")
-                    connection = await voiceChannel.join()
-                    if (connection) {
-                        console.log("TTS connection found!")
-                    }
-                }
-                if (connection) {
-                    await utils.tts(connection, msg, channelBotTranslationService.getChannelPersonality(channel).voice)
-                } else {
-                    console.log("Could not establish TTS connection.")
-                }
+    speak = async function (msg, channel) {
+        if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return
+        if (!channelBotTranslationService.getChannelPersonality(channel)?.voice?.languageCode) return
+        if (!voiceChannel) return
+
+        connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
+        if (!connection) {
+            console.log("No connection is present for TTS, getting connection...")
+            connection = await voiceChannel.join()
+            if (connection) {
+                console.log("TTS connection found!")
             }
+        }
+        if (connection) {
+            await utils.tts(connection, msg, channelBotTranslationService.getChannelPersonality(channel).voice)
+        } else {
+            console.log("Could not establish TTS connection.")
         }
     }
 
@@ -270,22 +266,22 @@ bot.on('ready', async () => {
     }
 
     if (utils.getBoolFromString(process.env.ENABLE_INTRO)) {
-        if (process.env.SEND_INTRO_TO_CHANNELS) {
-            const introChannels = process.env.SEND_INTRO_TO_CHANNELS
-                .split(",")
-                .map(v => v.trim())
+        if (!process.env.SEND_INTRO_TO_CHANNELS) return
+        const introChannels = process.env.SEND_INTRO_TO_CHANNELS
+            .split(",")
+            .map(v => v.trim())
 
-            bot.channels.cache.forEach(c => {
-                if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
-                    if (historyService.getChannelHistory(`#${c.name.toLowerCase()}`).length === 0)
-                        if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction.length > 0)
-                            c.send(replaceAsterisksByBackQuotes(
-                                `${channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction[0].msg}`
-                            ))
-                                .catch(() => null)
-                }
-            })
-        }
+        bot.channels.cache.forEach(c => {
+            if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
+                if (historyService.getChannelHistory(`#${c.name.toLowerCase()}`).length === 0)
+                    if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction.length > 0)
+                        c.send(replaceAsterisksByBackQuotes(
+                            `${channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction[0].msg}`
+                        ))
+                            .catch(() => null)
+            }
+        })
+
     }
 
     updateBotInfo(bot)
@@ -293,18 +289,17 @@ bot.on('ready', async () => {
 
 //Greeting feature
 bot.on('guildMemberAdd', async (member) => {
-    if (utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS)) {
-        const channel = member.guild.channels.cache.find(channel => channel.name === process.env.GREET_NEW_USERS_IN_CHANNEL)
+    if (!utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS)) return
+    const channel = member.guild.channels.cache.find(channel => channel.name === process.env.GREET_NEW_USERS_IN_CHANNEL)
+    if (!channel) return
 
-        if (!channel) return
+    let prompt = promptService.getPrompt(null, null, channel, true)
+    prompt += `\nSERVER MESSAGE: User ${member.user.username} joined the discord server!\n${process.env.BOTNAME}`
+    const message = await aiService.sendUntilSuccess(prompt, false)
+    const parsedMessage = replaceAsterisksByBackQuotes(message)
+    if (parsedMessage)
+        channel.send(parsedMessage).catch(() => null)
 
-        let prompt = promptService.getPrompt(null, null, channel, true)
-        prompt += `\nSERVER MESSAGE: User ${member.user.username} joined the discord server!\n${process.env.BOTNAME}`
-        const message = await aiService.sendUntilSuccess(prompt, false)
-        const parsedMessage = replaceAsterisksByBackQuotes(message)
-        if (parsedMessage)
-            channel.send(parsedMessage).catch(() => null)
-    }
 });
 
 // TODO: add configurations for aliases
@@ -315,6 +310,7 @@ function replaceAliases(nick) {
     return nick
 }
 
+// TODO: move into config
 function replaceAliasesInMessage(message, nick) {
     if (nick === "AliceBot") {
         return message
@@ -334,25 +330,19 @@ function replaceAliasesInMessage(message, nick) {
 
 bot.on('message', async msg => {
     const privateMessage = msg.channel.type === "dm"
-
+    if (privateMessage && (!process.env.ENABLE_DM || process.env.ENABLE_DM.toLowerCase() !== "true")) return
     if (privateMessage && msg.author.username !== bot.user.username) {
         const date = new Date()
         console.log(`[${((date.getHours() < 10) ? "0" : "") + date.getHours() + ":" + ((date.getMinutes() < 10) ? "0" : "") + date.getMinutes() + ":" + ((date.getSeconds() < 10) ? "0" : "") + date.getSeconds()}]`
             + ` User ${msg.author.id} sent a DM to ${process.env.BOTNAME}`)
     }
 
-    if (privateMessage && (!process.env.ENABLE_DM || process.env.ENABLE_DM.toLowerCase() !== "true")) {
-        return
-    }
 
     const channelName = privateMessage ?
         "##" + replaceAliases(msg.channel.id)
         : "#" + msg.channel.name
 
-
-    if (!utils.isMessageFromAllowedChannel(channelName)) {
-        return
-    }
+    if (!utils.isMessageFromAllowedChannel(channelName)) return
 
     const originalMsg = msg
     if (!channels[channelName])
@@ -372,18 +362,7 @@ bot.on('message', async msg => {
     }) || []
 
     // React to commands
-    if ((cleanContent.startsWith("²") || cleanContent.startsWith("○")) && cleanContent.length === 1) {
-        await originalMsg.react("🔄").catch(() => null)
-    } else if (cleanContent.startsWith(",") && cleanContent.length === 1) {
-        await originalMsg.react("▶").catch(() => null)
-    } else if (cleanContent.startsWith("?") && cleanContent.length === 1) {
-        await originalMsg.react("⏩").catch(() => null)
-    } else if (cleanContent === "!reset") {
-        await originalMsg.react("💔").catch(() => null)
-        setTimeout(() => {
-            originalMsg.delete().catch(() => null)
-        }, 3000)
-    } else if (cleanContent.startsWith("!setJSONPersonality ")) {
+    if (cleanContent.startsWith("!setJSONPersonality ")) {
         if (!setJSONPersonality) {
             await originalMsg.inlineReply("# Sorry, but this command is not fully loaded. Please try again later!").catch(() => null)
             return
@@ -418,12 +397,23 @@ bot.on('message', async msg => {
         return
     }
 
+
     if (message && message.error) {
         await originalMsg.react("❌").catch(() => null)
         await originalMsg.inlineReply(message.error).catch(() => null)
     }
     if (message && message.success) {
         await originalMsg.react("✅").catch(() => null)
+    }
+
+    if (message && message.reactWith){
+        if (message.reactWith.length > 1){
+            for (let emoji of message.reactWith){
+                await originalMsg.react(emoji).catch(() => null)
+            }
+        }else{
+            await originalMsg.react(message.reactWith).catch(() => null)
+        }
     }
 
     if (message?.message?.trim().length > 0) {

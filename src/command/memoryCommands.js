@@ -1,10 +1,10 @@
 import {config} from "dotenv";
-
-config()
 import Command from "./Command.js";
 import memoryService from "../memoryService.js";
 import historyService from "../historyService.js";
 import channelBotTranslationService from "../personalityService.js";
+
+config()
 
 
 const memoryCommands = {
@@ -44,8 +44,10 @@ const memoryCommands = {
         process.env.ALLOW_REMEMBER,
         (msg, from, channel, command) => {
             const memory = memoryService.getChannelMemoryForUser(channel, from)
+            const message = memory ? "# Your channel memory:\n" + memory :
+                "# Your have no memorized message"
             return {
-                message: "# Your channel memory:\n" + memory,
+                message,
                 success: true
             }
         }),
@@ -105,10 +107,11 @@ const memoryCommands = {
                 return {
                     message:
                         `${presentationMessage.trim()}`,
-                    success: true
+                    success: true,
+                    reactWith: "💔"
                 }
             } else {
-                return {error: "# Something went wrong..."}
+                return {success: true, reactWith: "💔", deleteUserMsg: true}
             }
         }),
 }

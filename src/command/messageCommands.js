@@ -1,12 +1,12 @@
 import {config} from "dotenv";
-
-config()
 import Command from "./Command.js";
 import historyService from "../historyService.js";
 import utils from "../utils.js";
 import promptService from "../promptService.js";
 import aiService from "../aiService.js";
 import translationsService from "../translationService.js";
+
+config()
 
 const messageCommands = {
     noContextMessage: new Command(
@@ -18,9 +18,12 @@ const messageCommands = {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             historyService.pushIntoHistory(message, from, channel)
             const prompt = promptService.getNoContextPrompt(message, from, channel)
-            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+            const answer = await aiService.sendUntilSuccess({
+                prompt,
+                repetition_penalty_range: 1024
+            }, channel.startsWith("##"))
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer}
+            return {message: answer, success: true, reactWith: "🙈"}
         },
         false
     ),
@@ -40,7 +43,7 @@ const messageCommands = {
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: answer, success: true, deleteUserMsg: true, appendToLastMessage: true}
+            return {message: answer, success: true, deleteUserMsg: true, appendToLastMessage: true, reactWith: "▶"}
         },
         false
     ),
@@ -60,7 +63,7 @@ const messageCommands = {
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: answer, success: true, deleteUserMsg: true, editLastMessage: true}
+            return {message: answer, success: true, deleteUserMsg: true, editLastMessage: true, reactWith: "🔄"}
         },
         false
     ),
@@ -96,7 +99,24 @@ const messageCommands = {
             const prompt = promptService.getPrompt(msg, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer, success: !message.length, deleteUserMsg: true}
+            return {message: answer, success: true, reactWith: "⏩"}
+        },
+        false
+    ),
+    forceTalk: new Command(
+        "Force Message",
+        ["?", "!talk"],
+        [],
+        process.env.ALLOW_ANSWER_MESSAGE,
+        async (msg, from, channel, command) => {
+            const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
+            if (message) {
+                historyService.pushIntoHistory(message, from, channel)
+            }
+            const prompt = promptService.getPrompt(msg, from, channel)
+            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+            historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
+            return {message: answer, success: true, deleteUserMsg: true, reactWith: "⏩"}
         },
         false
     ),
@@ -166,6 +186,7 @@ const messageCommands = {
 }
 
 messageCommands.all = [
+    messageCommands.forceTalk,
     messageCommands.comment,
     messageCommands.noContextMessage,
     messageCommands.continueMessage,
