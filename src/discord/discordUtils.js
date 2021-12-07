@@ -16,7 +16,7 @@ function fromStringToBoolOrString(s) {
 function updateBotInfo(botClient) {
 
     botClient.channels.cache.forEach(async channel => {
-        if (channel.name.toLowerCase() === "bots-info") {
+        if (channel?.name?.toLowerCase() === "bots-info") {
 
             // Find info message for this bot
             let existingMessage = null;
