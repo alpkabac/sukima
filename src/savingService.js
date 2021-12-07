@@ -41,7 +41,7 @@ class SavingService {
         try {
             const {personality, history, memory} = utils.load(`./save/${process.env.BOTNAME}/${channel}.json`)
             if (personality) {
-                personalityService.channelBotTranslations[channel] = personality
+                personalityService.channelBotPersonality[channel] = personality
             }
             if (history) {
                 historyService.channelHistories[channel] = history
