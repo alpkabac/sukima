@@ -4,3 +4,4 @@ node_modules
 .env.*
 ./env.*
 google_api.json
+/save/*
