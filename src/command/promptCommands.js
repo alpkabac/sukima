@@ -55,7 +55,7 @@ const promptCommands = {
                         const currentPromptLength = encoder.encode(prompt).length
                         const entryText = `INPUT: ${entry.INPUT}\nOUTPUT: ${entry.OUTPUT}\nKEYS: ${entry.KEYS}\n⁂\n`
                         const entryLength = encoder.encode(entryText).length
-                        if (currentPromptLength + entryLength + placeholderLength >= parseInt(process.env.TOKEN_LIMIT) - 150) {
+                        if (currentPromptLength + entryLength + placeholderLength >= parseInt(process.env.TOKEN_LIMIT || "2048") - 150) {
                             break
                         } else {
                             prompt += entryText

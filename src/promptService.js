@@ -105,7 +105,7 @@ class PromptService {
                 const promptHistoryLength = encoder.encode(promptHistory).length
                 const line = (history[i].from ? `${history[i].from}: ${history[i].msg}` : history[i].msg) + '\n'
                 const lineLength = encoder.encode(line).length
-                if (contextLength + promptHistoryLength + lineLength + lastLineLength < (parseInt(process.env.TOKEN_LIMIT) - 152)) {
+                if (contextLength + promptHistoryLength + lineLength + lastLineLength < (parseInt(process.env.TOKEN_LIMIT || "2048") - 152)) {
                     promptHistory = line + promptHistory
                 } else {
                     couldInsertAllHistory = false
