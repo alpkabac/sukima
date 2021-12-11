@@ -8,6 +8,7 @@ import lmiService from "./lmiService.js";
 import bannedTokensService from "./bannedTokensService.js";
 import phraseBiasService from "./phraseBiasService.js";
 
+
 const conf = utils.load("./conf.json")
 let lastGenerationTimestamp = Date.now()
 
@@ -77,7 +78,7 @@ let isProcessing = false
 // throttles generation at one request per second
 const generate = async function (input, params, lowPriority = false) {
     if (!ACCESS_TOKEN) ACCESS_TOKEN = await getAccessToken(process.env.NOVEL_AI_API_KEY)
-    const timeStep = conf.minTimeBetweenApiRequestsInSeconds * 1000
+    const timeStep = parseInt(conf.minTimeBetweenApiRequestsInSeconds) * 1000
 
     if (lowPriority && isProcessing) {
         return null
@@ -93,8 +94,7 @@ const generate = async function (input, params, lowPriority = false) {
 }
 
 class AiService {
-
-    static async sendUntilSuccess(prompt, preventLMI = false) {
+    static async sendUntilSuccess(prompt, preventLMI, channel) {
         let answer
         let parsedAnswer
         let nbTry = 0
@@ -106,41 +106,22 @@ class AiService {
             const bannedTokens = bannedTokensService.getBannedTokens(channel)
             if (bannedTokens && bannedTokens.length > 0)
                 params.bad_words_ids = bannedTokens
-            console.log("bannedTokens", bannedTokens)
 
             const phraseBiases = phraseBiasService.getPhraseBiases(channel)
             if (phraseBiases && phraseBiases.length > 0)
                 params.logit_bias_exp = phraseBiases
-            console.log("phraseBiases", phraseBiases)
         }
 
         while (!parsedAnswer && ++nbTry <= 3) {
             answer = await this.sendPromptDefault(prompt.prompt, params)
             parsedAnswer = messageService.parse(answer)
         }
+
         if (!preventLMI) {
             lmiService.updateLmi(prompt.prompt, answer, parsedAnswer)
         }
 
         return parsedAnswer
-    }
-
-    static async sendLowPriority(prompt, preventLMI = false) {
-        let answer = await this.sendPrompt(prompt, true)
-
-        if (answer) {
-            const parsedAnswer = messageService.parse(answer)
-            if (!preventLMI) {
-                lmiService.updateLmi(prompt.prompt, answer, parsedAnswer)
-            }
-            return parsedAnswer
-        }
-    }
-
-    static async sendPrompt(prompt, lowPriority = false) {
-        const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
-        params.repetition_penalty_range = prompt.repetition_penalty_range
-        return await this.sendPromptDefault(prompt.prompt, params, lowPriority)
     }
 
     static async sendPromptDefault(prompt, params = DEFAULT_PARAMETERS, lowPriority = false) {

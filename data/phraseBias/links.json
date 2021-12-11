@@ -1,0 +1,8 @@
+[
+  {
+    "sequence": [3740, 1378],
+    "bias": 0.45,
+    "ensure_sequence_finish": true,
+    "generate_once": true
+  }
+]
