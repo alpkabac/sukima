@@ -43,7 +43,7 @@ class Command {
                 if (!utils.checkPermissions(roles, this.permission, channel.startsWith("##")) && (command || commandStartsWith))
                     return {permissionError: true}
 
-            const callbackResult = await this.callback(msg, from, channel, command || commandStartsWith)
+            const callbackResult = await this.callback(msg, from, channel, command || commandStartsWith, roles)
             if (callbackResult) {
                 if (typeof callbackResult === "object"){
                     callbackResult.commandName = this.commandName

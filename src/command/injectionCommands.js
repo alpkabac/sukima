@@ -1,9 +1,9 @@
 import {config} from "dotenv";
-
-config()
 import Command from "./Command.js";
 import historyService from "../historyService.js";
 import utils from "../utils.js";
+
+config()
 
 
 const injectionCommands = {
@@ -12,14 +12,14 @@ const injectionCommands = {
         [],
         ["!event "],
         process.env.ALLOW_EVENT_INJECTION_MESSAGE,
-        async (msg, from, channel, command) => {
-            const event = msg.replace(command, "")
+        async (msg, from, channel, command, roles) => {
+            const event = msg.replace(command, "").trim()
             if (event) {
                 const formattedEvent = event.startsWith("[") && event.endsWith("]") ? event :
                     `[ Event: ${event.trim()} ]`
-                historyService.pushIntoHistory(formattedEvent, null, channel, true)
+                historyService.pushIntoHistory(formattedEvent, null, channel)
 
-                return {message: formattedEvent, success: true}
+                return {message: formattedEvent, success: true, deleteUserMsg: true}
             }
         },
         false
@@ -29,16 +29,16 @@ const injectionCommands = {
         [],
         ["!property "],
         process.env.ALLOW_PROPERTY_INJECTION_MESSAGE,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const fullCommand = msg.replace(command, "").trim()
             const words = fullCommand.split(" ")
-            const key = words.shift()
+            const key = words.shift().replace(':', '')
             const value = words.join(" ")
 
             if (key && value) {
                 const formattedEvent = `[ ${utils.upperCaseFirstLetter(key)}: ${value.trim()} ]`
-                historyService.pushIntoHistory(formattedEvent, null, channel, true)
-                return {message: formattedEvent, success: true}
+                historyService.pushIntoHistory(formattedEvent, null, channel)
+                return {message: formattedEvent, success: true, deleteUserMsg: true}
             }
         },
         false

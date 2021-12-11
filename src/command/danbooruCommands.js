@@ -12,7 +12,7 @@ const danbooruCommands = {
         [],
         ["!danbooru "],
         process.env.ALLOW_DANBOORU,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const search = msg.replace(command, '').trim()
 
             const result = await DanbooruService.getTags(search || null)
@@ -20,7 +20,7 @@ const danbooruCommands = {
             if (result) {
                 historyService.pushIntoHistory(msg, from, channel)
                 const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by searching "${search}" on the hentai website "danbooru" and sending one of the pictures to ${from}. The picture has the tags "${result.tag_string_general}" ]`
-                historyService.pushIntoHistory(formattedEvent, null, channel, true)
+                historyService.pushIntoHistory(formattedEvent, null, channel)
                 return {
                     message: `# Id: ${result?.id}\nTags_string_general: ${result.tag_string_general}\nTag_string_character: ${result.tag_string_character}\nArtist: ${result.tag_string_artist}\nDate: ${result.created_at}\nURL: ||${result.large_file_url}||`,
                     success: true,

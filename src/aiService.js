@@ -64,7 +64,46 @@ const DEFAULT_PARAMETERS = {
     repetition_penalty_slope: 6.66,
     tail_free_sampling: 1,
     prefix: "vanilla",
-    bad_words_ids: null,
+    bad_words_ids: [
+        [
+            27,
+            91,
+            437,
+            1659,
+            5239,
+            91,
+            29
+        ],
+        [
+            1279,
+            91,
+            437,
+            1659,
+            5239,
+            91,
+            29
+        ],
+        [
+            27,
+            91,
+            10619,
+            46,
+            9792,
+            13918,
+            91,
+            29
+        ],
+        [
+            1279,
+            91,
+            10619,
+            46,
+            9792,
+            13918,
+            91,
+            29
+        ]
+    ],
 }
 
 const generateUnthrottled = async (accessToken, input, params) => {

@@ -13,7 +13,7 @@ const voiceCommands = {
         [],
         ["!setVoice "],
         process.env.ALLOW_SET_VOICE,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const voice = msg.replace(command, "")
 
             const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)

@@ -15,7 +15,6 @@ import channelBotTranslationService from "../personalityService.js";
 dotenv.config()
 
 const voices = utils.load('./src/tts/languages.json')
-savingService.loadAllChannels()
 
 
 const bot = new Client({
@@ -46,6 +45,8 @@ function replaceBackQuotesByAsterisks(text) {
 
 bot.on('ready', async () => {
     console.info(`Logged in as ${bot.user.tag}!`)
+    savingService.loadAllChannels()
+
     process.env.BOTNAME = replaceAliases(bot.user.tag.replace(/#.*$/, ""))
 
     if (process.env.DISCORD_ACTIVITY_NAME) {
@@ -274,7 +275,7 @@ bot.on('ready', async () => {
         bot.channels.cache.forEach(c => {
             if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
                 if (historyService.getChannelHistory(`#${c.name.toLowerCase()}`).length === 0)
-                    if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction.length > 0)
+                    if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase())?.introduction.length > 0)
                         c.send(replaceAsterisksByBackQuotes(
                             `${channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction[0].msg}`
                         ))
@@ -449,7 +450,7 @@ bot.on('message', async msg => {
         }
     }
 
-    if (message.deleteUserMsg) {
+    if (message && message.deleteUserMsg) {
         originalMsg.delete().catch(() => null)
     }
 });
