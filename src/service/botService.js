@@ -1,10 +1,10 @@
 import {config} from "dotenv";
 
 config()
-import utils from "./utils.js";
+import utils from "../utils.js";
 import translationsService from "./translationService.js";
-import messageCommands from "./command/messageCommands.js";
-import commands from "./command/commands.js";
+import messageCommands from "../command/messageCommands.js";
+import commands from "../command/commands.js";
 
 
 function prepareIncomingMessage(message, botName, nick) {

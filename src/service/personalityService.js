@@ -1,5 +1,5 @@
 import {config} from "dotenv";
-import utils from "./utils.js";
+import utils from "../utils.js";
 
 config()
 

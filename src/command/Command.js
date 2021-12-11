@@ -1,5 +1,5 @@
 import utils from "../utils.js";
-import MuteService from "../muteService.js";
+import MuteService from "../service/muteService.js";
 
 /**
  * Main class to define commands

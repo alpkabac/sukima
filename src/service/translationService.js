@@ -1,5 +1,5 @@
 import {config} from "dotenv";
-import utils from "./utils.js";
+import utils from "../utils.js";
 
 config()
 
@@ -18,7 +18,7 @@ class TranslationsService {
             this._translations = utils.load(`../translations/${code}.json`)
             return true
         } catch (e) {
-            this._translations = require(`../translations/en-EN.json`)
+            this._translations = require(`translations/en-EN.json`)
         }
         return false
     }

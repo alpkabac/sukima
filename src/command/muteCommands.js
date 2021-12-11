@@ -2,7 +2,7 @@ import {config} from "dotenv";
 
 config()
 import Command from './Command.js'
-import MuteService from '../muteService.js'
+import MuteService from '../service/muteService.js'
 
 const muteCommands = {
     mute: new Command(

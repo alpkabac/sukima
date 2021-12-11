@@ -2,7 +2,7 @@ import {config} from "dotenv";
 
 config()
 import Command from "./Command.js";
-import channelBotTranslationService from "../personalityService.js";
+import channelBotTranslationService from "../service/personalityService.js";
 import utils from '../utils.js'
 const voices = utils.load("./src/tts/languages.json")
 

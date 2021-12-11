@@ -1,6 +1,6 @@
 import {config} from "dotenv";
 import Command from "./Command.js";
-import historyService from "../historyService.js";
+import historyService from "../service/historyService.js";
 import utils from "../utils.js";
 
 config()
