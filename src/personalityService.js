@@ -1,7 +1,7 @@
 import {config} from "dotenv";
+import utils from "./utils.js";
 
 config()
-import utils from "./utils.js";
 
 
 class PersonalityService {
@@ -24,7 +24,6 @@ class PersonalityService {
             } catch (e2) {
                 this.channelBotPersonality[channel] = utils.load(`./translations/aiPersonality/CustomAI/en-EN.json`)
             }
-            return false
         }
     }
 }

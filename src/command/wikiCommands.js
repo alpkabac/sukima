@@ -12,7 +12,7 @@ const wikiCommands = {
         [],
         ["!wiki "],
         process.env.ALLOW_WIKI,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const search = msg.replace(command, '').trim()
             if (!search || search.length === 0) {
                 return {message: "# You have to provide at least one keyword for the search. Use like this: `!wiki KEYWORD`"}
@@ -29,7 +29,7 @@ const wikiCommands = {
             if (preResult && preResult[1][0] && preResult[3][0]) {
                 historyService.pushIntoHistory(msg, from, channel)
                 const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by searching for "${search}" on wikipedia and sending the link "${preResult[3][0]}" to "${from}" ]`
-                historyService.pushIntoHistory(formattedEvent, null, channel, true)
+                historyService.pushIntoHistory(formattedEvent, null, channel)
 
                 return {
                     message: `# Result found for ${preResult[1][0]}. Follow this link to read more: ${preResult[3][0]}`,

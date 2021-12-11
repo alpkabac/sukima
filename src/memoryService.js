@@ -2,7 +2,8 @@ class MemoryService {
     static channelMemories = {}
 
     static getChannelMemory(channel) {
-        return !MemoryService.channelMemories[channel] ? [] : MemoryService.channelMemories[channel]
+        const arrayExists = !!MemoryService.channelMemories[channel]
+        return arrayExists ? MemoryService.channelMemories[channel] : {}
     }
 
     static getChannelMemoryForUser(channel, user) {

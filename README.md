@@ -137,6 +137,7 @@ Planned: ability to create different list of entries and switch between them to 
 # Prerequisites for NovelAI API (latest and current)
 1. A paid NovelAI account (any tier should do)
 2. Grab your NovelAI API key (you can use this simple [google colab](https://colab.research.google.com/drive/1TKRNYKxWTJXjZcFbhK3RnsuZBpPIdW8_))
+3. Node version 14.x or more
 
 # [DEPRECATED] Prerequisites for 6B parameters AI model
 
@@ -151,22 +152,25 @@ You have to install and run it in order for simple prompt to work
 # Install
 
 1. `npm i` to install node modules
-2. Edit `.env.example`, rename it `.env`
-3. Edit `.env` to configure your bot(s)
+2. Copy `example.general.env`, name it `.env` (this is very important that the file is correctly named `.env`)
+   - `.env` file contains the configs shared by all your bots
+3. Edit the `.env` file and fill the necessary values
+4. Copy `example.personality.env`, name it `YourBotName.env`
+5. Edit the `YourBotName.env` and configure your bot
+   - Each different bot should have its own copy of the `example.personality.env` file
+6. If your bot isn't named Alice (or Lulune or Jarvis or any other current AIs on the official discord)
+   - You need to create the AI own definition files in the `aiPersonalities` folder, see existing folders for example
+   - Each Personality folder should contain only declinations of the same AI (its name should always be the same as the name of the folder and the BOTNAME)
+   - The value `BOTNAME` and `TRANSLATION_FILE` of the `YourBotName.env` file decides which folder is loaded at startup: `./translations/aiPersonality/${BOTNAME}/${TRANSLATION_FILE}.json`
 
 # Launch
 
 ### Discord
-`node ./index_discord.js` for discord version
+You can start one or multiple bots by having different `YourBotName.env` files and starting each one with:  
+`node -r dotenv/config index_discord.js dotenv_config_path=YourBotName.env`
 
 ### IRC
 `node ./index_irc.js` for irc version (most likely deprecated and broken)
-
-### Multiple bots running at the same time
-You can either start a single bot that will use the `.env` file as configuration, or  
-You can start multiple bots by having different `XXX.env` files and starting each one with:  
-`node -r dotenv/config index_discord.js dotenv_config_path=BOTNAME.env`  
-(replace `BOTNAME` by whatever your .env file is named)
 
 # Translations and bot personality
 

@@ -14,7 +14,7 @@ const messageCommands = {
         [],
         ["!!"],
         process.env.ALLOW_NO_CONTEXT_MESSAGE,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             historyService.pushIntoHistory(message, from, channel)
             const prompt = promptService.getNoContextPrompt(message, from, channel)
@@ -32,7 +32,7 @@ const messageCommands = {
         [",", "!continue"],
         [],
         process.env.ALLOW_CONTINUE_MESSAGE,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const prompt = promptService.getPrompt(msg, from, channel, true, false)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
             historyService.getChannelHistory(channel).reverse()
@@ -52,7 +52,7 @@ const messageCommands = {
         ["²", "○", "!retry"],
         [],
         process.env.ALLOW_RETRY_MESSAGE,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const prompt = promptService.getPrompt(msg, from, channel, false, true)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
             historyService.getChannelHistory(channel).reverse()
@@ -72,7 +72,7 @@ const messageCommands = {
         [],
         ["!edit "],
         process.env.ALLOW_EDIT_MESSAGE,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             historyService.getChannelHistory(channel).reverse()
             for (let h of historyService.getChannelHistory(channel)) {
@@ -91,7 +91,7 @@ const messageCommands = {
         [],
         ["?", "!talk"],
         process.env.ALLOW_ANSWER_MESSAGE,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             if (message) {
                 historyService.pushIntoHistory(message, from, channel)
@@ -108,7 +108,7 @@ const messageCommands = {
         ["?", "!talk"],
         [],
         process.env.ALLOW_ANSWER_MESSAGE,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             if (message) {
                 historyService.pushIntoHistory(message, from, channel)
@@ -133,8 +133,13 @@ const messageCommands = {
         [],
         [],
         null,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             historyService.pushIntoHistory(msg, from, channel)
+
+            if (!utils.checkPermissions(roles, process.env.ALLOW_REPLY_TO_NAME, channel.startsWith("##"))){
+                return
+            }
+
             if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
                 const prompt = promptService.getPrompt(msg, from, channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
@@ -149,7 +154,7 @@ const messageCommands = {
         [],
         [],
         null,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             if (!utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) return false
 
             const history = historyService.getChannelHistory(channel)
@@ -172,7 +177,7 @@ const messageCommands = {
         [],
         [],
         process.env.ALLOW_REACTIONS,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const action = translationsService.translations.onAction
                 .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
             historyService.pushIntoHistory(action, from, channel)

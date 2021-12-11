@@ -15,7 +15,7 @@ const promptCommands = {
         [],
         ["!prompt "],
         process.env.ALLOW_PROMPT_MESSAGE,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             const args = /!prompt *(\d*)\n/g.exec(msg);
             if (args && args[1]) {
                 const message = utils.upperCaseFirstLetter(msg.replace(args[0], ""))
@@ -31,7 +31,7 @@ const promptCommands = {
         [],
         ["!lgt "],
         process.env.ALLOW_LORE_GENERATION_TOOL,
-        async (msg, from, channel, command) => {
+        async (msg, from, channel, command, roles) => {
             let input = utils.upperCaseFirstLetter(msg.replace(command, "").trim())
             if (input) {
                 const match = input.match(/^([1-3]) ([^\n]*)/)
@@ -55,7 +55,7 @@ const promptCommands = {
                         const currentPromptLength = encoder.encode(prompt).length
                         const entryText = `INPUT: ${entry.INPUT}\nOUTPUT: ${entry.OUTPUT}\nKEYS: ${entry.KEYS}\n⁂\n`
                         const entryLength = encoder.encode(entryText).length
-                        if (currentPromptLength + entryLength + placeholderLength >= 2048 - 150) {
+                        if (currentPromptLength + entryLength + placeholderLength >= parseInt(process.env.TOKEN_LIMIT) - 150) {
                             break
                         } else {
                             prompt += entryText
