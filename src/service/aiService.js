@@ -5,6 +5,8 @@ import axios from "axios";
 import utils from '../utils.js'
 import messageService from "./messageService.js";
 import lmiService from "./lmiService.js";
+import bannedTokensService from "./bannedTokensService.js";
+import phraseBiasService from "./phraseBiasService.js";
 
 const conf = utils.load("./conf.json")
 let lastGenerationTimestamp = Date.now()
@@ -96,8 +98,24 @@ class AiService {
         let answer
         let parsedAnswer
         let nbTry = 0
-        while (!parsedAnswer && ++nbTry <= 5) {
-            answer = await this.sendPrompt(prompt)
+        const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
+
+        params.repetition_penalty_range = prompt.repetition_penalty_range
+
+        if (channel) {
+            const bannedTokens = bannedTokensService.getBannedTokens(channel)
+            if (bannedTokens && bannedTokens.length > 0)
+                params.bad_words_ids = bannedTokens
+            console.log("bannedTokens", bannedTokens)
+
+            const phraseBiases = phraseBiasService.getPhraseBiases(channel)
+            if (phraseBiases && phraseBiases.length > 0)
+                params.logit_bias_exp = phraseBiases
+            console.log("phraseBiases", phraseBiases)
+        }
+
+        while (!parsedAnswer && ++nbTry <= 3) {
+            answer = await this.sendPromptDefault(prompt.prompt, params)
             parsedAnswer = messageService.parse(answer)
         }
         if (!preventLMI) {

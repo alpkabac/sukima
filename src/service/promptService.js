@@ -1,10 +1,11 @@
 import {config} from "dotenv";
+config()
 import channelBotTranslationService from "./personalityService.js";
 import historyService from "./historyService.js";
 import memoryService from "./memoryService.js";
 import encoder from "gpt-3-encoder";
 
-config()
+
 
 
 class PromptService {

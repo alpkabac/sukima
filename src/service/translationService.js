@@ -1,7 +1,7 @@
 import {config} from "dotenv";
+config()
 import utils from "../utils.js";
 
-config()
 
 class TranslationsService {
     static _translations
