@@ -3,7 +3,7 @@ import {config} from "dotenv";
 config()
 import Command from "./Command.js";
 import axios from "axios";
-import historyService from "../historyService.js";
+import historyService from "../service/historyService.js";
 
 
 const wikiCommands = {

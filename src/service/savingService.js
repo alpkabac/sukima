@@ -4,7 +4,7 @@ config()
 import personalityService from "./personalityService.js";
 import historyService from "./historyService.js";
 import memoryService from "./memoryService.js";
-import utils from "./utils.js";
+import utils from "../utils.js";
 import fs from "fs";
 
 class SavingService {

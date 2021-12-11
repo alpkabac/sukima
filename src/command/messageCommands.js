@@ -1,10 +1,10 @@
 import {config} from "dotenv";
 import Command from "./Command.js";
-import historyService from "../historyService.js";
+import historyService from "../service/historyService.js";
 import utils from "../utils.js";
-import promptService from "../promptService.js";
-import aiService from "../aiService.js";
-import translationsService from "../translationService.js";
+import promptService from "../service/promptService.js";
+import aiService from "../service/aiService.js";
+import translationsService from "../service/translationService.js";
 
 config()
 
@@ -198,7 +198,6 @@ messageCommands.all = [
     messageCommands.retryMessage,
     messageCommands.editMessage,
     messageCommands.answerMessage,
-    messageCommands.answerToName,
     messageCommands.answerToName,
     // messageCommands.talk,
     // messageCommands.reactToAction,

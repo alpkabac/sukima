@@ -1,4 +1,4 @@
-import channelBotTranslationService from "../personalityService.js";
+import channelBotTranslationService from "../service/personalityService.js";
 import {MessageEmbed} from "discord.js";
 import utils from "../utils.js";
 

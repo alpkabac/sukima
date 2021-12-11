@@ -1,16 +1,16 @@
 import dotenv from 'dotenv'
 import {Client} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
-import botService from "../botService.js";
-import savingService from "../savingService.js";
+import botService from "../service/botService.js";
+import savingService from "../service/savingService.js";
 import messageCommands from "../command/messageCommands.js";
-import historyService from "../historyService.js";
+import historyService from "../service/historyService.js";
 import encoder from "gpt-3-encoder";
-import aiService from "../aiService.js";
-import promptService from "../promptService.js";
+import aiService from "../service/aiService.js";
+import promptService from "../service/promptService.js";
 import updateBotInfo from "../discord/discordUtils.js";
 import utils from "../utils.js";
-import channelBotTranslationService from "../personalityService.js";
+import channelBotTranslationService from "../service/personalityService.js";
 
 dotenv.config()
 

@@ -1,8 +1,8 @@
 import {config} from "dotenv";
 
 config()
-import ircClient from "../ircClient.js";
-import botService from "../botService.js";
+import ircClient from "../irc/ircClient.js";
+import botService from "../service/botService.js";
 import {getInterval} from "../utils.js";
 import messageCommands from "../command/messageCommands.js";
 import historyCommands from "../command/memoryCommands.js";

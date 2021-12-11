@@ -2,8 +2,8 @@ import {config} from "dotenv";
 
 config()
 import Command from "./Command.js";
-import translationsService from "../translationService.js";
-import channelBotTranslationService from "../personalityService.js";
+import translationsService from "../service/translationService.js";
+import channelBotTranslationService from "../service/personalityService.js";
 
 
 const languageCommands = {

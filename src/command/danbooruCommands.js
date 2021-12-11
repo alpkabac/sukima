@@ -2,7 +2,7 @@ import {config} from "dotenv";
 
 config()
 import Command from "./Command.js";
-import historyService from "../historyService.js";
+import historyService from "../service/historyService.js";
 import DanbooruService from "../externalApi/danbooruService.js";
 
 

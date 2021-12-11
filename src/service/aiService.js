@@ -2,12 +2,15 @@ import {config} from "dotenv";
 
 config()
 import axios from "axios";
-import utils from './utils.js'
+import utils from '../utils.js'
 import messageService from "./messageService.js";
 import lmiService from "./lmiService.js";
 
 const conf = utils.load("./conf.json")
 let lastGenerationTimestamp = Date.now()
+
+const logit_bias_exp = utils.load(`./data/phraseBias/${process.env.PHRASE_BIASES_FILE || "default.json"}`)
+const bad_words_ids = utils.load(`./data/bannedTokens/${process.env.BANNED_TOKENS_FILE || "default.json"}`)
 
 const getAccessToken = async (access_key) => {
     return new Promise((resolve, reject) => {
@@ -32,30 +35,7 @@ const DEFAULT_PARAMETERS = {
     min_length: 1,
     max_length: 150,
     temperature: 0.8,
-    logit_bias_exp: [
-        {
-            sequence: [
-                1635
-            ],
-            bias: 0.25,
-            ensure_sequence_finish: false,
-            generate_once: true
-        },
-        {
-            sequence: [
-                9
-            ],
-            bias: 0.05,
-            ensure_sequence_finish: false,
-            generate_once: true
-        },
-        {
-            sequence: [3740, 1378],
-            bias: 0.45,
-            ensure_sequence_finish: true,
-            generate_once: true
-        }
-    ],
+    logit_bias_exp,
     top_k: 0,
     top_p: 0.725,
     eos_token_id: 198,
@@ -64,46 +44,7 @@ const DEFAULT_PARAMETERS = {
     repetition_penalty_slope: 6.66,
     tail_free_sampling: 1,
     prefix: "vanilla",
-    bad_words_ids: [
-        [
-            27,
-            91,
-            437,
-            1659,
-            5239,
-            91,
-            29
-        ],
-        [
-            1279,
-            91,
-            437,
-            1659,
-            5239,
-            91,
-            29
-        ],
-        [
-            27,
-            91,
-            10619,
-            46,
-            9792,
-            13918,
-            91,
-            29
-        ],
-        [
-            1279,
-            91,
-            10619,
-            46,
-            9792,
-            13918,
-            91,
-            29
-        ]
-    ],
+    bad_words_ids,
 }
 
 const generateUnthrottled = async (accessToken, input, params) => {

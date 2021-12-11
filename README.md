@@ -181,3 +181,7 @@ Loaded folder for bot personality is the same as the `BOTNAME` in your `.env` fi
 ```
 const botMemory = require(`./translations/aiPersonality/${BOTNAME}/${TRANSLATION_FILE}.json`)
 ```
+
+# Banned Tokens and Phrase Biases
+You can create your own set of banned tokens and phrase biases by creating new JSON files in `./data/bannedTokens` and `./data/phraseBias`  
+Then, you can specify the `BANNED_TOKENS_FILE` and `PHRASE_BIASES_FILE` properties in your `YourBotName.env` file
