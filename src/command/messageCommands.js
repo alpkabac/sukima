@@ -1,4 +1,5 @@
 import {config} from "dotenv";
+config()
 import Command from "./Command.js";
 import historyService from "../service/historyService.js";
 import utils from "../utils.js";
@@ -6,7 +7,7 @@ import promptService from "../service/promptService.js";
 import aiService from "../service/aiService.js";
 import translationsService from "../service/translationService.js";
 
-config()
+
 
 const messageCommands = {
     noContextMessage: new Command(
@@ -21,7 +22,7 @@ const messageCommands = {
             const answer = await aiService.sendUntilSuccess({
                 prompt,
                 repetition_penalty_range: 1024
-            }, channel.startsWith("##"))
+            }, channel.startsWith("##"), channel)
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
             return {message: answer, success: true, reactWith: "🙈"}
         },
@@ -34,7 +35,7 @@ const messageCommands = {
         process.env.ALLOW_CONTINUE_MESSAGE,
         async (msg, from, channel, command, roles) => {
             const prompt = promptService.getPrompt(msg, from, channel, true, false)
-            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.getChannelHistory(channel).reverse()
             for (let h of historyService.getChannelHistory(channel)) {
                 if (h.from === process.env.BOTNAME) {
@@ -54,7 +55,7 @@ const messageCommands = {
         process.env.ALLOW_RETRY_MESSAGE,
         async (msg, from, channel, command, roles) => {
             const prompt = promptService.getPrompt(msg, from, channel, false, true)
-            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.getChannelHistory(channel).reverse()
             for (let h of historyService.getChannelHistory(channel)) {
                 if (h.from === process.env.BOTNAME) {
@@ -97,7 +98,7 @@ const messageCommands = {
                 historyService.pushIntoHistory(message, from, channel)
             }
             const prompt = promptService.getPrompt(msg, from, channel)
-            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
             return {message: answer, success: true, reactWith: "⏩"}
         },
@@ -114,7 +115,7 @@ const messageCommands = {
                 historyService.pushIntoHistory(message, from, channel)
             }
             const prompt = promptService.getPrompt(msg, from, channel)
-            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
             return {message: answer, success: true, deleteUserMsg: true, reactWith: "⏩"}
         },
@@ -142,7 +143,7 @@ const messageCommands = {
 
             if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
                 const prompt = promptService.getPrompt(msg, from, channel)
-                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
                 historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                 return {message: answer}
             }
@@ -163,7 +164,7 @@ const messageCommands = {
                 : null
             if (lastMessageFromChannel && lastMessageFromChannel.from !== process.env.BOTNAME) {
                 const prompt = promptService.getPrompt(null, null, channel)
-                const answer = await aiService.sendLowPriority(prompt, channel.startsWith("##"))
+                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
                 if (answer) {
                     historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
                     return {message: answer}
@@ -182,7 +183,7 @@ const messageCommands = {
                 .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
             historyService.pushIntoHistory(action, from, channel)
             const prompt = promptService.getPrompt(msg, from, channel)
-            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
             return {message: answer}
         },

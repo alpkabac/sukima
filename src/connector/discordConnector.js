@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+dotenv.config()
 import {Client} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
 import botService from "../service/botService.js";
@@ -12,7 +13,7 @@ import updateBotInfo from "../discord/discordUtils.js";
 import utils from "../utils.js";
 import channelBotTranslationService from "../service/personalityService.js";
 
-dotenv.config()
+
 
 const voices = utils.load('./src/tts/languages.json')
 
@@ -296,7 +297,7 @@ bot.on('guildMemberAdd', async (member) => {
 
     let prompt = promptService.getPrompt(null, null, channel, true)
     prompt += `\nSERVER MESSAGE: User ${member.user.username} joined the discord server!\n${process.env.BOTNAME}`
-    const message = await aiService.sendUntilSuccess(prompt, false)
+    const message = await aiService.sendUntilSuccess(prompt, false, channel)
     const parsedMessage = replaceAsterisksByBackQuotes(message)
     if (parsedMessage)
         channel.send(parsedMessage).catch(() => null)
@@ -505,7 +506,7 @@ setInterval(async () => {
             // If next message is from the AI
             if (result === process.env.BOTNAME) {
                 const prompt = promptService.getPrompt(null, null, channel)
-                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"))
+                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
                 if (answer) {
                     const parsedMessage = replaceAsterisksByBackQuotes(answer)
                     const timeToWait = encoder.encode(parsedMessage).length * 50

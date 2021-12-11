@@ -1,10 +1,11 @@
 import {config} from "dotenv";
+config()
 import Command from "./Command.js";
 import memoryService from "../service/memoryService.js";
 import historyService from "../service/historyService.js";
 import channelBotTranslationService from "../service/personalityService.js";
 
-config()
+
 
 
 const memoryCommands = {
