@@ -152,7 +152,7 @@ You have to install and run it in order for simple prompt to work
 # Install
 
 1. `npm i` to install node modules
-2. Copy `example.general.env`, name it `.env` (this is very important that the file is correctly named `.env`)
+2. Copy `example.general.env`, name it `.env` (this is very important that the file is correctly named exactly `.env`, just the extension, no filename)
    - `.env` file contains the configs shared by all your bots
 3. Edit the `.env` file and fill the necessary values
 4. Copy `example.personality.env`, name it `YourBotName.env`

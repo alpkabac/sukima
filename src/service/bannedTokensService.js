@@ -1,8 +1,8 @@
 import {config} from "dotenv";
-
-config()
 import utils from "../utils.js";
 import personalityService from "./personalityService.js";
+
+config()
 
 
 class BannedTokensService {
@@ -17,31 +17,39 @@ class BannedTokensService {
 
         const personality = personalityService.getChannelPersonality(channel)
 
+        // load bad_words_ids directly from personality
+        if (personality && personality.bad_words_ids) {
+            this.channelBannedTokens[channel] = personality.bad_words_ids
+            return this.channelBannedTokens[channel]
+        }
+
+        // load banned tokens mappings from environment file
+        if (process.env.LOAD_CHANNEL_BANNED_TOKENS_FILE) {
+            this.loadChannelMappings(channel)
+            return this.channelBannedTokens[channel]
+        }
+
+        // load default banned tokens from environment file
+        if (process.env.BANNED_TOKENS_FILE) {
+            this.channelBannedTokens[channel] = utils.load(`./data/bannedTokens/${process.env.BANNED_TOKENS_FILE}.badwords`)?.bad_words_ids
+            return this.channelBannedTokens[channel]
+        }
+
+        // load banned token files from personality
         if (personality && personality.bannedTokenFiles) {
             let bannedTokenFiles
             if (typeof personality.bannedTokenFiles === "string") {
                 bannedTokenFiles = this.parseBannedTokenFilesString(personality.bannedTokenFiles)
-            } else if (personality.bannedTokenFiles?.length > 0) {
+            } else if (personality.bannedTokenFiles instanceof Array) {
                 bannedTokenFiles = personality.bannedTokenFiles
-            } else {
-                throw new Error("Whoops, shouldn't happen, contact Noli!")
             }
 
             this.loadChannelBannedTokenFiles(channel, bannedTokenFiles)
             return this.channelBannedTokens[channel]
         }
 
-        if (process.env.LOAD_CHANNEL_BANNED_TOKENS_FILE) {
-            this.loadChannelMappings(channel)
-            return this.channelBannedTokens[channel]
-        }
-
-        if (process.env.BANNED_TOKENS_FILE) {
-            this.channelBannedTokens[channel] = utils.load(`./data/bannedTokens/${process.env.BANNED_TOKENS_FILE}`)
-            return this.channelBannedTokens[channel]
-        }
-
-        this.channelBannedTokens[channel] = utils.load(`./data/bannedTokens/default.json`)
+        // load default banned tokens
+        this.channelBannedTokens[channel] = utils.load(`./data/bannedTokens/default.badwords`)?.bad_words_ids
         return this.channelBannedTokens[channel]
     }
 
@@ -54,7 +62,7 @@ class BannedTokensService {
     static loadChannelBannedTokenFiles(channel, bannedTokenFiles) {
         let allBannedTokens = []
         for (let bannedTokenFile of bannedTokenFiles) {
-            const bannedTokens = utils.load(`./data/bannedTokens/${bannedTokenFile}.json`)
+            const bannedTokens = utils.load(`./data/bannedTokens/${bannedTokenFile}.badwords`)?.bad_words_ids
             allBannedTokens.concat(bannedTokens)
         }
         this.channelBannedTokens[channel] = allBannedTokens

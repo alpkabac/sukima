@@ -1,9 +1,8 @@
 import {config} from "dotenv";
-import utils from "../utils.js";
-import personalityService from "./personalityService.js";
 
 config()
-
+import utils from "../utils.js";
+import personalityService from "./personalityService.js";
 
 class PhraseBiasService {
     static channelPhraseBiases = {}
@@ -17,30 +16,38 @@ class PhraseBiasService {
 
         const personality = personalityService.getChannelPersonality(channel)
 
+        // load logit_bias_exp directly from personality
+        if (personality && personality.logit_bias_exp) {
+            this.channelPhraseBiases[channel] = personality.logit_bias_exp
+            return this.channelPhraseBiases[channel]
+        }
+
+        // load phrase bias mappings from environment file
+        if (process.env.LOAD_CHANNEL_PHRASE_BIASES_FILE) {
+            this.loadChannelMappings(channel)
+            return this.channelPhraseBiases[channel]
+        }
+
+        // load default phrase bias from environment file
+        if (process.env.PHRASE_BIASES_FILE) {
+            this.channelPhraseBiases[channel] = utils.load(`./data/phraseBias/${process.env.PHRASE_BIASES_FILE}.json`)
+            return this.channelPhraseBiases[channel]
+        }
+
+        // load phrase bias files from personality
         if (personality && personality.phraseBiasFiles) {
             let phraseBiasFiles
             if (typeof personality.phraseBiasFiles === "string") {
                 phraseBiasFiles = this.parsePhraseBiasFilesString(personality.phraseBiasFiles)
-            } else if (personality.phraseBiasFiles?.length > 0) {
+            } else if (personality.phraseBiasFiles instanceof Array) {
                 phraseBiasFiles = personality.phraseBiasFiles
-            } else {
-                throw new Error("Whoops, shouldn't happen, contact Noli!")
             }
 
             this.loadChannelPhraseBiasFiles(channel, phraseBiasFiles)
             return this.channelPhraseBiases[channel]
         }
 
-        if (process.env.LOAD_CHANNEL_PHRASE_BIASES_FILE) {
-            this.loadChannelMappings(channel)
-            return this.channelPhraseBiases[channel]
-        }
-
-        if (process.env.PHRASE_BIASES_FILE) {
-            this.channelPhraseBiases[channel] = utils.load(`./data/phraseBias/${process.env.PHRASE_BIASES_FILE}`)
-            return this.channelPhraseBiases[channel]
-        }
-
+        // load default phrase bias
         this.channelPhraseBiases[channel] = utils.load(`./data/phraseBias/default.json`)
         return this.channelPhraseBiases[channel]
     }
@@ -72,7 +79,7 @@ class PhraseBiasService {
                             .map(f => f.trim())                     // ["#alice-sfw", "end_of_text + nsfw"]
 
                         phraseBiasFiles = this.parsePhraseBiasFilesString(phraseBiasFiles)
-                        return {channel: channelName, phraseBiasFiles: phraseBiasFiles} // {channel: "#alice-sfw", bannedTokenFiles: ["end_of_text", "nsfw"]}
+                        return {channel: channelName, phraseBiasFiles: phraseBiasFiles} // {channel: "#alice-sfw", phraseBiasFiles: ["end_of_text", "nsfw"]}
                     })
 
             for (let channelSetting of channelSettings) {

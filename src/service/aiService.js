@@ -12,8 +12,9 @@ import phraseBiasService from "./phraseBiasService.js";
 const conf = utils.load("./conf.json")
 let lastGenerationTimestamp = Date.now()
 
-const logit_bias_exp = utils.load(`./data/phraseBias/${process.env.PHRASE_BIASES_FILE || "default.json"}`)
-const bad_words_ids = utils.load(`./data/bannedTokens/${process.env.BANNED_TOKENS_FILE || "default.json"}`)
+const logit_bias_exp = utils.load(`./data/phraseBias/${process.env.PHRASE_BIASES_FILE || "default"}.json`)
+
+const bad_words_ids = utils.load(`./data/bannedTokens/${process.env.BANNED_TOKENS_FILE || "default"}.badwords`)?.badwords
 
 const getAccessToken = async (access_key) => {
     return new Promise((resolve, reject) => {

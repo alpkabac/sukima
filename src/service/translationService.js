@@ -16,10 +16,10 @@ class TranslationsService {
 
     static changeLanguage(code = "en-EN") {
         try {
-            this._translations = utils.load(`../translations/${code}.json`)
+            this._translations = utils.load(`./translations/${code}.json`)
             return true
         } catch (e) {
-            this._translations = require(`translations/en-EN.json`)
+            this._translations = require(`./translations/en-EN.json`)
         }
         return false
     }

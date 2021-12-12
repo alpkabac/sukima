@@ -109,7 +109,8 @@ const memoryCommands = {
                     message:
                         `${presentationMessage.trim()}`,
                     success: true,
-                    reactWith: "💔"
+                    reactWith: "💔",
+                    deleteUserMsg: true
                 }
             } else {
                 return {success: true, reactWith: "💔", deleteUserMsg: true}

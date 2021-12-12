@@ -21,6 +21,8 @@
       "msg": "Hello! My name is Alice, and I'm an AI *She smiles cutely as she bows down before you*"
     }
   ],
-  "bannedTokens": "end_of_text",
-  "phraseBiases": "body_language + links"
+  "bannedTokenFiles": "endoftext",
+  "phraseBiasFiles": "body_language + links",
+  "bad_words_ids": null,
+  "logit_bias_exp": null
 }

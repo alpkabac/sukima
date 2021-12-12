@@ -12,6 +12,7 @@ import promptService from "../service/promptService.js";
 import updateBotInfo from "../discord/discordUtils.js";
 import utils from "../utils.js";
 import channelBotTranslationService from "../service/personalityService.js";
+import greetingService from "../service/greetingService.js";
 
 
 
@@ -295,7 +296,7 @@ bot.on('guildMemberAdd', async (member) => {
     const channel = member.guild.channels.cache.find(channel => channel.name === process.env.GREET_NEW_USERS_IN_CHANNEL)
     if (!channel) return
 
-    let prompt = promptService.getPrompt(null, null, channel, true)
+    let prompt = greetingService.getPrompt()
     prompt += `\nSERVER MESSAGE: User ${member.user.username} joined the discord server!\n${process.env.BOTNAME}`
     const message = await aiService.sendUntilSuccess(prompt, false, channel)
     const parsedMessage = replaceAsterisksByBackQuotes(message)
