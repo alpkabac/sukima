@@ -1,0 +1,56 @@
+{
+  "logit_bias_groups": [
+    {
+      "phrases": [
+        {
+          "sequences": [
+            [
+              3740,
+              1378
+            ]
+          ],
+          "type": 1
+        }
+      ],
+      "bias": 0.45,
+      "ensure_sequence_finish": true,
+      "generate_once": true,
+      "enabled": true,
+      "whenInactive": false
+    },
+    {
+      "phrases": [
+        {
+          "sequences": [
+            [
+              1635
+            ]
+          ],
+          "type": 1
+        }
+      ],
+      "bias": 0.25,
+      "ensure_sequence_finish": false,
+      "generate_once": true,
+      "enabled": true,
+      "whenInactive": false
+    },
+    {
+      "phrases": [
+        {
+          "sequences": [
+            [
+              9
+            ]
+          ],
+          "type": 1
+        }
+      ],
+      "bias": 0.1,
+      "ensure_sequence_finish": false,
+      "generate_once": true,
+      "enabled": true,
+      "whenInactive": false
+    }
+  ]
+}

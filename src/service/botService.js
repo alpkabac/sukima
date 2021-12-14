@@ -7,21 +7,17 @@ import messageCommands from "../command/messageCommands.js";
 import commands from "../command/commands.js";
 
 
-function prepareIncomingMessage(message, botName, nick) {
-    return utils.replaceNickByBotName(botName, nick, message).trim()
-}
-
 class BotService {
 
-    static async onChannelMessage(from, channel, message, botNick = process.env.BOTNAME, roles = []) {
+    static async onChannelMessage(from, channel, message, botNick = process.env.BOTNAME, roles = [], messageId, client) {
         if (!utils.isMessageFromAllowedChannel(channel)) {
             return
         }
 
-        const msg = prepareIncomingMessage(message, process.env.BOTNAME, botNick)
+        const msg = utils.replaceNickByBotName(message).trim()
 
-        for (let command of commands.onMessageCommands) {
-            const commandResult = await command.call(msg, from, channel, roles)
+        for (let command of commands.getOnMessageCommands()) {
+            const commandResult = await command.call(msg, from, channel, roles, messageId, client)
             if (commandResult) {
                 return commandResult
             }

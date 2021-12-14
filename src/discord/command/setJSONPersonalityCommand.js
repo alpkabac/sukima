@@ -1,18 +1,24 @@
-const Command = require("../../command/Command");
-const channelBotTranslationService = require("../../service/personalityService");
-const updateBotInfo = require("../discordUtils");
+import dotenv from 'dotenv'
+
+dotenv.config()
+import Command from "../../command/Command.js";
+import channelBotTranslationService from "../../service/personalityService.js";
+import updateBotInfo from "../discordUtils.js";
+import utils from "../../utils.js";
+
+const voices = utils.load('./src/tts/languages.json')
 
 const setJSONPersonalityCommand = new Command(
     "Set JSON Personality",
     [],
     ["!setJSONPersonality "],
     process.env.ALLOW_SET_JSON_PERSONALITY,
-    async (msg, from, channel, command, roles) => {
+    async (msg, from, channel, command, roles, messageId, client) => {
         let success = true
         let errorMessages = ""
 
         if (!process.env.ENABLE_CUSTOM_AI || process.env.ENABLE_CUSTOM_AI.toLowerCase() !== "true") {
-            return {message: "# Sorry, but this command is not enabled on this AI.", channel}
+            return {error: "# Sorry, but this command is not enabled on this AI."}
         }
 
         const personalityJSON = msg.replace(command, "")
@@ -20,41 +26,38 @@ const setJSONPersonalityCommand = new Command(
         try {
             personality = JSON.parse(personalityJSON)
         } catch (e) {
-            return {message: "# JSON could not be parsed", channel}
+            return {error: "# JSON could not be parsed"}
         }
 
         const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
 
         if (personality.target !== undefined) {
-            if (personality.target.toLowerCase() !== process.env.BOTNAME.toLowerCase()) {
+            if (personality.target.toLowerCase() !== ((process.env.BOTNAME).toLowerCase())) {
                 return true
             }
         } else {
             return {
-                message: "# The `target` property is mandatory and should be a string containing the name of the target bot",
-                channel
+                error: "# The `target` property is mandatory and should be a string containing the name of the target bot"
             }
         }
 
         if (personality.username !== undefined && !channel.startsWith("##")) {
             try {
-                await bot.user.setUsername(personality.username)
-                process.env.BOTNAME = personality.username
+                await client.user.setUsername(personality.username)
+                process.env.BOT_DISCORD_USERNAME = personality.username
             } catch (e) {
                 return {
-                    message: `# Personality failed to load: Username already taken by too many people or was changed too recently`,
-                    channel
+                    error: `# Personality failed to load: Username already taken by too many people or was changed too recently`
                 }
             }
         }
 
         if (personality.avatar !== undefined && !channel.startsWith("##")) {
             try {
-                await bot.user.setAvatar(personality.avatar)
+                await client.user.setAvatar(personality.avatar)
             } catch (e) {
                 return {
-                    message: `# Personality failed to load: The avatar couldn't be loaded or was changed too recently`,
-                    channel
+                    error: `# Personality failed to load: The avatar couldn't be loaded or was changed too recently`
                 }
             }
         }
@@ -81,7 +84,7 @@ const setJSONPersonalityCommand = new Command(
 
         if (personality.voice !== undefined) {
             const selectedVoice = voices.voices
-                .find(v => v.name.toLowerCase() === personality.voice.toLowerCase())
+                .find(v => v?.name?.toLowerCase() === personality?.voice?.toLowerCase())
             if (selectedVoice) {
                 aiPersonality.voice = selectedVoice
             } else {
@@ -132,11 +135,11 @@ const setJSONPersonalityCommand = new Command(
 
 
         if (JSONPersonality?.voice?.name) {
-            JSONPersonality.voice = JSONPersonality.voice.name
+            JSONPersonality.voice = JSONPersonality.voice?.name
         }
 
         if (personality.voice !== undefined) {
-            JSONPersonality.voice = aiPersonality.voice.name
+            JSONPersonality.voice = aiPersonality.voice?.name
         }
 
         if (JSONPersonality.introduction) {
@@ -157,7 +160,8 @@ const setJSONPersonalityCommand = new Command(
         JSONPersonality.ENABLE_AUTO_ANSWER = process.env.ENABLE_AUTO_ANSWER
 
         JSONPersonality.target = personality.target
-        JSONPersonality.username = process.env.BOTNAME
+        JSONPersonality.botname = process.env.BOTNAME
+        JSONPersonality.username = process.env.BOT_DISCORD_USERNAME || process.env.BOTNAME
 
         let stringJSONPersonality = JSON.stringify(JSONPersonality, null, 2)
         if (stringJSONPersonality.length > 1700) {
@@ -167,13 +171,16 @@ const setJSONPersonalityCommand = new Command(
             }
         }
 
-        updateBotInfo(bot)
+        updateBotInfo(client)
         return {
             message: "# " + (success ?
                     `Personality successfully loaded! `
                     : `Personality loaded, but there were errors while trying to edit the AI personality:\n${errorMessages}\n`)
-                + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`
+                + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`,
+            fastTyping: true
         }
     },
     true
 )
+
+export default setJSONPersonalityCommand

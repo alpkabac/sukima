@@ -10,9 +10,12 @@ import fs from "fs";
 class SavingService {
 
     static save(channel) {
-        // Prevents saving DMs
-        if (channel.startsWith("##")) return false
+
         const personality = personalityService.getChannelPersonality(channel)
+
+        // Prevents saving DMs
+        if (channel.startsWith("##") && !personality?.enabledDMChannels?.[channel]) return false
+
         const history = historyService.getChannelHistory(channel)
         const memory = memoryService.getChannelMemory(channel)
 

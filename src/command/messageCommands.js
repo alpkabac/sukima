@@ -1,5 +1,4 @@
 import {config} from "dotenv";
-config()
 import Command from "./Command.js";
 import historyService from "../service/historyService.js";
 import utils from "../utils.js";
@@ -7,6 +6,7 @@ import promptService from "../service/promptService.js";
 import aiService from "../service/aiService.js";
 import translationsService from "../service/translationService.js";
 
+config()
 
 
 const messageCommands = {
@@ -15,16 +15,18 @@ const messageCommands = {
         [],
         ["!!"],
         process.env.ALLOW_NO_CONTEXT_MESSAGE,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
-            historyService.pushIntoHistory(message, from, channel)
+            historyService.pushIntoHistory(message, from, channel, messageId)
             const prompt = promptService.getNoContextPrompt(message, from, channel)
             const answer = await aiService.sendUntilSuccess({
                 prompt,
                 repetition_penalty_range: 1024
             }, channel.startsWith("##"), channel)
-            historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer, success: true, reactWith: "🙈"}
+            return {
+                message: answer, success: true, reactWith: "🙈",
+                pushIntoHistory: [answer, process.env.BOTNAME, channel]
+            }
         },
         false
     ),
@@ -33,7 +35,7 @@ const messageCommands = {
         [",", "!continue"],
         [],
         process.env.ALLOW_CONTINUE_MESSAGE,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const prompt = promptService.getPrompt(msg, from, channel, true, false)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.getChannelHistory(channel).reverse()
@@ -53,7 +55,7 @@ const messageCommands = {
         ["²", "○", "!retry"],
         [],
         process.env.ALLOW_RETRY_MESSAGE,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const prompt = promptService.getPrompt(msg, from, channel, false, true)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.getChannelHistory(channel).reverse()
@@ -73,7 +75,7 @@ const messageCommands = {
         [],
         ["!edit "],
         process.env.ALLOW_EDIT_MESSAGE,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             historyService.getChannelHistory(channel).reverse()
             for (let h of historyService.getChannelHistory(channel)) {
@@ -92,15 +94,17 @@ const messageCommands = {
         [],
         ["?", "!talk"],
         process.env.ALLOW_ANSWER_MESSAGE,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             if (message) {
-                historyService.pushIntoHistory(message, from, channel)
+                historyService.pushIntoHistory(message, from, channel, messageId)
             }
             const prompt = promptService.getPrompt(msg, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
-            historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer, success: true, reactWith: "⏩"}
+            return {
+                message: answer, success: true, reactWith: "⏩",
+                pushIntoHistory: [answer, process.env.BOTNAME, channel]
+            }
         },
         false
     ),
@@ -109,15 +113,17 @@ const messageCommands = {
         ["?", "!talk"],
         [],
         process.env.ALLOW_ANSWER_MESSAGE,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             if (message) {
-                historyService.pushIntoHistory(message, from, channel)
+                historyService.pushIntoHistory(message, from, channel, messageId)
             }
             const prompt = promptService.getPrompt(msg, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
-            historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer, success: true, deleteUserMsg: true, reactWith: "⏩"}
+            return {
+                message: answer, success: true, deleteUserMsg: true, reactWith: "⏩",
+                pushIntoHistory: [answer, process.env.BOTNAME, channel]
+            }
         },
         false
     ),
@@ -134,18 +140,20 @@ const messageCommands = {
         [],
         [],
         null,
-        async (msg, from, channel, command, roles) => {
-            historyService.pushIntoHistory(msg, from, channel)
+        async (msg, from, channel, command, roles, messageId) => {
+            historyService.pushIntoHistory(msg, from, channel, messageId)
 
-            if (!utils.checkPermissions(roles, process.env.ALLOW_REPLY_TO_NAME, channel.startsWith("##"))){
+            if (!utils.checkPermissions(roles, process.env.ALLOW_REPLY_TO_NAME, channel.startsWith("##"))) {
                 return
             }
 
             if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
                 const prompt = promptService.getPrompt(msg, from, channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
-                historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                return {message: answer}
+                return {
+                    message: answer,
+                    pushIntoHistory: [answer, process.env.BOTNAME, channel]
+                }
             }
         },
         false
@@ -155,19 +163,24 @@ const messageCommands = {
         [],
         [],
         null,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             if (!utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) return false
 
             const history = historyService.getChannelHistory(channel)
             const lastMessageFromChannel = history && history.length > 0 ?
                 history[history.length - 1]
                 : null
-            if (lastMessageFromChannel && lastMessageFromChannel.from !== process.env.BOTNAME) {
+            const lastMessageIsOldEnough = !lastMessageFromChannel ?
+                false :
+                Date.now() - lastMessageFromChannel.timestamp > (parseInt(process.env.MIN_BOT_MESSAGE_INTERVAL) * 1000)
+            if (lastMessageIsOldEnough && lastMessageFromChannel?.from !== process.env.BOTNAME) {
                 const prompt = promptService.getPrompt(null, null, channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
                 if (answer) {
-                    historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                    return {message: answer}
+                    return {
+                        message: answer,
+                        pushIntoHistory: [answer, process.env.BOTNAME, channel]
+                    }
                 }
             }
         },
@@ -178,14 +191,16 @@ const messageCommands = {
         [],
         [],
         process.env.ALLOW_REACTIONS,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const action = translationsService.translations.onAction
                 .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
-            historyService.pushIntoHistory(action, from, channel)
+            historyService.pushIntoHistory(action, from, channel, messageId)
             const prompt = promptService.getPrompt(msg, from, channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
-            historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-            return {message: answer}
+            return {
+                message: answer,
+                pushIntoHistory: [answer, process.env.BOTNAME, channel]
+            }
         },
         false
     ),

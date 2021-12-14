@@ -28,8 +28,12 @@ class Utils {
      * @param msg
      * @return message where nick is replaced by bot name
      */
-    static replaceNickByBotName(botName, nick, msg) {
-        return msg.replace(nick, botName)
+    static replaceNickByBotName(msg) {
+        if (process.env.BOT_DISCORD_USERNAME){
+            return msg.replace(process.env.BOT_DISCORD_USERNAME, process.env.BOTNAME)
+        }else{
+            return msg
+        }
     }
 
     static upperCaseFirstLetter(str) {

@@ -30,7 +30,7 @@ class PhraseBiasService {
 
         // load default phrase bias from environment file
         if (process.env.PHRASE_BIASES_FILE) {
-            this.channelPhraseBiases[channel] = utils.load(`./data/phraseBias/${process.env.PHRASE_BIASES_FILE}.json`)
+            this.channelPhraseBiases[channel] = this.loadBias(process.env.PHRASE_BIASES_FILE)
             return this.channelPhraseBiases[channel]
         }
 
@@ -48,7 +48,7 @@ class PhraseBiasService {
         }
 
         // load default phrase bias
-        this.channelPhraseBiases[channel] = utils.load(`./data/phraseBias/default.json`)
+        this.channelPhraseBiases[channel] = this.loadBias(`default`)
         return this.channelPhraseBiases[channel]
     }
 
@@ -58,10 +58,32 @@ class PhraseBiasService {
             .map(f => f.trim())         // ["end_of_text ", " nsfw"]
     }
 
+    static loadBias(filename) {
+        const logitBiasGroups = utils.load(`./data/phraseBias/${filename}.bias`)?.logit_bias_groups || []
+        const logit_bias_exp = []
+
+        for (let logitBiasGroup of logitBiasGroups) {
+            if (!logitBiasGroup.enabled) continue
+            for (let phrase of logitBiasGroup.phrases) {
+                for (let sequence of phrase.sequences) {
+                    const logitBias = {
+                        sequence,
+                        "bias": logitBiasGroup.bias,
+                        "ensure_sequence_finish": logitBiasGroup.ensure_sequence_finish,
+                        "generate_once": logitBiasGroup.generate_once
+                    }
+                    logit_bias_exp.push(logitBias)
+                }
+            }
+        }
+
+        return logit_bias_exp
+    }
+
     static loadChannelPhraseBiasFiles(channel, phraseBiasFiles) {
         let allPhraseBiases = []
         for (let phraseBiasFile of phraseBiasFiles) {
-            const phraseBias = utils.load(`./data/phraseBias/${phraseBiasFile}.json`)
+            const phraseBias = this.loadBias(`${phraseBiasFile}`)
             allPhraseBiases.concat(phraseBias)
         }
         this.channelPhraseBiases[channel] = allPhraseBiases

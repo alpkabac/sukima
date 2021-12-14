@@ -12,7 +12,7 @@ const epornerCommands = {
         [],
         ["!eporner "],
         process.env.ALLOW_EPORNER,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const search = msg.replace(command, '').trim()
 
             if (!search || search.length === 0) {
@@ -44,14 +44,14 @@ const epornerCommands = {
                 if (result?.videos?.length > 0) {
                     const vid = result.videos[0]
 
-                    historyService.pushIntoHistory(msg, from, channel)
+                    historyService.pushIntoHistory(msg, from, channel, messageId)
                     const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by searching "${search}" on the porn website "eporner" and sending one of the clip to ${from}. The video is titled "${vid.title}" and contains the keywords "${vid.keywords}" ]`
-                    historyService.pushIntoHistory(formattedEvent, null, channel)
                     return {
                         message: `# Id: ${vid?.id}\nTitle: ${vid.title}\nKeywords: ${vid.keywords}\nLength: ${vid.length_min}\nDate: ${vid.added}\nURL: ${vid.url}`,
                         success: true,
                         instantReply: true,
-                        image: vid.url
+                        image: vid.url,
+                        pushIntoHistory: [formattedEvent, null, channel]
                     }
                 } else {
                     return {message: `# I'm sorry, but your search didn't return any result... Maybe try another keyword!`}

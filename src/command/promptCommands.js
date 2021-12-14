@@ -15,7 +15,7 @@ const promptCommands = {
         [],
         ["!prompt "],
         process.env.ALLOW_PROMPT_MESSAGE,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const args = /!prompt *(\d*)\n/g.exec(msg);
             if (args && args[1]) {
                 const message = utils.upperCaseFirstLetter(msg.replace(args[0], ""))
@@ -31,7 +31,7 @@ const promptCommands = {
         [],
         ["!lgt "],
         process.env.ALLOW_LORE_GENERATION_TOOL,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             let input = utils.upperCaseFirstLetter(msg.replace(command, "").trim())
             if (input) {
                 const match = input.match(/^([1-3]) ([^\n]*)/)

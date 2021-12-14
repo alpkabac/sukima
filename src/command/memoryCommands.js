@@ -4,9 +4,32 @@ import Command from "./Command.js";
 import memoryService from "../service/memoryService.js";
 import historyService from "../service/historyService.js";
 import channelBotTranslationService from "../service/personalityService.js";
+import utils from "../utils.js";
 
 
+function addSquareBrackets(msg){
+    if (msg.startsWith("[ ") && msg.endsWith(" ]")) return msg
 
+    const leftBracket = msg.startsWith("[ ")
+    const rightBracket = msg.endsWith(" ]")
+
+    const partialLeftBracket = msg.startsWith("[")
+    const partialRightBracket = msg.endsWith("]")
+
+    if (!leftBracket && partialLeftBracket){
+        msg = "[ "+utils.upperCaseFirstLetter(msg.substr(1))
+    }else if (!leftBracket && !partialLeftBracket){
+        msg = "[ "+utils.upperCaseFirstLetter(msg)
+    }
+
+    if (!rightBracket && partialRightBracket){
+        msg = msg.substr(0,msg.length-1) + " ]"
+    }else if (!rightBracket && !partialRightBracket){
+        msg = msg + " ]"
+    }
+
+    return msg
+}
 
 const memoryCommands = {
     remember: new Command(
@@ -15,7 +38,7 @@ const memoryCommands = {
         ["!remember "],
         process.env.ALLOW_REMEMBER,
         (msg, from, channel, command) => {
-            const newRememberedThing = msg.replace(command, '').trim()
+            const newRememberedThing = addSquareBrackets(msg.replace(command, '').trim())
             memoryService.setUserMemoryInChannel(newRememberedThing, from, channel)
             return {
                 success: true
@@ -28,7 +51,7 @@ const memoryCommands = {
         process.env.ALLOW_REMEMBER,
         (msg, from, channel, command) => {
             const currentRememberedThings = memoryService.getChannelMemoryForUser(channel, from)?.trim()
-            const newRememberedThing = msg.replace(command, '').trim()
+            const newRememberedThing = addSquareBrackets(msg.replace(command, '').trim())
             if (newRememberedThing) {
                 const fullThingToRemember = (currentRememberedThings + "\n" + newRememberedThing).trim()
                 memoryService.setUserMemoryInChannel(fullThingToRemember, from, channel)

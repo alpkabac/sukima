@@ -82,7 +82,7 @@ Command: `!setPersonality <context>\n<presentation message>`
 Sets the AI personality for the current channel (or DM channel)  
 Use like this:
 ```
-!setPersonality [ character: Alice; gender: female; hair: golden; personality: joyful, helpful, talkative; writing style: purple prose ]
+!setPersonality [ character: Alice; gender: female; hair: golden; personality: joyful, helpful, talkative ]
 Hello everyone! My name is Alice, and I'm an AI *She smiles cutely as she bows down before everyone*
 ```
 

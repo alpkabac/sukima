@@ -11,7 +11,7 @@ const personalityCommands = {
         [],
         ["!setPersonality "],
         process.env.ALLOW_SET_PERSONALITY,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const personality = msg.replace(command, "")
 
             const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
@@ -42,21 +42,12 @@ const personalityCommands = {
             }
 
         }
-    ),
-    setJSONPersonality: new Command(
-        "Set JSON Personality",
-        [],
-        ["!setJSONPersonality "],
-        process.env.ALLOW_SET_JSON_PERSONALITY,
-        async (msg, from, channel, command, roles) => {
-            return true
-        }
     ), displayPersonality: new Command(
         "Display Personality",
         ["!displayPersonality", "!showPersonality"],
         [],
         process.env.ALLOW_DISPLAY_PERSONALITY,
-        async (msg, from, channel, command, roles) => {
+        async (msg, from, channel, command, roles, messageId) => {
             const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
             const JSONPersonality = JSON.parse(JSON.stringify(aiPersonality))
             const message = `Complete JSON for personality:\n`
@@ -80,7 +71,8 @@ const personalityCommands = {
             JSONPersonality.MIN_BOT_MESSAGE_INTERVAL = process.env.MIN_BOT_MESSAGE_INTERVAL
             JSONPersonality.MAX_BOT_MESSAGE_INTERVAL = process.env.MAX_BOT_MESSAGE_INTERVAL
             JSONPersonality.INTERVAL_AUTO_MESSAGE_CHECK = process.env.INTERVAL_AUTO_MESSAGE_CHECK
-            JSONPersonality.username = process.env.BOTNAME
+            JSONPersonality.username = process.env.BOT_DISCORD_USERNAME || process.env.BOTNAME
+            JSONPersonality.botname = process.env.BOTNAME
 
 
             // Try to fit the whole JSON into discords 2000 char limit
@@ -102,7 +94,6 @@ const personalityCommands = {
 
 personalityCommands.all = [
     personalityCommands.setPersonality,
-    personalityCommands.setJSONPersonality,
     personalityCommands.displayPersonality,
 ]
 

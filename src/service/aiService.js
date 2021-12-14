@@ -12,10 +12,6 @@ import phraseBiasService from "./phraseBiasService.js";
 const conf = utils.load("./conf.json")
 let lastGenerationTimestamp = Date.now()
 
-const logit_bias_exp = utils.load(`./data/phraseBias/${process.env.PHRASE_BIASES_FILE || "default"}.json`)
-
-const bad_words_ids = utils.load(`./data/bannedTokens/${process.env.BANNED_TOKENS_FILE || "default"}.badwords`)?.badwords
-
 const getAccessToken = async (access_key) => {
     return new Promise((resolve, reject) => {
         axios.post("https://api.novelai.net/user/login", {key: access_key}, {
@@ -39,7 +35,6 @@ const DEFAULT_PARAMETERS = {
     min_length: 1,
     max_length: 150,
     temperature: 0.8,
-    logit_bias_exp,
     top_k: 0,
     top_p: 0.725,
     eos_token_id: 198,
@@ -48,7 +43,6 @@ const DEFAULT_PARAMETERS = {
     repetition_penalty_slope: 6.66,
     tail_free_sampling: 1,
     prefix: "vanilla",
-    bad_words_ids,
 }
 
 const generateUnthrottled = async (accessToken, input, params) => {

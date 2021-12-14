@@ -1,8 +1,8 @@
 import dotenv from 'dotenv'
+
 dotenv.config()
 import {Client} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
-import botService from "../service/botService.js";
 import savingService from "../service/savingService.js";
 import messageCommands from "../command/messageCommands.js";
 import historyService from "../service/historyService.js";
@@ -13,11 +13,8 @@ import updateBotInfo from "../discord/discordUtils.js";
 import utils from "../utils.js";
 import channelBotTranslationService from "../service/personalityService.js";
 import greetingService from "../service/greetingService.js";
-
-
-
-const voices = utils.load('./src/tts/languages.json')
-
+import commands from "../command/commands.js";
+import discordCommands from "../discord/command/discordCommands.js";
 
 const bot = new Client({
     allowedMentions: {
@@ -28,12 +25,11 @@ const bot = new Client({
 
 bot.login(process.env.TOKEN)
 const channels = []
-let locked = false
+let locked = {}
 
 
 let connection
 let voiceChannel
-let setJSONPersonality
 let speak = null
 
 
@@ -47,9 +43,14 @@ function replaceBackQuotesByAsterisks(text) {
 
 bot.on('ready', async () => {
     console.info(`Logged in as ${bot.user.tag}!`)
-    savingService.loadAllChannels()
 
-    process.env.BOTNAME = replaceAliases(bot.user.tag.replace(/#.*$/, ""))
+    if (process.env.BOT_DISCORD_USERNAME) {
+        await bot.user.setUsername(process.env.BOT_DISCORD_USERNAME)
+    } else {
+        process.env.BOT_DISCORD_USERNAME = replaceAliases(bot.user.tag.replace(/#.*$/, ""))
+    }
+
+    savingService.loadAllChannels()
 
     if (process.env.DISCORD_ACTIVITY_NAME) {
         const name = process.env.DISCORD_ACTIVITY_NAME
@@ -57,181 +58,6 @@ bot.on('ready', async () => {
         await bot.user.setActivity(name, {type})
     } else {
         await bot.user.setActivity()
-    }
-
-    // TODO: split into a generic command and a discord command
-    setJSONPersonality = async function (msg, from, channel, roles) {
-        const command = "!setJSONPersonality "
-
-        if (!msg.toLowerCase().startsWith(command.toLowerCase())) return false
-        if (!utils.checkPermissions(roles, process.env.ALLOW_SET_JSON_PERSONALITY, channel.startsWith("##"))) return true
-
-        let success = true
-        let errorMessages = ""
-
-        if (!process.env.ENABLE_CUSTOM_AI || process.env.ENABLE_CUSTOM_AI.toLowerCase() !== "true") {
-            return {message: "# Sorry, but this command is not enabled on this AI.", channel}
-        }
-
-        const personalityJSON = msg.replace(command, "")
-        let personality
-        try {
-            personality = JSON.parse(personalityJSON)
-        } catch (e) {
-            return {message: "# JSON could not be parsed", channel}
-        }
-
-        const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
-
-        if (personality.target !== undefined) {
-            if (personality.target.toLowerCase() !== process.env.BOTNAME.toLowerCase()) {
-                return true
-            }
-        } else {
-            return {
-                message: "# The `target` property is mandatory and should be a string containing the name of the target bot",
-                channel
-            }
-        }
-
-        if (personality.username !== undefined && !channel.startsWith("##")) {
-            try {
-                await bot.user.setUsername(personality.username)
-                process.env.BOTNAME = personality.username
-            } catch (e) {
-                return {
-                    message: `# Personality failed to load: Username already taken by too many people or was changed too recently`,
-                    channel
-                }
-            }
-        }
-
-        if (personality.avatar !== undefined && !channel.startsWith("##")) {
-            try {
-                await bot.user.setAvatar(personality.avatar)
-            } catch (e) {
-                return {
-                    message: `# Personality failed to load: The avatar couldn't be loaded or was changed too recently`,
-                    channel
-                }
-            }
-        }
-
-        if (personality.description !== undefined) {
-            aiPersonality.description = personality.description
-        }
-
-        if (personality.contextDm !== undefined) {
-            aiPersonality.contextDm = personality.contextDm
-        }
-
-        if (personality.context !== undefined) {
-            aiPersonality.context = personality.context
-        }
-
-        if (personality.noContextSentence !== undefined) {
-            aiPersonality.noContextSentence = personality.noContextSentence
-        }
-
-        if (personality.noContextSentence !== undefined) {
-            aiPersonality.noContextSentence = personality.noContextSentence
-        }
-
-        if (personality.voice !== undefined) {
-            const selectedVoice = voices.voices
-                .find(v => v.name.toLowerCase() === personality.voice.toLowerCase())
-            if (selectedVoice) {
-                aiPersonality.voice = selectedVoice
-            } else {
-                success = false
-                errorMessages += "The voice isn't recognized\n"
-            }
-        }
-
-        if (personality.introduction !== undefined) {
-            aiPersonality.introduction = personality.introduction.split("\n").map((l) => {
-                return {
-                    from: process.env.BOTNAME,
-                    msg: l
-                }
-            })
-        }
-
-        if (personality.introductionDm !== undefined) {
-            aiPersonality.introductionDm = personality.introductionDm.split("\n").map((l) => {
-                return {
-                    from: process.env.BOTNAME,
-                    msg: l
-                }
-            })
-        }
-
-        const JSONPersonality = JSON.parse(JSON.stringify(aiPersonality))
-
-        if (personality.ENABLE_DM !== undefined && !channel.startsWith("##")) {
-            process.env.ENABLE_DM = "" + personality.ENABLE_DM
-            JSONPersonality.ENABLE_DM = "" + personality.ENABLE_DM
-        }
-
-        if (personality.ENABLE_TTS !== undefined && !channel.startsWith("##")) {
-            process.env.ENABLE_TTS = "" + personality.ENABLE_TTS
-            JSONPersonality.ENABLE_TTS = "" + personality.ENABLE_TTS
-        }
-
-        if (personality.ENABLE_INTRO !== undefined && !channel.startsWith("##")) {
-            process.env.ENABLE_INTRO = "" + personality.ENABLE_INTRO
-            JSONPersonality.ENABLE_INTRO = "" + personality.ENABLE_INTRO
-        }
-
-        if (personality.ENABLE_AUTO_ANSWER !== undefined && !channel.startsWith("##")) {
-            process.env.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
-            JSONPersonality.ENABLE_AUTO_ANSWER = "" + personality.ENABLE_AUTO_ANSWER
-        }
-
-
-        if (JSONPersonality?.voice?.name) {
-            JSONPersonality.voice = JSONPersonality.voice.name
-        }
-
-        if (personality.voice !== undefined) {
-            JSONPersonality.voice = aiPersonality.voice.name
-        }
-
-        if (JSONPersonality.introduction) {
-            JSONPersonality.introduction = JSONPersonality.introduction.map(e => e.msg).join("\n")
-        }
-
-        if (JSONPersonality.introductionDm !== undefined) {
-            JSONPersonality.introductionDm = JSONPersonality.introductionDm.map(e => e.msg).join("\n")
-        }
-
-        if (success && personality.avatar !== undefined) {
-            JSONPersonality.avatar = personality.avatar
-        }
-
-        JSONPersonality.ENABLE_INTRO = process.env.ENABLE_INTRO
-        JSONPersonality.ENABLE_DM = process.env.ENABLE_DM
-        JSONPersonality.ENABLE_TTS = process.env.ENABLE_TTS
-        JSONPersonality.ENABLE_AUTO_ANSWER = process.env.ENABLE_AUTO_ANSWER
-
-        JSONPersonality.target = personality.target
-        JSONPersonality.username = process.env.BOTNAME
-
-        let stringJSONPersonality = JSON.stringify(JSONPersonality, null, 2)
-        if (stringJSONPersonality.length > 1700) {
-            stringJSONPersonality = JSON.stringify(JSONPersonality)
-            if (stringJSONPersonality.length > 1700) {
-                stringJSONPersonality = "{ ...JSON was too long to fit into discord's 2000 character limit per message... }"
-            }
-        }
-
-        updateBotInfo(bot)
-        return {
-            message: "# " + (success ?
-                    `Personality successfully loaded! `
-                    : `Personality loaded, but there were errors while trying to edit the AI personality:\n${errorMessages}\n`)
-                + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`
-        }
     }
 
 
@@ -296,19 +122,17 @@ bot.on('guildMemberAdd', async (member) => {
     const channel = member.guild.channels.cache.find(channel => channel.name === process.env.GREET_NEW_USERS_IN_CHANNEL)
     if (!channel) return
 
-    let prompt = greetingService.getPrompt()
-    prompt += `\nSERVER MESSAGE: User ${member.user.username} joined the discord server!\n${process.env.BOTNAME}`
-    const message = await aiService.sendUntilSuccess(prompt, false, channel)
+    const prompt = greetingService.getPrompt(member.user.username, process.env.BOTNAME)
+    const message = await aiService.sendUntilSuccess({prompt}, false, "#" + channel.name)
     const parsedMessage = replaceAsterisksByBackQuotes(message)
     if (parsedMessage)
         channel.send(parsedMessage).catch(() => null)
 
 });
 
-// TODO: add configurations for aliases
 function replaceAliases(nick) {
-    if (nick === "AliceBot") {
-        return "Alice"
+    if (nick === process.env.BOT_DISCORD_USERNAME) {
+        return process.env.BOTNAME
     }
     return nick
 }
@@ -342,7 +166,7 @@ bot.on('message', async msg => {
 
 
     const channelName = privateMessage ?
-        "##" + replaceAliases(msg.channel.id)
+        "##" + msg.channel.id
         : "#" + msg.channel.name
 
     if (!utils.isMessageFromAllowedChannel(channelName)) return
@@ -359,41 +183,32 @@ bot.on('message', async msg => {
     }
     if (originalMsg.content === ";ai me") return                        // Prevents commands from other bots
 
-    const cleanContent = replaceAliasesInMessage(replaceBackQuotesByAsterisks(originalMsg.cleanContent), process.env.BOTNAME)
     const userRoles = originalMsg.member?.roles?.cache.map(r => {
         return {id: r.id, name: r.name}
     }) || []
 
-    // React to commands
-    if (cleanContent.startsWith("!setJSONPersonality ")) {
-        if (!setJSONPersonality) {
-            await originalMsg.inlineReply("# Sorry, but this command is not fully loaded. Please try again later!").catch(() => null)
-            return
-        }
+    const cleanContent = replaceAliasesInMessage(replaceBackQuotesByAsterisks(originalMsg.cleanContent), process.env.BOTNAME)
 
-        if (!utils.checkPermissions(userRoles, process.env.ALLOW_SET_JSON_PERSONALITY, privateMessage)) {
-            await originalMsg.react("⛔").catch(() => null)
-            return
-        }
+    locked[channelName] = true
 
-        const r = await setJSONPersonality(originalMsg.cleanContent, replaceAliases(originalMsg.author.username), channelName, userRoles)
-        if (r && r.message) {
-            await originalMsg.inlineReply(r.message).catch(() => null)
-        } else if (r && r.error) {
-            await originalMsg.react("❌").catch(() => null)
+    let message
+    if (utils.isMessageFromAllowedChannel(channelName)) {
+        const allCommands = discordCommands.getOnMessageCommands()
+            .concat(commands.getOnMessageCommands())
+        for (let command of allCommands) {
+            const commandResult = await command.call(utils.replaceNickByBotName(cleanContent).trim(), replaceAliases(originalMsg.author.username), channelName, userRoles, originalMsg.id, bot)
+            if (commandResult) {
+                message = commandResult
+                break
+            }
         }
     }
 
-    locked = true
-    const message = await botService.onChannelMessage(
-        replaceAliases(originalMsg.author.username),
-        channelName,
-        cleanContent,
-        process.env.BOTNAME,
-        userRoles)
-
     savingService.save(channelName)
-    locked = false
+
+    if (!message) {
+        locked[channelName] = false
+    }
 
     if (message && message.permissionError) {
         await originalMsg.react("⛔").catch(() => null)
@@ -409,12 +224,12 @@ bot.on('message', async msg => {
         await originalMsg.react("✅").catch(() => null)
     }
 
-    if (message && message.reactWith){
-        if (message.reactWith.length > 1){
-            for (let emoji of message.reactWith){
+    if (message && message.reactWith) {
+        if (message.reactWith.length > 1) {
+            for (let emoji of message.reactWith) {
                 await originalMsg.react(emoji).catch(() => null)
             }
-        }else{
+        } else {
             await originalMsg.react(message.reactWith).catch(() => null)
         }
     }
@@ -423,63 +238,82 @@ bot.on('message', async msg => {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
 
         voiceChannel = msg.member?.voice?.channel
-        const timeToWait = message.instantReply ? 0 : encoder.encode(message.message).length * 50
+        const timeToWait = message.instantReply ? 0 : encoder.encode(message.message).length * (message.fastTyping ? 10 : 50)
         channels[channelName].startTyping().then()
-        await utils.sleep(timeToWait)
 
-
-        if (message.editLastMessage) {
-            channels[channelName].lastBotMessage?.edit(parsedMessage)
-        } else if (message.appendToLastMessage) {
-            channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
-        } else {
-            if (message.image) {
-                await originalMsg.inlineReply({
-                    message: parsedMessage, files: [{
-                        attachment: message.image,
-                        name: "SPOILER_FILE.jpg"
-                    }]
-                }).catch((e) => console.error(e))
+        setTimeout(async () => {
+            let newMessage = null
+            if (message.editLastMessage) {
+                channels[channelName].lastBotMessage?.edit(parsedMessage)
+            } else if (message.appendToLastMessage) {
+                channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
             } else {
-                await originalMsg.inlineReply(parsedMessage).catch(() => null)
+                if (message.image) {
+                    newMessage = await originalMsg.inlineReply({
+                        message: parsedMessage, files: [{
+                            attachment: message.image,
+                            name: "SPOILER_FILE.jpg"
+                        }]
+                    }).catch((e) => console.error(e))
+                } else {
+                    newMessage = await originalMsg.inlineReply(parsedMessage).catch(() => null)
+                }
             }
-        }
 
-        channels[channelName].stopTyping(true)
+            if (message && message.pushIntoHistory) {
+                historyService.pushIntoHistory(message.pushIntoHistory[0], message.pushIntoHistory[1], message.pushIntoHistory[2], newMessage.id)
+            }
+
+            channels[channelName].stopTyping(true)
+            locked[channelName] = false
+            savingService.save(channelName)
+        }, timeToWait)
 
         if (speak && !message.message.startsWith("#")) {
             await speak(parsedMessage, channelName)
         }
+    } else {
+        locked[channelName] = false
     }
 
     if (message && message.deleteUserMsg) {
         originalMsg.delete().catch(() => null)
     }
+
 });
 
 async function loop() {
-    // Waits two seconds if an answer is still generating
-    if (locked) return setTimeout(loop, 2000)
 
     if (utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) {
         for (let channel in channels) {
+            // Present sending double messages
+            if (locked[channel]) continue
+
+            locked[channel] = true
             const msg = await messageCommands.talk.call(null, null, channel, [])
             // If normal answer
             if (msg && msg.message?.trim()) {
                 const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
                 const timeToWait = encoder.encode(parsedMessage).length * 50
                 channels[channel].startTyping().then()
-                await utils.sleep(timeToWait)
-                channels[channel].send(parsedMessage).catch(() => null)
+                setTimeout(async () => {
+                    const m = await channels[channel].send(parsedMessage).catch(() => null)
+                    if (msg.pushIntoHistory) {
+                        historyService.pushIntoHistory(msg.message, process.env.BOTNAME, channel, m.id)
+                    }
+                    channels[channel].stopTyping(true)
+                    locked[channel] = false
+                }, timeToWait)
                 if (!channel.startsWith("##")) {
                     await speak(parsedMessage, channel)
                 }
-                channels[channel].stopTyping(true)
+            } else {
+                locked[channel] = false
             }
         }
     }
 
-    setTimeout(loop, utils.getInterval())
+    setTimeout(loop, 1000)
 }
 
 setInterval(async () => {
@@ -494,7 +328,7 @@ setInterval(async () => {
             // Checks if the conditions for new message are met
             const historyIsntEmpty = history.length > 0
             const lastMessage = historyIsntEmpty ? history[history.length - 1] : null
-            const timePassed = Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "30") * 1000)
+            const timePassed = Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
             const enoughPassedTime = lastMessage?.timestamp > timePassed
             const isLastMessageFromUser = lastMessage?.from !== process.env.BOTNAME && !!lastMessage?.from
             if (!historyIsntEmpty || !enoughPassedTime || isLastMessageFromUser) {
@@ -512,16 +346,18 @@ setInterval(async () => {
                     const parsedMessage = replaceAsterisksByBackQuotes(answer)
                     const timeToWait = encoder.encode(parsedMessage).length * 50
                     channels[channel].startTyping().then()
-                    await utils.sleep(timeToWait)
-                    historyService.pushIntoHistory(answer, process.env.BOTNAME, channel)
-                    channels[channel].send(parsedMessage).catch(() => null)
-                    channels[channel].stopTyping(true)
+                    setTimeout(async () => {
+                        const m = await channels[channel].send(parsedMessage).catch(() => null)
+                        historyService.pushIntoHistory(answer, process.env.BOTNAME, channel, m.id)
+
+                        channels[channel].stopTyping(true)
+                    }, timeToWait)
                 }
             }
         }
     }
 }, parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
 
-setTimeout(loop, utils.getInterval())
+setTimeout(loop, 5000)
 
 export default {}

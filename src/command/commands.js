@@ -9,9 +9,11 @@ import danbooruCommands from "../command/danbooruCommands.js";
 import epornerCommands from "../command/epornerCommands.js";
 import personalityCommands from "../command/personalityCommands.js";
 import messageCommands from "../command/messageCommands.js";
+import saveCommands from "../command/saveCommands.js";
 
-export default {
-    onMessageCommands: []
+
+class Commands {
+    static commands = []
         .concat(muteCommands.all)
         .concat(memoryCommands.all)
         .concat(languageCommands.all)
@@ -22,5 +24,16 @@ export default {
         .concat(danbooruCommands.all)
         .concat(epornerCommands.all)
         .concat(personalityCommands.all)
+        .concat(saveCommands.all)
         .concat(messageCommands.all)    // Should always be last
+
+    static getOnMessageCommands(){
+        return this.commands
+    }
+
+    static addOnMessageCommand(command) {
+        this.commands.unshift(command)
+    }
 }
+
+export default Commands
