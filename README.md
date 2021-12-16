@@ -38,7 +38,7 @@ Commands: `!mute` and `!unmute`
 Prevents the bot from receiving and sending messages in the current channel
 
 ### Delete and Prune
-Commands: `!delete #messageID` and `!prune #messageId`
+Commands: `!delete #messageID` and `!prune #messageId`  
 Example: `!delete #919774579839361024` would remove the target message from both discord and the bots memory (right-click on a message to get its ID)  
 Example: `!prune #919735483016298576` would remove target message and any newer messages from both discord and the bots memory  
 
