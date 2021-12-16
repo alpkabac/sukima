@@ -119,7 +119,10 @@ bot.on('ready', async () => {
 //Greeting feature
 bot.on('guildMemberAdd', async (member) => {
     if (!utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS)) return
-    const channel = member.guild.channels.cache.find(channel => channel.id === process.env.GREET_NEW_USERS_IN_CHANNEL)
+    const channel = member.guild.channels.cache.find(channel => {
+        return ("#" + channel.name) === process.env.GREET_NEW_USERS_IN_CHANNEL
+    })
+
     if (!channel) return
 
     const prompt = greetingService.getPrompt(member.user.username, process.env.BOTNAME)
