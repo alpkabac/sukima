@@ -12,7 +12,7 @@ const danbooruCommands = {
         [],
         ["!danbooru "],
         process.env.ALLOW_DANBOORU,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const search = msg.replace(command, '').trim()
 
             const result = await DanbooruService.getTags(search || null)

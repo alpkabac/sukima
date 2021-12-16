@@ -31,7 +31,7 @@ class Command {
      * @param {Object} client used for some platform specific things
      * @returns {Boolean|Object} true if command was executed silently, false if command wasn't executed, else {
          message: String?, permissionError: Boolean?, error: String?, success: Boolean?, reactWith: String?,
-         instantReply: Boolean?, editLastMessage: Boolean?, image: String?, deleteUserMsg: Boolean?
+         instantReply: Boolean?, editLastMessage: Boolean?, image: String?, deleteUserMsg: Boolean?, deleteMessage: String?
      }
      */
     async call(msg, from, channel, roles, messageId, client) {
@@ -44,11 +44,22 @@ class Command {
 
         // If a command matched or if there is no command at all
         if (command || commandStartsWith || noCommand) {
+            const triggeredCommand = commandStartsWith || command
+            let message = !msg ? '' : utils.upperCaseFirstLetter(msg.replace(triggeredCommand, '').trim())
+
             if (this.permission)
-                if (!utils.checkPermissions(roles, this.permission, channel.startsWith("##")) && (command || commandStartsWith))
+                if (!utils.checkPermissions(roles, this.permission, channel.startsWith("##")) && (triggeredCommand))
                     return {permissionError: true}
 
-            const callbackResult = await this.callback(msg, from, channel, command || commandStartsWith, roles, messageId, client)
+            let targetMessageId
+
+            if (triggeredCommand) {
+                targetMessageId = utils.getMessageId(msg.replace(triggeredCommand, ''))
+                if (targetMessageId) {
+                    message = message.replace("#" + targetMessageId, '').trim()
+                }
+            }
+            const callbackResult = await this.callback(msg, from, channel, triggeredCommand, roles, messageId, targetMessageId, client)
             if (callbackResult) {
                 if (typeof callbackResult === "object") {
                     callbackResult.commandName = this.commandName

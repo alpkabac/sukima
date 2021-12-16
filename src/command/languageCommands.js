@@ -24,7 +24,7 @@ const languageCommands = {
             if (message) {
                 const privateMessage = channel.startsWith("##")
                 const botTranslations = channelBotTranslationService.getChannelPersonality(channel)
-                message = `${message}\n${(privateMessage ? botTranslations.introductionDm : botTranslations.introduction)[0].msg}`
+                message = `${message}\n${(privateMessage ? botTranslations?.introductionDm : botTranslations?.introduction)?.[0]?.msg}`
                 return {message, success: true}
             }
         }

@@ -1,6 +1,4 @@
 import dotenv from 'dotenv'
-
-dotenv.config()
 import {Client} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
 import savingService from "../service/savingService.js";
@@ -15,6 +13,8 @@ import channelBotTranslationService from "../service/personalityService.js";
 import greetingService from "../service/greetingService.js";
 import commands from "../command/commands.js";
 import discordCommands from "../discord/command/discordCommands.js";
+
+dotenv.config()
 
 const bot = new Client({
     allowedMentions: {
@@ -119,7 +119,7 @@ bot.on('ready', async () => {
 //Greeting feature
 bot.on('guildMemberAdd', async (member) => {
     if (!utils.getBoolFromString(process.env.ENABLE_GREET_NEW_USERS)) return
-    const channel = member.guild.channels.cache.find(channel => channel.name === process.env.GREET_NEW_USERS_IN_CHANNEL)
+    const channel = member.guild.channels.cache.find(channel => channel.id === process.env.GREET_NEW_USERS_IN_CHANNEL)
     if (!channel) return
 
     const prompt = greetingService.getPrompt(member.user.username, process.env.BOTNAME)
@@ -234,6 +234,35 @@ bot.on('message', async msg => {
         }
     }
 
+    if (message && message.deleteMessage) {
+        const m = await originalMsg.channel.messages.fetch(message.deleteMessage)
+        if (m) {
+            setTimeout(() => {
+                m.delete().catch(() => null)
+            }, 2000)
+        } else {
+            console.log("Weird...")
+        }
+    }
+
+    if (message && message.deleteMessagesUpTo) {
+        const allMessages = await originalMsg.channel.messages.fetch()
+        const targetMessage = allMessages.find((m) => m.id === message.deleteMessagesUpTo)
+        if (targetMessage) {
+            setTimeout(async () => {
+                const messagesToDelete = allMessages.filter(m => m.createdTimestamp >= targetMessage.createdTimestamp)
+
+                // Synchronize history by removing newer messages
+                historyService.channelHistories[channelName] = historyService.channelHistories[channelName].filter(m => {
+                    const fetchedMessage = allMessages.find(_ => _.id === m.messageId)
+                    return !(fetchedMessage && fetchedMessage.createdTimestamp >= targetMessage.createdTimestamp);
+                })
+
+                await originalMsg.channel.bulkDelete(messagesToDelete)
+            }, 2000)
+        }
+    }
+
     if (message?.message?.trim().length > 0) {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
 
@@ -244,9 +273,9 @@ bot.on('message', async msg => {
         setTimeout(async () => {
             let newMessage = null
             if (message.editLastMessage) {
-                channels[channelName].lastBotMessage?.edit(parsedMessage)
+                newMessage = await channels[channelName].lastBotMessage?.edit(parsedMessage)
             } else if (message.appendToLastMessage) {
-                channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
+                newMessage = await channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
             } else {
                 if (message.image) {
                     newMessage = await originalMsg.inlineReply({
@@ -260,8 +289,12 @@ bot.on('message', async msg => {
                 }
             }
 
+            if (!newMessage) {
+                console.warn("New message couldn't be retrieved when it should have been...")
+            }
+
             if (message && message.pushIntoHistory) {
-                historyService.pushIntoHistory(message.pushIntoHistory[0], message.pushIntoHistory[1], message.pushIntoHistory[2], newMessage.id)
+                historyService.pushIntoHistory(message.pushIntoHistory[0], message.pushIntoHistory[1], message.pushIntoHistory[2], newMessage?.id)
             }
 
             channels[channelName].stopTyping(true)
@@ -277,7 +310,9 @@ bot.on('message', async msg => {
     }
 
     if (message && message.deleteUserMsg) {
-        originalMsg.delete().catch(() => null)
+        setTimeout(() => {
+            originalMsg.delete().catch(() => null)
+        }, 2000)
     }
 
 });
@@ -336,11 +371,11 @@ setInterval(async () => {
             }
 
             const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
-            const prompt = promptService.getPrompt(null, null, channel, true).prompt + "\n"
+            const prompt = promptService.getPrompt(channel, true).prompt + "\n"
             const result = await aiService.simpleEvalbot(prompt, tokenCount, channel.startsWith("##"))
             // If next message is from the AI
             if (result === process.env.BOTNAME) {
-                const prompt = promptService.getPrompt(null, null, channel)
+                const prompt = promptService.getPrompt(channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
                 if (answer) {
                     const parsedMessage = replaceAsterisksByBackQuotes(answer)

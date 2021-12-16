@@ -12,7 +12,7 @@ const wikiCommands = {
         [],
         ["!wiki "],
         process.env.ALLOW_WIKI,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const search = msg.replace(command, '').trim()
             if (!search || search.length === 0) {
                 return {message: "# You have to provide at least one keyword for the search. Use like this: `!wiki KEYWORD`"}

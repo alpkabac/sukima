@@ -13,7 +13,7 @@ const voiceCommands = {
         [],
         ["!setVoice "],
         process.env.ALLOW_SET_VOICE,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const voice = msg.replace(command, "")
 
             const aiPersonality = personalityService.getChannelPersonality(channel)

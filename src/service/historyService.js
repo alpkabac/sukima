@@ -1,4 +1,5 @@
 import utils from '../utils.js'
+
 const conf = utils.load("./conf.json")
 
 class HistoryService {
@@ -6,6 +7,50 @@ class HistoryService {
 
     static getChannelHistory(channel) {
         return !this.channelHistories[channel] ? [] : this.channelHistories[channel]
+    }
+
+    static delete(channel, messageId) {
+        let history = this.channelHistories[channel]
+        let index
+
+        for (let h in history) {
+            if (history[h].messageId === messageId) {
+                index = h
+                break
+            }
+        }
+
+        if (index !== null) {
+            history.splice(index, 1)
+            return true
+        }
+        return false
+    }
+
+    /**
+     * Deletes all messages up to a certain message (included)
+     * If the message isn't in the history, method does nothing and returns false
+     * @param {String} channel
+     * @param {String} messageId
+     * @return {boolean}
+     */
+    static prune(channel, messageId) {
+        let history = this.channelHistories[channel]
+        let index
+
+        for (let h in history) {
+            if (history[h].messageId === messageId) {
+                index = h
+                break
+            }
+        }
+
+        if (index !== null) {
+            history.splice(index)
+            return true
+        }
+
+        return false
     }
 
     static pushIntoHistory(msg, from, channel, messageId = null) {

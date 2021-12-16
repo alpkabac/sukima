@@ -46,7 +46,7 @@ class PromptService {
         ]) + "\n" + process.env.BOTNAME + ":"
     }
 
-    static getPrompt(msg, from, channel, isContinuation = false, isRetry = false, historyEnabled = true) {
+    static getPrompt(channel, isContinuation = false, isRetry = false, historyEnabled = true) {
         const privateConversation = channel.startsWith("##")
         const botTranslations = channelBotTranslationService.getChannelPersonality(channel)
         const channelContext = privateConversation ?

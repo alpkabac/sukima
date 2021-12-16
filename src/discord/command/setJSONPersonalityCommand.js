@@ -1,10 +1,10 @@
 import dotenv from 'dotenv'
-
-dotenv.config()
 import Command from "../../command/Command.js";
 import channelBotTranslationService from "../../service/personalityService.js";
 import updateBotInfo from "../discordUtils.js";
 import utils from "../../utils.js";
+
+dotenv.config()
 
 const voices = utils.load('./src/tts/languages.json')
 
@@ -13,7 +13,7 @@ const setJSONPersonalityCommand = new Command(
     [],
     ["!setJSONPersonality "],
     process.env.ALLOW_SET_JSON_PERSONALITY,
-    async (msg, from, channel, command, roles, messageId, client) => {
+    async (msg, from, channel, command, roles, messageId, targetMessageId, client) => {
         let success = true
         let errorMessages = ""
 
@@ -27,6 +27,10 @@ const setJSONPersonalityCommand = new Command(
             personality = JSON.parse(personalityJSON)
         } catch (e) {
             return {error: "# JSON could not be parsed"}
+        }
+
+        if (!personality){
+            return {error: "# Err, I have no clue what happened =/"}
         }
 
         const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
@@ -50,6 +54,10 @@ const setJSONPersonalityCommand = new Command(
                     error: `# Personality failed to load: Username already taken by too many people or was changed too recently`
                 }
             }
+        }
+
+        if (personality.botname !== undefined && !channel.startsWith("##")) {
+            process.env.BOTNAME = personality.botname
         }
 
         if (personality.avatar !== undefined && !channel.startsWith("##")) {

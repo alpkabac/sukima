@@ -9,7 +9,7 @@ const conf = load("./conf.json")
 const client = new textToSpeech.TextToSpeechClient()
 
 
-function load (filename) {
+function load(filename) {
     let file
     try {
         file = fs.readFileSync(filename)
@@ -29,9 +29,9 @@ class Utils {
      * @return message where nick is replaced by bot name
      */
     static replaceNickByBotName(msg) {
-        if (process.env.BOT_DISCORD_USERNAME){
+        if (process.env.BOT_DISCORD_USERNAME) {
             return msg.replace(process.env.BOT_DISCORD_USERNAME, process.env.BOTNAME)
-        }else{
+        } else {
             return msg
         }
     }
@@ -146,6 +146,19 @@ class Utils {
 
     static load(filename) {
         return load(filename)
+    }
+
+    static getMessageId(message) {
+        const msg = message.trim()
+        if (!msg.trim().startsWith("#")) return null
+
+        const match = msg.match(/^#([0-9]*)/)
+
+        if (match && match[1]){
+            return match[1]
+        }else{
+            return null
+        }
     }
 }
 

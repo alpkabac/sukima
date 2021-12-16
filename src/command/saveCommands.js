@@ -7,7 +7,7 @@ const saveCommands = {
         ["!enableDMAutoSave"],
         [],
         null,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const personality = personalityService.getChannelPersonality(channel)
             const isDm = channel.startsWith("##")
             if (!isDm) return {deleteUserMsg: true}
@@ -27,7 +27,7 @@ const saveCommands = {
         ["!disableDMAutoSave"],
         [],
         null,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const personality = personalityService.getChannelPersonality(channel)
             const isDm = channel.startsWith("##")
             if (!isDm) return true

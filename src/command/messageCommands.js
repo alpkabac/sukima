@@ -15,7 +15,7 @@ const messageCommands = {
         [],
         ["!!"],
         process.env.ALLOW_NO_CONTEXT_MESSAGE,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             historyService.pushIntoHistory(message, from, channel, messageId)
             const prompt = promptService.getNoContextPrompt(message, from, channel)
@@ -35,8 +35,8 @@ const messageCommands = {
         [",", "!continue"],
         [],
         process.env.ALLOW_CONTINUE_MESSAGE,
-        async (msg, from, channel, command, roles, messageId) => {
-            const prompt = promptService.getPrompt(msg, from, channel, true, false)
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+            const prompt = promptService.getPrompt(channel, true, false)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.getChannelHistory(channel).reverse()
             for (let h of historyService.getChannelHistory(channel)) {
@@ -53,10 +53,10 @@ const messageCommands = {
     retryMessage: new Command(
         "Retry Message",
         ["²", "○", "!retry"],
-        [],
+        ["!retry "],
         process.env.ALLOW_RETRY_MESSAGE,
-        async (msg, from, channel, command, roles, messageId) => {
-            const prompt = promptService.getPrompt(msg, from, channel, false, true)
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+            const prompt = promptService.getPrompt(channel, false, true)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.getChannelHistory(channel).reverse()
             for (let h of historyService.getChannelHistory(channel)) {
@@ -70,12 +70,40 @@ const messageCommands = {
         },
         false
     ),
+    deleteMessage: new Command(
+        "Delete Message",
+        [],
+        ["!delete "],
+        process.env.ALLOW_DELETE_MESSAGE,
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+            const success = historyService.delete(channel, targetMessageId)
+            if (success) {
+                return {success: true, deleteUserMsg: true, deleteMessage: targetMessageId}
+            }
+            return {reactWith: `🤷`, deleteUserMsg: true}
+        },
+        true
+    ),
+    pruneMessages: new Command(
+        "Prune Messages",
+        [],
+        ["!prune "],
+        process.env.ALLOW_PRUNE_MESSAGES,
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+            const success = historyService.prune(channel, targetMessageId)
+            if (success) {
+                return {success: true, deleteUserMsg: true, deleteMessagesUpTo: targetMessageId}
+            }
+            return {reactWith: `🤷`, deleteUserMsg: true}
+        },
+        true
+    ),
     editMessage: new Command(
         "Edit Message",
         [],
         ["!edit "],
         process.env.ALLOW_EDIT_MESSAGE,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             historyService.getChannelHistory(channel).reverse()
             for (let h of historyService.getChannelHistory(channel)) {
@@ -94,12 +122,12 @@ const messageCommands = {
         [],
         ["?", "!talk"],
         process.env.ALLOW_ANSWER_MESSAGE,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             if (message) {
                 historyService.pushIntoHistory(message, from, channel, messageId)
             }
-            const prompt = promptService.getPrompt(msg, from, channel)
+            const prompt = promptService.getPrompt(channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             return {
                 message: answer, success: true, reactWith: "⏩",
@@ -113,12 +141,12 @@ const messageCommands = {
         ["?", "!talk"],
         [],
         process.env.ALLOW_ANSWER_MESSAGE,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
             if (message) {
                 historyService.pushIntoHistory(message, from, channel, messageId)
             }
-            const prompt = promptService.getPrompt(msg, from, channel)
+            const prompt = promptService.getPrompt(channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             return {
                 message: answer, success: true, deleteUserMsg: true, reactWith: "⏩",
@@ -140,7 +168,7 @@ const messageCommands = {
         [],
         [],
         null,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             historyService.pushIntoHistory(msg, from, channel, messageId)
 
             if (!utils.checkPermissions(roles, process.env.ALLOW_REPLY_TO_NAME, channel.startsWith("##"))) {
@@ -148,7 +176,7 @@ const messageCommands = {
             }
 
             if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
-                const prompt = promptService.getPrompt(msg, from, channel)
+                const prompt = promptService.getPrompt(channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
                 return {
                     message: answer,
@@ -163,7 +191,7 @@ const messageCommands = {
         [],
         [],
         null,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             if (!utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) return false
 
             const history = historyService.getChannelHistory(channel)
@@ -174,7 +202,7 @@ const messageCommands = {
                 false :
                 Date.now() - lastMessageFromChannel.timestamp > (parseInt(process.env.MIN_BOT_MESSAGE_INTERVAL) * 1000)
             if (lastMessageIsOldEnough && lastMessageFromChannel?.from !== process.env.BOTNAME) {
-                const prompt = promptService.getPrompt(null, null, channel)
+                const prompt = promptService.getPrompt(channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
                 if (answer) {
                     return {
@@ -191,11 +219,11 @@ const messageCommands = {
         [],
         [],
         process.env.ALLOW_REACTIONS,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const action = translationsService.translations.onAction
                 .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
             historyService.pushIntoHistory(action, from, channel, messageId)
-            const prompt = promptService.getPrompt(msg, from, channel)
+            const prompt = promptService.getPrompt(channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             return {
                 message: answer,
@@ -207,6 +235,8 @@ const messageCommands = {
 }
 
 messageCommands.all = [
+    messageCommands.deleteMessage,
+    messageCommands.pruneMessages,
     messageCommands.forceTalk,
     messageCommands.comment,
     messageCommands.noContextMessage,

@@ -12,7 +12,7 @@ const injectionCommands = {
         [],
         ["!event "],
         process.env.ALLOW_EVENT_INJECTION_MESSAGE,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const event = msg.replace(command, "").trim()
             if (event) {
                 const formattedEvent = event.startsWith("[") && event.endsWith("]") ? event :
@@ -31,7 +31,7 @@ const injectionCommands = {
         [],
         ["!property "],
         process.env.ALLOW_PROPERTY_INJECTION_MESSAGE,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const fullCommand = msg.replace(command, "").trim()
             const words = fullCommand.split(" ")
             const key = words.shift().replace(':', '')

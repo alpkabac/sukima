@@ -12,7 +12,7 @@ const epornerCommands = {
         [],
         ["!eporner "],
         process.env.ALLOW_EPORNER,
-        async (msg, from, channel, command, roles, messageId) => {
+        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
             const search = msg.replace(command, '').trim()
 
             if (!search || search.length === 0) {
