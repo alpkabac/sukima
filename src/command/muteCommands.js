@@ -10,7 +10,7 @@ const muteCommands = {
         ["!mute"],
         [],
         process.env.ALLOW_MUTE,
-        (msg, from, channel, command) => {
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             MuteService.setChannelMuteStatus(channel, true)
             return {success: true}
         }
@@ -20,7 +20,7 @@ const muteCommands = {
         ["!unmute"],
         [],
         process.env.ALLOW_MUTE,
-        (msg, from, channel, command) => {
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             MuteService.setChannelMuteStatus(channel, false)
             return {success: true}
         }

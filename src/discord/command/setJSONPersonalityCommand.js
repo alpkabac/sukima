@@ -13,7 +13,7 @@ const setJSONPersonalityCommand = new Command(
     [],
     ["!setJSONPersonality "],
     process.env.ALLOW_SET_JSON_PERSONALITY,
-    async (msg, from, channel, command, roles, messageId, targetMessageId, client) => {
+    async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client) => {
         let success = true
         let errorMessages = ""
 

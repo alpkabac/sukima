@@ -37,7 +37,7 @@ const memoryCommands = {
         [],
         ["!remember "],
         process.env.ALLOW_REMEMBER,
-        (msg, from, channel, command) => {
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             const newRememberedThing = addSquareBrackets(msg.replace(command, '').trim())
             memoryService.setUserMemoryInChannel(newRememberedThing, from, channel)
             return {
@@ -49,9 +49,9 @@ const memoryCommands = {
         [],
         ["!alsoRemember "],
         process.env.ALLOW_REMEMBER,
-        (msg, from, channel, command) => {
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             const currentRememberedThings = memoryService.getChannelMemoryForUser(channel, from)?.trim()
-            const newRememberedThing = addSquareBrackets(msg.replace(command, '').trim())
+            const newRememberedThing = addSquareBrackets(parsedMsg)
             if (newRememberedThing) {
                 const fullThingToRemember = (currentRememberedThings + "\n" + newRememberedThing).trim()
                 memoryService.setUserMemoryInChannel(fullThingToRemember, from, channel)
@@ -66,7 +66,7 @@ const memoryCommands = {
         ["!showRemember"],
         [],
         process.env.ALLOW_REMEMBER,
-        (msg, from, channel, command) => {
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             const memory = memoryService.getChannelMemoryForUser(channel, from)
             const message = memory ? "# Your channel memory:\n" + memory :
                 "# Your have no memorized message"
@@ -80,7 +80,7 @@ const memoryCommands = {
         ["!showAllRemember"],
         [],
         process.env.ALLOW_REMEMBER,
-        (msg, from, channel, command) => {
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             const memory = JSON.stringify(memoryService.getChannelMemory(channel), null, 4)
             return {
                 message: "# Channel memory:\n" + memory,
@@ -92,7 +92,7 @@ const memoryCommands = {
         ["!forget"],
         [],
         process.env.ALLOW_REMEMBER,
-        (msg, from, channel, command) => {
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             memoryService.forgetUserMemoryInChannel(from, channel)
             return {
                 success: true
@@ -103,7 +103,7 @@ const memoryCommands = {
         ["!forgetAll"],
         [],
         process.env.ALLOW_WIPE_REMEMBER,
-        (msg, from, channel, command) => {
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             memoryService.forgetAllUserMemoryInChannel(channel)
             return {
                 success: true
@@ -114,7 +114,7 @@ const memoryCommands = {
         ["!reset"],
         [],
         process.env.ALLOW_FORGET,   // TODO: rename to ALLOW_RESET
-        (msg, from, channel, command) => {
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             historyService.forgetChannelHistory(channel)
             let presentationMessage = ""
             const intro = channel.startsWith("##") ?

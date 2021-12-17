@@ -12,10 +12,8 @@ const epornerCommands = {
         [],
         ["!eporner "],
         process.env.ALLOW_EPORNER,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
-            const search = msg.replace(command, '').trim()
-
-            if (!search || search.length === 0) {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            if (!parsedMsg || parsedMsg.length === 0) {
                 return {message: "# You have to provide at least one keyword for the search. Use like this: `!eporner KEYWORD`"}
             }
 
@@ -23,7 +21,7 @@ const epornerCommands = {
             const THUMBNAIL_SIZE = ["small", "medium", "big"]
             const page = 0
             const nbResultPerPage = 1
-            let params = `?query=${search}&per_page=${nbResultPerPage}&page=${page}&thumbsize=${THUMBNAIL_SIZE[0]}&order=${ORDER[0]}&gay=1&lq=1&format=json`
+            let params = `?query=${parsedMsg}&per_page=${nbResultPerPage}&page=${page}&thumbsize=${THUMBNAIL_SIZE[0]}&order=${ORDER[0]}&gay=1&lq=1&format=json`
 
             const preResult = (await axios.get("https://www.eporner.com/api/v2/video/search/" + params, {
                 headers: {
@@ -33,7 +31,7 @@ const epornerCommands = {
 
             if (preResult?.videos?.length > 0) {
                 const randomPage = Math.floor(Math.random() * preResult.total_pages)
-                params = `?query=${search}&per_page=${nbResultPerPage}&page=${randomPage}&thumbsize=${THUMBNAIL_SIZE[2]}&order=${ORDER[0]}&gay=1&lq=1&format=json`
+                params = `?query=${parsedMsg}&per_page=${nbResultPerPage}&page=${randomPage}&thumbsize=${THUMBNAIL_SIZE[2]}&order=${ORDER[0]}&gay=1&lq=1&format=json`
 
                 const result = (await axios.get("https://www.eporner.com/api/v2/video/search/" + params, {
                     headers: {
@@ -45,7 +43,7 @@ const epornerCommands = {
                     const vid = result.videos[0]
 
                     historyService.pushIntoHistory(msg, from, channel, messageId)
-                    const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by searching "${search}" on the porn website "eporner" and sending one of the clip to ${from}. The video is titled "${vid.title}" and contains the keywords "${vid.keywords}" ]`
+                    const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by searching "${parsedMsg}" on the porn website "eporner" and sending one of the clip to ${from}. The video is titled "${vid.title}" and contains the keywords "${vid.keywords}" ]`
                     return {
                         message: `# Id: ${vid?.id}\nTitle: ${vid.title}\nKeywords: ${vid.keywords}\nLength: ${vid.length_min}\nDate: ${vid.added}\nURL: ${vid.url}`,
                         success: true,

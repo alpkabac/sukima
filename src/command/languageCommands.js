@@ -12,14 +12,14 @@ const languageCommands = {
         [],
         ["!lang "],
         process.env.ALLOW_CHANGE_LANGUAGE,
-        (msg, from, channel, command) => {
-            const language = msg.replace(command, "")
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             let message = ""
-            translationsService.changeLanguage(language)
-            if (channelBotTranslationService.changeChannelPersonality(channel, language, process.env.BOTNAME)) {
-                message += `Loaded bot personality file: ${process.env.BOTNAME}/${language}.json`
+            parsedMsg = parsedMsg.replace('.json', '')
+            translationsService.changeLanguage(parsedMsg)
+            if (channelBotTranslationService.changeChannelPersonality(channel, parsedMsg, process.env.BOTNAME)) {
+                message += `Loaded bot personality file: ${process.env.BOTNAME}/${parsedMsg}.json`
             } else {
-                return {error: `# Couldn't load bot personality for ${process.env.BOTNAME}/${language}.json`}
+                return {error: `# Couldn't load bot personality for ${process.env.BOTNAME}/${parsedMsg}.json`}
             }
             if (message) {
                 const privateMessage = channel.startsWith("##")

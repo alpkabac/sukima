@@ -65,6 +65,20 @@ class HistoryService {
         while (this.channelHistories[channel].length > conf.maxHistory) this.channelHistories[channel].shift()
     }
 
+    static editByMessageId(parsedMsg, channel, targetMessageId){
+        let success = false
+        this.channelHistories[channel].reverse()
+        for (let h of this.channelHistories[channel]) {
+            if (targetMessageId ? h.messageId === targetMessageId : h.from === process.env.BOTNAME) {
+                h.msg = parsedMsg
+                success = true
+                break
+            }
+        }
+        this.channelHistories[channel].reverse()
+        return success
+    }
+
     static forgetChannelHistory(channel) {
         if (this.channelHistories[channel])
             delete this.channelHistories[channel]

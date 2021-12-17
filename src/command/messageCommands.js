@@ -15,10 +15,9 @@ const messageCommands = {
         [],
         ["!!"],
         process.env.ALLOW_NO_CONTEXT_MESSAGE,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
-            const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
-            historyService.pushIntoHistory(message, from, channel, messageId)
-            const prompt = promptService.getNoContextPrompt(message, from, channel)
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            historyService.pushIntoHistory(parsedMsg, from, channel, messageId)
+            const prompt = promptService.getNoContextPrompt(parsedMsg, from, channel)
             const answer = await aiService.sendUntilSuccess({
                 prompt,
                 repetition_penalty_range: 1024
@@ -35,7 +34,7 @@ const messageCommands = {
         [",", "!continue"],
         [],
         process.env.ALLOW_CONTINUE_MESSAGE,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             const prompt = promptService.getPrompt(channel, true, false)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.getChannelHistory(channel).reverse()
@@ -55,7 +54,7 @@ const messageCommands = {
         ["²", "○", "!retry"],
         ["!retry "],
         process.env.ALLOW_RETRY_MESSAGE,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             let prompt = promptService.getPrompt(channel, false, true)
             if (targetMessageId) {
                 prompt = promptService.getPrompt(channel, false, true, true, targetMessageId)
@@ -81,7 +80,7 @@ const messageCommands = {
         [],
         ["!delete "],
         process.env.ALLOW_DELETE_MESSAGE,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             const success = historyService.delete(channel, targetMessageId)
             if (success) {
                 return {success: true, deleteUserMsg: true, deleteMessage: targetMessageId}
@@ -95,7 +94,8 @@ const messageCommands = {
         [],
         ["!prune "],
         process.env.ALLOW_PRUNE_MESSAGES,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            if (!targetMessageId) return {reactWith: `🤷`, deleteUserMsg: true}
             const success = historyService.prune(channel, targetMessageId)
             if (success) {
                 return {success: true, deleteUserMsg: true, deleteMessagesUpTo: targetMessageId}
@@ -109,24 +109,19 @@ const messageCommands = {
         [],
         ["!edit "],
         process.env.ALLOW_EDIT_MESSAGE,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
-            let message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
-            if (targetMessageId)
-                message = utils.upperCaseFirstLetter(message.replace("#" + targetMessageId, '').trim())
-            historyService.getChannelHistory(channel).reverse()
-            for (let h of historyService.getChannelHistory(channel)) {
-                if (targetMessageId ? h.messageId === targetMessageId : h.from === process.env.BOTNAME) {
-                    h.msg = message
-                    break
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            if (!targetMessageId) return {reactWith: `🤷`, deleteUserMsg: true}
+
+            if (historyService.editByMessageId(parsedMsg, channel, targetMessageId)) {
+                return {
+                    message: parsedMsg,
+                    success: true,
+                    deleteUserMsg: true,
+                    editLastMessage: !targetMessageId,
+                    editMessage: targetMessageId
                 }
-            }
-            historyService.getChannelHistory(channel).reverse()
-            return {
-                message: message,
-                success: true,
-                deleteUserMsg: true,
-                editLastMessage: !targetMessageId,
-                editMessage: targetMessageId
+            } else {
+                return {reactWith: `🤷`, deleteUserMsg: true}
             }
         },
         false
@@ -136,10 +131,9 @@ const messageCommands = {
         [],
         ["?", "!talk"],
         process.env.ALLOW_ANSWER_MESSAGE,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
-            const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
-            if (message) {
-                historyService.pushIntoHistory(message, from, channel, messageId)
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            if (parsedMsg) {
+                historyService.pushIntoHistory(parsedMsg, from, channel, messageId)
             }
             const prompt = promptService.getPrompt(channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
@@ -155,10 +149,9 @@ const messageCommands = {
         ["?", "!talk"],
         [],
         process.env.ALLOW_ANSWER_MESSAGE,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
-            const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
-            if (message) {
-                historyService.pushIntoHistory(message, from, channel, messageId)
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            if (parsedMsg) {
+                historyService.pushIntoHistory(parsedMsg, from, channel, messageId)
             }
             const prompt = promptService.getPrompt(channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
@@ -182,7 +175,7 @@ const messageCommands = {
         [],
         [],
         null,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             historyService.pushIntoHistory(msg, from, channel, messageId)
 
             if (!utils.checkPermissions(roles, process.env.ALLOW_REPLY_TO_NAME, channel.startsWith("##"))) {
@@ -205,7 +198,7 @@ const messageCommands = {
         [],
         [],
         null,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             if (!utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) return false
 
             const history = historyService.getChannelHistory(channel)
@@ -233,7 +226,7 @@ const messageCommands = {
         [],
         [],
         process.env.ALLOW_REACTIONS,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             const action = translationsService.translations.onAction
                 .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
             historyService.pushIntoHistory(action, from, channel, messageId)

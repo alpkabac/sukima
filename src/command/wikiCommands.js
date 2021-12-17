@@ -12,13 +12,12 @@ const wikiCommands = {
         [],
         ["!wiki "],
         process.env.ALLOW_WIKI,
-        async (msg, from, channel, command, roles, messageId, targetMessageId) => {
-            const search = msg.replace(command, '').trim()
-            if (!search || search.length === 0) {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            if (!parsedMsg || parsedMsg.length === 0) {
                 return {message: "# You have to provide at least one keyword for the search. Use like this: `!wiki KEYWORD`"}
             }
 
-            const url = encodeURI(`https://en.wikipedia.org/w/api.php?action=opensearch&search=${search}&format=json`)
+            const url = encodeURI(`https://en.wikipedia.org/w/api.php?action=opensearch&search=${parsedMsg}&format=json`)
 
             const preResult = (await axios.get(url, {
                 headers: {
@@ -28,7 +27,7 @@ const wikiCommands = {
 
             if (preResult && preResult[1][0] && preResult[3][0]) {
                 historyService.pushIntoHistory(msg, from, channel, messageId)
-                const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by searching for "${search}" on wikipedia and sending the link "${preResult[3][0]}" to "${from}" ]`
+                const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by searching for "${parsedMsg}" on wikipedia and sending the link "${preResult[3][0]}" to "${from}" ]`
 
                 return {
                     message: `# Result found for ${preResult[1][0]}. Follow this link to read more: ${preResult[3][0]}`,

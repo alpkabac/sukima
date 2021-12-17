@@ -19,7 +19,7 @@ class TranslationsService {
             this._translations = utils.load(`./translations/${code}.json`)
             return true
         } catch (e) {
-            this._translations = require(`./translations/en-EN.json`)
+            this._translations = utils.load(`./translations/en-EN.json`)
         }
         return false
     }
