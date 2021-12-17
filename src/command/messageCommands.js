@@ -104,10 +104,12 @@ const messageCommands = {
         ["!edit "],
         process.env.ALLOW_EDIT_MESSAGE,
         async (msg, from, channel, command, roles, messageId, targetMessageId) => {
-            const message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
+            let message = utils.upperCaseFirstLetter(msg.replace(command, '').trim())
+            if (targetMessageId)
+                message = utils.upperCaseFirstLetter(message.replace("#" + targetMessageId, '').trim())
             historyService.getChannelHistory(channel).reverse()
             for (let h of historyService.getChannelHistory(channel)) {
-                if (h.from === process.env.BOTNAME) {
+                if (h.messageId === targetMessageId) {
                     h.msg = message
                     break
                 }

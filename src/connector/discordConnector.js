@@ -361,7 +361,7 @@ setInterval(async () => {
     if (utils.getBoolFromString(process.env.ENABLE_AUTO_MESSAGE)) {
         for (let channel in channels) {
             if (channel.startsWith("##")) continue
-            
+
             // TODO: put into a command
             const history = historyService.getChannelHistory(channel)
 
