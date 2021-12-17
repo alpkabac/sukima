@@ -46,7 +46,7 @@ class PromptService {
         ]) + "\n" + process.env.BOTNAME + ":"
     }
 
-    static getPrompt(channel, isContinuation = false, isRetry = false, historyEnabled = true) {
+    static getPrompt(channel, isContinuation = false, isRetry = false, historyEnabled = true, messageId = null) {
         const privateConversation = channel.startsWith("##")
         const botTranslations = channelBotTranslationService.getChannelPersonality(channel)
         const channelContext = privateConversation ?
@@ -87,18 +87,30 @@ class PromptService {
         // Inserts as much history as possible in the 2048 token limits (including context and last line)
         let promptHistory = ""
         let couldInsertAllHistory = true
+        let messageIdDetected = !messageId
         if (historyEnabled) {
             let lastBotMessageFound = false
             for (let i = history.length - 1; i >= 0; i--) {
 
-                if ((isRetry || isContinuation) && !lastBotMessageFound) {
-                    if (history[i].from === process.env.BOTNAME) {
-                        lastBotMessageFound = true
-                        if (isRetry) {
+                if (messageId && history[i].messageId === messageId){
+                    messageIdDetected = true
+                    continue
+                }
+
+                if (!messageIdDetected){
+                    continue
+                }
+
+                if (!messageId) {
+                    if ((isRetry || isContinuation) && !lastBotMessageFound) {
+                        if (history[i].from === process.env.BOTNAME) {
+                            lastBotMessageFound = true
+                            if (isRetry) {
+                                continue
+                            }
+                        } else {
                             continue
                         }
-                    } else {
-                        continue
                     }
                 }
 

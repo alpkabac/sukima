@@ -56,17 +56,23 @@ const messageCommands = {
         ["!retry "],
         process.env.ALLOW_RETRY_MESSAGE,
         async (msg, from, channel, command, roles, messageId, targetMessageId) => {
-            const prompt = promptService.getPrompt(channel, false, true)
+            let prompt = promptService.getPrompt(channel, false, true)
+            if (targetMessageId) {
+                prompt = promptService.getPrompt(channel, false, true, true, targetMessageId)
+            }
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.getChannelHistory(channel).reverse()
             for (let h of historyService.getChannelHistory(channel)) {
-                if (h.from === process.env.BOTNAME) {
+                if (targetMessageId ? h.messageId === targetMessageId : h.from === process.env.BOTNAME) {
                     h.msg = answer
                     break
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: answer, success: true, deleteUserMsg: true, editLastMessage: true, reactWith: "🔄"}
+            return {
+                message: answer, success: true, deleteUserMsg: true, editLastMessage: !targetMessageId,
+                editMessage: targetMessageId, reactWith: "🔄"
+            }
         },
         false
     ),
@@ -109,13 +115,19 @@ const messageCommands = {
                 message = utils.upperCaseFirstLetter(message.replace("#" + targetMessageId, '').trim())
             historyService.getChannelHistory(channel).reverse()
             for (let h of historyService.getChannelHistory(channel)) {
-                if (h.messageId === targetMessageId) {
+                if (targetMessageId ? h.messageId === targetMessageId : h.from === process.env.BOTNAME) {
                     h.msg = message
                     break
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: message, success: true, deleteUserMsg: true, editLastMessage: !targetMessageId, editMessage: targetMessageId}
+            return {
+                message: message,
+                success: true,
+                deleteUserMsg: true,
+                editLastMessage: !targetMessageId,
+                editMessage: targetMessageId
+            }
         },
         false
     ),
