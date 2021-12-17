@@ -7,7 +7,7 @@ const greetingGenerator = utils.load("./data/generationPrompt/greetingGeneratorF
 
 class GreetingService {
     static getPrompt(username, botName) {
-        const context = `[ ${botname} is the official greeting bot of the discord server. ${botName}'s only goal is to greet every new member in the discord server and guide them towards the main discord channels ]\n`
+        const context = `[ ${botName} is the official greeting bot of the discord server. ${botName}'s only goal is to greet every new member in the discord server and guide them towards the main discord channels ]\n`
         return context + greetingGenerator
                 .map(m => `${m.from.replace('${botName}', botName)}: ${m.msg}`)
                 .join('\n')
