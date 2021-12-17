@@ -115,7 +115,7 @@ const messageCommands = {
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: message, success: true, deleteUserMsg: true, editLastMessage: true}
+            return {message: message, success: true, deleteUserMsg: true, editLastMessage: !targetMessageId, editMessage: targetMessageId}
         },
         false
     ),

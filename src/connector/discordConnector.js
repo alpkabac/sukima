@@ -275,7 +275,10 @@ bot.on('message', async msg => {
 
         setTimeout(async () => {
             let newMessage = null
-            if (message.editLastMessage) {
+
+            if (message.editMessage) {
+                newMessage = await (await channels[channelName].messages.fetch(message.editMessage))?.edit(parsedMessage)
+            } else if (message.editLastMessage) {
                 newMessage = await channels[channelName].lastBotMessage?.edit(parsedMessage)
             } else if (message.appendToLastMessage) {
                 newMessage = await channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
