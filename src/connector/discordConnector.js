@@ -363,18 +363,21 @@ setInterval(async () => {
 
     if (utils.getBoolFromString(process.env.ENABLE_AUTO_MESSAGE)) {
         for (let channel in channels) {
+
+            // Prevents auto messages in DMs (temporary, hopefully)
             if (channel.startsWith("##")) continue
 
             // TODO: put into a command
             const history = historyService.getChannelHistory(channel)
 
             // Checks if the conditions for new message are met
-            const historyIsntEmpty = history.length > 0
-            const lastMessage = historyIsntEmpty ? history[history.length - 1] : null
+            const historyIsEmpty = !(history.length > 0)
+            const lastMessage = historyIsEmpty ? history[history.length - 1] : null
             const timePassed = Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
             const enoughPassedTime = lastMessage?.timestamp > timePassed
             const isLastMessageFromUser = lastMessage?.from !== process.env.BOTNAME && !!lastMessage?.from
-            if (!historyIsntEmpty || !enoughPassedTime || isLastMessageFromUser) {
+
+            if (historyIsEmpty || !enoughPassedTime || isLastMessageFromUser) {
                 continue
             }
 

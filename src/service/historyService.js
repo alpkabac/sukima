@@ -35,6 +35,7 @@ class HistoryService {
      * @return {boolean}
      */
     static prune(channel, messageId) {
+        if (!this.channelHistories[channel]) return false
         let history = this.channelHistories[channel]
         let index
 
@@ -65,11 +66,12 @@ class HistoryService {
         while (this.channelHistories[channel].length > conf.maxHistory) this.channelHistories[channel].shift()
     }
 
-    static editByMessageId(parsedMsg, channel, targetMessageId){
+    static editByMessageId(parsedMsg, channel, targetMessageId) {
+        if (!this.channelHistories[channel]) return false
         let success = false
         this.channelHistories[channel].reverse()
         for (let h of this.channelHistories[channel]) {
-            if (targetMessageId ? h.messageId === targetMessageId : h.from === process.env.BOTNAME) {
+            if ((targetMessageId ? h.messageId === targetMessageId : true) && (!h.from || h.from === process.env.BOTNAME)) {
                 h.msg = parsedMsg
                 success = true
                 break

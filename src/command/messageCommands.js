@@ -208,7 +208,11 @@ const messageCommands = {
             const lastMessageIsOldEnough = !lastMessageFromChannel ?
                 false :
                 Date.now() - lastMessageFromChannel.timestamp > (parseInt(process.env.MIN_BOT_MESSAGE_INTERVAL) * 1000)
-            if (lastMessageIsOldEnough && lastMessageFromChannel?.from !== process.env.BOTNAME) {
+
+            const endsWithThreeDots = !lastMessageFromChannel ?
+                false : lastMessageFromChannel?.msg?.endsWith("...")
+
+            if (lastMessageIsOldEnough && (lastMessageFromChannel?.from !== process.env.BOTNAME || endsWithThreeDots)) {
                 const prompt = promptService.getPrompt(channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
                 if (answer) {
