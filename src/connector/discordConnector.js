@@ -277,11 +277,11 @@ bot.on('message', async msg => {
             let newMessage = originalMsg
 
             if (message.editMessage) {
-                await (await channels[channelName].messages.fetch(message.editMessage))?.edit(parsedMessage).catch(() => null)
+                await (await channels[channelName].messages.fetch(message.editMessage))?.edit(parsedMessage)?.catch(() => null)
             } else if (message.editLastMessage) {
-                await (await channels[channelName].lastBotMessage?.edit(parsedMessage)).catch(() => null)
+                await channels[channelName].lastBotMessage?.edit(parsedMessage)?.catch(() => null)
             } else if (message.appendToLastMessage) {
-                await (await channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)).catch(() => null)
+                await channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)?.catch(() => null)
             } else {
                 if (message.image) {
                     newMessage = await originalMsg.inlineReply({
