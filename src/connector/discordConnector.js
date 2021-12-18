@@ -238,7 +238,7 @@ bot.on('message', async msg => {
     }
 
     if (message && message.deleteMessage) {
-        const m = await originalMsg.channel.messages.fetch(message.deleteMessage)
+        const m = await originalMsg.channel.messages.fetch(message.deleteMessage).catch(() => null)
         if (m) {
             setTimeout(() => {
                 m.delete().catch(() => null)
