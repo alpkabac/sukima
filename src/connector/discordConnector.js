@@ -274,14 +274,14 @@ bot.on('message', async msg => {
         channels[channelName].startTyping().then()
 
         setTimeout(async () => {
-            let newMessage = null
+            let newMessage = originalMsg
 
             if (message.editMessage) {
-                newMessage = await (await channels[channelName].messages.fetch(message.editMessage))?.edit(parsedMessage)
+                await (await channels[channelName].messages.fetch(message.editMessage))?.edit(parsedMessage).catch(() => null)
             } else if (message.editLastMessage) {
-                newMessage = await channels[channelName].lastBotMessage?.edit(parsedMessage)
+                await (await channels[channelName].lastBotMessage?.edit(parsedMessage)).catch(() => null)
             } else if (message.appendToLastMessage) {
-                newMessage = await channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)
+                await (await channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)).catch(() => null)
             } else {
                 if (message.image) {
                     newMessage = await originalMsg.inlineReply({

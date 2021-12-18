@@ -71,7 +71,7 @@ class HistoryService {
         let success = false
         this.channelHistories[channel].reverse()
         for (let h of this.channelHistories[channel]) {
-            if ((targetMessageId ? h.messageId === targetMessageId : true) && (!h.from || h.from === process.env.BOTNAME)) {
+            if ((targetMessageId ? (h.messageId === targetMessageId) : (!h.from || h.from === process.env.BOTNAME))) {
                 h.msg = parsedMsg
                 success = true
                 break

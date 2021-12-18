@@ -110,8 +110,6 @@ const messageCommands = {
         ["!edit "],
         process.env.ALLOW_EDIT_MESSAGE,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
-            if (!targetMessageId) return {reactWith: `🤷`, deleteUserMsg: true}
-
             if (historyService.editByMessageId(parsedMsg, channel, targetMessageId)) {
                 return {
                     message: parsedMsg,
@@ -205,14 +203,18 @@ const messageCommands = {
             const lastMessageFromChannel = history && history.length > 0 ?
                 history[history.length - 1]
                 : null
-            const lastMessageIsOldEnough = !lastMessageFromChannel ?
-                false :
-                Date.now() - lastMessageFromChannel.timestamp > (parseInt(process.env.MIN_BOT_MESSAGE_INTERVAL) * 1000)
 
-            const endsWithThreeDots = !lastMessageFromChannel ?
-                false : lastMessageFromChannel?.msg?.endsWith("...")
+            if (!lastMessageFromChannel) return
 
-            if (lastMessageIsOldEnough && (lastMessageFromChannel?.from !== process.env.BOTNAME || endsWithThreeDots)) {
+            const lastAuthorIsBot = lastMessageFromChannel.from === process.env.BOTNAME
+            const endsWithThreeDots = lastMessageFromChannel.msg.endsWith("...")
+
+            if (lastAuthorIsBot && !endsWithThreeDots) return
+
+            const timeStep = (lastAuthorIsBot && endsWithThreeDots) ? 500 : 1000
+            const lastMessageIsOldEnough = Date.now() - lastMessageFromChannel.timestamp > (parseInt(process.env.MIN_BOT_MESSAGE_INTERVAL) * timeStep)
+
+            if (lastMessageIsOldEnough) {
                 const prompt = promptService.getPrompt(channel)
                 const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
                 if (answer) {
