@@ -261,7 +261,9 @@ bot.on('message', async msg => {
                     return !(fetchedMessage && fetchedMessage.createdTimestamp >= targetMessage.createdTimestamp);
                 })
 
-                await originalMsg.channel?.bulkDelete(messagesToDelete).catch(() => null)
+                if (originalMsg.channel?.bulkDelete) {
+                    await originalMsg.channel?.bulkDelete(messagesToDelete).catch(() => null)
+                }
             }, 2000)
         }
     }
