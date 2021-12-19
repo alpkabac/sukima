@@ -1,0 +1,39 @@
+{
+  "properties": [
+    "name",
+    "difficulty",
+    "loot"
+  ],
+  "list": [
+    {
+      "name": "Bunny",
+      "difficulty": "easy",
+      "loot": "Wooden Spoon"
+    },
+    {
+      "name": "Wolf",
+      "difficulty": "medium",
+      "loot": "Rusty Iron Sword"
+    },
+    {
+      "name": "Dragon",
+      "difficulty": "legendary",
+      "loot": "Legendary Steel Hammer"
+    },
+    {
+      "name": "Sheep",
+      "difficulty": "easy",
+      "loot": "Pitchfork"
+    },
+    {
+      "name": "Bear",
+      "difficulty": "medium",
+      "loot": "Short Bow"
+    },
+    {
+      "name": "Troll",
+      "difficulty": "hard",
+      "loot": "Rare Crossbow"
+    }
+  ]
+}

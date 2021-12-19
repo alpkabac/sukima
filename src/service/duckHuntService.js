@@ -55,7 +55,7 @@ class DuckHuntService {
      * Attack the current pawn
      */
     static async attack(channel, weapon = "Bare fists") {
-        if (!this.activePawn) return null
+        if (!this.activePawn || !this.activePawn.alive) return null
 
         const prompt = this.getAttackPrompt(true, weapon)
         const result = await aiService.simpleEvalbot(prompt, 150, channel.startsWith("##"), stopToken)
@@ -68,10 +68,8 @@ class DuckHuntService {
         if (!this.activePawn.attacks) this.activePawn.attacks = []
         this.activePawn.attacks.push(description)
 
-
         if (success.toLowerCase() === "true") {
             this.activePawn.alive = false
-            this.activePawn = null
         }
 
         return {
@@ -81,7 +79,7 @@ class DuckHuntService {
     }
 
     static getAttackPrompt(shuffle = false, weapon = "Bare fists") {
-        if (!this.activePawn) return null
+        if (!this.activePawn || this.activePawn.alive) return null
 
         const list = shuffle ? utils.shuffleArray(generatorAttackAnimal.list) : generatorAttackAnimal.list
 
@@ -93,8 +91,8 @@ class DuckHuntService {
     /**
      * Generate a loot for that pawn
      */
-    static loot() {
-
+    static loot(channel) {
+        if (!this.activePawn) return null
     }
 }
 
