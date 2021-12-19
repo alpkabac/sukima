@@ -10,6 +10,7 @@ import epornerCommands from "../command/epornerCommands.js";
 import personalityCommands from "../command/personalityCommands.js";
 import messageCommands from "../command/messageCommands.js";
 import saveCommands from "../command/saveCommands.js";
+import duckHuntCommands from "./duckHuntCommands.js";
 
 
 class Commands {
@@ -19,6 +20,7 @@ class Commands {
         .concat(languageCommands.all)
         .concat(promptCommands.all)
         .concat(voiceCommands.all)
+        .concat(duckHuntCommands.all)
         .concat(injectionCommands.all)
         .concat(wikiCommands.all)
         .concat(danbooruCommands.all)

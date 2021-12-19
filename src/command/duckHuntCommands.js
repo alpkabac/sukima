@@ -1,0 +1,48 @@
+import {config} from "dotenv";
+import Command from "./Command.js";
+import duckHuntService from "../service/duckHuntService.js";
+
+config()
+
+
+const duckHuntCommands = {
+    spawn: new Command(
+        "Spawn",
+        ["!spawn"],
+        ["!spawn "],
+        process.env.ALLOW_RPG_SPAWN,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            return {
+                message: await duckHuntService.spawn(channel, parsedMsg || null),
+                success: true,
+                deleteUserMsg: true
+            }
+        },
+        false
+    ),
+    attack: new Command(
+        "Spawn",
+        ["!attack"],
+        ["!attack "],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            const result = await duckHuntService.attack(channel, parsedMsg || undefined)
+
+            if (result) {
+                return {
+                    message: `[ Attack by ${from}: ${result.description} Success: ${result.success} ]`,
+                    success: true
+                }
+            }
+            return {error: "# Nothing to attack..."}
+        },
+        false
+    ),
+}
+
+duckHuntCommands.all = [
+    duckHuntCommands.spawn,
+    duckHuntCommands.attack,
+]
+
+export default duckHuntCommands

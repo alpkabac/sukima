@@ -129,8 +129,9 @@ class AiService {
      * @param prompt
      * @param tokensToGenerate
      * @param preventLMI
+     * @param eos_token_id
      */
-    static async simpleEvalbot(prompt, tokensToGenerate = 1, preventLMI = false) {
+    static async simpleEvalbot(prompt, tokensToGenerate = 1, preventLMI = false, eos_token_id = 198) {
         const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
 
         params.max_length = tokensToGenerate
@@ -145,6 +146,7 @@ class AiService {
         params.temperature = 0.48
         params.top_p = 1
         params.top_k = 0
+        params.eos_token_id = eos_token_id
 
         const result = await this.sendPromptDefault(prompt, params)
         const parsedResult = result

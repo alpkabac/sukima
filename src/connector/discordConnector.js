@@ -274,7 +274,7 @@ bot.on('message', async msg => {
         await bot.user.setActivity(message.setActivityName)
     }
 
-    if (message?.message?.trim().length > 0) {
+    if (message?.message?.trim?.().length > 0) {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
 
         voiceChannel = msg.member?.voice?.channel

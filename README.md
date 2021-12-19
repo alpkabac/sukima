@@ -29,6 +29,16 @@ The bot will generate the end of its last message and edit its content to update
 Command: `²` or `○` or `!retry`  
 Will make the bot regenerate its last message and edit it to update its content
 
+You can also provide a message ID to target a particular message  
+Example: `!retry #5964645484842`
+
+### Edit Bot Message
+Command: `!edit The edited message here`  
+Will edit the content of the last bots message
+
+You can also provide a message ID to target a particular message  
+Example: `!edit #5964645484842 The edited message here`
+
 ### Comment Message
 Command: `# Blah blah`  
 Comment text, the bot doesn't see nor react to it

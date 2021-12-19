@@ -1,0 +1,53 @@
+{
+  "properties": [
+    "name",
+    "difficulty",
+    "weapon",
+    "description",
+    "success"
+  ],
+  "list": [
+    {
+      "name": "Bunny",
+      "difficulty": "easy",
+      "weapon": "Iron Sword",
+      "description": "You promptly cut the bunny in two, killing it instantly.",
+      "success": "true"
+    },
+    {
+      "name": "Wolf",
+      "difficulty": "medium",
+      "weapon": "Wooden Axe",
+      "description": "You attack the wolf with your wooden axe, which does almost no damage at all.",
+      "success": "false"
+    },
+    {
+      "name": "Dragon",
+      "difficulty": "hard",
+      "weapon": "Legendary Fire Sword",
+      "description": "You jump on the head of the dragon and heroically sink your legendary sword in its skull and impale its brain, killing it instantly.",
+      "success": "true"
+    },
+    {
+      "name": "Sheep",
+      "difficulty": "easy",
+      "weapon": "Rusty Spoon",
+      "description": "You hit the sheep with the rusty spoon. It barely seems bothered and simply pushes you away.",
+      "success": "false"
+    },
+    {
+      "name": "Bear",
+      "difficulty": "medium",
+      "weapon": "Crossbow",
+      "description": "You shoot the bear with your crossbow, and somehow hit it just between the two eyes. The bear falls onto the floor, dead.",
+      "success": "true"
+    },
+    {
+      "name": "Troll",
+      "difficulty": "hard",
+      "weapon": "Long bow",
+      "description": "You shoot an arrow at the troll with your bow. The arrow hits the troll in the arm, but it seems unimpressed by your attack.",
+      "success": "false"
+    }
+  ]
+}

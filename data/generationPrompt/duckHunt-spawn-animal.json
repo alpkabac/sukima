@@ -1,0 +1,39 @@
+{
+  "properties": [
+    "name",
+    "difficulty",
+    "description"
+  ],
+  "list": [
+    {
+      "name": "Bunny",
+      "difficulty": "easy",
+      "description": "A cute white bunny jumps out of the bushes, it looks fluffy and soft, pretty much inoffensive."
+    },
+    {
+      "name": "Wolf",
+      "difficulty": "medium",
+      "description": "A feral wolf walks by and looks in your direction, it looks menacing. It seems hungry, but not desperate."
+    },
+    {
+      "name": "Dragon",
+      "difficulty": "hard",
+      "description": "A magnificent wild dragon flies just above you and lands dangerously close. It is bright red, and its eyes are glowing yellow."
+    },
+    {
+      "name": "Sheep",
+      "difficulty": "easy",
+      "description": "A brown woolly sheep passes by, it doesn't seem to be much of a treat."
+    },
+    {
+      "name": "Bear",
+      "difficulty": "medium",
+      "description": "A large bear appears from behind the rocks, then growls at you. It looks emaciated, but still dangerous."
+    },
+    {
+      "name": "Troll",
+      "difficulty": "hard",
+      "description": "You spot a huge troll near the bridge. It's several meters high, and has a large wooden club big enough to crush you on the spot."
+    }
+  ]
+}
