@@ -3,6 +3,7 @@ import utils from "../utils.js";
 
 const generatorSpawnAnimal = utils.load("./data/generationPrompt/duckHunt-spawn-animal.json")
 const generatorAttackAnimal = utils.load("./data/generationPrompt/duckHunt-attack-animal.json")
+const generatorLootAnimal = utils.load("./data/generationPrompt/duckHunt-loot-animal.json")
 
 const stopToken = 224 // "⁂"
 
@@ -79,7 +80,7 @@ class DuckHuntService {
     }
 
     static getAttackPrompt(shuffle = false, weapon = "Bare fists") {
-        if (!this.activePawn || this.activePawn.alive) return null
+        if (!this.activePawn || !this.activePawn.alive) return null
 
         const list = shuffle ? utils.shuffleArray(generatorAttackAnimal.list) : generatorAttackAnimal.list
 
@@ -91,8 +92,26 @@ class DuckHuntService {
     /**
      * Generate a loot for that pawn
      */
-    static loot(channel) {
-        if (!this.activePawn) return null
+    static async loot(channel) {
+        if (!this.activePawn || this.activePawn.alive) return null
+
+        const prompt = this.getLootPrompt(true)
+        const result = await aiService.simpleEvalbot(prompt, 150, channel.startsWith("##"), stopToken)
+        const completeResult = result.replace('⁂', '').trim()
+
+        this.activePawn = null
+
+        return completeResult
+    }
+
+    static getLootPrompt(shuffle = false) {
+        if (!this.activePawn || this.activePawn.alive) return null
+
+        const list = shuffle ? utils.shuffleArray(generatorLootAnimal.list) : generatorLootAnimal.list
+
+        return list
+            .map(m => `NAME: ${m.name}\nDIFFICULTY: ${m.difficulty}\nLOOT: ${m.loot}\n`)
+            .join('⁂\n') + `⁂\nNAME: ${this.activePawn.name}\nDIFFICULTY: ${this.activePawn.difficulty}\nLOOT:`
     }
 }
 

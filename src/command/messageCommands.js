@@ -211,7 +211,7 @@ const messageCommands = {
 
             if (lastAuthorIsBot && !endsWithThreeDots) return
 
-            const timeStep = (lastAuthorIsBot && endsWithThreeDots) ? 500 : 1000
+            const timeStep = (lastAuthorIsBot && endsWithThreeDots) ? 1000 : 1000
             const lastMessageIsOldEnough = Date.now() - lastMessageFromChannel.timestamp > (parseInt(process.env.MIN_BOT_MESSAGE_INTERVAL) * timeStep)
 
             if (lastMessageIsOldEnough) {

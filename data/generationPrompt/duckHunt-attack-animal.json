@@ -23,9 +23,9 @@
     },
     {
       "name": "Dragon",
-      "difficulty": "hard",
+      "difficulty": "legendary",
       "weapon": "Legendary Fire Sword",
-      "description": "You jump on the head of the dragon and heroically sink your legendary sword in its skull and impale its brain, killing it instantly.",
+      "description": "You jump on the head of the dragon and heroically sink your legendary sword in its skull and melt its brain, killing it instantly.",
       "success": "true"
     },
     {

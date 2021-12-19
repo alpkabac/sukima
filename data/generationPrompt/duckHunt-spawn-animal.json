@@ -47,7 +47,7 @@
     },
     {
       "name": "Dragon",
-      "difficulty": "arduous",
+      "difficulty": "legendary",
       "description": "A magnificent wild dragon flies just above you and lands dangerously close. It is bright red, and its eyes are glowing yellow."
     },
     {
@@ -126,7 +126,7 @@
       "description": "You cross a sleeping tiger in the meadow."
     },
     {
-      "name": "donkey",
+      "name": "Donkey",
       "difficulty": "medium",
       "description": "The grey donkey bucks its hind legs at you keeping you away."
     },
