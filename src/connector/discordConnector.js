@@ -268,6 +268,12 @@ bot.on('message', async msg => {
         }
     }
 
+    if (message && message.setActivityType && message.setActivityName) {
+        await bot.user.setActivity(message.setActivityName, {type: message.setActivityType})
+    } else if (message && message.setActivityName) {
+        await bot.user.setActivity(message.setActivityName)
+    }
+
     if (message?.message?.trim().length > 0) {
         const parsedMessage = replaceAsterisksByBackQuotes(message.message)
 
