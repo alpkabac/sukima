@@ -12,8 +12,19 @@ const duckHuntCommands = {
         ["!spawn "],
         process.env.ALLOW_RPG_SPAWN,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            const args = parsedMsg.split(';').map(s=>s.trim())
+            let difficulty
+            let name
+            if (args.length === 2){
+                difficulty = args[0]
+                name = args[1]
+            }else if (args.length === 1){
+                difficulty = args[0]
+            }else{
+                difficulty = parsedMsg || null
+            }
             return {
-                message: await duckHuntService.spawn(channel, parsedMsg || null),
+                message: await duckHuntService.spawn(channel, difficulty, name),
                 success: true,
                 deleteUserMsg: true
             }
@@ -30,7 +41,7 @@ const duckHuntCommands = {
 
             if (result) {
                 return {
-                    message: `[ Attack by ${from}: ${result.description} Success: ${result.success} ]`,
+                    message: `[ Attack by ${from} ]\n${result.description}\nSuccess: ${result.success}`,
                     success: true
                 }
             }

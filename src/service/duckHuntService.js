@@ -30,7 +30,7 @@ class DuckHuntService {
             alive: true
         }
 
-        return `[ Encounter: ${description} ]`
+        return `New Encounter!\nDifficulty: ${difficulty}\nName: ${name}\nDescription: ${description}`
     }
 
     static getSpawnPrompt(shuffle = false, difficulty = null, name = null) {

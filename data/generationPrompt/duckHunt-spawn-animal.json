@@ -6,18 +6,48 @@
   ],
   "list": [
     {
-      "name": "Bunny",
-      "difficulty": "easy",
-      "description": "A cute white bunny jumps out of the bushes, it looks fluffy and soft, pretty much inoffensive."
+      "name": "Bear",
+      "difficulty": "medium",
+      "description": "A large bear appears from behind the rocks, then growls at you. It looks emaciated, but still dangerous."
     },
     {
-      "name": "Wolf",
+      "name": "Snake",
+      "difficulty": "easy",
+      "description": "You step over a small snake on the trail, it slithers away once spooked."
+    },
+    {
+      "name": "Panther",
       "difficulty": "medium",
-      "description": "A feral wolf walks by and looks in your direction, it looks menacing. It seems hungry, but not desperate."
+      "description": "The strong panther is crouched in the tall grass waiting for you to pass. "
+    },
+    {
+      "name": "Spider",
+      "difficulty": "easy",
+      "description": "The poisonous spider hangs form its web ready to strike with its large fangs."
+    },
+    {
+      "name": "Manticore",
+      "difficulty": "hard",
+      "description": "The manticore rushes at you with its sword and shield drawled."
+    },
+    {
+      "name": "Hydra",
+      "difficulty": "arduous",
+      "description": "The six headed hydra breaths fire over the cliff warning all passing adventurers to stay away."
+    },
+    {
+      "name": "Rat",
+      "difficulty": "easy",
+      "description": "You wake up a nest of large red eyed rats."
+    },
+    {
+      "name": "Troll",
+      "difficulty": "hard",
+      "description": "You spot a huge troll near the bridge. It's several meters high, and has a large wooden club big enough to crush you."
     },
     {
       "name": "Dragon",
-      "difficulty": "hard",
+      "difficulty": "arduous",
       "description": "A magnificent wild dragon flies just above you and lands dangerously close. It is bright red, and its eyes are glowing yellow."
     },
     {
@@ -26,14 +56,84 @@
       "description": "A brown woolly sheep passes by, it doesn't seem to be much of a treat."
     },
     {
-      "name": "Bear",
+      "name": "Wolf",
       "difficulty": "medium",
-      "description": "A large bear appears from behind the rocks, then growls at you. It looks emaciated, but still dangerous."
+      "description": "A feral wolf walks by and looks in your direction, it looks menacing. It seems hungry, but not desperate."
     },
     {
-      "name": "Troll",
+      "name": "Bunny",
+      "difficulty": "easy",
+      "description": "A cute white bunny jumps out of the bushes, it looks fluffy and soft, pretty much inoffensive."
+    },
+    {
+      "name": "Imp",
+      "difficulty": "easy",
+      "description": "A small flying imp has spotted you and is starting to cast an illusion spell over you."
+    },
+    {
+      "name": "Goblin",
+      "difficulty": "easy",
+      "description": "There is a group of small green goblins resting by a fire eating their last prey. "
+    },
+    {
+      "name": "Minotaur",
       "difficulty": "hard",
-      "description": "You spot a huge troll near the bridge. It's several meters high, and has a large wooden club big enough to crush you on the spot."
+      "description": "You see a strong minotaur gripping its spear as it gallops through the filed ahead."
+    },
+    {
+      "name": "Griffin",
+      "difficulty": "hard",
+      "description": "A massive feathered griffin circles in the sky looking for its next prey."
+    },
+    {
+      "name": "Basilisk",
+      "difficulty": "arduous",
+      "description": "A scaled basilisk rushes out of the water and snaps it giant jaws at you."
+    },
+    {
+      "name": "Zombie",
+      "difficulty": "medium",
+      "description": "A hoard of bloody zombies are waking down the dark ally."
+    },
+    {
+      "name": "Ghoul",
+      "difficulty": "medium",
+      "description": "The ghoul howls in the night as it floats over the old graveyard. "
+    },
+    {
+      "name": "Banshee",
+      "difficulty": "medium",
+      "description": "A screaming banshee has emerged form the desecrated crypt."
+    },
+    {
+      "name": "Golem",
+      "difficulty": "medium",
+      "description": "the large rock golem stands guard in front of the ornate golden door. "
+    },
+    {
+      "name": "Ghost",
+      "difficulty": "easy",
+      "description": "the white ghost floats our from the broken nearby grave."
+    },
+    {
+      "name": "Cat",
+      "difficulty": "easy",
+      "description": "A stray black cat is sitting in a tree watching your every move."
+    },
+    {
+      "name": "Tiger",
+      "difficulty": "hard",
+      "description": "You cross a sleeping tiger in the meadow."
+    },
+    {
+      "name": "donkey",
+      "difficulty": "medium",
+      "description": "The grey donkey bucks its hind legs at you keeping you away."
+    },
+    {
+      "name": "Demon God",
+      "difficulty": "impossible",
+      "description": "The dark demon god begins his descent onto the unknowing party. "
     }
   ]
 }
