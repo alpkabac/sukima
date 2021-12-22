@@ -6,34 +6,134 @@
   ],
   "list": [
     {
+      "name": "Bear",
+      "difficulty": "medium",
+      "loot": "Iron Broad Sword"
+    },
+    {
+      "name": "Snake",
+      "difficulty": "easy",
+      "loot": "Dull Knife"
+    },
+    {
+      "name": "Panther",
+      "difficulty": "medium",
+      "loot": "Fancy Silver Bracelet"
+    },
+    {
+      "name": "Spider",
+      "difficulty": "easy",
+      "loot": "Poisoned Arrow"
+    },
+    {
+      "name": "Manticore",
+      "difficulty": "hard",
+      "loot": "Golden Bow"
+    },
+    {
+      "name": "Hydra",
+      "difficulty": "arduous",
+      "loot": "Hydra Fangs"
+    },
+    {
+      "name": "Rat",
+      "difficulty": "easy",
+      "loot": "Bronze Fork"
+    },
+    {
+      "name": "Troll",
+      "difficulty": "hard",
+      "loot": "Rare Bronze Hammer"
+    },
+    {
+      "name": "Dragon",
+      "difficulty": "arduous",
+      "loot": "Dragon Scale Shield"
+    },
+    {
+      "name": "Sheep",
+      "difficulty": "easy",
+      "loot": "Iron Gauntlet"
+    },
+    {
+      "name": "Wolf",
+      "difficulty": "medium",
+      "loot": "Rusty Steel Axe"
+    },
+    {
       "name": "Bunny",
       "difficulty": "easy",
       "loot": "Wooden Spoon"
     },
     {
-      "name": "Wolf",
-      "difficulty": "medium",
-      "loot": "Rusty Iron Sword"
-    },
-    {
-      "name": "Dragon",
-      "difficulty": "legendary",
-      "loot": "Legendary Steel Hammer"
-    },
-    {
-      "name": "Sheep",
+      "name": "Imp",
       "difficulty": "easy",
-      "loot": "Pitchfork"
+      "loot": "Dull Small Dagger"
     },
     {
-      "name": "Bear",
-      "difficulty": "medium",
-      "loot": "Short Bow"
+      "name": "Goblin",
+      "difficulty": "easy",
+      "loot": "Old Rusty Sword"
     },
     {
-      "name": "Troll",
+      "name": "Minotaur",
       "difficulty": "hard",
-      "loot": "Rare Crossbow"
+      "loot": "Steel Spear"
+    },
+    {
+      "name": "Griffin",
+      "difficulty": "hard",
+      "loot": "Golden Scimitar"
+    },
+    {
+      "name": "Basilisk",
+      "difficulty": "arduous",
+      "loot": "Exotic Jeweled Mace"
+    },
+    {
+      "name": "Zombie",
+      "difficulty": "medium",
+      "loot": "rare steel claymore"
+    },
+    {
+      "name": "Ghoul",
+      "difficulty": "medium",
+      "loot": "Holy Silver Mace"
+    },
+    {
+      "name": "Banshee",
+      "difficulty": "medium",
+      "loot": "Ice Short Sword"
+    },
+    {
+      "name": "Golem",
+      "difficulty": "medium",
+      "loot": "Rare Rock Hammer"
+    },
+    {
+      "name": "Ghost",
+      "difficulty": "easy",
+      "loot": "Warding Wand"
+    },
+    {
+      "name": "Cat",
+      "difficulty": "easy",
+      "loot": "Leather Whip"
+    },
+    {
+      "name": "Tiger",
+      "difficulty": "hard",
+      "loot": "Rare Oaken Staff"
+    },
+    {
+      "name": "donkey",
+      "difficulty": "medium",
+      "loot": "Hardened Wooden Club"
+    },
+    {
+      "name": "Demon God",
+      "difficulty": "impossible",
+      "loot": "Gods Slaying Sword"
     }
   ]
 }

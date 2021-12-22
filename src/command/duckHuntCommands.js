@@ -12,6 +12,7 @@ const duckHuntCommands = {
         ["!spawn "],
         process.env.ALLOW_RPG_SPAWN,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            /*
             const args = parsedMsg.split(';').map(s => s.trim())
             let difficulty
             let name
@@ -23,8 +24,9 @@ const duckHuntCommands = {
             } else {
                 difficulty = parsedMsg || null
             }
+             */
             return {
-                message: await duckHuntService.spawn(channel, difficulty, name),
+                message: await duckHuntService.spawn(channel),
                 success: true,
                 deleteUserMsg: true
             }
@@ -32,12 +34,12 @@ const duckHuntCommands = {
         false
     ),
     attack: new Command(
-        "Spawn",
+        "Attack",
         ["!attack"],
         ["!attack "],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
-            const result = await duckHuntService.attack(channel, parsedMsg || undefined)
+            const result = await duckHuntService.attack(channel, from)
 
             if (result) {
                 return {
@@ -50,7 +52,7 @@ const duckHuntCommands = {
         false
     ),
     loot: new Command(
-        "Spawn",
+        "Loot",
         ["!loot"],
         [],
         process.env.ALLOW_RPG_ATTACK,
@@ -67,12 +69,31 @@ const duckHuntCommands = {
         },
         false
     ),
+    grab: new Command(
+        "Grab loot",
+        [],
+        ["!grab", "!pick", "!take"],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            const result = await duckHuntService.pick(channel, from)
+
+            if (result) {
+                return {
+                    message: `[ Player ${from} grabbed item "${result}" ]`,
+                    success: true
+                }
+            }
+            return {error: "# Nothing to grab..."}
+        },
+        false
+    ),
 }
 
 duckHuntCommands.all = [
     duckHuntCommands.spawn,
     duckHuntCommands.attack,
     duckHuntCommands.loot,
+    duckHuntCommands.grab
 ]
 
 export default duckHuntCommands
