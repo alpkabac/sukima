@@ -1,5 +1,6 @@
 import aiService from "./aiService.js";
 import utils from "../utils.js";
+import generatorService from "./generatorService.js";
 
 const generatorSpawnAnimal = utils.load("./data/generationPrompt/duckHunt-spawn-animal.json")
 const generatorAttackAnimal = utils.load("./data/generationPrompt/duckHunt-attack-animal.json")
@@ -17,51 +18,50 @@ class DuckHuntService {
      */
     static async spawn(channel, difficulty = null, name = null) {
 
-        const prompt = this.getSpawnPrompt(true, difficulty, name)
-        const result = await aiService.simpleEvalbot(prompt, 150, channel.startsWith("##"), stopToken)
-        const completeResult = (
-            (
-                (difficulty && !name) ?
-                    `DIFFICULTY: ${difficulty}\nNAME:`
-                    : (difficulty && name) ?
-                        `NAME: ${name}\nDIFFICULTY: ${difficulty}\nDESCRIPTION:`
-                        : 'NAME:'
-            )
-            + result).replace('⁂', '').trim()
+        let args
+        if (!difficulty && !name) {
+            args = [
+                {name: "name"},
+                {name: "difficulty"},
+                {name: "description"},
+            ]
+        } else if (difficulty) {
+            args = [
+                {name: "difficulty", value: difficulty},
+                {name: "name"},
+                {name: "description"},
+            ]
+        } else if (name) {
+            args = [
+                {name: "name", value: name},
+                {name: "difficulty"},
+                {name: "description"},
+            ]
+        } else {
+            args = [
+                {name: "name", value: name},
+                {name: "difficulty", value: difficulty},
+                {name: "description"},
+            ]
+        }
 
-        const split = completeResult.split('\n')
-        name = split.find(l => l.startsWith("NAME: "))?.replace("NAME: ", '')
-        difficulty = split.find(l => l.startsWith("DIFFICULTY: "))?.replace("DIFFICULTY: ", '')
-        const description = split.find(l => l.startsWith("DESCRIPTION: "))?.replace("DESCRIPTION: ", '')
-
+        const prompt = generatorService.getPrompt(
+            generatorSpawnAnimal,
+            args,
+            true
+        )
+        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
+        const object = generatorService.parseResult(generatorSpawnAnimal, prompt.placeholderPrompt, result)
+        console.log("object", object)
 
         this.activePawn[channel] = {
-            name,
-            difficulty,
-            description,
+            name: object.name,
+            difficulty:object.difficulty,
+            description: object.desc,
             alive: true
         }
 
-        return `New Encounter!\nDifficulty: ${difficulty}\nName: ${name}\nDescription: ${description}`
-    }
-
-    // TODO: generify
-    static getSpawnPrompt(shuffle = false, difficulty = null, name = null) {
-        const list = shuffle ? utils.shuffleArray(generatorSpawnAnimal.list) : generatorSpawnAnimal.list
-        if (difficulty && name) {
-            return list
-                .map(m => `NAME: ${m.name}\nDIFFICULTY: ${m.difficulty}\nDESCRIPTION: ${m.description}\n`)
-                .join('⁂\n') + `⁂\nNAME: ${name}\nDIFFICULTY: ${difficulty}\nDESCRIPTION:`
-        }
-        if (difficulty) {
-            return list
-                .map(m => `DIFFICULTY: ${m.difficulty}\nNAME: ${m.name}\nDESCRIPTION: ${m.description}\n`)
-                .join('⁂\n') + `⁂\nDIFFICULTY: ${difficulty}\nNAME:`
-        }
-
-        return list
-            .map(m => `NAME: ${m.name}\nDIFFICULTY: ${m.difficulty}\nDESCRIPTION: ${m.description}\n`)
-            .join('⁂\n') + `⁂\nNAME:`
+        return `New Encounter!\nDifficulty: ${object.difficulty}\nName: ${object.name}\nDescription: ${object.description}`
     }
 
     /**
@@ -77,34 +77,32 @@ class DuckHuntService {
             }
         }
 
-        const prompt = this.getAttackPrompt(channel, true, weapon)
-        const result = await aiService.simpleEvalbot(prompt, 150, channel.startsWith("##"), stopToken)
-        const completeResult = ('DESCRIPTION:' + result).replace('⁂', '').trim()
-
-        const split = completeResult.split('\n')
-        const description = split.find(l => l.startsWith("DESCRIPTION: "))?.replace("DESCRIPTION: ", '')
-        const success = split.find(l => l.startsWith("IS ENEMY DEAD: "))?.replace("IS ENEMY DEAD: ", '')
+        const prompt = generatorService.getPrompt(
+            generatorAttackAnimal,
+            [
+                {name: "name", value: this.activePawn[channel].name},
+                {name: "difficulty", value: this.activePawn[channel].difficulty},
+                {name: "weapon", value: weapon},
+                {name: "description"},
+                {name: "success"}
+            ],
+            true
+        )
+        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
+        const object = generatorService.parseResult(generatorAttackAnimal, prompt.placeholderPrompt, result)
+        console.log("object", object)
 
         if (!this.activePawn[channel].attacks) this.activePawn[channel].attacks = []
-        this.activePawn[channel].attacks.push(description)
+        this.activePawn[channel].attacks.push(object.description)
 
-        if (success && success.toLowerCase() === "true") {
+        if (object.success && object.success.toLowerCase() === "true") {
             this.activePawn[channel].alive = false
         }
 
         return {
-            description,
-            success
+            description: object.description,
+            success: object.success
         }
-    }
-
-    // TODO: generify
-    static getAttackPrompt(channel, shuffle = false, weapon = "Bare fists") {
-        const list = shuffle ? utils.shuffleArray(generatorAttackAnimal.list) : generatorAttackAnimal.list
-
-        return list
-            .map(m => `NAME: ${m.name}\nDIFFICULTY: ${m.difficulty}\nWEAPON: ${m.weapon}\nDESCRIPTION: ${m.description}\nIS ENEMY DEAD: ${m.success}\n`)
-            .join('⁂\n') + `⁂\nNAME: ${this.activePawn[channel].name}\nDIFFICULTY: ${this.activePawn[channel].difficulty}\nWEAPON: ${weapon}\nDESCRIPTION:`
     }
 
     /**
@@ -113,23 +111,23 @@ class DuckHuntService {
     static async loot(channel) {
         if (!this.activePawn[channel] || this.activePawn[channel].alive) return null
 
-        const prompt = this.getLootPrompt(channel, true)
-        const result = await aiService.simpleEvalbot(prompt, 150, channel.startsWith("##"), stopToken)
-        const completeResult = result.replace('⁂', '').trim()
+        const prompt = generatorService.getPrompt(
+            generatorLootAnimal,
+            [
+                {name: "name", value: this.activePawn[channel].name},
+                {name: "difficulty", value: this.activePawn[channel].difficulty},
+                {name: "loot"},
+            ],
+            true
+        )
+        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
+        const object = generatorService.parseResult(generatorLootAnimal, prompt.placeholderPrompt, result)
+        console.log("object", object)
 
-        this.activeLoot[channel] = completeResult
+        this.activeLoot[channel] = object.loot
         this.activePawn[channel] = null
 
-        return completeResult
-    }
-
-    // TODO: generify
-    static getLootPrompt(channel, shuffle = false) {
-        const list = shuffle ? utils.shuffleArray(generatorLootAnimal.list) : generatorLootAnimal.list
-
-        return list
-            .map(m => `NAME: ${m.name}\nDIFFICULTY: ${m.difficulty}\nLOOT: ${m.loot}\n`)
-            .join('⁂\n') + `⁂\nNAME: ${this.activePawn[channel].name}\nDIFFICULTY: ${this.activePawn[channel].difficulty}\nLOOT:`
+        return object.loot
     }
 
     static async pick(channel, username) {

@@ -1,9 +1,22 @@
 {
+  "name": "RPG Loot Generator",
+  "description": "Generates RPG loots given a monster name and difficulty",
   "properties": [
-    "name",
-    "difficulty",
-    "loot"
+    {
+      "name": "name",
+      "replaceBy": "ENEMY NAME:"
+    },
+    {
+      "name": "difficulty",
+      "replaceBy": "ENEMY DIFFICULTY:"
+    },
+    {
+      "name": "loot",
+      "replaceBy": "ENEMY LOOT:"
+    }
   ],
+  "placeholders": [],
+  "context": "[ RANDOM LOOT GENERATOR ]",
   "list": [
     {
       "name": "Bear",
@@ -18,12 +31,12 @@
     {
       "name": "Panther",
       "difficulty": "medium",
-      "loot": "Fancy Silver Bracelet"
+      "loot": "Fangs-Sword"
     },
     {
       "name": "Spider",
       "difficulty": "easy",
-      "loot": "Poisoned Arrow"
+      "loot": "Poisoned Knife"
     },
     {
       "name": "Manticore",
@@ -48,12 +61,12 @@
     {
       "name": "Dragon",
       "difficulty": "arduous",
-      "loot": "Dragon Scale Shield"
+      "loot": "Dragon-Horn Sword"
     },
     {
       "name": "Sheep",
       "difficulty": "easy",
-      "loot": "Iron Gauntlet"
+      "loot": "Iron Hatchet"
     },
     {
       "name": "Wolf",
@@ -63,7 +76,7 @@
     {
       "name": "Bunny",
       "difficulty": "easy",
-      "loot": "Wooden Spoon"
+      "loot": "Wooden Axe"
     },
     {
       "name": "Imp",
@@ -93,7 +106,7 @@
     {
       "name": "Zombie",
       "difficulty": "medium",
-      "loot": "rare steel claymore"
+      "loot": "Rare Steel Claymore"
     },
     {
       "name": "Ghoul",

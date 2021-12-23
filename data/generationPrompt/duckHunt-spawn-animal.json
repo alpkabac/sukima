@@ -1,9 +1,22 @@
 {
+  "name": "Spawn RPG monsters",
+  "description": "Spawns RPG monsters with name, difficulty and encounter description",
   "properties": [
-    "name",
-    "difficulty",
-    "description"
+    {
+      "name": "name",
+      "replaceBy": "ENEMY NAME:"
+    },
+    {
+      "name": "difficulty",
+      "replaceBy": "ENEMY DIFFICULTY:"
+    },
+    {
+      "name": "description",
+      "replaceBy": "ENCOUNTER DESCRIPTION:"
+    }
   ],
+  "placeholders": [],
+  "context": "[ RANDOM ENCOUNTER GENERATOR ]",
   "list": [
     {
       "name": "Bear",

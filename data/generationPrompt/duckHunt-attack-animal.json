@@ -1,11 +1,30 @@
 {
+  "name": "RPG Attack Generator",
+  "description": "Generates RPG attacks given a weapon",
   "properties": [
-    "name",
-    "difficulty",
-    "weapon",
-    "description",
-    "success"
+    {
+      "name": "name",
+      "replaceBy": "ENEMY NAME:"
+    },
+    {
+      "name": "difficulty",
+      "replaceBy": "ENEMY DIFFICULTY:"
+    },
+    {
+      "name": "weapon",
+      "replaceBy": "YOUR WEAPON:"
+    },
+    {
+      "name": "description",
+      "replaceBy": "YOUR ACTION:"
+    },
+    {
+      "name": "success",
+      "replaceBy": "IS ENEMY DEAD?"
+    }
   ],
+  "placeholders": [],
+  "context": "[ RANDOM ATTACK GENERATOR ]",
   "list": [
     {
       "name": "Bunny",
@@ -32,7 +51,7 @@
       "name": "Sheep",
       "difficulty": "easy",
       "weapon": "Rusty Spoon",
-      "description": "You hit the sheep with the rusty spoon. It barely seems bothered and simply pushes you away.",
+      "description": "You hit the sheep with the rusty spoon. It barely seems bothered by your attack.",
       "success": "false"
     },
     {
