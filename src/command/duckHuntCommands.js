@@ -1,6 +1,6 @@
 import {config} from "dotenv";
 import Command from "./Command.js";
-import duckHuntService from "../service/duckHuntService.js";
+import duckHuntService from "../service/rpg/duckHuntService.js";
 
 config()
 
@@ -12,7 +12,7 @@ const duckHuntCommands = {
         ["!spawn "],
         process.env.ALLOW_RPG_SPAWN,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
-            /*
+
             const args = parsedMsg.split(';').map(s => s.trim())
             let difficulty
             let name
@@ -24,9 +24,9 @@ const duckHuntCommands = {
             } else {
                 difficulty = parsedMsg || null
             }
-             */
+
             return {
-                message: await duckHuntService.spawn(channel),
+                message: await duckHuntService.spawn(channel, difficulty, name),
                 success: true,
                 deleteUserMsg: true
             }

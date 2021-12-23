@@ -1,6 +1,6 @@
-import aiService from "./aiService.js";
-import utils from "../utils.js";
-import generatorService from "./generatorService.js";
+import aiService from "../aiService.js";
+import utils from "../../utils.js";
+import generatorService from "../generatorService.js";
 
 const generatorSpawnAnimal = utils.load("./data/generationPrompt/duckHunt-spawn-animal.json")
 const generatorAttackAnimal = utils.load("./data/generationPrompt/duckHunt-attack-animal.json")
@@ -25,13 +25,13 @@ class DuckHuntService {
                 {name: "difficulty"},
                 {name: "description"},
             ]
-        } else if (difficulty) {
+        } else if (difficulty && !name) {
             args = [
                 {name: "difficulty", value: difficulty},
                 {name: "name"},
                 {name: "description"},
             ]
-        } else if (name) {
+        } else if (!difficulty && name) {
             args = [
                 {name: "name", value: name},
                 {name: "difficulty"},

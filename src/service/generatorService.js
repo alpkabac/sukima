@@ -11,7 +11,7 @@ class GeneratorService {
      */
     static getPrompt(generator, args, shuffle = false) {
         const list = shuffle ? utils.shuffleArray(generator.list) : generator.list
-        let prompt = generator.context ? generator.context + "\n" : ""
+        let prompt = generator.context ? generator.context + "\n***\n" : ""
 
         // Build placeholder prompt
         let placeholderPrompt = this.#buildPlaceholder(generator, args)
@@ -71,7 +71,7 @@ class GeneratorService {
 
     /**
      *
-     * @param generator {name: String, description: String, properties: [{name: String, replaceBy: String}], context: String, list: List} Generic generator in parsed JSON
+     * @param generator {name: String, description: String, placeholders: [], properties: [{name: String, replaceBy: String}], context: String, list: List} Generic generator in parsed JSON
      * @param args {[{name: String, value: String}]} List of arguments, defines the order of the properties too (will stop at first null value)
      * @param list {[Object]}
      * @param placeholderPrompt {String}
@@ -86,11 +86,14 @@ class GeneratorService {
                 const property = generator.properties.find(p => p.name === arg.name)
                 if (!property) throw new Error(`No property ${arg.name} in element ${JSON.stringify(elem, null, 4)}`)
 
+                let value = elem[property.name]
+                for (let placeholder of generator.placeholders){
+                    value.replace(new RegExp("\${"+placeholder[0]+"}","g"), placeholder[1])
+                }
                 const replaceBy = property.replaceBy ? property.replaceBy : property.name
-                elemPrompt += `${replaceBy} ${elem[property.name]}\n`
+                elemPrompt += `${replaceBy} ${value}\n`
             }
             elemPrompt += `⁂\n`
-
 
             if (encode(prompt + elemsPrompt + elemPrompt + placeholderPrompt).length < tokenLimit) {
                 elemsPrompt += elemPrompt

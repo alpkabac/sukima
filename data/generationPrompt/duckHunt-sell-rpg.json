@@ -1,0 +1,72 @@
+{
+  "name": "RPG Sell Prices Generator",
+  "description": "Generates RPG sell prices given an item",
+  "properties": [
+    {
+      "name": "name",
+      "replaceBy": "ITEM:"
+    },
+    {
+      "name": "price",
+      "replaceBy": "PRICE:"
+    }
+  ],
+  "placeholders": [
+    ["currency", "gold"]
+  ],
+  "context": "[ ITEM PRICE LIST ]",
+  "list": [
+    {
+      "name": "Iron Broad Sword",
+      "price": "80 ${currency}"
+    },
+    {
+      "name": "Scroll of Magic Item Transmutation",
+      "price": "130 ${currency}"
+    },
+    {
+      "name": "Leather Boots",
+      "price": "5 ${currency}"
+    },
+    {
+      "name": "Ring of Resistance",
+      "price": "110 ${currency}"
+    },
+    {
+      "name": "Rare Frost Lance",
+      "price": "360 ${currency}"
+    },
+    {
+      "name": "Mithril Longsword",
+      "price": "450 ${currency}"
+    },
+    {
+      "name": "Steel Shield",
+      "price": "120 ${currency}"
+    },
+    {
+      "name": "Wooden Staff",
+      "price": "20 ${currency}"
+    },
+    {
+      "name": "Silver Dagger",
+      "price": "50 ${currency}"
+    },
+    {
+      "name": "Small Healing Potion",
+      "price": "50 ${currency}"
+    },
+    {
+      "name": "Dragonbone Bow",
+      "price": "1200 ${currency}"
+    },
+    {
+      "name": "Arrow of Infusion",
+      "price": "120 ${currency}"
+    },
+    {
+      "name": "Spell Book (Lesser Healing)",
+      "price": "250 ${currency}"
+    }
+  ]
+}
