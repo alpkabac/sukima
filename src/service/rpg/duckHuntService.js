@@ -2,9 +2,9 @@ import aiService from "../aiService.js";
 import utils from "../../utils.js";
 import generatorService from "../generatorService.js";
 
-const generatorSpawnAnimal = utils.load("./data/generationPrompt/duckHunt-spawn-animal.json")
-const generatorAttackAnimal = utils.load("./data/generationPrompt/duckHunt-attack-animal.json")
-const generatorLootAnimal = utils.load("./data/generationPrompt/duckHunt-loot-animal.json")
+const generatorSpawnAnimal = utils.load("./data/generationPrompt/rpg/spawn.json")
+const generatorAttackAnimal = utils.load("./data/generationPrompt/rpg/attack.json")
+const generatorLootAnimal = utils.load("./data/generationPrompt/rpg/loot.json")
 
 const stopToken = 224 // "⁂"
 
