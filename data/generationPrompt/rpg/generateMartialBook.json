@@ -1,0 +1,27 @@
+{
+  "name": "RPG Martial Book Generator",
+  "description": "Generates RPG martial books given a name",
+  "properties": [
+    {
+      "name": "bookName",
+      "replaceBy": "BOOK NAME:"
+    },
+    {
+      "name": "skillName",
+      "replaceBy": "SKILL NAME:"
+    },
+    {
+      "name": "skillDescription",
+      "replaceBy": "SKILL DESCRIPTION:"
+    }
+  ],
+  "placeholders": [],
+  "context": "[ RANDOM MARTIAL SKILL BOOK GENERATOR ]",
+  "list": [
+    {
+      "bookName": "The good old kick in the nuts (Nuts Kicking)",
+      "skillName": "Nuts Kicking",
+      "skillDescription": "A simple kick in the groin, effective against low level humanoids"
+    }
+  ]
+}

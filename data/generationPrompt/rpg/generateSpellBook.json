@@ -1,0 +1,27 @@
+{
+  "name": "RPG Spell Book Generator",
+  "description": "Generates RPG spell books given a name",
+  "properties": [
+    {
+      "name": "bookName",
+      "replaceBy": "BOOK NAME:"
+    },
+    {
+      "name": "spellName",
+      "replaceBy": "SPELL NAME:"
+    },
+    {
+      "name": "spellDescription",
+      "replaceBy": "SPELL DESCRIPTION:"
+    }
+  ],
+  "placeholders": [],
+  "context": "[ RANDOM BOOK GENERATOR ]",
+  "list": [
+    {
+      "bookName": "Small heals for noob healers (Lesser Healing)",
+      "spellName": "Lesser Healing",
+      "description": "Slightly improves the target's health regeneration for a reduced amount of time"
+    }
+  ]
+}

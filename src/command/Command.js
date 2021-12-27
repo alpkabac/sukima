@@ -10,7 +10,7 @@ class Command {
      * @param commands {String[]} List of trigger commands
      * @param commandsStartsWith {String[]} List of trigger starting with commands
      * @param permission {String} Name of the required permission
-     * @param callback {function} Function of the command
+     * @param callback {function} Callback of the command, where to put the code that will be executed when the command is detected
      * @param worksWhenMuted {Boolean} Whether or not this command should work when the bot is muted
      */
     constructor(commandName, commands, commandsStartsWith, permission, callback, worksWhenMuted = true) {

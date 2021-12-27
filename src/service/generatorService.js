@@ -19,7 +19,6 @@ class GeneratorService {
         // Build list prompt
         let elemsPrompt = this.#buildList(generator, args, list, placeholderPrompt, prompt)
 
-        console.log(prompt + elemsPrompt + placeholderPrompt)
         return {
             prompt,
             elemsPrompt,

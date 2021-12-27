@@ -27,11 +27,9 @@ bot.login(process.env.TOKEN)
 const channels = []
 let locked = {}
 
-
 let connection
 let voiceChannel
 let speak = null
-
 
 function replaceAsterisksByBackQuotes(text) {
     return text.replace(/\*/g, '`')
@@ -229,8 +227,10 @@ bot.on('message', async msg => {
 
     if (message && message.reactWith) {
         if (message.reactWith.length > 1) {
-            for (let emoji of message.reactWith) {
-                await originalMsg.react(emoji).catch(() => null)
+            for (let i = 0; i < message.reactWith.length; i++) {
+                setTimeout(() => {
+                    originalMsg.react(message.reactWith[i]).catch(() => null)
+                },i*250)
             }
         } else {
             await originalMsg.react(message.reactWith).catch(() => null)
