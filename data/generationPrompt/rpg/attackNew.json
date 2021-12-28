@@ -33,16 +33,23 @@
     {
       "player": "[ weapon: No weapon; armor: No armor ]",
       "enemy": "[ Name: Orc; difficulty: Medium; armor: Leather Armor; damage: None; status: alive ]",
+      "description": "You attack the orc using your bare hands. The orc is quite a good fighter, and dodges or blocks all your attacks.",
+      "wounds": "none",
+      "status": "alive"
+    },
+    {
+      "player": "[ weapon: No weapon; armor: No armor ]",
+      "enemy": "[ Name: Orc; difficulty: Medium; armor: Leather Armor; damage: None; status: alive ]",
       "description": "You attack the orc using your bare hands. It's not very effective, but you manage to break the orc's nose.",
       "wounds": "broken nose",
-      "status": "alive"
+      "status": "slightly wounded"
     },
     {
       "player": "[ weapon: Iron Longsword; armor: No armor ]",
       "enemy": "[ Name: Orc; difficulty: medium; armor: Leather Armor; damage: broken nose, broken ribs; status: wounded ]",
-      "description": "You attack the orc using your bare hands. It's not very effective, but you manage to break the orc's nose.",
-      "wounds": "broken nose",
-      "status": "alive"
+      "description": "You swing your iron longsword at the orc. Due to his wounds, he fails to dodge and you cut his head off.",
+      "wounds": "beheaded",
+      "status": "dead"
     }
   ]
 }
