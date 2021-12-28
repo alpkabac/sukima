@@ -61,8 +61,9 @@ const duckHuntCommands = {
 
             if (result) {
                 return {
-                    message: `[ Loot: ${result} ]`,
-                    success: true
+                    message: `[ Looted Item: ${result} ]`,
+                    success: true,
+                    deleteUserMsg: true
                 }
             }
             return {error: "# Nothing to loot..."}
@@ -84,7 +85,8 @@ const duckHuntCommands = {
                         result.equippedAsWeapon ?
                             `[ Player ${from} equips the item "${result.item}" as a weapon ]`
                             : `[ Player ${from} takes the item "${result.item}" and puts it in its backpack (slot [${player.inventory.length - 1}]) ]`,
-                    success: true
+                    success: true,
+                    deleteUserMsg: true
                 }
             } else if (result === false) {
                 return {

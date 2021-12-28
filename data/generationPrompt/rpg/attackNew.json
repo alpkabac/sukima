@@ -1,0 +1,48 @@
+{
+  "name": "RPG Attack Generator",
+  "description": "Generates RPG attacks given a weapon",
+  "properties": [
+    {
+      "name": "player",
+      "replaceBy": "PLAYER:"
+    },
+    {
+      "name": "enemy",
+      "replaceBy": "ENEMY:"
+    },
+    {
+      "name": "weapon",
+      "replaceBy": "YOUR WEAPON:"
+    },
+    {
+      "name": "description",
+      "replaceBy": "PLAYER ATTACK DESCRIPTION:"
+    },
+    {
+      "name": "wounds",
+      "replaceBy": "ENEMY WOUNDS RECEIVED DURING ATTACK:"
+    },
+    {
+      "name": "status",
+      "replaceBy": "ENEMY STATUS AFTER ATTACK:"
+    }
+  ],
+  "placeholders": [],
+  "context": "[ RANDOM ATTACK GENERATOR ]\n[ Given a player and an enemy, generates a player attack description and deducts the damages/wounds and status. ]",
+  "list": [
+    {
+      "player": "[ weapon: No weapon; armor: No armor ]",
+      "enemy": "[ Name: Orc; difficulty: Medium; armor: Leather Armor; damage: None; status: alive ]",
+      "description": "You attack the orc using your bare hands. It's not very effective, but you manage to break the orc's nose.",
+      "wounds": "broken nose",
+      "status": "alive"
+    },
+    {
+      "player": "[ weapon: Iron Longsword; armor: No armor ]",
+      "enemy": "[ Name: Orc; difficulty: medium; armor: Leather Armor; damage: broken nose, broken ribs; status: wounded ]",
+      "description": "You attack the orc using your bare hands. It's not very effective, but you manage to break the orc's nose.",
+      "wounds": "broken nose",
+      "status": "alive"
+    }
+  ]
+}

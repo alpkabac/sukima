@@ -58,7 +58,7 @@ class DuckHuntService {
 
         pawnService.createPawn(channel, object.name, object.difficulty, object.description)
 
-        return `New Encounter!\nDifficulty: ${object.difficulty}\nName: ${object.name}\nDescription: ${object.description}`
+        return `[ New Encounter! ]\nDifficulty: ${object.difficulty}\nName: ${object.name}\nDescription: ${object.description}`
     }
 
     /**
@@ -198,7 +198,8 @@ class DuckHuntService {
 
         return {
             success: true,
-            message: `[ Player ${username} sold item "${item}" for ${goldAmount} gold! Total player gold: ${player.gold} ]`
+            message: `[ Player ${username} sold item "${item}" for ${goldAmount} gold! Total player gold: ${player.gold} ]`,
+            deleteUserMsg: true
         }
     }
 
@@ -224,7 +225,8 @@ class DuckHuntService {
 
             return {
                 success: true,
-                message: `[ Player ${username} equips item "${player.weapon}" ]`
+                message: `[ Player ${username} equips item "${player.weapon}" ]`,
+                deleteUserMsg: true
             }
         } else {
             const weapon = player.weapon
@@ -233,7 +235,8 @@ class DuckHuntService {
             player.inventory.push(weapon)
             return {
                 success: true,
-                message: `[ Player ${username} equips item "${player.weapon}" and puts "${weapon}" into its backpack (slot [${player.inventory.length - 1}]) ]`
+                message: `[ Player ${username} equips item "${player.weapon}" and puts "${weapon}" into its backpack (slot [${player.inventory.length - 1}]) ]`,
+                deleteUserMsg: true
             }
         }
     }
@@ -245,7 +248,8 @@ class DuckHuntService {
                 + `\nEquipped weapon: ${!player.weapon ? 'No weapon' : player.weapon}`
                 + `\nGold: ${player.gold}`
                 + `\nBackpack size: ${player.inventorySize}`
-                + `\nInventory: [ ${player.inventory.map((item, n) => `${n}: "${item}"`).join(', ')} ]`
+                + `\nInventory: [ ${player.inventory.map((item, n) => `${n}: "${item}"`).join(', ')} ]`,
+            deleteUserMsg: true
         }
     }
 
@@ -255,7 +259,7 @@ class DuckHuntService {
         const price = (player.inventorySize * player.inventorySize) * 100
 
         if (player.gold < price) return {
-            error: `You don't have enough gold (${player.gold}/${price})`
+            error: `# You don't have enough gold to upgrade your backpack (${player.gold}/${price})`
         }
 
         player.inventorySize += 1
@@ -264,7 +268,8 @@ class DuckHuntService {
         return {
             message: `[ Player ${username} upgraded its backpack for ${price} gold! ]`
                 + `\nNew backpack size: ${player.inventorySize}`
-                + `\nCurrent gold balance after upgrade: ${player.gold}`
+                + `\nCurrent gold balance after upgrade: ${player.gold}`,
+            deleteUserMsg: true
         }
     }
 
