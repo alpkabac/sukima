@@ -44,10 +44,20 @@ const duckHuntCommands = {
     attack: new Command(
         "Attack",
         ["!attack"],
-        ["!attack "],
+        [],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             return await duckHuntService.attack(channel, from)
+        },
+        false
+    ),
+    attack2: new Command(
+        "Attack2: the return of the attack",
+        ["!attack2"],
+        [],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            return await duckHuntService.attack2(channel, from)
         },
         false
     ),
@@ -152,6 +162,7 @@ const duckHuntCommands = {
 duckHuntCommands.all = [
     duckHuntCommands.spawn,
     duckHuntCommands.attack,
+    duckHuntCommands.attack2,
     duckHuntCommands.loot,
     duckHuntCommands.take,
     duckHuntCommands.sell,

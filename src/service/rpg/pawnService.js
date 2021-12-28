@@ -1,10 +1,9 @@
-import duckHuntService from "./duckHuntService.js";
-
 class Pawn {
     name;
     difficulty;
     description;
     attacks;
+    wounds;
     alive;
     createdAt;
 
@@ -13,6 +12,8 @@ class Pawn {
         this.difficulty = difficulty;
         this.description = description;
         this.attacks = []
+        this.wounds = []
+        this.status = "alive"
         this.alive = true
         this.createdAt = Date.now()
     }

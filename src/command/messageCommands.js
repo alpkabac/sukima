@@ -203,7 +203,7 @@ const messageCommands = {
             const lastMessageFromChannel = history && history.length > 0 ?
                 history[history.length - 1]
                 : null
-            const lastAuthorIsBot = lastMessageFromChannel.from === process.env.BOTNAME
+            const lastAuthorIsBot = lastMessageFromChannel?.from === process.env.BOTNAME
 
             if (!lastMessageFromChannel) return
             if (lastAuthorIsBot) return

@@ -7,6 +7,7 @@ import envService from "../../util/envService.js";
 
 const generatorSpawnAnimal = utils.load("./data/generationPrompt/rpg/spawn.json")
 const generatorAttackAnimal = utils.load("./data/generationPrompt/rpg/attack.json")
+const generatorAttackNew = utils.load("./data/generationPrompt/rpg/attackNew.json")
 const generatorLootAnimal = utils.load("./data/generationPrompt/rpg/loot.json")
 const generatorSell = utils.load("./data/generationPrompt/rpg/sell.json")
 const generatorSpellBook = utils.load("./data/generationPrompt/rpg/generateSpellBook.json")
@@ -97,7 +98,7 @@ class DuckHuntService {
         const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
         const object = generatorService.parseResult(generatorAttackAnimal, prompt.placeholderPrompt, result)
 
-        pawn.attacks.push(object.description)
+        pawn.attacks.push({player: username, description: object.description})
 
         if (object.success && object.success.toLowerCase() === "true") {
             pawn.alive = false
@@ -107,6 +108,70 @@ class DuckHuntService {
 
         return {
             message: `[ Attack by ${username} ]\n${object.description}\nIs enemy dead? ${object.success}`,
+            reactWith: '⚔',
+            deleteUserMsg: true
+        }
+    }
+
+    /**
+     * Attack the current pawn
+     */
+    static async attack2(channel, username) {
+        if (!pawnService.isPawnAliveOnChannel(channel)) return {error: "# Nothing to attack..."}
+
+        const player = playerService.getPlayer(channel, username)
+        const timeDiff = Date.now() - player.lastAttackAt
+        if (player.lastAttackAt && timeDiff < 1000 * envService.getRpgAttackCoolDown()) {
+            return {
+                error: `You're still too tired to attack, please wait ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds`,
+                reactWith: '⌛'
+            }
+        }
+
+        const pawn = pawnService.getActivePawn(channel)
+
+        let weapon = "No weapon"
+        if (player.weapon) {
+            weapon = player.weapon
+        }
+
+        let armor = "No armor"
+        if (player.armor) {
+            armor = player.armor
+        }
+
+        const enemyStatus = `[ Name: ${pawn.name}; difficulty: ${pawn.difficulty}; wounds: ${pawn.wounds.length === 0 ? 'none' : [...new Set(pawn.wounds)].join(', ')}; status: ${pawn.status} ]`
+        const prompt = generatorService.getPrompt(
+            generatorAttackNew,
+            [
+                {name: "player", value: `[ weapon: ${weapon}; armor: ${armor} ]`},
+                {name: "enemy", value: enemyStatus},
+                {name: "description"},
+                {name: "wounds"},
+                {name: "status"}
+            ],
+            true
+        )
+        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
+        const object = generatorService.parseResult(generatorAttackNew, prompt.placeholderPrompt, result)
+
+        pawn.attacks.push({player: username, description: object.description})
+        if (object.wounds && object.wounds.trim() && !["none"].includes(object.wounds.trim().toLowerCase())) {
+            pawn.wounds.push(object.wounds.toLowerCase())
+        }
+
+        if (object.status && object.status.trim() && !["alive"].includes(object.status.trim().toLowerCase())) {
+            pawn.status = object.status.toLowerCase()
+        }
+
+        if (object.status && object.status.trim() && ["dead", "killed", "died"].includes(object.status.trim().toLowerCase())) {
+            pawn.alive = false
+        }
+
+        player.lastAttackAt = Date.now()
+
+        return {
+            message: `[ Attack by ${username} ]\nEnemy current status: ${enemyStatus}\nAction description: ${object.description}\nNew enemy wounds: ${object.wounds}\nNew enemy status: ${object.status}`,
             reactWith: '⚔',
             deleteUserMsg: true
         }
