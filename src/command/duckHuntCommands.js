@@ -53,7 +53,7 @@ const duckHuntCommands = {
     ),
     attack2: new Command(
         "Attack2: the return of the attack",
-        ["!attack2"],
+        ["!attack2", "⚔", "⚔️", ":crossed_swords:"],
         [],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {

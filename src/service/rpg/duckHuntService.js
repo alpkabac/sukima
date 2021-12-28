@@ -156,7 +156,7 @@ class DuckHuntService {
         const object = generatorService.parseResult(generatorAttackNew, prompt.placeholderPrompt, result)
 
         pawn.attacks.push({player: username, description: object.description})
-        if (object.wounds && object.wounds.trim() && !["none"].includes(object.wounds.trim().toLowerCase())) {
+        if (object.wounds && object.wounds.trim() && !["none", "undefined", "blocked", "spared"].includes(object.wounds.trim().toLowerCase())) {
             pawn.wounds.push(object.wounds.toLowerCase())
         }
 
