@@ -42,22 +42,12 @@ const duckHuntCommands = {
         false
     ),
     attack: new Command(
-        "Attack",
-        ["!attack"],
+        "Attack2: the return of the attack",
         [],
+        ["!attack", "⚔", "⚔️", ":crossed_swords:"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             return await duckHuntService.attack(channel, from)
-        },
-        false
-    ),
-    attack2: new Command(
-        "Attack2: the return of the attack",
-        ["!attack2", "⚔", "⚔️", ":crossed_swords:"],
-        [],
-        process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
-            return await duckHuntService.attack2(channel, from)
         },
         false
     ),
@@ -117,13 +107,23 @@ const duckHuntCommands = {
         },
         false
     ),
-    equip: new Command(
-        "Equip item",
+    equipWeapon: new Command(
+        "Equip Weapon",
+        ["!equipW", "!equip W", "!equipWeapon", "!equip Weapon"],
         [],
-        ["!equip"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
-            return duckHuntService.equip(channel, from, parsedMsg)
+            return duckHuntService.equipWeapon(channel, from, parsedMsg)
+        },
+        false
+    ),
+    equipArmor: new Command(
+        "Equip armr",
+        ["!equipA", "!equip A", "!equipArmor", "!equip Armor"],
+        [],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            return duckHuntService.equipArmor(channel, from, parsedMsg)
         },
         false
     ),
@@ -162,11 +162,11 @@ const duckHuntCommands = {
 duckHuntCommands.all = [
     duckHuntCommands.spawn,
     duckHuntCommands.attack,
-    duckHuntCommands.attack2,
     duckHuntCommands.loot,
     duckHuntCommands.take,
     duckHuntCommands.sell,
-    duckHuntCommands.equip,
+    duckHuntCommands.equipWeapon,
+    duckHuntCommands.equipArmor,
     duckHuntCommands.showInventory,
     duckHuntCommands.upgradeBackpack,
     duckHuntCommands.generateSpell,

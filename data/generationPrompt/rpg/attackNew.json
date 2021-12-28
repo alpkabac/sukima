@@ -16,7 +16,7 @@
     },
     {
       "name": "wounds",
-      "replaceBy": "WOUNDS RECEIVED DURING ATTACK:"
+      "replaceBy": "NEW ENEMY WOUND:"
     },
     {
       "name": "status",

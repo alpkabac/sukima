@@ -159,7 +159,13 @@ function replaceAliasesInMessage(message, nick) {
     return message
 }
 
-bot.on('message', async msg => {
+const messageList = []
+
+function appendMessage(msg){
+    messageList.push(msg)
+}
+
+async function processMessage(msg){
     const privateMessage = msg.channel.type === "dm"
     if (privateMessage && (!process.env.ENABLE_DM || process.env.ENABLE_DM.toLowerCase() !== "true")) return
     if (privateMessage && msg.author.username !== bot.user.username) {
@@ -167,7 +173,6 @@ bot.on('message', async msg => {
         console.log(`[${((date.getHours() < 10) ? "0" : "") + date.getHours() + ":" + ((date.getMinutes() < 10) ? "0" : "") + date.getMinutes() + ":" + ((date.getSeconds() < 10) ? "0" : "") + date.getSeconds()}]`
             + ` User ${msg.author.id} sent a DM to ${process.env.BOTNAME}`)
     }
-
 
     const channelName = privateMessage ?
         "##" + msg.channel.id
@@ -331,8 +336,19 @@ bot.on('message', async msg => {
             originalMsg.delete().catch(() => null)
         }, 2000)
     }
+}
 
-});
+async function messageLoop(){
+    let msg = messageList.shift()
+    while (msg){
+        await processMessage(msg)
+        msg = messageList.shift()
+    }
+}
+
+setInterval(messageLoop, 1000)
+
+bot.on('message', appendMessage);
 
 async function loop() {
 
@@ -342,7 +358,7 @@ async function loop() {
             if (locked[channel]) continue
 
             locked[channel] = true
-            const msg = await messageCommands.talk.call(null, null, channel, [])
+            const msg = await messageCommands.talk.call(null, null, channel, [], undefined, bot)
             // If normal answer
             if (msg && msg.message?.trim()) {
                 const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
