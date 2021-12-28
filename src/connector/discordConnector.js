@@ -13,6 +13,9 @@ import channelBotTranslationService from "../service/personalityService.js";
 import greetingService from "../service/greetingService.js";
 import commands from "../command/commands.js";
 import discordCommands from "../discord/command/discordCommands.js";
+import envService from "../util/envService.js";
+import pawnService from "../service/rpg/pawnService.js";
+import duckHuntService from "../service/rpg/duckHuntService.js";
 
 dotenv.config()
 
@@ -230,7 +233,7 @@ bot.on('message', async msg => {
             for (let i = 0; i < message.reactWith.length; i++) {
                 setTimeout(() => {
                     originalMsg.react(message.reactWith[i]).catch(() => null)
-                },i*250)
+                }, i * 250)
             }
         } else {
             await originalMsg.react(message.reactWith).catch(() => null)
@@ -365,6 +368,8 @@ async function loop() {
     setTimeout(loop, 1000)
 }
 
+setTimeout(loop, 5000)
+
 setInterval(async () => {
 // Waits two seconds if an answer is still generating
     if (locked) return setTimeout(loop, 2000)
@@ -412,6 +417,26 @@ setInterval(async () => {
     }
 }, parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
 
-setTimeout(loop, 5000)
+
+setInterval(async () => {
+    if (envService.isRpgModeEnabled()) {
+        for (let channel in channels) {
+            // Prevents auto messages in DMs (temporary, hopefully)
+            if (channel.startsWith("##")) continue
+
+            const pawn = pawnService.getActivePawn(channel)
+            if (pawn && (Date.now() - pawn.createdAt < 1000 * envService.getRpgRespawnCoolDown())) continue
+            if (pawnService.lastPawnCreatedAt[channel] && (Date.now() - pawnService.lastPawnCreatedAt[channel] < 1000 * envService.getRpgSpawnCoolDown())) continue
+
+            const newPawn = await duckHuntService.spawn(channel, null, null)
+            const timeToWait = encoder.encode(newPawn).length * 50
+            channels[channel].startTyping().then()
+            setTimeout(async () => {
+                const m = await channels[channel].send(newPawn).catch(() => null)
+                channels[channel].stopTyping(true)
+            }, timeToWait)
+        }
+    }
+}, 30000)
 
 export default {}

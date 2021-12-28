@@ -4,6 +4,7 @@ class Player {
         this.gold = 0
         this.inventory = []
         this.inventorySize = 1
+        this.lastAttackAt = null
     }
 }
 

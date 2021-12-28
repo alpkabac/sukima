@@ -3,16 +3,17 @@ import utils from "../../utils.js";
 import generatorService from "../generatorService.js";
 import playerService from "./playerService.js";
 import pawnService from "./pawnService.js";
+import envService from "../../util/envService.js";
 
 const generatorSpawnAnimal = utils.load("./data/generationPrompt/rpg/spawn.json")
 const generatorAttackAnimal = utils.load("./data/generationPrompt/rpg/attack.json")
 const generatorLootAnimal = utils.load("./data/generationPrompt/rpg/loot.json")
 const generatorSell = utils.load("./data/generationPrompt/rpg/sell.json")
+const generatorSpellBook = utils.load("./data/generationPrompt/rpg/generateSpellBook.json")
 
 const stopToken = 224 // "⁂"
 
 class DuckHuntService {
-    static activePawn = {}
     static activeLoot = {}
 
     /**
@@ -67,6 +68,14 @@ class DuckHuntService {
         if (!pawnService.isPawnAliveOnChannel(channel)) return {error: "# Nothing to attack..."}
 
         const player = playerService.getPlayer(channel, username)
+        const timeDiff = Date.now() - player.lastAttackAt
+        if (player.lastAttackAt && timeDiff < 1000 * envService.getRpgAttackCoolDown()) {
+            return {
+                error: `You're still too tired to attack, please wait ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds`,
+                reactWith: '⌛'
+            }
+        }
+
         const pawn = pawnService.getActivePawn(channel)
 
         let weapon = "No weapon"
@@ -94,16 +103,13 @@ class DuckHuntService {
             pawn.alive = false
         }
 
-        return (object.success && object.success.toLowerCase() === "true") ?
-            {
-                message: `[ Attack by ${username} ]\n${object.description}\nIs enemy dead? ${object.success}`,
-                reactWith: ['⚔', '✓']
-            }
-            :
-            {
-                message: `[ Attack by ${username} ]\n${object.description}\nIs enemy dead? ${object.success}`,
-                reactWith: ['⚔', '✓']
-            }
+        player.lastAttackAt = Date.now()
+
+        return {
+            message: `[ Attack by ${username} ]\n${object.description}\nIs enemy dead? ${object.success}`,
+            reactWith: '⚔',
+            deleteUserMsg: true
+        }
     }
 
     /**
@@ -214,6 +220,7 @@ class DuckHuntService {
 
         if (!player.weapon) {
             player.weapon = player.inventory[itemSlotNumber]
+            player.inventory.splice(player.inventory.indexOf(player.inventory[itemSlotNumber]), 1)
 
             return {
                 success: true,
@@ -259,6 +266,22 @@ class DuckHuntService {
                 + `\nNew backpack size: ${player.inventorySize}`
                 + `\nCurrent gold balance after upgrade: ${player.gold}`
         }
+    }
+
+    static async generateSpell(channel, args) {
+        const prompt = generatorService.getPrompt(
+            generatorSpellBook,
+            [
+                {name: "bookName", value: args ? args.trim() : null},
+                {name: "spellName"},
+                {name: "description"},
+            ],
+            true
+        )
+        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
+        const object = generatorService.parseResult(generatorSpellBook, prompt.placeholderPrompt, result)
+
+        return {message: JSON.stringify(object, null, 4)}
     }
 }
 

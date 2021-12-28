@@ -1,9 +1,12 @@
+import duckHuntService from "./duckHuntService.js";
+
 class Pawn {
     name;
     difficulty;
     description;
     attacks;
     alive;
+    createdAt;
 
     constructor(name, difficulty, description) {
         this.name = name;
@@ -11,11 +14,13 @@ class Pawn {
         this.description = description;
         this.attacks = []
         this.alive = true
+        this.createdAt = Date.now()
     }
 }
 
 class PawnService {
     static activePawn = {}
+    static lastPawnCreatedAt = {}
 
     static getActivePawn(channel) {
         if (this.activePawn[channel]) return this.activePawn[channel]
@@ -23,6 +28,7 @@ class PawnService {
 
     static createPawn(channel, name, difficulty, description) {
         this.activePawn[channel] = new Pawn(name, difficulty, description)
+        this.lastPawnCreatedAt[channel] = Date.now()
     }
 
     static isPawnAliveOnChannel(channel) {

@@ -1,27 +1,134 @@
 {
-  "name": "RPG Spell Book Generator",
-  "description": "Generates RPG spell books given a name",
-  "properties": [
+  "name":"RPG Spell Book Generator",
+  "description":"Generates RPG spell books given a name",
+  "properties":[
     {
-      "name": "bookName",
-      "replaceBy": "BOOK NAME:"
+      "name":"bookName",
+      "replaceBy":"BOOK NAME:"
     },
     {
-      "name": "spellName",
-      "replaceBy": "SPELL NAME:"
+      "name":"spellName",
+      "replaceBy":"SPELL NAME:"
     },
     {
-      "name": "spellDescription",
-      "replaceBy": "SPELL DESCRIPTION:"
+      "name":"description",
+      "replaceBy":"SPELL DESCRIPTION:"
     }
   ],
-  "placeholders": [],
-  "context": "[ RANDOM BOOK GENERATOR ]",
-  "list": [
+  "placeholders":[
+
+  ],
+  "context":"[ RANDOM BOOK GENERATOR ]",
+  "list":[
     {
-      "bookName": "Small heals for noob healers (Lesser Healing)",
-      "spellName": "Lesser Healing",
-      "description": "Slightly improves the target's health regeneration for a reduced amount of time"
+      "bookName":"Small heals for noob healers (Lesser Healing)",
+      "spellName":"Lesser Healing",
+      "description":"Slightly improves the target's health regeneration for a reduced amount of time"
+    },
+    {
+      "bookName":"Don't Notice Me Senpai (Chameleon Skin)",
+      "spellName":"Chameleon Skin",
+      "description":"Changes the target's skin color to whatever the caster wishes, improving one's ability to hide or make a disguise"
+    },
+    {
+      "bookName":"The Cool Kid (Chill Liquid)",
+      "spellName":"Chill Liquid",
+      "description":"Target liquid chills to about 7 degrees Celsius, works on up to five liters per casting."
+    },
+    {
+      "bookName":"Knight's Bane (Heat Metal)",
+      "spellName":"Heat Metal",
+      "description":"Target metal becomes blisteringly hot, causing damage to anyone who touches it."
+    },
+    {
+      "bookName":"How to make a bug zapper that works! (Mosquito Swarm)",
+      "spellName":"Mosquito Swarm",
+      "description":"Summons many thousands of mosquitos and commands them to exsanguinate the target."
+    },
+    {
+      "bookName":"Gorgon's Beauty Tips & Tricks (Animate Hair)",
+      "spellName":"Animate Hair",
+      "description":"The target's hair becomes animated and obeys the command of the caster. The hair has tremendous strength and dexterity."
+    },
+    {
+      "bookName":"Don't Wait For Death: An Impatient Necromancer's Guide (Skeletal Awakening)",
+      "spellName":"Skeletal Awakening",
+      "description":"Animates the bones of a living target. The skeleton obeys the commands of the caster to the best of its ability."
+    },
+    {
+      "bookName":"Parental Gaze (Reverse Sight)",
+      "spellName":"Reverse Sight",
+      "description":"Reverses the vision of the target, making them see as if their eyes were in the back of their head."
+    },
+    {
+      "bookName":"Fabulous Fairs and Fun (Glitterbomb)",
+      "spellName":"Glitterbomb",
+      "description":"Causes a small explosion in the target area, causing minor damage and coating everything within 50ft in sparkling glitter."
+    },
+    {
+      "bookName":"Flexible Casting (Flexation)",
+      "spellName":"Flexation",
+      "description":"Target's body loses all rigidity, allowing them to move as if they were made of rubber tubes."
+    },
+    {
+      "bookName":"Monsterous Collectibles (Monster Entrapment)",
+      "spellName":"Monster Entrapment",
+      "description":"Attempts to trap target monster in an extra-dimensional space small enough to fit inside a pocket."
+    },
+    {
+      "bookName":"Foul-Mouth Fixer (Soap Mouth)",
+      "spellName":"Soap Mouth",
+      "description":"The target's mouth is scrubbed clean and filled with foamy soap, causing them to choke and gag."
+    },
+    {
+      "bookName":"The Meaning of Prismatic Refraction (Double Rainbow)",
+      "spellName":"Double Rainbow",
+      "description":"Target source of light now projects dazzling rainbows instead of its original light."
+    },
+    {
+      "bookName":"Beholding Beauty (Aesthetic Reversion)",
+      "spellName":"Aesthetic Reversion",
+      "description":"Target now sees beautiful objects and people as hideous monstrocities and vice versa."
+    },
+    {
+      "bookName":"Intimidating Incantations (Intimidate)",
+      "spellName":"Intimidate",
+      "description":"Intimidates all surrounding people with scary incantations and creepy effects."
+    },
+    {
+      "bookName":"Silent But Deadly (Silence)",
+      "spellName":"Silence",
+      "description":"Target object or person can no longer produce sound."
+    },
+    {
+      "bookName":"Source of Insanity (Repeated Failure)",
+      "spellName":"Repeated Failure",
+      "description":"Curses target to be more likely to fail the more often they attempt a given action."
+    },
+    {
+      "bookName":"You Shall Not Pass (Lock)",
+      "spellName":"Lock",
+      "description":"Target door or container cannot be opened by mundane means."
+    },
+    {
+      "bookName":"The Wizard Did It (Blame)",
+      "spellName":"Blame",
+      "description":"All nearby people consider Target to be at fault for your next action."
+    },
+    {
+      "bookName":"Phoenix Fire (Feign Death)",
+      "spellName":"Feign Death",
+      "description":"Caster self-immolates and dies in a conflagration. Caster returns to full health thirty minutes later."
+    },
+    {
+      "bookName":"Hilarious Wizard Academy Pranks (Wedgy)",
+      "spellName":"Wedgy",
+      "description":"Magically pulls the target's underwear up so far it makes it difficult for them to walk."
+    },
+    {
+      "bookName":"Bull Market Guide (Shatter)",
+      "spellName":"Shatter",
+      "description":"Explosively shatters all fragile objects and surfaces in the target area."
     }
   ]
 }

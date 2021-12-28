@@ -57,15 +57,29 @@
     {
       "name": "Bear",
       "difficulty": "medium",
-      "weapon": "Crossbow",
-      "description": "You shoot the bear with your crossbow, and somehow hit it just between the two eyes. The bear falls onto the floor, dead.",
+      "weapon": "Enchanted Crossbow",
+      "description": "You shoot the bear with your enchanted crossbow, and somehow hit it just between the two eyes. The bear falls onto the floor, dead.",
       "success": "true"
     },
     {
       "name": "Troll",
       "difficulty": "hard",
       "weapon": "Long bow",
-      "description": "You shoot an arrow at the troll with your bow. The arrow hits the troll in the arm, but it seems unimpressed by your attack.",
+      "description": "You shoot an arrow at the troll with your bow. The arrow hits the troll in the arm, but the troll is totally undamaged.",
+      "success": "false"
+    },
+    {
+      "name": "Jelly",
+      "difficulty": "easy",
+      "weapon": "Iron Magic Blade",
+      "description": "You throw the magic blade into the jelly's mouth, where it sticks. The jelly dies.",
+      "success": "true"
+    },
+    {
+      "name": "Centaur",
+      "difficulty": "medium",
+      "weapon": "Titanium Dagger",
+      "description": "You stab the centaur in the chest, and manage to pierce his armor. However, you don't actually kill him. He gets up and continues fighting.",
       "success": "false"
     }
   ]

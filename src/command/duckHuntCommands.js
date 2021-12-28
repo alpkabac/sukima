@@ -13,6 +13,11 @@ const duckHuntCommands = {
         ["!spawn "],
         process.env.ALLOW_RPG_SPAWN,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+
+            return {
+                error: "Temporarily disabled for testing purposes"
+            }
+
             let difficulty
             let name
 
@@ -130,6 +135,16 @@ const duckHuntCommands = {
         },
         false
     ),
+    generateSpell: new Command(
+        "Generate Spell",
+        [],
+        ["!spellBook", "!spellbook", "!spell"],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            return duckHuntService.generateSpell(channel, parsedMsg)
+        },
+        false
+    ),
 }
 
 duckHuntCommands.all = [
@@ -141,6 +156,7 @@ duckHuntCommands.all = [
     duckHuntCommands.equip,
     duckHuntCommands.showInventory,
     duckHuntCommands.upgradeBackpack,
+    duckHuntCommands.generateSpell,
 ]
 
 export default duckHuntCommands
