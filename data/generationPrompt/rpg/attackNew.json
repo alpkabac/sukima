@@ -4,23 +4,23 @@
   "properties": [
     {
       "name": "player",
-      "replaceBy": "PLAYER:"
+      "replaceBy": "Player:"
     },
     {
       "name": "enemy",
-      "replaceBy": "ENEMY:"
+      "replaceBy": "Enemy:"
     },
     {
       "name": "description",
-      "replaceBy": "PLAYER ATTACK DESCRIPTION:"
+      "replaceBy": "Player attack description:"
     },
     {
       "name": "wounds",
-      "replaceBy": "NEW ENEMY WOUND:"
+      "replaceBy": "New enemy wound(s):"
     },
     {
       "name": "status",
-      "replaceBy": "ENEMY STATUS AFTER ATTACK:"
+      "replaceBy": "Enemy status after attack:"
     }
   ],
   "placeholders": [],
@@ -46,6 +46,13 @@
       "description": "You strike the orc with your iron sword. You cut into orc's stomach and guts, spreading his blood everywhere",
       "wounds": "eviscerated",
       "status": "heavily wounded"
+    },
+    {
+      "player": "[ weapon: No weapon; armor: No armor ]",
+      "enemy": "[ Name: Orc; difficulty: Medium; armor: Leather Armor; wounds: broken nose, broken ribs, eviscerated; status: heavily wounded ]",
+      "description": "You punch the semi-conscious orc in the torso. Your blows doesn't do much, but the orc finally succumbs to his severe wounds and dies.",
+      "wounds": "none",
+      "status": "dead"
     },
     {
       "player": "[ weapon: Iron Longsword; armor: No armor ]",

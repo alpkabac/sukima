@@ -344,9 +344,11 @@ async function messageLoop(){
         await processMessage(msg)
         msg = messageList.shift()
     }
+    await utils.sleep(200)
+    setTimeout(messageLoop, 1)
 }
 
-setInterval(messageLoop, 1000)
+messageLoop()
 
 bot.on('message', appendMessage);
 

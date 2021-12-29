@@ -106,11 +106,17 @@ class DuckHuntService {
 
         pawn.attacks.push({player: username, description: object.description})
         if (object.wounds && object.wounds.trim() && !["none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"].includes(object.wounds.trim().toLowerCase())) {
-            const newWounds = [...new Set(object.wounds.toLowerCase().split(',').map(e=>e.trim()))].join(', ')
-            pawn.wounds.push(newWounds)
+            const newWounds = [...new Set(object.wounds.toLowerCase().split(',').map(e => e.trim()))]
+            if (newWounds instanceof Array && newWounds.length === 1) {
+                pawn.wounds.push(newWounds[0])
+            } else if (newWounds instanceof Array && newWounds.length > 1) {
+                pawn.wounds.push(...newWounds)
+            } else {
+                pawn.wounds.push(newWounds.join(', '))
+            }
         }
 
-        if (object.status && object.status.trim() && !["alive"].includes(object.status.trim().toLowerCase())) {
+        if (object.status && object.status.trim() && !["failed"].includes(object.status.trim().toLowerCase())) {
             pawn.status = object.status.toLowerCase()
         }
 
@@ -223,11 +229,17 @@ class DuckHuntService {
 
         const itemSlotNotProvided = (!itemSlot && typeof itemSlot === "string")
 
-        if (itemSlotNotProvided) return {
-            error: "# You have to provide an inventory slot number for this command"
+        let itemSlotNumber
+        if (itemSlotNotProvided && player.inventory.length !== 1) {
+            return {
+                error: "# You have to provide an inventory slot number for this command"
+            }
+        } else if (itemSlotNotProvided) {
+            itemSlotNumber = 0
+        }else{
+            itemSlotNumber = parseInt(itemSlot)
         }
 
-        const itemSlotNumber = parseInt(itemSlot)
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
         if (item === null) return {
@@ -237,7 +249,6 @@ class DuckHuntService {
         if (!player.weapon) {
             player.weapon = player.inventory[itemSlotNumber]
             player.inventory.splice(player.inventory.indexOf(player.inventory[itemSlotNumber]), 1)
-
             return {
                 success: true,
                 message: `[ Player ${username} equips item "${player.weapon}" as weapon ]`,
@@ -261,11 +272,16 @@ class DuckHuntService {
 
         const itemSlotNotProvided = (!itemSlot && typeof itemSlot === "string")
 
-        if (itemSlotNotProvided) return {
-            error: "# You have to provide an inventory slot number for this command"
+        let itemSlotNumber
+        if (itemSlotNotProvided && player.inventory.length !== 1) {
+            return {
+                error: "# You have to provide an inventory slot number for this command"
+            }
+        } else if (itemSlotNotProvided) {
+            itemSlotNumber = 0
+        }else {
+            itemSlotNumber = parseInt(itemSlot)
         }
-
-        const itemSlotNumber = parseInt(itemSlot)
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
         if (item === null) return {
@@ -299,6 +315,7 @@ class DuckHuntService {
         return {
             message: `[ Player ${username} ]`
                 + `\nEquipped weapon: ${!player.weapon ? 'No weapon' : player.weapon}`
+                + `\nEquipped armor: ${!player.armor ? 'No armor' : player.armor}`
                 + `\nGold: ${player.gold}`
                 + `\nBackpack size: ${player.inventorySize}`
                 + `\nInventory: [ ${player.inventory.map((item, n) => `${n}: "${item}"`).join(', ')} ]`,
@@ -309,7 +326,7 @@ class DuckHuntService {
     static async upgradeBackpack(channel, username) {
         const player = playerService.getPlayer(channel, username)
 
-        const price = (player.inventorySize * player.inventorySize) * 100
+        const price = Math.floor(Math.pow(player.inventorySize * 2, 3)+Math.pow(player.inventorySize * 9.59, 2))
 
         if (player.gold < price) return {
             error: `# You don't have enough gold to upgrade your backpack (${player.gold}/${price})`

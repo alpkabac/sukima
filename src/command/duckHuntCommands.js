@@ -42,9 +42,9 @@ const duckHuntCommands = {
         false
     ),
     attack: new Command(
-        "Attack2: the return of the attack",
+        "Attack",
         [],
-        ["!attack", "⚔", "⚔️", ":crossed_swords:"],
+        ["!atk", "!attack", "⚔", "⚔️", ":crossed_swords:"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             return await duckHuntService.attack(channel, from)
@@ -109,21 +109,21 @@ const duckHuntCommands = {
     ),
     equipWeapon: new Command(
         "Equip Weapon",
-        ["!equipW", "!equip W", "!equipWeapon", "!equip Weapon"],
         [],
+        ["!equipWeapon", "!equip Weapon", "!equipW", "!equip W"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
-            return duckHuntService.equipWeapon(channel, from, parsedMsg)
+            return duckHuntService.equipWeapon(channel, from, parsedMsg.trim())
         },
         false
     ),
     equipArmor: new Command(
-        "Equip armr",
-        ["!equipA", "!equip A", "!equipArmor", "!equip Armor"],
+        "Equip armor",
         [],
+        ["!equipArmor", "!equip Armor", "!equipA", "!equip A"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
-            return duckHuntService.equipArmor(channel, from, parsedMsg)
+            return duckHuntService.equipArmor(channel, from, parsedMsg.trim())
         },
         false
     ),
