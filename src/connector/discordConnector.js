@@ -103,12 +103,16 @@ bot.on('ready', async () => {
 
         bot.channels.cache.forEach(c => {
             if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
-                if (historyService.getChannelHistory(`#${c.name.toLowerCase()}`).length === 0)
-                    if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase())?.introduction.length > 0)
-                        c.send(replaceAsterisksByBackQuotes(
-                            `${channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction[0].msg}`
-                        ))
-                            .catch(() => null)
+                if (envService.isRpgModeEnabled()){
+                    c.send('https://tenor.com/view/huzzah-adventure-jovel-haver-gif-19701828')
+                }else {
+                    if (historyService.getChannelHistory(`#${c.name.toLowerCase()}`).length === 0)
+                        if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase())?.introduction.length > 0)
+                            c.send(replaceAsterisksByBackQuotes(
+                                `${channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction[0].msg}`
+                            ))
+                                .catch(() => null)
+                }
             }
         })
 
@@ -131,7 +135,6 @@ bot.on('guildMemberAdd', async (member) => {
     const parsedMessage = replaceAsterisksByBackQuotes(message)
     if (parsedMessage)
         channel.send(parsedMessage).catch(() => null)
-
 });
 
 function replaceAliases(nick) {
@@ -161,11 +164,11 @@ function replaceAliasesInMessage(message, nick) {
 
 const messageList = []
 
-function appendMessage(msg){
+function appendMessage(msg) {
     messageList.push(msg)
 }
 
-async function processMessage(msg){
+async function processMessage(msg) {
     const privateMessage = msg.channel.type === "dm"
     if (privateMessage && (!process.env.ENABLE_DM || process.env.ENABLE_DM.toLowerCase() !== "true")) return
     if (privateMessage && msg.author.username !== bot.user.username) {
@@ -282,11 +285,21 @@ async function processMessage(msg){
         await bot.user.setActivity(message.setActivityName)
     }
 
-    if (message?.message?.trim?.().length > 0) {
-        const parsedMessage = replaceAsterisksByBackQuotes(message.message)
+    if (message.message) {
+        let parsedMessage
+        let messageLength
+        let embedMessage = false
+        try {
+            messageLength = encoder.encode(message.message).length
+            parsedMessage = replaceAsterisksByBackQuotes(message.message)
+        } catch (e) {
+            messageLength = 1
+            parsedMessage = message.message
+            embedMessage = true
+        }
 
         voiceChannel = msg.member?.voice?.channel
-        const timeToWait = message.instantReply ? 0 : encoder.encode(message.message).length * (message.fastTyping ? 10 : 50)
+        const timeToWait = message.instantReply ? 0 : messageLength * (message.fastTyping ? 10 : 50)
         channels[channelName].startTyping().then()
 
         setTimeout(async () => {
@@ -307,7 +320,11 @@ async function processMessage(msg){
                         }]
                     }).catch((e) => console.error(e))
                 } else {
-                    newMessage = await originalMsg.inlineReply(parsedMessage).catch(() => null)
+                    if (embedMessage) {
+                        newMessage = await channels[channelName].send(parsedMessage).catch(() => null)
+                    } else {
+                        newMessage = await originalMsg.inlineReply(parsedMessage).catch(() => null)
+                    }
                 }
             }
 
@@ -319,12 +336,28 @@ async function processMessage(msg){
                 historyService.pushIntoHistory(message.pushIntoHistory[0], message.pushIntoHistory[1], message.pushIntoHistory[2], newMessage?.id)
             }
 
+            if (newMessage && message.deleteNewMessage) {
+                setTimeout(async () => {
+                    await newMessage.delete().catch(() => null)
+                }, 2000)
+            }
+
             channels[channelName].stopTyping(true)
             locked[channelName] = false
             savingService.save(channelName)
+
+            if (message.alsoSend) {
+                if (Array.isArray(message.alsoSend)) {
+                    for (let alsoSend of message.alsoSend) {
+                        await channels[channelName].send(alsoSend)
+                    }
+                } else {
+                    await channels[channelName].send(message.alsoSend)
+                }
+            }
         }, timeToWait)
 
-        if (speak && !message.message.startsWith("#")) {
+        if (!embedMessage && speak && !message.message.startsWith("#")) {
             await speak(parsedMessage, channelName)
         }
     } else {
@@ -338,14 +371,15 @@ async function processMessage(msg){
     }
 }
 
-async function messageLoop(){
+async function messageLoop() {
     let msg = messageList.shift()
-    while (msg){
+    while (msg) {
         await processMessage(msg)
         msg = messageList.shift()
     }
-    await utils.sleep(200)
-    setTimeout(messageLoop, 1)
+
+
+    setTimeout(messageLoop, 200)
 }
 
 messageLoop()
@@ -447,12 +481,7 @@ setInterval(async () => {
             if (pawnService.lastPawnCreatedAt[channel] && (Date.now() - pawnService.lastPawnCreatedAt[channel] < 1000 * envService.getRpgSpawnCoolDown())) continue
 
             const newPawn = await duckHuntService.spawn(channel, null, null)
-            const timeToWait = encoder.encode(newPawn).length * 50
-            channels[channel].startTyping().then()
-            setTimeout(async () => {
-                const m = await channels[channel].send(newPawn).catch(() => null)
-                channels[channel].stopTyping(true)
-            }, timeToWait)
+            const m = await channels[channel].send(newPawn).catch(() => null)
         }
     }
 }, 30000)

@@ -5,6 +5,7 @@ import playerService from "./playerService.js";
 import pawnService from "./pawnService.js";
 import envService from "../../util/envService.js";
 import worldItemsService from "./worldItemsService.js";
+import {MessageEmbed} from "discord.js";
 
 const generatorSpawnAnimal = utils.load("./data/generationPrompt/rpg/spawn.json")
 const generatorAttackNew = utils.load("./data/generationPrompt/rpg/attackNew.json")
@@ -58,7 +59,14 @@ class DuckHuntService {
 
         pawnService.createPawn(channel, object.name, object.difficulty, object.description)
 
-        return `[ New Encounter! ]\nDifficulty: ${object.difficulty}\nName: ${object.name}\nDescription: ${object.description}`
+        return new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle('New Encounter!')
+            .setDescription(object.description)
+            .addFields(
+                {name: 'Name', value: object.name, inline: true},
+                {name: 'Difficulty', value: object.difficulty, inline: true},
+            )
     }
 
     /**
@@ -71,8 +79,10 @@ class DuckHuntService {
         const timeDiff = Date.now() - player.lastAttackAt
         if (player.lastAttackAt && timeDiff < 1000 * envService.getRpgAttackCoolDown()) {
             return {
-                error: `You're still too tired to attack, please wait ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds`,
-                reactWith: '⌛'
+                error: `${username} tried to attack but is still too tired to attack, please wait ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds`,
+                reactWith: '⌛',
+                deleteNewMessage: true,
+                deleteUserMsg: true
             }
         }
 
@@ -89,10 +99,12 @@ class DuckHuntService {
         }
 
         const enemyStatus = `[ Name: ${pawn.name}; difficulty: ${pawn.difficulty}; wounds: ${pawn.wounds.length === 0 ? 'none' : [...new Set(pawn.wounds)].join(', ')}; status: ${pawn.status} ]`
+
+        const playerEquipment = `[ ${weapon}; ${armor}` + (player.accessory ? `; ${player.accessory}` : '') + ` ]`
         const prompt = generatorService.getPrompt(
             generatorAttackNew,
             [
-                {name: "player", value: `[ weapon: ${weapon}; armor: ${armor} ]`},
+                {name: "player", value: playerEquipment},
                 {name: "enemy", value: enemyStatus},
                 {name: "description"},
                 {name: "wounds"},
@@ -125,10 +137,28 @@ class DuckHuntService {
 
         player.lastAttackAt = Date.now()
 
+        const msg = new MessageEmbed()
+            .setColor('#ff0000')
+            .setTitle(`${username} attacks the ${pawn.name}`)
+            .setDescription(`${object.description || 'undefined'}`)
+            .addField('New enemy wounds', object.wounds, true)
+            .addField('New enemy status', object.status, true)
+            .addField('All enemy wounds', [...new Set(pawn.wounds)], false)
+
+
+        const lootItem = pawn.alive ? null : (await this.loot(channel))
+        const embed = new MessageEmbed()
+            .setColor('#ffff66')
+            .setTitle(`Loot for ${pawn.name} (difficulty: ${pawn.difficulty}): "${lootItem}"`)
+            .setDescription(`Looted item "${lootItem}" is on the ground slot number [${worldItemsService.getActiveItems(channel).length - 1}]`)
+
+
         return {
-            message: `[ Attack by ${username} ]\nEnemy current status: ${enemyStatus}\nAction description: ${object.description}\nNew enemy wounds: ${object.wounds}\nNew enemy status: ${object.status}`,
+            message: msg, // `[ Attack by ${username} ]\nEnemy current status: ${enemyStatus}\nAction description: ${object.description}\nNew enemy wounds: ${object.wounds}\nNew enemy status: ${object.status}`,
             reactWith: '⚔',
-            deleteUserMsg: true
+            deleteUserMsg: true,
+            instantReply: true,
+            alsoSend: pawn.alive ? null : embed
         }
     }
 
@@ -150,7 +180,6 @@ class DuckHuntService {
         )
         const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
         const object = generatorService.parseResult(generatorLootAnimal, prompt.placeholderPrompt, result)
-
 
         worldItemsService.appendItem(channel, object.loot)
         pawnService.removePawn(channel)
@@ -185,7 +214,8 @@ class DuckHuntService {
 
         if (itemSlotNotProvided) {
             return {
-                error: "# This command takes the inventory slot number in argument"
+                error: "# This command takes the inventory slot number in argument",
+                instantReply: true
             }
         }
 
@@ -193,17 +223,42 @@ class DuckHuntService {
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
         if (item === null) return {
-            error: `# No item in inventory slot [${itemSlotNumber}]`
+            error: `# No item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true
         }
 
 
         worldItemsService.appendItem(channel, item)
         player.inventory.splice(player.inventory.indexOf(item), 1)
 
+        const embed = new MessageEmbed()
+            .setColor('#888844')
+            .setTitle(`Player ${username} drops the item "${item}" on the ground`)
+            .setDescription(`Ground slot number [${worldItemsService.getActiveItems(channel).length - 1}]`)
+
         return {
             success: true,
-            message: `[ Player ${username} drops item "${item}" on the ground ]`,
-            deleteUserMsg: true
+            message: embed, //`[ Player ${username} drops item "${item}" on the ground ]`,
+            deleteUserMsg: true,
+            instantReply: true
+        }
+    }
+
+    static async look(channel) {
+        const items = worldItemsService.getActiveItems(channel)
+
+        const msg = new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle(`Items on the ground`)
+
+        msg.setDescription(`${items.map((item, i) => `${i}: "${item}"`).join('\n') || 'None'}`)
+
+
+        return {
+            success: true,
+            message: msg,
+            deleteUserMsg: true,
+            instantReply: true
         }
     }
 
@@ -220,7 +275,8 @@ class DuckHuntService {
         if (item === null) return {
             error: itemSlot === null ?
                 `# You have no item to sell`
-                : `# No item in inventory slot [${itemSlotNumber}]`
+                : `# No item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true
         }
 
         const prompt = generatorService.getPrompt(
@@ -250,10 +306,16 @@ class DuckHuntService {
             throw new Error("Invalid gold amount...")
         }
 
+        const embed = new MessageEmbed()
+            .setColor('#ffff00')
+            .setTitle(`Player ${username} sold the item "${item}" for ${goldAmount} gold!`)
+            .setDescription(`Total player gold now: ${player.gold}`)
+
         return {
             success: true,
-            message: `[ Player ${username} sold item "${item}" for ${goldAmount} gold! Total player gold: ${player.gold} ]`,
-            deleteUserMsg: true
+            message: embed, // `[ Player ${username} sold item "${item}" for ${goldAmount} gold! Total player gold: ${player.gold} ]`,
+            deleteUserMsg: true,
+            instantReply: true
         }
     }
 
@@ -265,7 +327,8 @@ class DuckHuntService {
         let itemSlotNumber
         if (itemSlotNotProvided && player.inventory.length !== 1) {
             return {
-                error: "# You have to provide an inventory slot number for this command"
+                error: "# You have to provide an inventory slot number for this command",
+                instantReply: true
             }
         } else if (itemSlotNotProvided) {
             itemSlotNumber = 0
@@ -276,26 +339,46 @@ class DuckHuntService {
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
         if (item === null) return {
-            error: `# No item in inventory slot [${itemSlotNumber}]`
+            error: `# No item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true
         }
 
         if (!player.weapon) {
             player.weapon = player.inventory[itemSlotNumber]
             player.inventory.splice(player.inventory.indexOf(player.inventory[itemSlotNumber]), 1)
+
+            const embed = new MessageEmbed()
+                .setColor('#665500')
+                .setTitle(`Player ${username} equips item "${player.weapon}" as weapon`)
+                .setDescription(`Equipped "${player.weapon}" as weapon`)
+                .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
+                .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
+                .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
+
             return {
                 success: true,
-                message: `[ Player ${username} equips item "${player.weapon}" as weapon ]`,
-                deleteUserMsg: true
+                message: embed, //`[ Player ${username} equips item "${player.weapon}" as weapon ]`,
+                deleteUserMsg: true,
+                instantReply: true
             }
         } else {
             const weapon = player.weapon
             player.weapon = player.inventory[itemSlotNumber]
             player.inventory.splice(itemSlotNumber, 1)
             player.inventory.push(weapon)
+
+            const embed = new MessageEmbed()
+                .setColor('#665500')
+                .setTitle(`Player ${username} equips item "${player.weapon}" as weapon`)
+                .setDescription(`${username} puts "${weapon}" into its backpack slot number [${player.inventory.length - 1}]`)
+                .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
+                .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
+                .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
             return {
                 success: true,
-                message: `[ Player ${username} equips item "${player.weapon}" as weapon and puts "${weapon}" into its backpack (slot [${player.inventory.length - 1}]) ]`,
-                deleteUserMsg: true
+                message: embed, // `[ Player ${username} equips item "${player.weapon}" as weapon and puts "${weapon}" into its backpack (slot [${player.inventory.length - 1}]) ]`,
+                deleteUserMsg: true,
+                instantReply: true
             }
         }
     }
@@ -308,7 +391,8 @@ class DuckHuntService {
         let itemSlotNumber
         if (itemSlotNotProvided && player.inventory.length !== 1) {
             return {
-                error: "# You have to provide an inventory slot number for this command"
+                error: "# You have to provide an inventory slot number for this command",
+                instantReply: true
             }
         } else if (itemSlotNotProvided) {
             itemSlotNumber = 0
@@ -318,27 +402,107 @@ class DuckHuntService {
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
         if (item === null) return {
-            error: `# No item in inventory slot [${itemSlotNumber}]`
+            error: `# No item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true
         }
 
         if (!player.armor) {
             player.armor = player.inventory[itemSlotNumber]
             player.inventory.splice(player.inventory.indexOf(player.inventory[itemSlotNumber]), 1)
 
+            const embed = new MessageEmbed()
+                .setColor('#665500')
+                .setTitle(`Player ${username} equips item "${player.armor}" as armor`)
+                .setDescription(`Equipped "${player.armor}" as armor`)
+                .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
+                .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
+                .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
             return {
                 success: true,
-                message: `[ Player ${username} equips item "${player.armor}" as armor ]`,
-                deleteUserMsg: true
+                message: embed, // `[ Player ${username} equips item "${player.armor}" as armor ]`,
+                deleteUserMsg: true,
+                instantReply: true
             }
         } else {
             const armor = player.armor
             player.armor = player.inventory[itemSlotNumber]
             player.inventory.splice(itemSlotNumber, 1)
             player.inventory.push(armor)
+
+            const embed = new MessageEmbed()
+                .setColor('#665500')
+                .setTitle(`Player ${username} equips item "${player.armor}" as armor`)
+                .setDescription(`${username} puts "${armor}" into its backpack slot number [${player.inventory.length - 1}]`)
+                .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
+                .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
+                .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
             return {
                 success: true,
-                message: `[ Player ${username} equips item "${player.armor}" as armor and puts "${armor}" into its backpack (slot [${player.inventory.length - 1}]) ]`,
-                deleteUserMsg: true
+                message: embed, // `[ Player ${username} equips item "${player.armor}" as armor and puts "${armor}" into its backpack (slot [${player.inventory.length - 1}]) ]`,
+                deleteUserMsg: true,
+                instantReply: true
+            }
+        }
+    }
+
+    static async equipAccessory(channel, username, itemSlot) {
+        const player = playerService.getPlayer(channel, username)
+
+        const itemSlotNotProvided = (!itemSlot && typeof itemSlot === "string")
+
+        let itemSlotNumber
+        if (itemSlotNotProvided && player.inventory.length !== 1) {
+            return {
+                error: "# You have to provide an inventory slot number for this command",
+                instantReply: true
+            }
+        } else if (itemSlotNotProvided) {
+            itemSlotNumber = 0
+        } else {
+            itemSlotNumber = parseInt(itemSlot)
+        }
+        const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
+
+        if (item === null) return {
+            error: `# No item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true
+        }
+
+        if (!player.accessory) {
+            player.accessory = player.inventory[itemSlotNumber]
+            player.inventory.splice(player.inventory.indexOf(player.inventory[itemSlotNumber]), 1)
+
+            const embed = new MessageEmbed()
+                .setColor('#665500')
+                .setTitle(`Player ${username} equips item "${player.accessory}" as accessory`)
+                .setDescription(`Equipped "${player.accessory}" as accessory`)
+                .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
+                .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
+                .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
+            return {
+                success: true,
+                message: embed,
+                deleteUserMsg: true,
+                instantReply: true
+            }
+        } else {
+            const accessory = player.accessory
+            player.accessory = player.inventory[itemSlotNumber]
+            player.inventory.splice(itemSlotNumber, 1)
+            player.inventory.push(accessory)
+
+            const embed = new MessageEmbed()
+                .setColor('#665500')
+                .setTitle(`Player ${username} equips item "${player.accessory}" as accessory`)
+                .setDescription(`${username} puts "${accessory}" into its backpack slot number [${player.inventory.length - 1}]`)
+                .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
+                .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
+                .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
+            return {
+                success: true,
+                message: embed,
+                deleteUserMsg: true,
+                instantReply: true
             }
         }
     }
@@ -348,20 +512,31 @@ class DuckHuntService {
 
         if (!player.weapon) {
             return {
-                error: `# You don't have any weapon`
+                error: `# You don't have any weapon`,
+                instantReply: true
             }
         } else {
             if (player.inventory.length < player.inventorySize) {
                 player.inventory.push(player.weapon)
                 player.weapon = null
+
+                const embed = new MessageEmbed()
+                    .setColor('#665500')
+                    .setTitle(`Player ${username} unequips weapon "${player.inventory[player.inventory.length - 1]}"`)
+                    .setDescription(`${username} puts item "${player.inventory[player.inventory.length - 1]}" into its backpack slot number [${player.inventory.length - 1}]`)
+                    .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
+                    .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
+                    .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
                 return {
                     success: true,
-                    message: `[ Player ${username} unequips weapon "${player.weapon}" and puts it into its backpack (slot [${player.inventory.length - 1}]) ]`,
-                    deleteUserMsg: true
+                    message: embed, // `[ Player ${username} unequips weapon "${player.weapon}" and puts it into its backpack (slot [${player.inventory.length - 1}]) ]`,
+                    deleteUserMsg: true,
+                    instantReply: true
                 }
             } else {
                 return {
-                    error: `# You don't have enough space in your inventory`
+                    error: `# You don't have enough space in your inventory`,
+                    instantReply: true
                 }
             }
 
@@ -373,20 +548,65 @@ class DuckHuntService {
 
         if (!player.armor) {
             return {
-                error: `# You don't have any armor`
+                error: `# You don't have any armor`,
+                instantReply: true
             }
         } else {
             if (player.inventory.length < player.inventorySize) {
                 player.inventory.push(player.armor)
                 player.armor = null
+                const embed = new MessageEmbed()
+                    .setColor('#665500')
+                    .setTitle(`Player ${username} unequips armor "${player.inventory[player.inventory.length - 1]}"`)
+                    .setDescription(`${username} puts item "${player.inventory[player.inventory.length - 1]}" into its backpack slot number [${player.inventory.length - 1}]`)
+                    .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
+                    .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
+                    .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
                 return {
                     success: true,
-                    message: `[ Player ${username} unequips armor "${player.armor}" and puts it into its backpack (slot [${player.inventory.length - 1}]) ]`,
-                    deleteUserMsg: true
+                    message: embed, // `[ Player ${username} unequips armor "${player.armor}" and puts it into its backpack (slot [${player.inventory.length - 1}]) ]`,
+                    deleteUserMsg: true,
+                    instantReply: true
                 }
             } else {
                 return {
-                    error: `# You don't have enough space in your inventory`
+                    error: `# You don't have enough space in your inventory`,
+                    instantReply: true
+                }
+            }
+
+        }
+    }
+
+    static async unequipAccessory(channel, username) {
+        const player = playerService.getPlayer(channel, username)
+
+        if (!player.accessory) {
+            return {
+                error: `# You don't have any accessory`,
+                instantReply: true
+            }
+        } else {
+            if (player.inventory.length < player.inventorySize) {
+                player.inventory.push(player.accessory)
+                player.accessory = null
+                const embed = new MessageEmbed()
+                    .setColor('#665500')
+                    .setTitle(`Player ${username} unequips accessory "${player.inventory[player.inventory.length - 1]}"`)
+                    .setDescription(`${username} puts item "${player.inventory[player.inventory.length - 1]}" into its backpack slot number [${player.inventory.length - 1}]`)
+                    .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
+                    .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
+                    .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
+                return {
+                    success: true,
+                    message: embed,
+                    deleteUserMsg: true,
+                    instantReply: true
+                }
+            } else {
+                return {
+                    error: `# You don't have enough space in your inventory`,
+                    instantReply: true
                 }
             }
 
@@ -395,14 +615,20 @@ class DuckHuntService {
 
     static async showInventory(channel, username) {
         const player = playerService.getPlayer(channel, username)
+        const embed = new MessageEmbed()
+            .setColor('#887733')
+            .setTitle(`Inventory of Player ${username}`)
+            .setDescription(`Inventory: [ ${player.inventory.map((item, n) => `${n}: "${item}"`).join(', ')} ]`)
+            .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
+            .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
+            .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
+            .addField('Gold', player.gold, false)
+            .addField('Backpack size', player.inventorySize, true)
+
         return {
-            message: `[ Player ${username} ]`
-                + `\nEquipped weapon: ${!player.weapon ? 'No weapon' : player.weapon}`
-                + `\nEquipped armor: ${!player.armor ? 'No armor' : player.armor}`
-                + `\nGold: ${player.gold}`
-                + `\nBackpack size: ${player.inventorySize}`
-                + `\nInventory: [ ${player.inventory.map((item, n) => `${n}: "${item}"`).join(', ')} ]`,
-            deleteUserMsg: true
+            message: embed,
+            deleteUserMsg: true,
+            instantReply: true
         }
     }
 
@@ -412,17 +638,23 @@ class DuckHuntService {
         const price = Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2))
 
         if (player.gold < price) return {
-            error: `# You don't have enough gold to upgrade your backpack (${player.gold}/${price})`
+            error: `# You don't have enough gold to upgrade your backpack (${player.gold}/${price})`,
+            instantReply: true
         }
 
         player.inventorySize += 1
         player.gold -= price
 
+        const embed = new MessageEmbed()
+            .setColor('#33ff33')
+            .setTitle(`Player ${username} upgraded its backpack for ${price} gold!`)
+            .setDescription(`New backpack size: ${player.inventorySize}\nCurrent gold balance after upgrade: ${player.gold}`)
         return {
-            message: `[ Player ${username} upgraded its backpack for ${price} gold! ]`
+            message: embed, /*`[ Player ${username} upgraded its backpack for ${price} gold! ]`
                 + `\nNew backpack size: ${player.inventorySize}`
-                + `\nCurrent gold balance after upgrade: ${player.gold}`,
-            deleteUserMsg: true
+                + `\nCurrent gold balance after upgrade: ${player.gold}`,*/
+            deleteUserMsg: true,
+            instantReply: true
         }
     }
 
@@ -439,7 +671,10 @@ class DuckHuntService {
         const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
         const object = generatorService.parseResult(generatorSpellBook, prompt.placeholderPrompt, result)
 
-        return {message: JSON.stringify(object, null, 4)}
+        return {
+            message: JSON.stringify(object, null, 4),
+            instantReply: true
+        }
     }
 }
 

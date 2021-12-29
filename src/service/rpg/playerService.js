@@ -1,7 +1,8 @@
 class Player {
     constructor() {
-        this.weapon = null
-        this.armor = null
+        this.weapon = "Old Rusty Kitchen Knife"
+        this.armor = "Ragged Loincloth"
+        this.accessory = null
         this.gold = 0
         this.inventory = []
         this.inventorySize = 1
