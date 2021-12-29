@@ -76,15 +76,12 @@ const duckHuntCommands = {
         ["!grab", "!pick", "!take"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
-            const result = duckHuntService.take(channel, from)
+            const result = duckHuntService.take(channel, from, parsedMsg)
 
             const player = playerService.getPlayer(channel, from)
             if (result) {
                 return {
-                    message:
-                        result.equippedAsWeapon ?
-                            `[ Player ${from} equips the item "${result.item}" as a weapon ]`
-                            : `[ Player ${from} takes the item "${result.item}" and puts it in its backpack (slot [${player.inventory.length - 1}]) ]`,
+                    message:`[ Player ${from} takes the item "${result.item}" and puts it in its backpack (slot [${player.inventory.length - 1}]) ]`,
                     success: true,
                     deleteUserMsg: true
                 }
@@ -94,6 +91,16 @@ const duckHuntCommands = {
                 }
             }
             return {error: "# Nothing to grab..."}
+        },
+        false
+    ),
+    drop: new Command(
+        "Drop item",
+        [],
+        ["!drop"],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            return duckHuntService.drop(channel, from, parsedMsg)
         },
         false
     ),
@@ -124,6 +131,26 @@ const duckHuntCommands = {
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             return duckHuntService.equipArmor(channel, from, parsedMsg.trim())
+        },
+        false
+    ),
+    unequipWeapon: new Command(
+        "Unequip Weapon",
+        [],
+        ["!unequipWeapon", "!unequip Weapon", "!unequipW", "!unequip W"],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            return duckHuntService.unequipWeapon(channel, from)
+        },
+        false
+    ),
+    unequipArmor: new Command(
+        "Unequip armor",
+        [],
+        ["!unequipArmor", "!unequip Armor", "!unequipA", "!unequip A"],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+            return duckHuntService.unequipArmor(channel, from)
         },
         false
     ),
@@ -164,9 +191,12 @@ duckHuntCommands.all = [
     duckHuntCommands.attack,
     duckHuntCommands.loot,
     duckHuntCommands.take,
+    duckHuntCommands.drop,
     duckHuntCommands.sell,
     duckHuntCommands.equipWeapon,
     duckHuntCommands.equipArmor,
+    duckHuntCommands.unequipWeapon,
+    duckHuntCommands.unequipArmor,
     duckHuntCommands.showInventory,
     duckHuntCommands.upgradeBackpack,
     duckHuntCommands.generateSpell,

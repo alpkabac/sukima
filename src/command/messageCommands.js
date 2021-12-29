@@ -70,7 +70,7 @@ const messageCommands = {
             historyService.getChannelHistory(channel).reverse()
             return {
                 message: answer, success: true, deleteUserMsg: true, editLastMessage: !targetMessageId,
-                editMessage: targetMessageId, reactWith: "🔄"
+                editMessage: targetMessageId, reactWith: null//"🔄"
             }
         },
         false

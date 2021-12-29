@@ -4,9 +4,9 @@ import generatorService from "../generatorService.js";
 import playerService from "./playerService.js";
 import pawnService from "./pawnService.js";
 import envService from "../../util/envService.js";
+import worldItemsService from "./worldItemsService.js";
 
 const generatorSpawnAnimal = utils.load("./data/generationPrompt/rpg/spawn.json")
-const generatorAttackAnimal = utils.load("./data/generationPrompt/rpg/attack.json")
 const generatorAttackNew = utils.load("./data/generationPrompt/rpg/attackNew.json")
 const generatorLootAnimal = utils.load("./data/generationPrompt/rpg/loot.json")
 const generatorSell = utils.load("./data/generationPrompt/rpg/sell.json")
@@ -15,7 +15,6 @@ const generatorSpellBook = utils.load("./data/generationPrompt/rpg/generateSpell
 const stopToken = 224 // "⁂"
 
 class DuckHuntService {
-    static activeLoot = {}
 
     /**
      * Spawns a random animal/critter/enemy
@@ -152,25 +151,59 @@ class DuckHuntService {
         const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
         const object = generatorService.parseResult(generatorLootAnimal, prompt.placeholderPrompt, result)
 
-        this.activeLoot[channel] = object.loot
+
+        worldItemsService.appendItem(channel, object.loot)
         pawnService.removePawn(channel)
 
         return object.loot
     }
 
-    static take(channel, username) {
-        if (!this.activeLoot[channel]) return null
+    static take(channel, username, itemSlot) {
+        const activeItems = worldItemsService.getActiveItems(channel)
+        const itemSlotNotProvided = (!itemSlot.trim() && typeof itemSlot === "string")
+        const itemSlotNumber = parseInt(itemSlot)
+
+        if (activeItems.length === 0) return null
 
         const player = playerService.getPlayer(channel, username)
 
-        const tookItem = playerService.takeItem(channel, username, this.activeLoot[channel])
+        const tookItem = playerService.takeItem(channel, username, itemSlotNotProvided ? activeItems[0] : activeItems[itemSlotNumber])
         if (tookItem) {
-            this.activeLoot[channel] = null
+            activeItems.splice(itemSlotNotProvided ? 0 : itemSlotNumber, 1)
         }
 
         return !tookItem ? false : {
             item: tookItem.equippedAsWeapon ? player.weapon : player.inventory[player.inventory.length - 1],
             equippedAsWeapon: tookItem.equippedAsWeapon
+        }
+    }
+
+    static async drop(channel, username, itemSlot) {
+        const player = playerService.getPlayer(channel, username)
+
+        const itemSlotNotProvided = (!itemSlot.trim() && typeof itemSlot === "string")
+
+        if (itemSlotNotProvided) {
+            return {
+                error: "# This command takes the inventory slot number in argument"
+            }
+        }
+
+        const itemSlotNumber = parseInt(itemSlot)
+        const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
+
+        if (item === null) return {
+            error: `# No item in inventory slot [${itemSlotNumber}]`
+        }
+
+
+        worldItemsService.appendItem(channel, item)
+        player.inventory.splice(player.inventory.indexOf(item), 1)
+
+        return {
+            success: true,
+            message: `[ Player ${username} drops item "${item}" on the ground ]`,
+            deleteUserMsg: true
         }
     }
 
@@ -186,7 +219,7 @@ class DuckHuntService {
 
         if (item === null) return {
             error: itemSlot === null ?
-                `# You have no weapon to sell`
+                `# You have no item to sell`
                 : `# No item in inventory slot [${itemSlotNumber}]`
         }
 
@@ -236,7 +269,7 @@ class DuckHuntService {
             }
         } else if (itemSlotNotProvided) {
             itemSlotNumber = 0
-        }else{
+        } else {
             itemSlotNumber = parseInt(itemSlot)
         }
 
@@ -279,7 +312,7 @@ class DuckHuntService {
             }
         } else if (itemSlotNotProvided) {
             itemSlotNumber = 0
-        }else {
+        } else {
             itemSlotNumber = parseInt(itemSlot)
         }
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
@@ -310,6 +343,56 @@ class DuckHuntService {
         }
     }
 
+    static async unequipWeapon(channel, username) {
+        const player = playerService.getPlayer(channel, username)
+
+        if (!player.weapon) {
+            return {
+                error: `# You don't have any weapon`
+            }
+        } else {
+            if (player.inventory.length < player.inventorySize) {
+                player.inventory.push(player.weapon)
+                player.weapon = null
+                return {
+                    success: true,
+                    message: `[ Player ${username} unequips weapon "${player.weapon}" and puts it into its backpack (slot [${player.inventory.length - 1}]) ]`,
+                    deleteUserMsg: true
+                }
+            } else {
+                return {
+                    error: `# You don't have enough space in your inventory`
+                }
+            }
+
+        }
+    }
+
+    static async unequipArmor(channel, username) {
+        const player = playerService.getPlayer(channel, username)
+
+        if (!player.armor) {
+            return {
+                error: `# You don't have any armor`
+            }
+        } else {
+            if (player.inventory.length < player.inventorySize) {
+                player.inventory.push(player.armor)
+                player.armor = null
+                return {
+                    success: true,
+                    message: `[ Player ${username} unequips armor "${player.armor}" and puts it into its backpack (slot [${player.inventory.length - 1}]) ]`,
+                    deleteUserMsg: true
+                }
+            } else {
+                return {
+                    error: `# You don't have enough space in your inventory`
+                }
+            }
+
+        }
+    }
+
     static async showInventory(channel, username) {
         const player = playerService.getPlayer(channel, username)
         return {
@@ -326,7 +409,7 @@ class DuckHuntService {
     static async upgradeBackpack(channel, username) {
         const player = playerService.getPlayer(channel, username)
 
-        const price = Math.floor(Math.pow(player.inventorySize * 2, 3)+Math.pow(player.inventorySize * 9.59, 2))
+        const price = Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2))
 
         if (player.gold < price) return {
             error: `# You don't have enough gold to upgrade your backpack (${player.gold}/${price})`

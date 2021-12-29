@@ -1,13 +1,14 @@
 import {config} from "dotenv";
-config()
 import Command from "./Command.js";
 import memoryService from "../service/memoryService.js";
 import historyService from "../service/historyService.js";
 import channelBotTranslationService from "../service/personalityService.js";
 import utils from "../utils.js";
 
+config()
 
-function addSquareBrackets(msg){
+
+function addSquareBrackets(msg) {
     if (msg.startsWith("[ ") && msg.endsWith(" ]")) return msg
 
     const leftBracket = msg.startsWith("[ ")
@@ -16,15 +17,15 @@ function addSquareBrackets(msg){
     const partialLeftBracket = msg.startsWith("[")
     const partialRightBracket = msg.endsWith("]")
 
-    if (!leftBracket && partialLeftBracket){
-        msg = "[ "+utils.upperCaseFirstLetter(msg.substr(1))
-    }else if (!leftBracket && !partialLeftBracket){
-        msg = "[ "+utils.upperCaseFirstLetter(msg)
+    if (!leftBracket && partialLeftBracket) {
+        msg = "[ " + utils.upperCaseFirstLetter(msg.substr(1))
+    } else if (!leftBracket && !partialLeftBracket) {
+        msg = "[ " + utils.upperCaseFirstLetter(msg)
     }
 
-    if (!rightBracket && partialRightBracket){
-        msg = msg.substr(0,msg.length-1) + " ]"
-    }else if (!rightBracket && !partialRightBracket){
+    if (!rightBracket && partialRightBracket) {
+        msg = msg.substr(0, msg.length - 1) + " ]"
+    } else if (!rightBracket && !partialRightBracket) {
         msg = msg + " ]"
     }
 
@@ -132,11 +133,15 @@ const memoryCommands = {
                     message:
                         `${presentationMessage.trim()}`,
                     success: true,
-                    reactWith: "💔",
+                    reactWith: null, //"💔"
                     deleteUserMsg: true
                 }
             } else {
-                return {success: true, reactWith: "💔", deleteUserMsg: true}
+                return {
+                    success: true,
+                    reactWith: null,
+                    deleteUserMsg: true
+                }
             }
         }),
 }

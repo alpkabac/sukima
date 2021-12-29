@@ -51,7 +51,7 @@
       "player": "[ weapon: No weapon; armor: No armor ]",
       "enemy": "[ Name: Orc; difficulty: Medium; armor: Leather Armor; wounds: broken nose, broken ribs, eviscerated; status: heavily wounded ]",
       "description": "You punch the semi-conscious orc in the torso. Your blows doesn't do much, but the orc finally succumbs to his severe wounds and dies.",
-      "wounds": "none",
+      "wounds": "intensive bleeding",
       "status": "dead"
     },
     {
@@ -59,6 +59,27 @@
       "enemy": "[ Name: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs; status: heavily wounded ]",
       "description": "You swing your iron longsword at the orc. Due to his wounds, he fails to dodge and you cut his head off.",
       "wounds": "decapitated",
+      "status": "dead"
+    },
+    {
+      "player": "[ weapon: No weapon; armor: No armor ]",
+      "enemy": "[ Name: goblin; difficulty: Easy; armor: Cloth Armor; wounds: none; status: alive ]",
+      "description": "You attack the goblin using your fist. The goblin is quite aa agile fighter, and dodges most of your attacks.",
+      "wounds": "small bruises",
+      "status": "very slightly wounded"
+    },
+    {
+      "player": "[ weapon: Small Knife; armor: No armor ]",
+      "enemy": "[ Name: goblin; difficulty: Easy; armor: Cloth Armor; wounds: none; status: alive ]",
+      "description": "You slash the goblin with your knife across the chest. The goblin's cloth armor does nothing for protection, it slowly starts to bleed from the cut.",
+      "wounds": "slashed chest",
+      "status": "slightly wounded"
+    },
+    {
+      "player": "[ weapon: Wooden Spear; armor: No armor ]",
+      "enemy": "[ Name: goblin; difficulty: Easy; armor: Cloth Armor; wounds: slashed chest; status: slightly wounded ]",
+      "description": "You pierce the goblin with your wooden speer. Your speer flies into orc's stomach and guts, spreading his blood and intestines everywhere",
+      "wounds": "disemboweled",
       "status": "dead"
     }
   ]
