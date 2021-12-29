@@ -79,7 +79,7 @@ class DuckHuntService {
         const timeDiff = Date.now() - player.lastAttackAt
         if (player.lastAttackAt && timeDiff < 1000 * envService.getRpgAttackCoolDown()) {
             return {
-                error: `${username} tried to attack but is still too tired to attack, please wait ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds`,
+                error: `${username} tried to attack but is still too tired, ${username} will have to wait for ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds to attack again`,
                 reactWith: '⌛',
                 deleteNewMessage: true,
                 deleteUserMsg: true
@@ -143,7 +143,7 @@ class DuckHuntService {
             .setDescription(`${object.description || 'undefined'}`)
             .addField('New enemy wounds', object.wounds, true)
             .addField('New enemy status', object.status, true)
-            .addField('All enemy wounds', [...new Set(pawn.wounds)], false)
+            .addField('All enemy wounds', [...new Set(pawn.wounds)] || 'none', false)
 
 
         const lootItem = pawn.alive ? null : (await this.loot(channel))

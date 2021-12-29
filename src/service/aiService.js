@@ -139,11 +139,11 @@ class AiService {
         delete params.bad_words_ids
         params.logit_bias_exp = undefined
         delete params.logit_bias_exp
-        params.repetition_penalty = 1.135
+        params.repetition_penalty = 1.18
         params.repetition_penalty_range = 1024
-        params.repetition_penalty_slope = 3.6
+        params.repetition_penalty_slope = 5
         params.tail_free_sampling = 0.422
-        params.temperature = 0.48
+        params.temperature = 0.55
         params.top_p = 1
         params.top_k = 0
         params.eos_token_id = eos_token_id

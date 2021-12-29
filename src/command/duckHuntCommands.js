@@ -162,7 +162,7 @@ const duckHuntCommands = {
     equipAccessory: new Command(
         "Equip accessory",
         [],
-        ["!equipAccessory", "!equip Accessory", "!equip accessory", "!equipAcc", "!equip Acc", "!equip acc"],
+        ["!equipAccessory", "!equip Accessory", "!equip accessory", "!equipAcc", "!equip Acc", "!equip acc", "!equipAc", "!equip Ac", "!equip ac"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             return duckHuntService.equipAccessory(channel, from, parsedMsg.trim())
@@ -182,7 +182,7 @@ const duckHuntCommands = {
     unequipArmor: new Command(
         "Unequip armor",
         [],
-        ["!unequipArmor", "!unequip Armor", "!unequip armor", "!unequipA", "!unequip A", "!unequip a"],
+        ["!unequipArmor", "!unequip Armor", "!unequip armor", "!unequipAr", "!unequip Ar", "!unequip ar"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             return duckHuntService.unequipArmor(channel, from)
@@ -192,7 +192,7 @@ const duckHuntCommands = {
     unequipAccessory: new Command(
         "Unequip accessory",
         [],
-        ["!unequipAccessory", "!unequip Accessory", "!unequipAc", "!unequipAcc", "!unequip Ac", "!unequip Acc", "!unequip ac", "!unequip acc"],
+        ["!unequipAccessory", "!unequip Accessory", "!unequipAcc", "!unequip Acc", "!unequip acc", "!unequipAc", "!unequip Ac", "!unequip ac"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
             return duckHuntService.unequipAccessory(channel, from)
