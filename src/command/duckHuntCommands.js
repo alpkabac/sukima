@@ -14,7 +14,7 @@ const duckHuntCommands = {
         ["!spawn"],
         ["!spawn "],
         process.env.ALLOW_RPG_SPAWN,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             let difficulty
             let name
 
@@ -42,7 +42,7 @@ const duckHuntCommands = {
         [],
         ["!atk", "!attack", "⚔", "⚔️", ":crossed_swords:"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return await duckHuntService.attack(channel, from)
         },
         false
@@ -52,7 +52,7 @@ const duckHuntCommands = {
         ["!loot"],
         [],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return false
 
             const pawn = pawnService.getActivePawn(channel)
@@ -80,16 +80,16 @@ const duckHuntCommands = {
         [],
         ["!grab", "!pick", "!take"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             const result = duckHuntService.take(channel, from, parsedMsg)
             const player = playerService.getPlayer(channel, from)
 
-            const embed = new MessageEmbed()
-                .setColor('#884422')
-                .setTitle(`Player ${from} takes the item "${result.item}"`)
-                .setDescription(`${from} puts the item in its backpack slot number [${player.inventory.length - 1}]`)
+            if (result && result.item && result.item !== "undefined") {
+                const embed = new MessageEmbed()
+                    .setColor('#884422')
+                    .setTitle(`Player ${from} takes the item "${result.item}"`)
+                    .setDescription(`${from} puts the item in its backpack slot number [${player.inventory.length - 1}]`)
 
-            if (result) {
                 return {
                     message: embed, // `[ Player ${from} takes the item "${result.item}" and puts it in its backpack (slot [${player.inventory.length - 1}]) ]`,
                     success: true,
@@ -98,13 +98,15 @@ const duckHuntCommands = {
                 }
             } else if (result === false) {
                 return {
-                    error: `# Can't take item, you have something in your hands and your backpack is full. Try to \`!sell\` or \`!drop\` an item first!`,
-                    instantReply: true
+                    error: `# ${from} tried to take an item, but its backpack is full. Try to \`!sell\` or \`!drop\` an item first!`,
+                    instantReply: true,
+                    deleteUserMsg: true
                 }
             }
             return {
-                error: "# Nothing to grab...",
-                instantReply: true
+                error: `# ${from} tried to take an item on the ground, but there is no item to grab...`,
+                instantReply: true,
+                deleteUserMsg: true
             }
         },
         false
@@ -114,7 +116,7 @@ const duckHuntCommands = {
         [],
         ["!drop"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.drop(channel, from, parsedMsg)
         },
         false
@@ -124,7 +126,7 @@ const duckHuntCommands = {
         [],
         ["!look"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.look(channel)
         },
         false
@@ -134,7 +136,7 @@ const duckHuntCommands = {
         [],
         ["!sell"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.sell(channel, from, parsedMsg)
         },
         false
@@ -144,7 +146,7 @@ const duckHuntCommands = {
         [],
         ["!equipWeapon", "!equip Weapon", "!equip weapon", "!equipW", "!equip W"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipWeapon(channel, from, parsedMsg.trim())
         },
         false
@@ -154,7 +156,7 @@ const duckHuntCommands = {
         [],
         ["!equipArmor", "!equip Armor", "!equip armor", "!equipAr", "!equip Ar", "!equip ar"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipArmor(channel, from, parsedMsg.trim())
         },
         false
@@ -164,7 +166,7 @@ const duckHuntCommands = {
         [],
         ["!equipAccessory", "!equip Accessory", "!equip accessory", "!equipAcc", "!equip Acc", "!equip acc", "!equipAc", "!equip Ac", "!equip ac"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipAccessory(channel, from, parsedMsg.trim())
         },
         false
@@ -174,7 +176,7 @@ const duckHuntCommands = {
         [],
         ["!unequipWeapon", "!unequip Weapon", "!unequipW", "!unequip W"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.unequipWeapon(channel, from)
         },
         false
@@ -184,7 +186,7 @@ const duckHuntCommands = {
         [],
         ["!unequipArmor", "!unequip Armor", "!unequip armor", "!unequipAr", "!unequip Ar", "!unequip ar"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.unequipArmor(channel, from)
         },
         false
@@ -194,7 +196,7 @@ const duckHuntCommands = {
         [],
         ["!unequipAccessory", "!unequip Accessory", "!unequipAcc", "!unequip Acc", "!unequip acc", "!unequipAc", "!unequip Ac", "!unequip ac"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.unequipAccessory(channel, from)
         },
         false
@@ -204,7 +206,7 @@ const duckHuntCommands = {
         ["!inventory", "!showInventory"],
         [],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.showInventory(channel, from)
         },
         false
@@ -214,7 +216,7 @@ const duckHuntCommands = {
         ["!upgradeBackpack", "!upgrade"],
         [],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.upgradeBackpack(channel, from)
         },
         false
@@ -224,8 +226,28 @@ const duckHuntCommands = {
         [],
         ["!spellBook", "!spellbook", "!spell"],
         process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.generateSpell(channel, parsedMsg)
+        },
+        false
+    ),
+    generator: new Command(
+        "Generate Spell",
+        ["!generator"],
+        [],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return duckHuntService.generator(channel, parsedMsg, attachmentUrl)
+        },
+        false
+    ),
+    generatorPrompt: new Command(
+        "Generate Spell",
+        ["!generatorPrompt"],
+        [],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return duckHuntService.generatorPrompt(channel, parsedMsg, attachmentUrl)
         },
         false
     ),
@@ -244,9 +266,12 @@ duckHuntCommands.all = [
     duckHuntCommands.equipAccessory,
     duckHuntCommands.unequipWeapon,
     duckHuntCommands.unequipArmor,
+    duckHuntCommands.unequipAccessory,
     duckHuntCommands.showInventory,
     duckHuntCommands.upgradeBackpack,
     duckHuntCommands.generateSpell,
+    duckHuntCommands.generator,
+    duckHuntCommands.generatorPrompt,
 ]
 
 export default duckHuntCommands

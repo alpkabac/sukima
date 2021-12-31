@@ -11,7 +11,7 @@ const personalityCommands = {
         [],
         ["!setPersonality "],
         process.env.ALLOW_SET_PERSONALITY,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
 
             if (parsedMsg && parsedMsg.length > 0) {
@@ -45,7 +45,7 @@ const personalityCommands = {
         ["!displayPersonality", "!showPersonality"],
         [],
         process.env.ALLOW_DISPLAY_PERSONALITY,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
             const JSONPersonality = JSON.parse(JSON.stringify(aiPersonality))
             const message = `Complete JSON for personality:\n`

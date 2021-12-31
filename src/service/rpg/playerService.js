@@ -22,10 +22,11 @@ class PlayerService {
     }
 
     static takeItem(channel, username, item) {
+        if (!item) return null
         const player = this.getPlayer(channel, username)
         if (player.inventory.length < player.inventorySize) {
             player.inventory.push(item)
-            return {equippedAsWeapon: false}
+            return true
         } else {
             return false
         }

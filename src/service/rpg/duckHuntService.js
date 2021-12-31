@@ -5,7 +5,8 @@ import playerService from "./playerService.js";
 import pawnService from "./pawnService.js";
 import envService from "../../util/envService.js";
 import worldItemsService from "./worldItemsService.js";
-import {MessageEmbed} from "discord.js";
+import {MessageAttachment, MessageEmbed} from "discord.js";
+import axios from "axios";
 
 const generatorSpawnAnimal = utils.load("./data/generationPrompt/rpg/spawn.json")
 const generatorAttackNew = utils.load("./data/generationPrompt/rpg/attackNew.json")
@@ -64,7 +65,7 @@ class DuckHuntService {
             .setTitle('New Encounter!')
             .setDescription(object.description)
             .addFields(
-                {name: 'Name', value: object.name, inline: true},
+                {name: 'Enemy name', value: object.name, inline: true},
                 {name: 'Difficulty', value: object.difficulty, inline: true},
             )
     }
@@ -73,7 +74,10 @@ class DuckHuntService {
      * Attack the current pawn
      */
     static async attack(channel, username) {
-        if (!pawnService.isPawnAliveOnChannel(channel)) return {error: "# Nothing to attack..."}
+        if (!pawnService.isPawnAliveOnChannel(channel)) return {
+            error: `# ${username} tried to attack, but there is no enemy...`,
+            deleteUserMsg: true
+        }
 
         const player = playerService.getPlayer(channel, username)
         const timeDiff = Date.now() - player.lastAttackAt
@@ -141,9 +145,9 @@ class DuckHuntService {
             .setColor('#ff0000')
             .setTitle(`${username} attacks the ${pawn.name}`)
             .setDescription(`${object.description || 'undefined'}`)
-            .addField('New enemy wounds', object.wounds, true)
-            .addField('New enemy status', object.status, true)
-            .addField('All enemy wounds', [...new Set(pawn.wounds)] || 'none', false)
+            .addField('New enemy wounds', object.wounds || 'undefined', true)
+            .addField('New enemy status', object.status || 'undefined', true)
+            .addField('All enemy wounds', [...new Set(pawn.wounds)].join('\n') || 'none', false)
 
 
         const lootItem = pawn.alive ? null : (await this.loot(channel))
@@ -190,7 +194,7 @@ class DuckHuntService {
     static take(channel, username, itemSlot) {
         const activeItems = worldItemsService.getActiveItems(channel)
         const itemSlotNotProvided = (!itemSlot.trim() && typeof itemSlot === "string")
-        const itemSlotNumber = parseInt(itemSlot)
+        const itemSlotNumber = parseInt(itemSlot?.trim())
 
         if (activeItems.length === 0) return null
 
@@ -201,10 +205,9 @@ class DuckHuntService {
             activeItems.splice(itemSlotNotProvided ? 0 : itemSlotNumber, 1)
         }
 
-        return !tookItem ? false : {
-            item: tookItem.equippedAsWeapon ? player.weapon : player.inventory[player.inventory.length - 1],
-            equippedAsWeapon: tookItem.equippedAsWeapon
-        }
+        return tookItem ? {
+            item: player.inventory[player.inventory.length - 1]
+        } : tookItem
     }
 
     static async drop(channel, username, itemSlot) {
@@ -222,9 +225,13 @@ class DuckHuntService {
         const itemSlotNumber = parseInt(itemSlot)
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
-        if (item === null) return {
-            error: `# No item in inventory slot [${itemSlotNumber}]`,
-            instantReply: true
+        if (!item) {
+            player.inventory.splice(player.inventory.indexOf(item), 1)
+            return {
+                error: `# ${username} tried to drop an item but has no item in inventory slot [${itemSlotNumber}]`,
+                instantReply: true,
+                deleteUserMsg: true
+            }
         }
 
 
@@ -274,9 +281,10 @@ class DuckHuntService {
 
         if (item === null) return {
             error: itemSlot === null ?
-                `# You have no item to sell`
-                : `# No item in inventory slot [${itemSlotNumber}]`,
-            instantReply: true
+                `# ${username} tried to sell an item but has no item in its backpack`
+                : `# ${username} tried to sell an item but has no item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true,
+            deleteUserMsg: true
         }
 
         const prompt = generatorService.getPrompt(
@@ -339,8 +347,9 @@ class DuckHuntService {
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
         if (item === null) return {
-            error: `# No item in inventory slot [${itemSlotNumber}]`,
-            instantReply: true
+            error: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true,
+            deleteUserMsg: true
         }
 
         if (!player.weapon) {
@@ -402,8 +411,9 @@ class DuckHuntService {
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
         if (item === null) return {
-            error: `# No item in inventory slot [${itemSlotNumber}]`,
-            instantReply: true
+            error: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true,
+            deleteUserMsg: true
         }
 
         if (!player.armor) {
@@ -464,8 +474,9 @@ class DuckHuntService {
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
         if (item === null) return {
-            error: `# No item in inventory slot [${itemSlotNumber}]`,
-            instantReply: true
+            error: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true,
+            deleteUserMsg: true
         }
 
         if (!player.accessory) {
@@ -512,8 +523,9 @@ class DuckHuntService {
 
         if (!player.weapon) {
             return {
-                error: `# You don't have any weapon`,
-                instantReply: true
+                error: `# ${username} tried to unequip its weapon but doesn't have any!`,
+                instantReply: true,
+                deleteUserMsg: true
             }
         } else {
             if (player.inventory.length < player.inventorySize) {
@@ -535,8 +547,9 @@ class DuckHuntService {
                 }
             } else {
                 return {
-                    error: `# You don't have enough space in your inventory`,
-                    instantReply: true
+                    error: `# ${username} tried to unequip its weapon but doesn't have enough space in inventory!`,
+                    instantReply: true,
+                    deleteUserMsg: true
                 }
             }
 
@@ -548,8 +561,9 @@ class DuckHuntService {
 
         if (!player.armor) {
             return {
-                error: `# You don't have any armor`,
-                instantReply: true
+                error: `# ${username} tried to unequip its armor but doesn't have any!`,
+                instantReply: true,
+                deleteUserMsg: true
             }
         } else {
             if (player.inventory.length < player.inventorySize) {
@@ -564,14 +578,15 @@ class DuckHuntService {
                     .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
                 return {
                     success: true,
-                    message: embed, // `[ Player ${username} unequips armor "${player.armor}" and puts it into its backpack (slot [${player.inventory.length - 1}]) ]`,
+                    message: embed,
                     deleteUserMsg: true,
                     instantReply: true
                 }
             } else {
                 return {
-                    error: `# You don't have enough space in your inventory`,
-                    instantReply: true
+                    error: `# ${username} tried to unequip its armor but doesn't have enough space in its backpack!`,
+                    instantReply: true,
+                    deleteUserMsg: true
                 }
             }
 
@@ -583,8 +598,9 @@ class DuckHuntService {
 
         if (!player.accessory) {
             return {
-                error: `# You don't have any accessory`,
-                instantReply: true
+                error: `# ${username} tried to unequip its accessory but doesn't have any!`,
+                instantReply: true,
+                deleteUserMsg: true
             }
         } else {
             if (player.inventory.length < player.inventorySize) {
@@ -605,8 +621,9 @@ class DuckHuntService {
                 }
             } else {
                 return {
-                    error: `# You don't have enough space in your inventory`,
-                    instantReply: true
+                    error: `# ${username} tried to unequip its accessory but doesn't have enough space in its backpack!`,
+                    instantReply: true,
+                    deleteUserMsg: true
                 }
             }
 
@@ -638,21 +655,22 @@ class DuckHuntService {
         const price = Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2))
 
         if (player.gold < price) return {
-            error: `# You don't have enough gold to upgrade your backpack (${player.gold}/${price})`,
-            instantReply: true
+            error: `# ${username} tried to upgrade its backpack but doesn't have enough gold! (${player.gold}/${price})`,
+            instantReply: true,
+            deleteUserMsg: true
         }
 
         player.inventorySize += 1
         player.gold -= price
 
+        const newPrice = Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2))
+
         const embed = new MessageEmbed()
             .setColor('#33ff33')
             .setTitle(`Player ${username} upgraded its backpack for ${price} gold!`)
-            .setDescription(`New backpack size: ${player.inventorySize}\nCurrent gold balance after upgrade: ${player.gold}`)
+            .setDescription(`New backpack size: ${player.inventorySize}\nCost of next upgrade: ${newPrice} gold\nCurrent gold balance after upgrade: ${player.gold}`)
         return {
-            message: embed, /*`[ Player ${username} upgraded its backpack for ${price} gold! ]`
-                + `\nNew backpack size: ${player.inventorySize}`
-                + `\nCurrent gold balance after upgrade: ${player.gold}`,*/
+            message: embed,
             deleteUserMsg: true,
             instantReply: true
         }
@@ -676,6 +694,60 @@ class DuckHuntService {
             instantReply: true
         }
     }
+
+    static async generator(channel, args, attachmentUrl) {
+        if (!attachmentUrl) return {
+            error: "# You need to upload a JSON generator file as attachment to your command"
+        }
+
+        const generator = await getAttachment(attachmentUrl)
+
+        const prompt = generatorService.getPrompt(
+            generator,
+            generator["properties"],
+            true
+        )
+        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
+        const object = generatorService.parseResult(generator, prompt.placeholderPrompt, result)
+
+        return {
+            message: JSON.stringify(object, null, 4),
+            instantReply: true
+        }
+    }
+
+    static async generatorPrompt(channel, args, attachmentUrl) {
+        if (!attachmentUrl) return {
+            error: "# You need to upload a JSON generator file as attachment to your command"
+        }
+
+        const generator = await getAttachment(attachmentUrl)
+
+        const prompt = generatorService.getPrompt(
+            generator,
+            generator["properties"],
+            true
+        )
+
+        const fileBuffer = Buffer.from(prompt.completePrompt)
+        const attachment = new MessageAttachment(fileBuffer, 'generator.json')
+        return {
+            message: attachment,
+            instantReply: true
+        }
+    }
+}
+
+async function getAttachment(attachmentUrl) {
+    // fetch the file from the external URL
+    const response = await axios.get(attachmentUrl);
+
+    // if there was an error send a message with the status
+    if (!response?.data)
+        return
+
+    // take the response stream and read it to completion
+    return await response.data
 }
 
 export default DuckHuntService

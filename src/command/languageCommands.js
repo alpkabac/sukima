@@ -12,7 +12,7 @@ const languageCommands = {
         [],
         ["!lang "],
         process.env.ALLOW_CHANGE_LANGUAGE,
-        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             let message = ""
             parsedMsg = parsedMsg.replace('.json', '')
             translationsService.changeLanguage(parsedMsg)

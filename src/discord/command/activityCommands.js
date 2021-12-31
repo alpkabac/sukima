@@ -8,7 +8,7 @@ const activityCommands = {
         [],
         ["!setActivity "],
         process.env.ALLOW_SET_ACTIVITY,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             if (parsedMsg) {
                 const msgWords = parsedMsg.split(' ')
                 const activityType = msgWords.shift()

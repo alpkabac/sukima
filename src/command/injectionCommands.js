@@ -12,7 +12,7 @@ const injectionCommands = {
         [],
         ["!event "],
         process.env.ALLOW_EVENT_INJECTION_MESSAGE,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             if (parsedMsg) {
                 const formattedEvent = parsedMsg.startsWith("[") && parsedMsg.endsWith("]") ? parsedMsg :
                     `[ Event: ${parsedMsg.trim()} ]`
@@ -30,7 +30,7 @@ const injectionCommands = {
         [],
         ["!property "],
         process.env.ALLOW_PROPERTY_INJECTION_MESSAGE,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             const words = parsedMsg.split(" ")
             const key = words.shift().replace(':', '')
             const value = words.join(" ")

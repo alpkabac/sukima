@@ -12,7 +12,7 @@ const danbooruCommands = {
         [],
         ["!danbooru "],
         process.env.ALLOW_DANBOORU,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             const result = await DanbooruService.getTags(parsedMsg || null)
 
             if (result) {

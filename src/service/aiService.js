@@ -139,7 +139,7 @@ class AiService {
         delete params.bad_words_ids
         params.logit_bias_exp = undefined
         delete params.logit_bias_exp
-        params.repetition_penalty = 1.18
+        params.repetition_penalty = 1.16
         params.repetition_penalty_range = 1024
         params.repetition_penalty_slope = 5
         params.tail_free_sampling = 0.422

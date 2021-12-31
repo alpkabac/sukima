@@ -29,12 +29,13 @@ class Command {
      * @param {String[]} roles List of roles the user have
      * @param {String} messageId Id of the message for later manipulations
      * @param {Object} client used for some platform specific things
+     * @param {String?} attachmentUrl
      * @returns {Boolean|Object} true if command was executed silently, false if command wasn't executed, else {
          message: String?, permissionError: Boolean?, error: String?, success: Boolean?, reactWith: String?,
          instantReply: Boolean?, editLastMessage: Boolean?, image: String?, deleteUserMsg: Boolean?, deleteMessage: String?
      }
      */
-    async call(msg, from, channel, roles, messageId, client) {
+    async call(msg, from, channel, roles, messageId, client, attachmentUrl) {
         if (!this.worksWhenMuted && MuteService.isChannelMuted(channel))
             return false
 
@@ -59,7 +60,7 @@ class Command {
                     parsedMessage = utils.upperCaseFirstLetter(parsedMessage.replace("#" + targetMessageId, '').trim())
                 }
             }
-            const callbackResult = await this.callback(msg, parsedMessage, from, channel, triggeredCommand, roles, messageId, targetMessageId, client)
+            const callbackResult = await this.callback(msg, parsedMessage, from, channel, triggeredCommand, roles, messageId, targetMessageId, client, attachmentUrl)
             if (callbackResult) {
                 if (typeof callbackResult === "object") {
                     callbackResult.commandName = this.commandName

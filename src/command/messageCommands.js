@@ -15,7 +15,7 @@ const messageCommands = {
         [],
         ["!!"],
         process.env.ALLOW_NO_CONTEXT_MESSAGE,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             historyService.pushIntoHistory(parsedMsg, from, channel, messageId)
             const prompt = promptService.getNoContextPrompt(parsedMsg, from, channel)
             const answer = await aiService.sendUntilSuccess({
@@ -34,7 +34,7 @@ const messageCommands = {
         [",", "!continue"],
         [],
         process.env.ALLOW_CONTINUE_MESSAGE,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             const prompt = promptService.getPrompt(channel, true, false)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             historyService.getChannelHistory(channel).reverse()
@@ -54,7 +54,7 @@ const messageCommands = {
         ["²", "○", "!retry"],
         ["!retry "],
         process.env.ALLOW_RETRY_MESSAGE,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             let prompt = promptService.getPrompt(channel, false, true)
             if (targetMessageId) {
                 prompt = promptService.getPrompt(channel, false, true, true, targetMessageId)
@@ -80,7 +80,7 @@ const messageCommands = {
         [],
         ["!delete "],
         process.env.ALLOW_DELETE_MESSAGE,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             const success = historyService.delete(channel, targetMessageId)
             if (success) {
                 return {success: true, deleteUserMsg: true, deleteMessage: targetMessageId}
@@ -94,7 +94,7 @@ const messageCommands = {
         [],
         ["!prune "],
         process.env.ALLOW_PRUNE_MESSAGES,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             if (!targetMessageId) return {reactWith: `🤷`, deleteUserMsg: true}
             const success = historyService.prune(channel, targetMessageId)
             if (success) {
@@ -109,7 +109,7 @@ const messageCommands = {
         [],
         ["!edit "],
         process.env.ALLOW_EDIT_MESSAGE,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             if (historyService.editByMessageId(parsedMsg, channel, targetMessageId)) {
                 return {
                     message: parsedMsg,
@@ -129,7 +129,7 @@ const messageCommands = {
         [],
         ["?", "!talk"],
         process.env.ALLOW_ANSWER_MESSAGE,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             if (parsedMsg) {
                 historyService.pushIntoHistory(parsedMsg, from, channel, messageId)
             }
@@ -147,7 +147,7 @@ const messageCommands = {
         ["?", "!talk"],
         [],
         process.env.ALLOW_ANSWER_MESSAGE,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             if (parsedMsg) {
                 historyService.pushIntoHistory(parsedMsg, from, channel, messageId)
             }
@@ -173,7 +173,7 @@ const messageCommands = {
         [],
         [],
         null,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             historyService.pushIntoHistory(msg, from, channel, messageId)
 
             if (!utils.checkPermissions(roles, process.env.ALLOW_REPLY_TO_NAME, channel.startsWith("##"))) {
@@ -196,7 +196,7 @@ const messageCommands = {
         [],
         [],
         null,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             if (!utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) return false
 
             const history = historyService.getChannelHistory(channel)
@@ -229,7 +229,7 @@ const messageCommands = {
         [],
         [],
         process.env.ALLOW_REACTIONS,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId) => {
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             const action = translationsService.translations.onAction
                 .replace("${text}", utils.upperCaseFirstLetter(msg.trim()))
             historyService.pushIntoHistory(action, from, channel, messageId)

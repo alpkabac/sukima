@@ -168,6 +168,8 @@ function appendMessage(msg) {
     messageList.push(msg)
 }
 
+
+
 async function processMessage(msg) {
     const privateMessage = msg.channel.type === "dm"
     if (privateMessage && (!process.env.ENABLE_DM || process.env.ENABLE_DM.toLowerCase() !== "true")) return
@@ -180,6 +182,8 @@ async function processMessage(msg) {
     const channelName = privateMessage ?
         "##" + msg.channel.id
         : "#" + msg.channel.name
+
+    const file = msg.attachments.first()?.url;
 
     if (!utils.isMessageFromAllowedChannel(channelName)) return
 
@@ -208,7 +212,7 @@ async function processMessage(msg) {
         const allCommands = discordCommands.getOnMessageCommands()
             .concat(commands.getOnMessageCommands())
         for (let command of allCommands) {
-            const commandResult = await command.call(utils.replaceNickByBotName(cleanContent).trim(), replaceAliases(originalMsg.author.username), channelName, userRoles, originalMsg.id, bot)
+            const commandResult = await command.call(utils.replaceNickByBotName(cleanContent).trim(), replaceAliases(originalMsg.author.username), channelName, userRoles, originalMsg.id, bot, file)
             if (commandResult) {
                 message = commandResult
                 break

@@ -8,6 +8,7 @@ import utils from "../utils.js";
 import fs from "fs";
 import pawnService from "./rpg/pawnService.js";
 import playerService from "./rpg/playerService.js";
+import worldItemsService from "./rpg/worldItemsService.js";
 
 class SavingService {
 
@@ -20,9 +21,10 @@ class SavingService {
 
         const history = historyService.getChannelHistory(channel)
         const memory = memoryService.getChannelMemory(channel)
-        const pawn = pawnService.getActivePawn()
+        const pawn = pawnService.getActivePawn(channel)
         const lastPawnCreatedAt = pawnService.lastPawnCreatedAt[channel] || null
         const players = playerService.players[channel] || {}
+        const activeItems = worldItemsService.getActiveItems(channel)
 
         const filename = `./save/${process.env.BOTNAME}/${channel}.json`
         const data = {
@@ -31,7 +33,8 @@ class SavingService {
             memory,
             pawn,
             lastPawnCreatedAt,
-            players
+            players,
+            activeItems
         }
 
         try {
@@ -50,7 +53,7 @@ class SavingService {
 
     static load(channel) {
         try {
-            const {personality, history, memory, pawn, lastPawnCreatedAt, players} = utils.load(`./save/${process.env.BOTNAME}/${channel}.json`)
+            const {personality, history, memory, pawn, lastPawnCreatedAt, players,activeItems} = utils.load(`./save/${process.env.BOTNAME}/${channel}.json`)
             if (personality) {
                 personalityService.channelBotPersonality[channel] = personality
             }
@@ -68,6 +71,9 @@ class SavingService {
             }
             if (players) {
                 playerService.players[channel] = players
+            }
+            if (activeItems) {
+                worldItemsService.activeItems[channel] = activeItems
             }
             if (personality && history && memory)
                 return true
