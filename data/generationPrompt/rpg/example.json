@@ -1,0 +1,20 @@
+{
+  "name": "Name of your generator (for information purpose, it's used nowhere for now)",
+  "description": "Description of your generator (not used anywhere yet)",
+  "properties": [
+    {
+      "name": "item",
+      "replaceBy": "ITEM:"
+    }
+  ],
+  "placeholders": [],
+  "context": "[ ITEM LIST ]",
+  "list": [
+    {
+      "item": "Iron Broad Sword"
+    },
+    {
+      "item": "Scroll of Magic Item Transmutation"
+    }
+  ]
+}
