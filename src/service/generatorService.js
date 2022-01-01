@@ -87,7 +87,7 @@ class GeneratorService {
 
                 let value = elem[property.name]
                 for (let placeholder of generator.placeholders){
-                    value.replace(new RegExp("\${"+placeholder[0]+"}","g"), placeholder[1])
+                    value = value.replace("${"+placeholder[0]+"}", placeholder[1])
                 }
                 const replaceBy = property.replaceBy ? property.replaceBy : property.name
                 elemPrompt += `${replaceBy} ${value}\n`

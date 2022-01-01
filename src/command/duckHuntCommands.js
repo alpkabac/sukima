@@ -233,8 +233,8 @@ const duckHuntCommands = {
     ),
     generator: new Command(
         "Generate Spell",
-        ["!generator"],
         [],
+        ["!generator"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.generator(channel, parsedMsg, attachmentUrl)
@@ -243,8 +243,8 @@ const duckHuntCommands = {
     ),
     generatorPrompt: new Command(
         "Generate Spell",
-        ["!generatorPrompt"],
         [],
+        ["!generatorPrompt"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.generatorPrompt(channel, parsedMsg, attachmentUrl)
@@ -270,8 +270,8 @@ duckHuntCommands.all = [
     duckHuntCommands.showInventory,
     duckHuntCommands.upgradeBackpack,
     duckHuntCommands.generateSpell,
-    duckHuntCommands.generator,
     duckHuntCommands.generatorPrompt,
+    duckHuntCommands.generator,
 ]
 
 export default duckHuntCommands

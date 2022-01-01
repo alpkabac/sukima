@@ -23,7 +23,7 @@ const messageCommands = {
                 repetition_penalty_range: 1024
             }, channel.startsWith("##"), channel)
             return {
-                message: answer, success: true, reactWith: "🙈",
+                message: answer, success: true,
                 pushIntoHistory: [answer, process.env.BOTNAME, channel]
             }
         },
@@ -45,7 +45,7 @@ const messageCommands = {
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: answer, success: true, deleteUserMsg: true, appendToLastMessage: true, reactWith: "▶"}
+            return {message: answer, success: true, deleteUserMsg: true, appendToLastMessage: true}
         },
         false
     ),
@@ -85,7 +85,7 @@ const messageCommands = {
             if (success) {
                 return {success: true, deleteUserMsg: true, deleteMessage: targetMessageId}
             }
-            return {reactWith: `🤷`, deleteUserMsg: true}
+            return {error: `# No message with ID #${targetMessageId}`, deleteUserMsg: true}
         },
         true
     ),
@@ -95,12 +95,12 @@ const messageCommands = {
         ["!prune "],
         process.env.ALLOW_PRUNE_MESSAGES,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            if (!targetMessageId) return {reactWith: `🤷`, deleteUserMsg: true}
+            if (!targetMessageId) return {error: `# You need to provide a messageID for this command`, deleteUserMsg: true}
             const success = historyService.prune(channel, targetMessageId)
             if (success) {
                 return {success: true, deleteUserMsg: true, deleteMessagesUpTo: targetMessageId}
             }
-            return {reactWith: `🤷`, deleteUserMsg: true}
+            return {error: `# No message with ID #${targetMessageId}`, deleteUserMsg: true}
         },
         true
     ),
@@ -119,7 +119,7 @@ const messageCommands = {
                     editMessage: targetMessageId
                 }
             } else {
-                return {reactWith: `🤷`, deleteUserMsg: true}
+                return {error: `# No message was found for ID #${targetMessageId}`, deleteUserMsg: true}
             }
         },
         false
@@ -136,7 +136,7 @@ const messageCommands = {
             const prompt = promptService.getPrompt(channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             return {
-                message: answer, success: true, reactWith: "⏩",
+                message: answer, success: true,
                 pushIntoHistory: [answer, process.env.BOTNAME, channel]
             }
         },
@@ -154,7 +154,7 @@ const messageCommands = {
             const prompt = promptService.getPrompt(channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             return {
-                message: answer, success: true, deleteUserMsg: true, reactWith: "⏩",
+                message: answer, success: true, deleteUserMsg: true,
                 pushIntoHistory: [answer, process.env.BOTNAME, channel]
             }
         },

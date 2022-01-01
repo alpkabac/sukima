@@ -295,6 +295,7 @@ class DuckHuntService {
             ],
             true
         )
+        console.log(prompt)
         const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
         const object = generatorService.parseResult(generatorSell, prompt.placeholderPrompt, result)
 
@@ -701,12 +702,27 @@ class DuckHuntService {
         }
 
         const generator = await getAttachment(attachmentUrl)
+        const argsJSON = !args ? null : JSON.parse(args.trim())
+        let json = []
+        if (argsJSON){
+            for (let name in argsJSON){
+                json.push({name, value: argsJSON[name]})
+            }
+        }
 
-        const prompt = generatorService.getPrompt(
+        let properties = json || generator["properties"]
+        let prompt = generatorService.getPrompt(
             generator,
-            generator["properties"],
+            properties,
             true
         )
+
+        if (generator.placeholders) {
+            for (let placeholder of generator.placeholders) {
+                prompt.completePrompt = prompt.completePrompt.replace("${" + placeholder[0] + "}", placeholder[1])
+            }
+        }
+
         const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
         const object = generatorService.parseResult(generator, prompt.placeholderPrompt, result)
 
@@ -722,12 +738,28 @@ class DuckHuntService {
         }
 
         const generator = await getAttachment(attachmentUrl)
+        const argsJSON = !args ? null : JSON.parse(args.trim())
 
+        let json = []
+        if (argsJSON){
+            for (let name in argsJSON){
+                json.push({name, value: argsJSON[name]})
+            }
+        }
+
+        let properties = json || generator["properties"]
         const prompt = generatorService.getPrompt(
             generator,
-            generator["properties"],
+            properties,
             true
         )
+
+
+        if (generator.placeholders) {
+            for (let placeholder of generator.placeholders) {
+                prompt.completePrompt = prompt.completePrompt.replace("${" + placeholder[0] + "}", placeholder[1])
+            }
+        }
 
         const fileBuffer = Buffer.from(prompt.completePrompt)
         const attachment = new MessageAttachment(fileBuffer, 'generator.json')

@@ -45,10 +45,9 @@ const epornerCommands = {
                     historyService.pushIntoHistory(msg, from, channel, messageId)
                     const formattedEvent = `[ ${process.env.BOTNAME} responds to the command by searching "${parsedMsg}" on the porn website "eporner" and sending one of the clip to ${from}. The video is titled "${vid.title}" and contains the keywords "${vid.keywords}" ]`
                     return {
-                        message: `# Id: ${vid?.id}\nTitle: ${vid.title}\nKeywords: ${vid.keywords}\nLength: ${vid.length_min}\nDate: ${vid.added}\nURL: ${vid.url}`,
+                        message: `# Id: ${vid?.id}\nTitle: ${vid.title}\nKeywords: ${vid.keywords}\nLength: ${vid.length_min}\nDate: ${vid.added}\nURL: || ${vid.url} ||`,
                         success: true,
                         instantReply: true,
-                        image: vid.url,
                         pushIntoHistory: [formattedEvent, null, channel]
                     }
                 } else {
