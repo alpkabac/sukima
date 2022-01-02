@@ -9,7 +9,7 @@ import {MessageAttachment, MessageEmbed} from "discord.js";
 import axios from "axios";
 
 const generatorSpawnAnimal = utils.load("./data/generationPrompt/rpg/spawn.json")
-const generatorAttackNew = utils.load("./data/generationPrompt/rpg/attackNew.json")
+const generatorAttackNew = utils.load("./data/generationPrompt/rpg/attackNewNew.json")
 const generatorLootAnimal = utils.load("./data/generationPrompt/rpg/loot.json")
 const generatorSell = utils.load("./data/generationPrompt/rpg/sell.json")
 const generatorSpellBook = utils.load("./data/generationPrompt/rpg/generateSpellBook.json")
@@ -102,7 +102,7 @@ class DuckHuntService {
             armor = player.armor
         }
 
-        const enemyStatus = `[ Name: ${pawn.name}; difficulty: ${pawn.difficulty}; wounds: ${pawn.wounds.length === 0 ? 'none' : [...new Set(pawn.wounds)].join(', ')}; status: ${pawn.status} ]`
+        const enemyStatus = `[ Name: ${pawn.name}; difficulty: ${pawn.difficulty}; wounds: ${pawn.wounds.length === 0 ? 'none' : [...new Set(pawn.wounds)].join(', ')}; blood loss: ${pawn.bloodLoss}; status: ${pawn.status} ]`
 
         const playerEquipment = `[ ${weapon}; ${armor}` + (player.accessory ? `; ${player.accessory}` : '') + ` ]`
         const prompt = generatorService.getPrompt(
@@ -112,6 +112,7 @@ class DuckHuntService {
                 {name: "enemy", value: enemyStatus},
                 {name: "description"},
                 {name: "wounds"},
+                {name: "bloodLoss"},
                 {name: "status"}
             ],
             true
@@ -131,6 +132,10 @@ class DuckHuntService {
             }
         }
 
+        if (object.bloodLoss && object.bloodLoss.trim()) {
+            pawn.bloodLoss = object.bloodLoss
+        }
+
         if (object.status && object.status.trim() && !["failed"].includes(object.status.trim().toLowerCase())) {
             pawn.status = object.status.toLowerCase()
         }
@@ -146,6 +151,7 @@ class DuckHuntService {
             .setTitle(`${username} attacks the ${pawn.name}`)
             .setDescription(`${object.description || 'undefined'}`)
             .addField('New enemy wounds', object.wounds || 'undefined', true)
+            .addField('New enemy blood loss', object.bloodLoss || 'undefined', true)
             .addField('New enemy status', object.status || 'undefined', true)
             .addField('All enemy wounds', [...new Set(pawn.wounds)].join('\n') || 'none', false)
 
@@ -703,30 +709,44 @@ class DuckHuntService {
         const generator = await getAttachment(attachmentUrl)
         const argsJSON = !args ? null : JSON.parse(args.trim())
         let json = []
-        if (argsJSON){
-            for (let name in argsJSON){
-                json.push({name, value: argsJSON[name]})
+        let nbResults = 1
+        if (argsJSON) {
+            for (let name in argsJSON) {
+                if (name === 'nbResults') {
+                    if (typeof argsJSON[name] === "string") {
+                        argsJSON[name] = parseInt(argsJSON[name])
+                    }
+                    nbResults = Math.min(5, argsJSON[name])
+                } else {
+                    json.push({name, value: argsJSON[name]})
+                }
             }
         }
 
-        let properties = json || generator["properties"]
-        let prompt = generatorService.getPrompt(
-            generator,
-            properties,
-            true
-        )
+        let properties = json.length > 0 ? json : generator["properties"]
+        let results = []
+        for (let i = 0; i < nbResults; i++) {
+            let prompt = generatorService.getPrompt(
+                generator,
+                properties,
+                true
+            )
 
-        if (generator.placeholders) {
-            for (let placeholder of generator.placeholders) {
-                prompt.completePrompt = prompt.completePrompt.replace("${" + placeholder[0] + "}", placeholder[1])
+            if (generator.placeholders) {
+                for (let placeholder of generator.placeholders) {
+                    prompt.completePrompt = prompt.completePrompt.replace("${" + placeholder[0] + "}", placeholder[1])
+                }
             }
+
+            const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
+            const object = generatorService.parseResult(generator, prompt.placeholderPrompt, result)
+            results.push(object)
         }
 
-        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
-        const object = generatorService.parseResult(generator, prompt.placeholderPrompt, result)
+        const attachment = new MessageAttachment(Buffer.from(JSON.stringify(results, null, 4)), 'results.json')
 
         return {
-            message: JSON.stringify(object, null, 4),
+            message: attachment,
             instantReply: true
         }
     }
@@ -740,13 +760,15 @@ class DuckHuntService {
         const argsJSON = !args ? null : JSON.parse(args.trim())
 
         let json = []
-        if (argsJSON){
-            for (let name in argsJSON){
-                json.push({name, value: argsJSON[name]})
+        if (argsJSON) {
+            for (let name in argsJSON) {
+                if (name !== 'nbResults') {
+                    json.push({name, value: argsJSON[name]})
+                }
             }
         }
 
-        let properties = json || generator["properties"]
+        let properties = json.length > 0 ? json : generator["properties"]
         const prompt = generatorService.getPrompt(
             generator,
             properties,
@@ -760,8 +782,7 @@ class DuckHuntService {
             }
         }
 
-        const fileBuffer = Buffer.from(prompt.completePrompt)
-        const attachment = new MessageAttachment(fileBuffer, 'generator.json')
+        const attachment = new MessageAttachment(Buffer.from(prompt.completePrompt), 'generator.json')
         return {
             message: attachment,
             instantReply: true

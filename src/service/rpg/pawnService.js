@@ -13,6 +13,7 @@ class Pawn {
         this.description = description;
         this.attacks = []
         this.wounds = []
+        this.bloodLoss = 'none'
         this.status = "alive"
         this.alive = true
         this.createdAt = Date.now()

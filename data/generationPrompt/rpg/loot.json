@@ -147,6 +147,11 @@
       "name": "Demon God",
       "difficulty": "impossible",
       "loot": "Gods Slaying Sword"
+    },
+    {
+      "name": "Eagle",
+      "difficulty": "hard",
+      "loot": "Precious Jewel"
     }
   ]
 }

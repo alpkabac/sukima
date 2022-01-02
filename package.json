@@ -19,6 +19,7 @@
     "bootstrap": "^5.1.0",
     "colors": "^1.4.0",
     "discord.js": "^12.5.3",
+    "discord.js-poll-embed": "^1.0.2",
     "dotenv": "^9.0.2",
     "express": "^4.17.1",
     "ffmpeg-static": "^4.4.0",
