@@ -104,7 +104,9 @@ bot.on('ready', async () => {
         bot.channels.cache.forEach(c => {
             if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
                 if (envService.isRpgModeEnabled()){
-                    c.send('https://tenor.com/view/huzzah-adventure-jovel-haver-gif-19701828')
+                    if (c.send) {
+                        c.send('https://tenor.com/view/huzzah-adventure-jovel-haver-gif-19701828')
+                    }
                 }else {
                     if (historyService.getChannelHistory(`#${c.name.toLowerCase()}`).length === 0)
                         if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase())?.introduction.length > 0)
