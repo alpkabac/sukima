@@ -57,7 +57,7 @@ It will sell your item and generate a price depending on the item:
 ![Selling Items](https://i.imgur.com/XsQK8XY.png)  
 Item prices may vary a lot from generation to generation, let's say it's a feature and some shopkeepers just want some items more than others  
 
-Now that you have gold, you can upgrade your backpack with the `!upgrade` command:
+Now that you have gold, you can upgrade your backpack with the `!upgrade` command:  
 ![Upgrade Command](https://i.imgur.com/y5np24E.png)  
 First upgrade costs 99 gold, but price goes up exponentially each time you upgrade!
 
