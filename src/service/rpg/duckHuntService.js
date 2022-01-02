@@ -635,7 +635,7 @@ class DuckHuntService {
         const embed = new MessageEmbed()
             .setColor('#887733')
             .setTitle(`Inventory of Player ${username}`)
-            .setDescription(`Inventory: [ ${player.inventory.map((item, n) => `${n}: "${item}"`).join(', ')} ]`)
+            .setDescription(`Inventory (${player.inventory.length}/${player.inventorySize}): [ ${player.inventory.map((item, n) => `${n}: "${item}"`).join(', ')} ]`)
             .addField('Equipped weapon', !player.weapon ? 'No weapon' : player.weapon, true)
             .addField('Equipped armor', !player.armor ? 'No armor' : player.armor, true)
             .addField('Equipped accessory', !player.accessory ? 'No accessory' : player.accessory, true)
