@@ -295,7 +295,6 @@ class DuckHuntService {
             ],
             true
         )
-        console.log(prompt)
         const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
         const object = generatorService.parseResult(generatorSell, prompt.placeholderPrompt, result)
 
