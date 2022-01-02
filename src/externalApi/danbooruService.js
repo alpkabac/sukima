@@ -2,7 +2,6 @@ import axios from "axios";
 
 class DanbooruService {
     static async getTags(tags) {
-
         try {
             const r = (await axios.get("https://danbooru.donmai.us/posts/random.json?limit=1&tags=" + encodeURI(tags.toLowerCase()), {
                 params: {
@@ -16,7 +15,7 @@ class DanbooruService {
 
             return r
         } catch (e) {
-            //console.error("error", e)
+            console.error("error", e)
         }
     }
 }
