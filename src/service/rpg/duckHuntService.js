@@ -743,7 +743,9 @@ class DuckHuntService {
             results.push(object)
         }
 
-        const attachment = new MessageAttachment(Buffer.from(JSON.stringify(results, null, 4)), 'results.json')
+        const resultsJSONString = JSON.stringify(results, null, 4)
+
+        const attachment = resultsJSONString.length < 2000 ? resultsJSONString : new MessageAttachment(Buffer.from(resultsJSONString), 'results.json')
 
         return {
             message: attachment,
