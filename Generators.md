@@ -146,7 +146,7 @@ Here, we replace `${currency}` from the examples by `gold`:
 If you need even more control over the AI generation, you can optionally provide customized AI parameters and model
 from [NovelAI's API](https://api.novelai.net/docs/static/index.html#/%2Fai%2F/AIController_aiGenerate)
 
-Example below overrides framework's default parameters to add banned tokens and change the temperature:
+Example below overrides framework's default AI generation parameters to add banned tokens and change the temperature:
 
 ```
 {
@@ -162,7 +162,7 @@ Example below overrides framework's default parameters to add banned tokens and 
 }
 ```
 
-You can also provide an alternative `model` for the AI to use:
+You can also provide an alternative ***model*** for the AI to use:
 
 ```
 {
@@ -178,4 +178,61 @@ You can also provide an alternative `model` for the AI to use:
 
 # Generator Format (hardcore mode)
 
-Soon...
+Last but not least, for the most motivated...  
+It's possible to use different properties in different orders using different generation parameters, using ***submodules***  
+
+In the example below, 
+
+```
+{
+  "name": "Enemy Generator",
+  "description": "Generates enemies, enemy equipment and loot when killed",
+  "context": "...",
+  "properties": [
+    ["name", "Enemy Name:"],
+    ["difficulty", "Enemy Difficulty:"],
+    ["item", "Item Name:"],
+    ["type", "Item Type:"],
+    ["rarity", "Item Rarity:"],
+    ["price", "Item Price:"],
+    ["encounterDescription", "Encounter Description:"]
+  ],
+  "placeholders": {...},
+  "exampleList": [...],
+  "aiParameters": {...},
+  "aiModel": "6B-v4",
+  "submodules": {
+    "generateEnemy": {
+      "context": "[ Generates random enemies and encounter description ]",
+      "properties": [
+        ["difficulty", "Enemy Difficulty:"],
+        ["name", "Enemy Name:"],
+        ["encounterDescription", "Encounter Description:"]
+      ],
+      "aiModel": "2.7B"
+    },
+    "generateEnemyEquipment": {
+      "context": "[ Detects the equipment of an enemy given its name and difficulty ]",
+      "properties": [
+        ["name", "Enemy Name:"],
+        ["difficulty", "Enemy Difficulty:"],
+        ["equipment", "Enemy Equipment:"]
+      ]
+    },
+    "generateLoot": {
+      "context": "[ Generates a random loot given and enemy's name and difficulty ]",
+      "placeholders": {
+        "currency": "gold coin(s)"
+      },
+      "properties": [
+        ["name", "Enemy Name:"],
+        ["difficulty", "Enemy Difficulty:"],
+        ["item", "Looted Item Name:"],
+        ["type", "Looted Item Type:"],
+        ["rarity", "Looted Item Rarity:"],
+        ["price", "Looted Item Price:"],
+      ],
+    }
+  }
+}
+```
