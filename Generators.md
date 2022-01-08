@@ -1,4 +1,4 @@
-# Generators Explainded
+# Generators Explained
 
 Generators are a notion inherited from AIDungeon's "evalbots"  
 They are prompts that are executed before or after the actual AI story generation, allowing to do useful things to
@@ -74,7 +74,7 @@ It should be provided as a list of string pairs `["A", "B"]` like in the example
 As for everything that ends up in the prompt, words used in the `B` value should be carefully picked and tested  
 Using words such as `input` and `output` in the name replacement `B` seems to help in some cases
 
-**Important: the order in which properties are defined will be the order used in the generated prompt!**
+***Important: the order in which properties are defined will be the order used in the generated prompt!***
 
 ## `exampleList`
 
@@ -85,14 +85,14 @@ above
 You can put as many examples as you want here, the more the better!  
 The generator will first shuffle the examples, then put as many as it can into the prompt
 
-**Note: don't put stuff that you really want the AI to generate as examples!**
-It seems counterintuitive, but you should only write examples of things **like** the thing you're trying to generate  
+***Note: don't put stuff that you really want the AI to generate as examples!***
+It seems counterintuitive, but you should only write examples of things ***like*** the thing you're trying to generate  
 If you put **the** things you want the AI to generate as example, they will not come in the results as the AI tries to
 generate new samples, not reproduce them
 
 ### Generated Prompt
 
-Generators have two purposes, the first one being to generate a **prompt** that the AI will use to generate results  
+Generators have two purposes, the first one being to generate a ***prompt*** that the AI will use to generate results  
 A prompt is just a text that we feed to the AI for it to complete
 
 Given the example above, using the generator without any arguments (we'll get to them later), here is what the generated
@@ -111,6 +111,66 @@ Input Enemy Name:
 ```
 
 # Generator Format (advanced mode)
+
+## `exampleItemSeparator`
+
+Defaults to `"⁂\n"`  
+String used to separate example items in the prompt  
+***Setting this value to `null` may have unexpected results, if not
+needed, set it to its default value or omit this property entirely***
+
+How to use:
+
+```
+{
+  "name": "...",
+  "description": "...",
+  "context": "...",
+  "properties": [...],
+  "exampleList": [...],
+  "exampleItemSeparator": "⁂\n"
+}
+```
+
+## `exampleItemPropertySeparator`
+
+Defaults to `"\n"`  
+String used to separate example item properties in the prompt  
+***Setting this value to `null` may have unexpected results, if not
+needed, set it to its default value or omit this property entirely***
+
+How to use:
+
+```
+{
+  "name": "...",
+  "description": "...",
+  "context": "...",
+  "properties": [...],
+  "exampleList": [...],
+  "exampleItemPropertySeparator": "\n"
+}
+```
+
+## `exampleItemPropertyValueSeparator`
+
+Defaults to `" "`  
+String used to separate example item property and value in the prompt  
+***Setting this value to `null` may have unexpected results, if not
+needed, set it to its default value or omit this property entirely***
+
+How to use:
+
+```
+{
+  "name": "...",
+  "description": "...",
+  "context": "...",
+  "properties": [...],
+  "exampleList": [...],
+  "exampleItemPropertyValueSeparator": " "
+}
+```
 
 ## `placeholders`
 
@@ -179,9 +239,18 @@ You can also provide an alternative ***model*** for the AI to use:
 # Generator Format (hardcore mode)
 
 Last but not least, for the most motivated...  
-It's possible to use different properties in different orders using different generation parameters, using ***submodules***  
+It's possible to use different properties in different orders using different generation parameters, using ***
+submodules***
 
-In the example below, 
+Submodules are generators too and uses default generator values as a basis, but overrides needed properties for
+specialisation  
+They are specially useful to reuse different properties in different orders to achieve different results  
+An as example, you could write a translation generator, provide translated sentences in 3 languages (3 properties), then
+make specialized submodules that will only pull two selected languages and order them to translate one way or another!
+
+Below is an example of an ***"Enemy Generator"***, it contains ***three submodules*** to uses the same `exampleList`
+items with different properties, in different orders, and overriding AI generation parameters when needed (this is a
+fake example)
 
 ```
 {
@@ -198,7 +267,26 @@ In the example below,
     ["encounterDescription", "Encounter Description:"]
   ],
   "placeholders": {...},
-  "exampleList": [...],
+  "exampleList": [
+    {
+      "name": "Orc Soldier",
+      "difficulty": "medium",
+      "item": "Iron Broad Sword",
+      "type": "weapon",
+      "rarity": "common",
+      "price": "100 ${currency}",
+      "encounterDescription": "The Orc soldier with it's worn leather armor and broad sword slowly and silently approach you from deep in the woods reading its weapon for a powerful and swift attack."
+    },
+    {
+      "name": "Rabid Unicorn",
+      "difficulty": "hard",
+      "item": "Unicorn Horn",
+      "type": "component",
+      "rarity": "uncommon",
+      "price": "300 ${currency}",
+      "encounterDescription": "You spot an all white rabid unicorn tearing through the brush chasing and gouging at another adventure that came along its gaze."
+    }
+  ],
   "aiParameters": {...},
   "aiModel": "6B-v4",
   "submodules": {
@@ -217,7 +305,11 @@ In the example below,
         ["name", "Enemy Name:"],
         ["difficulty", "Enemy Difficulty:"],
         ["equipment", "Enemy Equipment:"]
-      ]
+      ],
+      "aiParameters": {
+        "bad_words_ids": [[27,91,437,1659,5239,91,29],[1279,91,437,1659,5239,91,29],[27,91,10619,46,9792,13918,91,29],[1279,91,10619,46,9792,13918,91,29]]
+        "temperature": 0.9
+      }
     },
     "generateLoot": {
       "context": "[ Generates a random loot given and enemy's name and difficulty ]",
@@ -236,3 +328,6 @@ In the example below,
   }
 }
 ```
+
+Every property of a submodule is optional and will override general values if provided  
+You can remove a general value by overriding it with a `null` value in the submodule values
