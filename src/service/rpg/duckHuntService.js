@@ -281,18 +281,13 @@ class DuckHuntService {
             deleteUserMsg: true
         }
 
-        const prompt = generatorService.getPrompt(
-            generatorEnemy,
-            [
-                {name: "item", value: item.name},
-                {name: "type", value: item.type},
-                {name: "rarity", value: item.rarity},
-                {name: "price"},
-            ],
-            true
-        )
-        const result = await generatorService.executePrompt(generatorEnemy, prompt.completePrompt, channel.startsWith("##"))
-        const object = generatorService.parseResult(generatorEnemy, prompt.placeholderPrompt, result)
+        const args = [
+            {name: "item", value: item.name},
+            {name: "type", value: item.type},
+            {name: "rarity", value: item.rarity},
+            {name: "price"},
+        ]
+        const object = generatorService.generator(generatorEnemy, args, channel.startsWith("##"))
 
         // TODO: clean and generify
         const goldAmount = !object?.price ? 0 : parseInt(
@@ -677,17 +672,7 @@ class DuckHuntService {
     }
 
     static async generateSpell(channel, args) {
-        const prompt = generatorService.getPrompt(
-            generatorSpellBook,
-            [
-                {name: "bookName", value: args ? args.trim() : null},
-                {name: "spellName"},
-                {name: "description"},
-            ],
-            true
-        )
-        const result = await generatorService.executePrompt(generatorSpellBook, prompt.completePrompt, channel.startsWith("##"))
-        const object = generatorService.parseResult(generatorSpellBook, prompt.placeholderPrompt, result)
+        const object = generatorService.generator(generatorSpellBook, args, channel.startsWith("##"))
 
         return {
             message: JSON.stringify(object, null, 4),
@@ -729,9 +714,10 @@ class DuckHuntService {
                 }
                 if (name === "aiParameters") {
                     generator.aiParameters = argsJSON[name]
-                }
-                if (name === "aiModel") {
+                } else if (name === "aiModel") {
                     generator.aiModel = argsJSON[name]
+                } else if (name === "submodule") {
+                    // TODO
                 } else {
                     json.push({name, value: argsJSON[name]})
                 }

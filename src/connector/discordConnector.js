@@ -406,8 +406,8 @@ async function loop() {
                 channels[channel].startTyping().then()
                 setTimeout(async () => {
                     const m = await channels[channel].send(parsedMessage).catch(() => null)
-                    if (m && msg.pushIntoHistory) {
-                        historyService.pushIntoHistory(msg.message, process.env.BOTNAME, channel, m.id)
+                    if (msg.pushIntoHistory) {
+                        historyService.pushIntoHistory(msg.message, process.env.BOTNAME, channel, m?.id)
                     }
                     channels[channel].stopTyping(true)
                     locked[channel] = false
