@@ -28,6 +28,13 @@ class PawnService {
         if (this.activePawn[channel]) return this.activePawn[channel]
     }
 
+    /**
+     *
+     * @param channel
+     * @param name
+     * @param difficulty
+     * @param description
+     */
     static createPawn(channel, name, difficulty, description) {
         this.activePawn[channel] = new Pawn(name, difficulty, description)
         this.lastPawnCreatedAt[channel] = Date.now()

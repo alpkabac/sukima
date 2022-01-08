@@ -1,8 +1,28 @@
 import utils from "../utils.js";
 import envService from "../util/envService.js";
 import {encode} from "gpt-3-encoder";
+import lmiService from "./lmiService.js";
+import aiService from "./aiService.js";
 
 class GeneratorService {
+
+    /**
+     *
+     * @param generator
+     * @param args
+     * @param preventLMI
+     * @return {Promise<{Object}>}
+     */
+    static async generator(generator, args, preventLMI){
+        const prompt = this.getPrompt(
+            generator,
+            args,
+            true
+        )
+        const result = await this.executePrompt(generator, prompt.completePrompt, preventLMI)
+        return this.parseResult(generator, prompt.placeholderPrompt, result)
+    }
+
     /**
      * Generates a prompt given a generic generator
      * @param generator {name: String, description: String, properties: [{name: String, replaceBy: String}], context: String, list: List} Generic generator in parsed JSON
@@ -25,6 +45,70 @@ class GeneratorService {
             placeholderPrompt,
             completePrompt: prompt + elemsPrompt + placeholderPrompt
         }
+    }
+
+    static buildParams(generator, submodule = null) {
+        const defaultParams = {
+            prefix: "vanilla",
+            use_string: true,
+            min_length: 1,
+            max_length: 150,
+            temperature: 0.5,
+            top_k: 0,
+            top_p: 1,
+            eos_token_id: 224,
+            repetition_penalty: 1.15,
+            repetition_penalty_range: 1024,
+            tail_free_sampling: 0.422,
+            bad_words_ids: [[27, 91, 437, 1659, 5239, 91, 29], [1279, 91, 437, 1659, 5239, 91, 29], [27, 91, 10619, 46, 9792, 13918, 91, 29], [1279, 91, 10619, 46, 9792, 13918, 91, 29]],   // "<|endoftext|>" tokens
+        }
+
+        if (!generator) throw new Error("No generator provided")
+
+        if (!submodule && !generator.aiParameters) return defaultParams
+
+        // Applies aiParameters from global generator
+        if (generator.aiParameters) {
+            for (let aiParameter in generator.aiParameters) {
+                defaultParams[aiParameter] = generator.aiParameters[aiParameter]
+            }
+        }
+
+        // Applies aiParameters from submodule
+        if (submodule && generator.submodules[submodule] && generator.submodules[submodule].aiParameters) {
+            for (let aiParameter in generator.submodules[submodule].aiParameters) {
+                defaultParams[aiParameter] = generator.submodules[submodule].aiParameters[aiParameter]
+            }
+        }
+
+        return defaultParams
+    }
+
+    static buildModel(generator, submodule = null) {
+        let model = "6B-v4"
+
+        if (!generator) throw new Error("No generator provided")
+
+        if (!submodule && !generator.aiModel) return model
+
+        if (generator.aiModel) model = generator.aiModel
+
+        if (submodule && generator.submodules[submodule] && generator.submodules[submodule].aiModel)
+            model = generator.submodules[submodule].aiModel
+
+        return model
+    }
+
+    static async executePrompt(generator, prompt, preventLMI = false) {
+        const params = this.buildParams(generator)  // TODO: add submodules from generator
+        const model = this.buildModel(generator)    // TODO: add submodules from generator
+
+        const result = await aiService.executePrompt(prompt, params, model)
+        const parsedResult = result
+        if (!preventLMI) {
+            lmiService.updateLmi(prompt, result, parsedResult)
+        }
+        return parsedResult
     }
 
     /**
@@ -87,8 +171,8 @@ class GeneratorService {
                 if (!property) continue
 
                 let value = elem[property.name]
-                for (let placeholder of generator.placeholders){
-                    value = value === null || value === undefined ? null : value.replace("${"+placeholder[0]+"}", placeholder[1])
+                for (let placeholder of generator.placeholders) {
+                    value = value === null || value === undefined ? null : value.replace("${" + placeholder[0] + "}", placeholder[1])
                 }
                 const replaceBy = property.replaceBy ? property.replaceBy : property.name
                 elemPrompt += `${replaceBy} ${value}\n`

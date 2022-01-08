@@ -69,6 +69,32 @@ const generateUnthrottled = async (accessToken, input, params) => {
     return res?.data?.output
 }
 
+
+const generateUnthrottledCustom = async (input, parameters, model) => {
+    let res
+    try {
+        res = await axios.post(
+            "https://api.novelai.net/ai/generate",
+            {
+                input,
+                model,
+                parameters
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': "Bearer " + ACCESS_TOKEN
+                }
+            }
+        )
+    } catch {
+        res = null
+    }
+
+    return res?.data?.output
+}
+
+
 let isProcessing = false
 // throttles generation at one request per second
 const generate = async function (input, params, lowPriority = false) {
@@ -87,6 +113,20 @@ const generate = async function (input, params, lowPriority = false) {
         return res
     }
 }
+
+const generateCustom = async function (input, parameters, model) {
+    if (!ACCESS_TOKEN) ACCESS_TOKEN = await getAccessToken(process.env.NOVEL_AI_API_KEY)
+    const timeStep = parseInt(conf.minTimeBetweenApiRequestsInSeconds) * 1000
+
+    isProcessing = true
+    const timeDiff = Date.now() - lastGenerationTimestamp
+    lastGenerationTimestamp = Date.now()
+    await utils.sleep(timeDiff < timeStep ? timeStep - timeDiff : 0)
+    const res = await generateUnthrottledCustom(input, parameters, model)
+    isProcessing = false
+    return res
+}
+
 
 class AiService {
     static async sendUntilSuccess(prompt, preventLMI, channel) {
@@ -121,6 +161,10 @@ class AiService {
 
     static async sendPromptDefault(prompt, params = DEFAULT_PARAMETERS, lowPriority = false) {
         return await generate(prompt, params, lowPriority)
+    }
+
+    static async executePrompt(prompt, params, model) {
+        return await generateCustom(prompt, params, model)
     }
 
     /**

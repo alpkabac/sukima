@@ -383,7 +383,6 @@ async function messageLoop() {
         msg = messageList.shift()
     }
 
-
     setTimeout(messageLoop, 200)
 }
 
@@ -407,7 +406,7 @@ async function loop() {
                 channels[channel].startTyping().then()
                 setTimeout(async () => {
                     const m = await channels[channel].send(parsedMessage).catch(() => null)
-                    if (msg.pushIntoHistory) {
+                    if (m && msg.pushIntoHistory) {
                         historyService.pushIntoHistory(msg.message, process.env.BOTNAME, channel, m.id)
                     }
                     channels[channel].stopTyping(true)

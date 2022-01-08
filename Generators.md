@@ -110,14 +110,14 @@ Output Enemy Difficulty: easy
 Input Enemy Name:
 ```
 
-# Generator Format (advanced mode)
+# Optional Properties (advanced mode)
 
-## `exampleItemSeparator`
+## `exampleItemSeparator` (not implemented yet)
 
 Defaults to `"⁂\n"`  
 String used to separate example items in the prompt  
-***Setting this value to `null` may have unexpected results, if not
-needed, set it to its default value or omit this property entirely***
+***Setting this value to `null` may have unexpected results, if not needed, set it to its default value or omit this
+property entirely***
 
 How to use:
 
@@ -132,12 +132,12 @@ How to use:
 }
 ```
 
-## `exampleItemPropertySeparator`
+## `exampleItemPropertySeparator` (not implemented yet)
 
 Defaults to `"\n"`  
 String used to separate example item properties in the prompt  
-***Setting this value to `null` may have unexpected results, if not
-needed, set it to its default value or omit this property entirely***
+***Setting this value to `null` may have unexpected results, if not needed, set it to its default value or omit this
+property entirely***
 
 How to use:
 
@@ -152,12 +152,12 @@ How to use:
 }
 ```
 
-## `exampleItemPropertyValueSeparator`
+## `exampleItemPropertyValueSeparator` (not implemented yet)
 
 Defaults to `" "`  
 String used to separate example item property and value in the prompt  
-***Setting this value to `null` may have unexpected results, if not
-needed, set it to its default value or omit this property entirely***
+***Setting this value to `null` may have unexpected results, if not needed, set it to its default value or omit this
+property entirely***
 
 How to use:
 
@@ -236,17 +236,18 @@ You can also provide an alternative ***model*** for the AI to use:
 }
 ```
 
-# Generator Format (hardcore mode)
+# Generator Submodules (hardcore mode)
 
 Last but not least, for the most motivated...  
-It's possible to use different properties in different orders using different generation parameters, using ***
-submodules***
+***Submodules*** are a way to use different properties of the generator, in different orders, using different AI
+generation parameters
 
-Submodules are generators too and uses default generator values as a basis, but overrides needed properties for
+Submodules are generators too and use default generator values as a basis, but overrides needed properties for
 specialisation  
 They are specially useful to reuse different properties in different orders to achieve different results  
-An as example, you could write a translation generator, provide translated sentences in 3 languages (3 properties), then
-make specialized submodules that will only pull two selected languages and order them to translate one way or another!
+An as example, you could write a translation generator, provide translated sentences in 3 languages (3 properties) as
+examples, then make specialized submodules that will only pull two selected languages and order them to translate one
+way or another!
 
 Below is an example of an ***"Enemy Generator"***, it contains ***three submodules*** to uses the same `exampleList`
 items with different properties, in different orders, and overriding AI generation parameters when needed (this is a

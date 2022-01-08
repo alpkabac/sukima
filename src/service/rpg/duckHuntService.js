@@ -1,4 +1,3 @@
-import aiService from "../aiService.js";
 import utils from "../../utils.js";
 import generatorService from "../generatorService.js";
 import playerService from "./playerService.js";
@@ -50,13 +49,7 @@ class DuckHuntService {
             ]
         }
 
-        const prompt = generatorService.getPrompt(
-            generatorEnemy,
-            args,
-            true
-        )
-        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
-        const object = generatorService.parseResult(generatorEnemy, prompt.placeholderPrompt, result)
+        const object = generatorService.generator(generatorEnemy, args, channel.startsWith("##"))
 
         pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
@@ -92,33 +85,29 @@ class DuckHuntService {
 
         const pawn = pawnService.getActivePawn(channel)
 
-        let weapon = "No weapon"
+        let weapon = "No Weapon"
         if (player.weapon) {
             weapon = player.weapon
         }
 
-        let armor = "No armor"
+        let armor = "No Armor"
         if (player.armor) {
             armor = player.armor
         }
 
         const enemyStatus = `[ Name: ${pawn.name}; difficulty: ${pawn.difficulty}; wounds: ${pawn.wounds.length === 0 ? 'none' : [...new Set(pawn.wounds)].join(', ')}; blood loss: ${pawn.bloodLoss}; status: ${pawn.status} ]`
 
-        const playerEquipment = `[ ${!weapon ? 'No weapon' : weapon.name}; ${!armor ? 'No armor' : armor.name}` + (player.accessory ? `; ${player.accessory.name}` : '') + ` ]`
-        const prompt = generatorService.getPrompt(
-            generatorAttackNew,
-            [
-                {name: "player", value: playerEquipment},
-                {name: "enemy", value: enemyStatus},
-                {name: "description"},
-                {name: "wounds"},
-                {name: "bloodLoss"},
-                {name: "status"}
-            ],
-            true
-        )
-        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
-        const object = generatorService.parseResult(generatorAttackNew, prompt.placeholderPrompt, result)
+        const playerEquipment = `[ ${!weapon ? 'No Weapon' : weapon.name}; ${!armor ? 'No Armor' : armor.name}` + (player.accessory ? `; ${player.accessory.name}` : '') + ` ]`
+
+        const args = [
+            {name: "player", value: playerEquipment},
+            {name: "enemy", value: enemyStatus},
+            {name: "description"},
+            {name: "wounds"},
+            {name: "bloodLoss"},
+            {name: "status"}
+        ]
+        const object = generatorService.generator(generatorAttackNew, args, channel.startsWith("##"))
 
         pawn.attacks.push({player: username, description: object.description})
         if (object.wounds && object.wounds.trim() && !["n/a", "no damage", "none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"].includes(object.wounds.trim().toLowerCase())) {
@@ -174,19 +163,15 @@ class DuckHuntService {
         if (!pawnService.isPawnDeadOnChannel(channel)) return null
 
         const pawn = pawnService.getActivePawn(channel)
-        const prompt = generatorService.getPrompt(
-            generatorEnemy,
-            [
-                {name: "name", value: pawn.name},
-                {name: "difficulty", value: pawn.difficulty},
-                {name: "item"},
-                {name: "type"},
-                {name: "rarity"},
-            ],
-            true
-        )
-        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
-        const object = generatorService.parseResult(generatorEnemy, prompt.placeholderPrompt, result)
+        const args = [
+            {name: "name", value: pawn.name},
+            {name: "difficulty", value: pawn.difficulty},
+            {name: "item"},
+            {name: "type"},
+            {name: "rarity"},
+        ]
+        const object = generatorService.generator(generatorEnemy, args, channel.startsWith("##"))
+
 
         worldItemsService.appendItem(channel, {name: object.item, type: object.type, rarity: object.rarity})
         pawnService.removePawn(channel)
@@ -306,7 +291,7 @@ class DuckHuntService {
             ],
             true
         )
-        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
+        const result = await generatorService.executePrompt(generatorEnemy, prompt.completePrompt, channel.startsWith("##"))
         const object = generatorService.parseResult(generatorEnemy, prompt.placeholderPrompt, result)
 
         // TODO: clean and generify
@@ -375,8 +360,8 @@ class DuckHuntService {
                 .setColor('#665500')
                 .setTitle(`Player ${username} equips item "${player.weapon.name}" as weapon`)
                 .setDescription(`Equipped "${player.weapon.name}" as weapon`)
-                .addField('Equipped weapon', !player.weapon ? 'No weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
-                .addField('Equipped armor', !player.armor ? 'No armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
 
             return {
@@ -395,8 +380,8 @@ class DuckHuntService {
                 .setColor('#665500')
                 .setTitle(`Player ${username} equips item "${player.weapon.name}" as weapon`)
                 .setDescription(`${username} puts "${weapon.name}" into its backpack slot number [${player.inventory.length - 1}]`)
-                .addField('Equipped weapon', !player.weapon ? 'No weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
-                .addField('Equipped armor', !player.armor ? 'No armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
@@ -439,8 +424,8 @@ class DuckHuntService {
                 .setColor('#665500')
                 .setTitle(`Player ${username} equips item "${player.armor.name}" as armor`)
                 .setDescription(`Equipped "${player.armor.name}" as armor`)
-                .addField('Equipped weapon', !player.weapon ? 'No weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
-                .addField('Equipped armor', !player.armor ? 'No armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
@@ -458,8 +443,8 @@ class DuckHuntService {
                 .setColor('#665500')
                 .setTitle(`Player ${username} equips item "${player.armor.name}" as armor`)
                 .setDescription(`${username} puts "${armor.name}" into its backpack slot number [${player.inventory.length - 1}]`)
-                .addField('Equipped weapon', !player.weapon ? 'No weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
-                .addField('Equipped armor', !player.armor ? 'No armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
@@ -502,8 +487,8 @@ class DuckHuntService {
                 .setColor('#665500')
                 .setTitle(`Player ${username} equips item "${player.accessory.name}" as accessory`)
                 .setDescription(`Equipped "${player.accessory.name}" as accessory`)
-                .addField('Equipped weapon', !player.weapon ? 'No weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
-                .addField('Equipped armor', !player.armor ? 'No armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
@@ -521,8 +506,8 @@ class DuckHuntService {
                 .setColor('#665500')
                 .setTitle(`Player ${username} equips item "${player.accessory.name}" as accessory`)
                 .setDescription(`${username} puts "${accessory.name}" into its backpack slot number [${player.inventory.length - 1}]`)
-                .addField('Equipped weapon', !player.weapon ? 'No weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
-                .addField('Equipped armor', !player.armor ? 'No armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
@@ -551,8 +536,8 @@ class DuckHuntService {
                     .setColor('#665500')
                     .setTitle(`Player ${username} unequips weapon "${player.inventory[player.inventory.length - 1].name}"`)
                     .setDescription(`${username} puts item "${player.inventory[player.inventory.length - 1].name}" into its backpack slot number [${player.inventory.length - 1}]`)
-                    .addField('Equipped weapon', !player.weapon ? 'No weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
-                    .addField('Equipped armor', !player.armor ? 'No armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                    .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                    .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                     .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 return {
                     success: true,
@@ -588,8 +573,8 @@ class DuckHuntService {
                     .setColor('#665500')
                     .setTitle(`Player ${username} unequips armor "${player.inventory[player.inventory.length - 1].name}"`)
                     .setDescription(`${username} puts item "${player.inventory[player.inventory.length - 1].name}" into its backpack slot number [${player.inventory.length - 1}]`)
-                    .addField('Equipped weapon', !player.weapon ? 'No weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
-                    .addField('Equipped armor', !player.armor ? 'No armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                    .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                    .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                     .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 return {
                     success: true,
@@ -625,8 +610,8 @@ class DuckHuntService {
                     .setColor('#665500')
                     .setTitle(`Player ${username} unequips accessory "${player.inventory[player.inventory.length - 1].name}"`)
                     .setDescription(`${username} puts item "${player.inventory[player.inventory.length - 1].name}" into its backpack slot number [${player.inventory.length - 1}]`)
-                    .addField('Equipped weapon', !player.weapon ? 'No weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
-                    .addField('Equipped armor', !player.armor ? 'No armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                    .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                    .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                     .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 return {
                     success: true,
@@ -651,8 +636,8 @@ class DuckHuntService {
             .setColor('#887733')
             .setTitle(`Inventory of Player ${username}`)
             .setDescription(`Backpack (${player.inventory.length}/${player.inventorySize}):${player.inventory.map((item, n) => `\n${n}: [${item.rarity} ${item.type}] "${item.name}"`).join(', ')}`)
-            .addField('Equipped weapon', !player.weapon ? 'No weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
-            .addField('Equipped armor', !player.armor ? 'No armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+            .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+            .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
             .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             .addField('Gold', player.gold, false)
             .addField('Backpack size', player.inventorySize, true)
@@ -701,7 +686,7 @@ class DuckHuntService {
             ],
             true
         )
-        const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
+        const result = await generatorService.executePrompt(generatorSpellBook, prompt.completePrompt, channel.startsWith("##"))
         const object = generatorService.parseResult(generatorSpellBook, prompt.placeholderPrompt, result)
 
         return {
@@ -741,6 +726,12 @@ class DuckHuntService {
                         argsJSON[name] = parseInt(argsJSON[name])
                     }
                     nbResults = Math.min(5, argsJSON[name])
+                }
+                if (name === "aiParameters") {
+                    generator.aiParameters = argsJSON[name]
+                }
+                if (name === "aiModel") {
+                    generator.aiModel = argsJSON[name]
                 } else {
                     json.push({name, value: argsJSON[name]})
                 }
@@ -762,7 +753,7 @@ class DuckHuntService {
                 }
             }
 
-            const result = await aiService.simpleEvalbot(prompt.completePrompt, 150, channel.startsWith("##"), stopToken)
+            const result = await generatorService.executePrompt(generator, prompt.completePrompt, channel.startsWith("##"))
             const object = generatorService.parseResult(generator, prompt.placeholderPrompt, result)
             results.push(object)
         }
@@ -815,7 +806,6 @@ class DuckHuntService {
             properties,
             true
         )
-
 
         if (generator.placeholders) {
             for (let placeholder of generator.placeholders) {

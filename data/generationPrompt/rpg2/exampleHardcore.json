@@ -13,16 +13,13 @@
   "placeholders": {
     "currency": "gold"
   },
-  "usages": {
+  "submodules": {
     "spawn": {
-      "propertiesOrder": {
-        "difficulty": "spawner.randomDifficulty",
-        "name": null,
-        "encounterDescription": null
-      },
-      "properties": {
-        "name": "Encountered Enemy Name:"
-      },
+      "properties": [
+        ["name", "Encountered Enemy Name:"],
+        ["difficulty", "Enemy Difficulty:"],
+        ["encounterDescription", "Encounter Description:"]
+      ],
       "aiParameters": {}
     },
     "loot": {
