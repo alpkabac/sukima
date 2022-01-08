@@ -1,0 +1,180 @@
+{
+  "name": "RPG Enemy Generator",
+  "description": "Generates an RPG enemy given a difficulty",
+  "properties": [
+    {
+      "name": "name",
+      "replaceBy": "Enemy Name:"
+    },
+    {
+      "name": "difficulty",
+      "replaceBy": "Enemy Difficulty:"
+    },
+    {
+      "name": "item",
+      "replaceBy": "Item Name:"
+    },
+    {
+      "name": "type",
+      "replaceBy": "Item Type:"
+    },
+    {
+      "name": "rarity",
+      "replaceBy": "Item Rarity:"
+    },
+    {
+      "name": "price",
+      "replaceBy": "Item Price:"
+    },
+    {
+      "name": "encounterDescription",
+      "replaceBy": "Encounter Description:"
+    }
+  ],
+  "placeholders": [
+    [
+      "currency",
+      "gold"
+    ]
+  ],
+  "usages": {
+    "spawn": {
+      "properties": {
+        "difficulty": "spawner.randomDifficulty",
+        "name": null,
+        "encounterDescription": null
+      },
+      "aiParameters": {}
+    },
+    "loot": {
+      "parameters": {
+        "name": "enemy.name",
+        "difficulty": "enemy.difficulty",
+        "item": null,
+        "type": null,
+        "rarity": null
+      },
+      "aiParameters": {}
+    },
+    "sell": {
+      "parameters": {
+        "item": "item.name",
+        "type": "item.type",
+        "rarity": "item.rarity",
+        "price": null
+      },
+      "aiParameters": {}
+    }
+  },
+  "context": "[ RANDOM LOOT GENERATOR ]\n[ Generates infinite loot items given the killed enemy and its difficulty ]",
+  "list": [
+    {
+      "name": "Orc Soldier",
+      "difficulty": "medium",
+      "item": "Iron Broad Sword",
+      "type": "weapon",
+      "rarity": "common",
+      "price": "100 ${currency}",
+      "encounterDescription": "The Orc soldier with it's worn leather armor and broad sword slowly and silently approach you from deep in the woods reading its weapon for a powerful and swift attack."
+    },
+    {
+      "name": "Rabid Unicorn",
+      "difficulty": "hard",
+      "item": "Unicorn Horn",
+      "type": "component",
+      "rarity": "uncommon",
+      "price": "300 ${currency}",
+      "encounterDescription": "You spot an all white rabid unicorn tearing through the brush chasing and gouging at another adventure that came along its gaze."
+    },
+    {
+      "name": "Rare Golden Dragon",
+      "difficulty": "arduous",
+      "item": "Rare Dragonscale Armor",
+      "type": "armor",
+      "rarity": "rare",
+      "price": "1250 ${currency}",
+      "encounterDescription": "The rare majestic golden dragon circles far above the trees looking for its next easy meal, when it spots you and decides that you are it."
+    },
+    {
+      "name": "Enraged Rabbit",
+      "difficulty": "very easy",
+      "item": "Rabbit Pelt",
+      "type": "component",
+      "rarity": "very common",
+      "price": "10 ${currency}",
+      "encounterDescription": "After you unexpectedly corner a small cute rabbit in the wooded trail it becomes enraged and leaps at your throat trying to rip it from your neck."
+    },
+    {
+      "name": "Famished Goblin",
+      "difficulty": "easy",
+      "item": "Old Wooden Shield",
+      "type": "shield",
+      "rarity": "very common",
+      "price": "30 ${currency}",
+      "encounterDescription": "Deep in a dark and damp cave a emaciated goblin spots your torch light and decides that it has found its first full meal in weeks."
+    },
+    {
+      "name": "Giant Centipede",
+      "difficulty": "difficult",
+      "item": "Giant Centipede's Carapace",
+      "type": "component",
+      "rarity": "uncommon",
+      "price": "70 ${currency}",
+      "encounterDescription": "While traveling through the redwood forest a giant black centipede leaps off an overhead branch aming for your face with its venomous mouth."
+    },
+    {
+      "name": "Skeleton Knight",
+      "difficulty": "extremely difficult",
+      "item": "Dagger of Death",
+      "type": "weapon",
+      "rarity": "epic",
+      "price": "2500 ${currency}",
+      "encounterDescription": "As you travel through the dreary musty crypt you hear the rattling sounds of bones and steel as a skeleton knight approaches you from the dark."
+    },
+    {
+      "name": "Dark Wizard",
+      "difficulty": "impossible",
+      "item": "Glowing Staff of Fireballs",
+      "type": "magic item",
+      "rarity": "epic",
+      "price": "2300 ${currency}",
+      "encounterDescription": "The dark wizard watches over the plains surrounding his mage tower. He spots you and prepares a warm welcome for you with his most powerful fire ball spell."
+    },
+    {
+      "name": "Dire Wolf",
+      "difficulty": "challenging",
+      "item": "Silver Crossbow",
+      "type": "weapon",
+      "rarity": "rare",
+      "price": "750 ${currency}",
+      "encounterDescription": "You hear the crunching of bones and flesh as you approach a small cave hidden in the rock face of the mountain. You can smell and hear the dire wolf enjoying its last kill well before you can see it."
+    },
+    {
+      "name": "Molten Lizard",
+      "difficulty": "hard",
+      "item": "Mithril Plate Mail",
+      "type": "armor",
+      "rarity": "rare",
+      "price": "800 ${currency}",
+      "encounterDescription": "A large scaly creature with flaming eyes and burning breath rushes out of the red hot cracks of the volcanic mountainside directly toward you."
+    },
+    {
+      "name": "Undead Archmage",
+      "difficulty": "extremely difficult",
+      "item": "Black Robes of the Necromancy School",
+      "type": "equipment",
+      "rarity": "epic",
+      "price": "1500 ${currency}",
+      "encounterDescription": "You stumble upon the ruins of what looks like some ancient castle on the outskirts of town. The undead archmage stares at you with its glowing yellow eyes before it begins to chant and wave his hands around in mystic circles."
+    },
+    {
+      "name": "Chameleon Ogre",
+      "difficulty": "medium",
+      "item": "Leather Breastplate of Disguise",
+      "type": "equipment",
+      "rarity": "rare",
+      "price": "650 ${currency}",
+      "encounterDescription": "You have heard stories about ogres that turn into other creatures but never thought they would come true. The chameleon ogre is no different, changing colors to blend in with it's surroundings in order to ambush you."
+    }
+  ]
+}

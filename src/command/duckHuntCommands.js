@@ -3,7 +3,6 @@ import Command from "./Command.js";
 import duckHuntService from "../service/rpg/duckHuntService.js";
 import playerService from "../service/rpg/playerService.js";
 import {MessageEmbed} from "discord.js";
-import pawnService from "../service/rpg/pawnService.js";
 
 config()
 
@@ -40,38 +39,10 @@ const duckHuntCommands = {
     attack: new Command(
         "Attack",
         [],
-        ["!atk", "!attack", "⚔", "⚔️", ":crossed_swords:"],
+        ["!atk", "!attack", "⚔", "⚔️", ":crossed_swords:", ":baguette_attack:"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return await duckHuntService.attack(channel, from)
-        },
-        false
-    ),
-    loot: new Command(
-        "Loot",
-        ["!loot"],
-        [],
-        process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            return false
-
-            const pawn = pawnService.getActivePawn(channel)
-            const result = await duckHuntService.loot(channel)
-
-            const embed = new MessageEmbed()
-                .setColor('#ffff66')
-                .setTitle(`Loot for ${pawn.name} (difficulty: ${pawn.difficulty.toLowerCase()}): "${result}"`)
-                .setDescription(result)
-
-            if (result) {
-                return {
-                    message: embed, // `[ Looted Item: ${result} ]`,
-                    success: true,
-                    deleteUserMsg: true,
-                    instantReply: true
-                }
-            }
-            return {error: "# Nothing to loot..."}
         },
         false
     ),
@@ -81,22 +52,22 @@ const duckHuntCommands = {
         ["!grab", "!pick", "!take"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            const result = duckHuntService.take(channel, from, parsedMsg)
+            const item = duckHuntService.take(channel, from, parsedMsg)
             const player = playerService.getPlayer(channel, from)
 
-            if (result && result.item && result.item !== "undefined") {
+            if (item && item.name && item.name !== "undefined" && item.name !== undefined) {
                 const embed = new MessageEmbed()
                     .setColor('#884422')
-                    .setTitle(`Player ${from} takes the item "${result.item}"`)
+                    .setTitle(`Player ${from} takes the item "${item.name}"`)
                     .setDescription(`${from} puts the item in its backpack slot number [${player.inventory.length - 1}]`)
 
                 return {
-                    message: embed, // `[ Player ${from} takes the item "${result.item}" and puts it in its backpack (slot [${player.inventory.length - 1}]) ]`,
+                    message: embed,
                     success: true,
                     deleteUserMsg: true,
                     instantReply: true
                 }
-            } else if (result === false) {
+            } else if (item === false) {
                 return {
                     error: `# ${from} tried to take an item, but its backpack is full. Try to \`!sell\` or \`!drop\` an item first!`,
                     instantReply: true,
@@ -256,7 +227,6 @@ const duckHuntCommands = {
 duckHuntCommands.all = [
     duckHuntCommands.spawn,
     duckHuntCommands.attack,
-    duckHuntCommands.loot,
     duckHuntCommands.take,
     duckHuntCommands.drop,
     duckHuntCommands.look,

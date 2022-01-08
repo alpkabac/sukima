@@ -1,12 +1,12 @@
 import {config} from "dotenv";
-
-config()
 import axios from "axios";
 import utils from '../utils.js'
 import messageService from "./messageService.js";
 import lmiService from "./lmiService.js";
 import bannedTokensService from "./bannedTokensService.js";
 import phraseBiasService from "./phraseBiasService.js";
+
+config()
 
 
 const conf = utils.load("./conf.json")
@@ -135,8 +135,7 @@ class AiService {
         const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
 
         params.max_length = tokensToGenerate
-        params.bad_words_ids = undefined
-        delete params.bad_words_ids
+        params.bad_words_ids = [[27, 91, 437, 1659, 5239, 91, 29], [1279, 91, 437, 1659, 5239, 91, 29], [27, 91, 10619, 46, 9792, 13918, 91, 29], [1279, 91, 10619, 46, 9792, 13918, 91, 29]]
         params.logit_bias_exp = undefined
         delete params.logit_bias_exp
         params.repetition_penalty = 1.16

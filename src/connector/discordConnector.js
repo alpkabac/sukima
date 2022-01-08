@@ -103,11 +103,11 @@ bot.on('ready', async () => {
 
         bot.channels.cache.forEach(c => {
             if (introChannels.includes(`#${c.name.toLowerCase()}`)) {
-                if (envService.isRpgModeEnabled()){
+                if (envService.isRpgModeEnabled()) {
                     if (c.send) {
                         c.send('https://tenor.com/view/huzzah-adventure-jovel-haver-gif-19701828')
                     }
-                }else {
+                } else {
                     if (historyService.getChannelHistory(`#${c.name.toLowerCase()}`).length === 0)
                         if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase())?.introduction.length > 0)
                             c.send(replaceAsterisksByBackQuotes(
@@ -169,7 +169,6 @@ const messageList = []
 function appendMessage(msg) {
     messageList.push(msg)
 }
-
 
 
 async function processMessage(msg) {
@@ -486,7 +485,17 @@ setInterval(async () => {
             if (pawn && (Date.now() - pawn.createdAt < 1000 * envService.getRpgRespawnCoolDown())) continue
             if (pawnService.lastPawnCreatedAt[channel] && (Date.now() - pawnService.lastPawnCreatedAt[channel] < 1000 * envService.getRpgSpawnCoolDown())) continue
 
-            const newPawn = await duckHuntService.spawn(channel, null, null)
+            let difficulty = "easy"
+            if (Math.random() < 0.4) {
+                difficulty = "medium"
+                if (Math.random() < 0.25) {
+                    difficulty = "hard"
+                    if (Math.random() < 0.1){
+                        difficulty = "legendary"
+                    }
+                }
+            }
+            const newPawn = await duckHuntService.spawn(channel, difficulty, null)
             const m = await channels[channel].send(newPawn).catch(() => null)
         }
     }

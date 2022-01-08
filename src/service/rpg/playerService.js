@@ -1,7 +1,7 @@
 class Player {
     constructor() {
-        this.weapon = "Old Rusty Kitchen Knife"
-        this.armor = "Ragged Loincloth"
+        this.weapon = {name: "Old Rusty Kitchen Knife", rarity: "very common", type: "weapon"}
+        this.armor = {name: "Ragged Loincloth", rarity: "very common", type: "clothing"}
         this.accessory = null
         this.gold = 0
         this.inventory = []

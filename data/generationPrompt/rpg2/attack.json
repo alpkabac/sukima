@@ -4,7 +4,7 @@
   "properties": [
     {
       "name": "player",
-      "replaceBy": "Player equipment:"
+      "replaceBy": "Your equipment:"
     },
     {
       "name": "enemy",
@@ -12,7 +12,7 @@
     },
     {
       "name": "description",
-      "replaceBy": "Player attack description:"
+      "replaceBy": "Description of your attack:"
     },
     {
       "name": "wounds",
@@ -20,11 +20,11 @@
     },
     {
       "name": "bloodLoss",
-      "replaceBy": "Enemy blood loss:"
+      "replaceBy": "Enemy current blood loss:"
     },
     {
       "name": "status",
-      "replaceBy": "Enemy status:"
+      "replaceBy": "Enemy current status:"
     }
   ],
   "placeholders": [],
@@ -41,8 +41,8 @@
     {
       "player": "[ No weapon; No armor ]",
       "enemy": "[ Name: Orc; difficulty: medium; armor: Leather Armor; wounds: none; blood loss: none; status: alive ]",
-      "description": "You attack the orc using your bare hands. It's not very effective, but you manage to break the orc's nose.",
-      "wounds": "broken nose (nose)",
+      "description": "You attack the orc using your fists. It's not very effective, but you manage to break the orc's nose.",
+      "wounds": "broken nose",
       "bloodLoss": "minor",
       "status": "slightly wounded"
     },
@@ -50,7 +50,7 @@
       "player": "[ Iron Sword;No armor ]",
       "enemy": "[ Name: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose; blood loss: minor; status: slightly wounded ]",
       "description": "You strike the orc with your iron sword. You cut into orc's stomach and guts, spreading his blood everywhere",
-      "wounds": "eviscerated (belly)",
+      "wounds": "eviscerated",
       "bloodLoss": "major",
       "status": "heavily wounded"
     },
@@ -66,14 +66,14 @@
       "player": "[ Iron Longsword; No armor ]",
       "enemy": "[ Name: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs; blood loss: none; status: heavily wounded ]",
       "description": "You swing your iron longsword at the orc. Due to his wounds, he fails to dodge and you cut his head off.",
-      "wounds": "decapitated (head)",
+      "wounds": "decapitated",
       "bloodLoss": "extreme",
       "status": "dead"
     },
     {
       "player": "[ No weapon; No armor ]",
       "enemy": "[ Name: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: alive ]",
-      "description": "You attack the goblin using your fist. The goblin is quite aa agile fighter, and dodges most of your attacks.",
+      "description": "You attack the goblin using your bare fists. The goblin is quite aa agile fighter, and dodges most of your attacks.",
       "wounds": "small bruises (general)",
       "bloodLoss": "minimal",
       "status": "very slightly wounded"
@@ -90,7 +90,7 @@
       "player": "[ Wooden Spear; No armor ]",
       "enemy": "[ Name: Goblin; difficulty: easy; armor: Cloth Armor; wounds: slashed chest; blood loss: moderate; status: slightly wounded ]",
       "description": "You pierce the goblin with your wooden spear. Your speer flies into the goblin's stomach and guts, spreading his blood and intestines everywhere.",
-      "wounds": "disemboweled (belly)",
+      "wounds": "disemboweled",
       "bloodLoss": "extreme",
       "status": "dead"
     },
@@ -114,7 +114,7 @@
       "player": "[ Rusty Copper Dagger; Leather Armor ]",
       "enemy": "[ Name: Kobold; difficulty: easy; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: wounded ]",
       "description": "You stab the enemy in the chest, pushing the blade deep through the kobold's hearth. The kobold is badly wounded and doesn't even fight back.",
-      "wounds": "pierced heart (heart)",
+      "wounds": "pierced heart",
       "bloodLoss": "extreme",
       "status": "dead"
     },
