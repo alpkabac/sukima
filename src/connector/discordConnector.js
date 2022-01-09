@@ -110,7 +110,7 @@ bot.on('ready', async () => {
                 } else {
                     if (historyService.getChannelHistory(`#${c.name.toLowerCase()}`).length === 0)
                         if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase())?.introduction.length > 0)
-                            c.send(replaceAsterisksByBackQuotes(
+                            c.send?.(replaceAsterisksByBackQuotes(
                                 `${channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction[0].msg}`
                             ))
                                 .catch(() => null)
