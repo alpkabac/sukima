@@ -1,9 +1,11 @@
 import {config} from "dotenv";
-
-config()
 import textToSpeech from "@google-cloud/text-to-speech";
 import fs from "fs";
 import {Duplex} from "stream";
+import {MessageAttachment} from "discord.js";
+import axios from "axios";
+
+config()
 
 const conf = load("./conf.json")
 const client = new textToSpeech.TextToSpeechClient()
@@ -154,11 +156,27 @@ class Utils {
 
         const match = msg.match(/^#([0-9]*)/)
 
-        if (match && match[1]){
+        if (match && match[1]) {
             return match[1]
-        }else{
+        } else {
             return null
         }
+    }
+
+    static getMessageAsFile(text, filename) {
+        return new MessageAttachment(Buffer.from(text), filename)
+    }
+
+    static async getAttachment(attachmentUrl) {
+        // fetch the file from the external URL
+        const response = await axios.get(attachmentUrl).catch(e => console.error(e));
+
+        // if there was an error send a message with the status
+        if (!response?.data)
+            return
+
+        // take the response stream and read it to completion
+        return response.data;
     }
 }
 

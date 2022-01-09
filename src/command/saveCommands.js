@@ -1,5 +1,7 @@
 import Command from "./Command.js";
 import personalityService from "../service/personalityService.js";
+import savingService from "../service/savingService.js";
+import utils from "../utils.js";
 
 const saveCommands = {
     enableDMAutoSave: new Command(
@@ -43,11 +45,57 @@ const saveCommands = {
         },
         true
     ),
+    save: new Command(
+        "Save channel",
+        ["!save"],
+        [],
+        null,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            const json = savingService.getCompleteJSON(channel)
+            const m = utils.getMessageAsFile(JSON.stringify(json, null, 4), `save_${channel}_${Date.now()}.json`)
+            return {
+                message: m,
+                success: true
+            }
+        },
+        true
+    ),
+    load: new Command(
+        "Load channel",
+        ["!load"],
+        [],
+        null,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            const json = await utils.getAttachment(attachmentUrl)
+
+            if (!attachmentUrl || !json) return {
+                error: "# You need to provide a valid save file as message attachment!",
+                instantReply: true
+            }
+
+            const success = savingService.loadJSON(channel, json)
+
+            if (success) {
+                return {
+                    message: "# Save file loaded!",
+                    success: true
+                }
+            }else{
+                return {
+                    error: "# Save file couldn't load or didn't detect anything to load, please verify the sent save file",
+                    instantReply: true
+                }
+            }
+        },
+        true
+    ),
 }
 
 saveCommands.all = [
     saveCommands.enableDMAutoSave,
-    saveCommands.disableDMAutoSave
+    saveCommands.disableDMAutoSave,
+    saveCommands.save,
+    saveCommands.load
 ]
 
 export default saveCommands

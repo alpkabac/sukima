@@ -73,7 +73,60 @@
           "name": "rarity",
           "replaceBy": "Looted Item Rarity:"
         }
-      ]
+      ],
+      "aiParameters": {
+        "logit_bias_exp": [
+          {
+            "sequence": [
+              845,
+              2219
+            ],
+            "bias": 0.2,
+            "ensure_sequence_finish": false,
+            "generate_once": true
+          },
+          {
+            "sequence": [
+              2219
+            ],
+            "bias": 0.2,
+            "ensure_sequence_finish": false,
+            "generate_once": true
+          },
+          {
+            "sequence": [
+              19185
+            ],
+            "bias": 0.2,
+            "ensure_sequence_finish": false,
+            "generate_once": true
+          },
+          {
+            "sequence": [
+              4071
+            ],
+            "bias": 0.2,
+            "ensure_sequence_finish": false,
+            "generate_once": true
+          },
+          {
+            "sequence": [
+              12191
+            ],
+            "bias": 0.2,
+            "ensure_sequence_finish": false,
+            "generate_once": true
+          },
+          {
+            "sequence": [
+              13273
+            ],
+            "bias": 0.2,
+            "ensure_sequence_finish": false,
+            "generate_once": true
+          }
+        ]
+      }
     },
     "sell": {
       "context": "[ Price Estimator: outputs an estimated price for an item given its name, type and rarity as input ]",

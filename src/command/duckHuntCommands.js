@@ -71,13 +71,15 @@ const duckHuntCommands = {
                 return {
                     error: `# ${from} tried to take an item, but its backpack is full. Try to \`!sell\` or \`!drop\` an item first!`,
                     instantReply: true,
-                    deleteUserMsg: true
+                    deleteUserMsg: true,
+                    deleteNewMessage: true
                 }
             }
             return {
                 error: `# ${from} tried to take an item on the ground, but there is no item to grab...`,
                 instantReply: true,
-                deleteUserMsg: true
+                deleteUserMsg: true,
+                deleteNewMessage: true
             }
         },
         false
@@ -115,7 +117,7 @@ const duckHuntCommands = {
     equipWeapon: new Command(
         "Equip Weapon",
         [],
-        ["!equipWeapon", "!equip Weapon", "!equip weapon", "!equipW", "!equip W"],
+        ["!equip", "!equipWeapon", "!equip Weapon", "!equip weapon", "!equipW", "!equip W"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipWeapon(channel, from, parsedMsg.trim())
@@ -231,12 +233,12 @@ duckHuntCommands.all = [
     duckHuntCommands.drop,
     duckHuntCommands.look,
     duckHuntCommands.sell,
-    duckHuntCommands.equipWeapon,
     duckHuntCommands.equipArmor,
     duckHuntCommands.equipAccessory,
     duckHuntCommands.unequipWeapon,
     duckHuntCommands.unequipArmor,
     duckHuntCommands.unequipAccessory,
+    duckHuntCommands.equipWeapon,
     duckHuntCommands.showInventory,
     duckHuntCommands.upgradeBackpack,
     duckHuntCommands.generateSpell,

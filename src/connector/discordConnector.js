@@ -239,7 +239,7 @@ async function processMessage(msg) {
         if (newMessage && message.deleteNewMessage) {
             setTimeout(
                 () => newMessage.delete().catch(() => null),
-                3000
+                5000
             )
         }
     }
@@ -311,7 +311,9 @@ async function processMessage(msg) {
 
         voiceChannel = msg.member?.voice?.channel
         const timeToWait = message.instantReply ? 0 : messageLength * (message.fastTyping ? 10 : 50)
-        channels[channelName].startTyping().then()
+        if (timeToWait > 0) {
+            channels[channelName].startTyping().then()
+        }
 
         setTimeout(async () => {
             let newMessage = originalMsg
@@ -350,7 +352,7 @@ async function processMessage(msg) {
             if (newMessage && message.deleteNewMessage) {
                 setTimeout(async () => {
                     await newMessage.delete().catch(() => null)
-                }, 2000)
+                }, 5000)
             }
 
             channels[channelName].stopTyping(true)

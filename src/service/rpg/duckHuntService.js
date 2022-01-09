@@ -7,8 +7,8 @@ import worldItemsService from "./worldItemsService.js";
 import {MessageAttachment, MessageEmbed} from "discord.js";
 import axios from "axios";
 
-const generatorAttackNew = utils.load("./data/generationPrompt/rpg2/attack.json")
-const generatorEnemy = utils.load("./data/generationPrompt/rpg2/enemy.json")
+const generatorAttackNew = utils.load("./data/generator/rpg/attack.json")
+const generatorEnemy = utils.load("./data/generator/rpg/enemy.json")
 const generatorSpellBook = utils.load("./data/generationPrompt/rpg/generateSpellBook.json")
 
 const stopToken = 224 // "⁂"
@@ -49,7 +49,11 @@ class DuckHuntService {
             ]
         }
 
-        const {object, result, module} = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "spawn")
+        const {
+            object,
+            result,
+            module
+        } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "spawn")
 
         pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
@@ -96,23 +100,47 @@ class DuckHuntService {
             armor = player.armor
         }
 
-        const enemyStatus = `[ Name: ${pawn.name}; difficulty: ${pawn.difficulty}; wounds: ${pawn.wounds.length === 0 ? 'none' : [...new Set(pawn.wounds)].join(', ')}; blood loss: ${pawn.bloodLoss}; status: ${pawn.status} ]`
-
+        const enemyWounds = pawn.wounds.length === 0 ? 'none' : [...new Set(pawn.wounds)].join(', ')
+        const enemyStatus = `[ Name: ${pawn.name}; difficulty: ${pawn.difficulty}; wounds: ${enemyWounds}; blood loss: ${pawn.bloodLoss}; status: ${pawn.status} ]`
         const playerEquipment = `[ ${!weapon ? 'No Weapon' : weapon.name}; ${!armor ? 'No Armor' : armor.name}` + (player.accessory ? `; ${player.accessory.name}` : '') + ` ]`
 
-        const args = [
+        // Attack part
+        const argsAttack = [
             {name: "player", value: playerEquipment},
             {name: "enemy", value: enemyStatus},
-            {name: "description"},
-            {name: "wounds"},
-            {name: "bloodLoss"},
-            {name: "status"}
+            {name: "description"}
         ]
-        const {object, result, module} = await generatorService.generator(generatorAttackNew, args, channel.startsWith("##"))
 
-        pawn.attacks.push({player: username, description: object.description})
-        if (object.wounds && object.wounds.trim() && !["n/a", "no damage", "none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"].includes(object.wounds.trim().toLowerCase())) {
-            const newWounds = [...new Set(object.wounds.toLowerCase().split(',').map(e => e.trim()))]
+        const {object: objectAttack} = await generatorService.generator(generatorAttackNew, argsAttack, channel.startsWith("##"), "attack")
+
+
+        // Wounds part
+        const argsWounds = [
+            {name: "description", value: objectAttack.description},
+            {name: "wounds"},
+        ]
+
+        const {object: objectWounds} = await generatorService.generator(generatorAttackNew, argsWounds, channel.startsWith("##"), "woundDetection")
+
+        // Health part
+        const argsHealth = [
+            {name: "enemyCurrentWounds", value: enemyWounds},
+            {name: "enemyCurrentBloodLoss", value: pawn.bloodLoss},
+            {name: "enemyCurrentStatus", value: pawn.status},
+            {name: "description", value: objectAttack.description},
+            {name: "wounds", value: objectWounds.wounds},
+            {name: "bloodLoss"},
+            {name: "status"},
+        ]
+
+        const {object: objectHealth} = await generatorService.generator(generatorAttackNew, argsHealth, channel.startsWith("##"), "healthDetection")
+
+
+        pawn.attacks.push({player: username, description: objectAttack.description})
+
+        const noDamageStrings = ["n/a", "no damage", "none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"]
+        if (objectWounds.wounds && objectWounds.wounds.trim() && !noDamageStrings.includes(objectWounds.wounds.trim().toLowerCase())) {
+            const newWounds = [...new Set(objectWounds.wounds.toLowerCase().split(',').map(e => e.trim()))]
             if (newWounds instanceof Array && newWounds.length === 1) {
                 pawn.wounds.push(newWounds[0])
             } else if (newWounds instanceof Array && newWounds.length > 1) {
@@ -122,15 +150,15 @@ class DuckHuntService {
             }
         }
 
-        if (object.bloodLoss && object.bloodLoss.trim()) {
-            pawn.bloodLoss = object.bloodLoss
+        if (objectHealth.bloodLoss && objectHealth.bloodLoss.trim()) {
+            pawn.bloodLoss = objectHealth.bloodLoss
         }
 
-        if (object.status && object.status.trim() && !["failed"].includes(object.status.trim().toLowerCase())) {
-            pawn.status = object.status.toLowerCase()
+        if (objectHealth.status && objectHealth.status.trim() && !["failed"].includes(objectHealth.status.trim().toLowerCase())) {
+            pawn.status = objectHealth.status.toLowerCase()
         }
 
-        if (object.status && object.status.trim() && ["dead", "killed", "died"].includes(object.status.trim().toLowerCase())) {
+        if (objectHealth.status && objectHealth.status.trim() && ["dead", "killed", "died"].includes(objectHealth.status.trim().toLowerCase())) {
             pawn.alive = false
         }
 
@@ -138,13 +166,12 @@ class DuckHuntService {
 
         const msg = new MessageEmbed()
             .setColor('#ff0000')
-            .setTitle(`${username} attacks the ${pawn.name}`)
-            .setDescription(`${object.description || 'undefined'}`)
-            .addField('New enemy wounds', object.wounds || 'undefined', true)
-            .addField('New enemy blood loss', object.bloodLoss || 'undefined', true)
-            .addField('New enemy status', object.status || 'undefined', true)
+            .setTitle(`${username} attacks the ${pawn.name} (${pawn.difficulty})`)
+            .setDescription(`${objectAttack.description || 'undefined'}`)
+            .addField('New enemy wounds', objectWounds.wounds || 'undefined', true)
+            .addField('New enemy blood loss', objectHealth.bloodLoss || 'undefined', true)
+            .addField('New enemy status', objectHealth.status || 'undefined', true)
             .addField('All enemy wounds', [...new Set(pawn.wounds)].join('\n') || 'none', false)
-
 
         const embed = pawn.alive ? null : (await this.loot(channel))
 
@@ -171,7 +198,11 @@ class DuckHuntService {
             {name: "type"},
             {name: "rarity"},
         ]
-        const {object, result, module} = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
+        const {
+            object,
+            result,
+            module
+        } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
 
         worldItemsService.appendItem(channel, {name: object.item, type: object.type, rarity: object.rarity})
         pawnService.removePawn(channel)
@@ -278,7 +309,8 @@ class DuckHuntService {
                 `# ${username} tried to sell an item but has no item in its backpack`
                 : `# ${username} tried to sell an item but has no item in inventory slot [${itemSlotNumber}]`,
             instantReply: true,
-            deleteUserMsg: true
+            deleteUserMsg: true,
+            deleteNewMessage: true
         }
 
         const args = [
@@ -287,7 +319,11 @@ class DuckHuntService {
             {name: "rarity", value: item.rarity},
             {name: "price"},
         ]
-        const {object, result, module} = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "sell")
+        const {
+            object,
+            result,
+            module
+        } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "sell")
 
         const goldAmount = !object?.price ? null : parseInt(
             object.price.replace(module.placeholders["currency"], '').trim()
@@ -651,7 +687,8 @@ class DuckHuntService {
         if (player.gold < price) return {
             error: `# ${username} tried to upgrade its backpack but doesn't have enough gold! (${player.gold}/${price})`,
             instantReply: true,
-            deleteUserMsg: true
+            deleteUserMsg: true,
+            deleteNewMessage: true
         }
 
         player.inventorySize += 1
@@ -671,7 +708,11 @@ class DuckHuntService {
     }
 
     static async generateSpell(channel, args) {
-        const {object, result, module} = await generatorService.generator(generatorSpellBook, args, channel.startsWith("##"))
+        const {
+            object,
+            result,
+            module
+        } = await generatorService.generator(generatorSpellBook, args, channel.startsWith("##"))
 
         return {
             message: JSON.stringify(object, null, 4),
@@ -686,7 +727,7 @@ class DuckHuntService {
 
         let generator
         if (!lastUploadedGenerator || attachmentUrl) {
-            generator = await getAttachment(attachmentUrl)
+            generator = await utils.getAttachment(attachmentUrl)
             lastUploadedGenerator = generator
         } else {
             generator = lastUploadedGenerator
@@ -703,6 +744,7 @@ class DuckHuntService {
 
         let json = []
         let nbResults = 1
+        let submoduleName = null
         if (argsJSON) {
             for (let name in argsJSON) {
                 if (name === 'nbResults') {
@@ -710,23 +752,42 @@ class DuckHuntService {
                         argsJSON[name] = parseInt(argsJSON[name])
                     }
                     nbResults = Math.min(5, argsJSON[name])
-                }
-                if (name === "aiParameters") {
+                } else if (name === "aiParameters") {
                     generator.aiParameters = argsJSON[name]
                 } else if (name === "aiModel") {
                     generator.aiModel = argsJSON[name]
                 } else if (name === "submodule") {
-                    // TODO
+                    submoduleName = argsJSON[name]
                 } else {
                     json.push({name, value: argsJSON[name]})
                 }
             }
         }
 
-        let properties = json.length > 0 ? json : generator["properties"]
+        let properties
+        if (submoduleName && generator.submodules?.[submoduleName]?.properties) {
+            properties = generator.submodules?.[submoduleName]?.properties?.map(p => {
+                return {name: p.name}
+            })
+            for (let element of json) {
+                if (element.value) {
+                    const property = properties.find(p => p.name === element.name)
+                    if (property) {
+                        property.value = element.value
+                    }
+                }
+            }
+        } else {
+            properties = json.length > 0 ? json : generator["properties"]
+        }
+
         let results = []
         for (let i = 0; i < nbResults; i++) {
-            const {object, result, module} = await generatorService.generator(generator, properties, channel.startsWith("##"))
+            const {
+                object,
+                result,
+                module
+            } = await generatorService.generator(generator, properties, channel.startsWith("##"), submoduleName)
             results.push(object)
         }
 
@@ -747,7 +808,7 @@ class DuckHuntService {
 
         let generator
         if (!lastUploadedGenerator) {
-            generator = await getAttachment(attachmentUrl)
+            generator = await utils.getAttachment(attachmentUrl)
             lastUploadedGenerator = generator
         } else {
             generator = lastUploadedGenerator
@@ -785,7 +846,7 @@ class DuckHuntService {
             }
         }
 
-        const attachment = new MessageAttachment(Buffer.from(prompt.completePrompt), 'generator.json')
+        const attachment = utils.getMessageAsFile(prompt.completePrompt, 'generator.json')
         return {
             message: attachment,
             instantReply: true
@@ -793,16 +854,6 @@ class DuckHuntService {
     }
 }
 
-async function getAttachment(attachmentUrl) {
-    // fetch the file from the external URL
-    const response = await axios.get(attachmentUrl);
 
-    // if there was an error send a message with the status
-    if (!response?.data)
-        return
-
-    // take the response stream and read it to completion
-    return await response.data
-}
 
 export default DuckHuntService

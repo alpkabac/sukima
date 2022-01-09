@@ -13,8 +13,6 @@ class GeneratorService {
 
         const submodule = generator.submodules[submoduleName]
 
-        if (!submodule) return module
-
         if (submodule.context) {
             module.context = submodule.context
         }
@@ -29,14 +27,6 @@ class GeneratorService {
 
         if (submodule.list) {
             module.list = submodule.list
-        }
-
-        if (submodule.aiParameters) {
-            module.aiParameters = submodule.aiParameters
-        }
-
-        if (submodule.aiModel) {
-            module.aiModel = submodule.aiModel
         }
 
         return module
@@ -109,7 +99,7 @@ class GeneratorService {
             top_p: 1,
             eos_token_id: 224,
             repetition_penalty: 1.15,
-            repetition_penalty_range: 1024,
+            repetition_penalty_range: 2048,
             tail_free_sampling: 0.422,
             bad_words_ids: [[27, 91, 437, 1659, 5239, 91, 29], [1279, 91, 437, 1659, 5239, 91, 29], [27, 91, 10619, 46, 9792, 13918, 91, 29], [1279, 91, 10619, 46, 9792, 13918, 91, 29]],   // "<|endoftext|>" tokens
         }
