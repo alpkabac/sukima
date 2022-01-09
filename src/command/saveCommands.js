@@ -70,7 +70,8 @@ const saveCommands = {
 
             if (!attachmentUrl || !json) return {
                 error: "# You need to provide a valid save file as message attachment!",
-                instantReply: true
+                instantReply: true,
+                deleteNewMessage: true
             }
 
             const success = savingService.loadJSON(channel, json)
@@ -78,12 +79,14 @@ const saveCommands = {
             if (success) {
                 return {
                     message: "# Save file loaded successfully!",
-                    success: true
+                    success: true,
+                    deleteNewMessage: true
                 }
             }else{
                 return {
                     error: "# Save file couldn't load or didn't detect anything to load, please verify the sent save file",
-                    instantReply: true
+                    instantReply: true,
+                    deleteNewMessage: true
                 }
             }
         },
