@@ -235,7 +235,13 @@ async function processMessage(msg) {
 
     if (message && message.error) {
         await originalMsg.react("❌").catch(() => null)
-        await originalMsg.inlineReply(message.error).catch(() => null)
+        const newMessage = await originalMsg.inlineReply(message.error).catch(() => null)
+        if (newMessage && message.deleteNewMessage) {
+            setTimeout(
+                () => newMessage.delete().catch(() => null),
+                3000
+            )
+        }
     }
     if (message && message.success) {
         await originalMsg.react("✅").catch(() => null)
@@ -489,13 +495,15 @@ setInterval(async () => {
                 difficulty = "medium"
                 if (Math.random() < 0.25) {
                     difficulty = "hard"
-                    if (Math.random() < 0.1){
+                    if (Math.random() < 0.1) {
                         difficulty = "legendary"
                     }
                 }
             }
             const newPawn = await duckHuntService.spawn(channel, difficulty, null)
             const m = await channels[channel].send(newPawn).catch(() => null)
+
+            savingService.save(channel)
         }
     }
 }, 30000)

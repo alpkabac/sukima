@@ -6,21 +6,72 @@ import aiService from "./aiService.js";
 
 class GeneratorService {
 
+    static mergeSubmodule(generator, submoduleName = null) {
+        const module = JSON.parse(JSON.stringify(generator))
+
+        if (!generator.submodules?.[submoduleName]) return module
+
+        const submodule = generator.submodules[submoduleName]
+
+        if (!submodule) return module
+
+        if (submodule.context) {
+            module.context = submodule.context
+        }
+
+        if (submodule.properties) {
+            module.properties = submodule.properties
+        }
+
+        if (submodule.placeholders) {
+            module.placeholders = submodule.placeholders
+        }
+
+        if (submodule.list) {
+            module.list = submodule.list
+        }
+
+        if (submodule.aiParameters) {
+            module.aiParameters = submodule.aiParameters
+        }
+
+        if (submodule.aiModel) {
+            module.aiModel = submodule.aiModel
+        }
+
+        return module
+    }
+
     /**
      *
      * @param generator
      * @param args
      * @param preventLMI
+     * @param submoduleName
      * @return {Promise<{Object}>}
      */
-    static async generator(generator, args, preventLMI){
+    static async generator(generator, args, preventLMI, submoduleName = null) {
+
+        const module = this.mergeSubmodule(generator, submoduleName)
+
         const prompt = this.getPrompt(
-            generator,
+            module,
             args,
             true
         )
-        const result = await this.executePrompt(generator, prompt.completePrompt, preventLMI)
-        return this.parseResult(generator, prompt.placeholderPrompt, result)
+
+        if (module.placeholders) {
+            for (let placeholderName in module.placeholders) {
+                prompt.completePrompt = prompt.completePrompt.replace(new RegExp("\\$\\{" + placeholderName + "}", 'g'), module.placeholders[placeholderName])
+            }
+        }
+
+        const result = await this.executePrompt(generator, submoduleName, prompt.completePrompt, preventLMI)
+        return {
+            object: this.parseResult(module, prompt.placeholderPrompt, result),
+            result,
+            module
+        }
     }
 
     /**
@@ -47,7 +98,7 @@ class GeneratorService {
         }
     }
 
-    static buildParams(generator, submodule = null) {
+    static buildParams(generator, submoduleName = null) {
         const defaultParams = {
             prefix: "vanilla",
             use_string: true,
@@ -65,7 +116,7 @@ class GeneratorService {
 
         if (!generator) throw new Error("No generator provided")
 
-        if (!submodule && !generator.aiParameters) return defaultParams
+        if (!submoduleName && !generator.aiParameters) return defaultParams
 
         // Applies aiParameters from global generator
         if (generator.aiParameters) {
@@ -75,9 +126,9 @@ class GeneratorService {
         }
 
         // Applies aiParameters from submodule
-        if (submodule && generator.submodules[submodule] && generator.submodules[submodule].aiParameters) {
-            for (let aiParameter in generator.submodules[submodule].aiParameters) {
-                defaultParams[aiParameter] = generator.submodules[submodule].aiParameters[aiParameter]
+        if (generator.submodules?.[submoduleName]?.aiParameters) {
+            for (let aiParameter in generator.submodules[submoduleName].aiParameters) {
+                defaultParams[aiParameter] = generator.submodules[submoduleName].aiParameters[aiParameter]
             }
         }
 
@@ -99,9 +150,9 @@ class GeneratorService {
         return model
     }
 
-    static async executePrompt(generator, prompt, preventLMI = false) {
-        const params = this.buildParams(generator)  // TODO: add submodules from generator
-        const model = this.buildModel(generator)    // TODO: add submodules from generator
+    static async executePrompt(generator, moduleName, prompt, preventLMI = false) {
+        const params = this.buildParams(generator, moduleName)
+        const model = this.buildModel(generator, moduleName)
 
         const result = await aiService.executePrompt(prompt, params, model)
         const parsedResult = result
@@ -171,9 +222,6 @@ class GeneratorService {
                 if (!property) continue
 
                 let value = elem[property.name]
-                for (let placeholder of generator.placeholders) {
-                    value = value === null || value === undefined ? null : value.replace("${" + placeholder[0] + "}", placeholder[1])
-                }
                 const replaceBy = property.replaceBy ? property.replaceBy : property.name
                 elemPrompt += `${replaceBy} ${value}\n`
             }

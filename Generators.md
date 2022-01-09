@@ -29,8 +29,14 @@ Minimal format is as follows:
   "description": "Detects the enemy difficulty given an enemy name",
   "context": "[ Outputs the enemy difficulty given the enemy name as input ]",
   "properties": [
-    ["enemyName", "Input Enemy Name:"],
-    ["enemyDifficulty", "Output Enemy Difficulty:"]
+    {
+      "name": "enemyName",
+      "replaceBy": "Input Enemy Name:"
+    },
+    {
+      "name": "enemyDifficulty",
+      "replaceBy": "Output Enemy Difficulty:"
+    }
   ],
   "exampleList": [
     {
@@ -68,11 +74,11 @@ You can set this value to `null` or empty string `""` to disable context injecti
 ## `properties`
 
 Defines which properties will be used in the examples, and in which order  
-It should be provided as a list of string pairs `["A", "B"]` like in the example  
-`A` is the property name, and `B` is the property name replacement as it will appear in the generated prompt
+It should be provided as a list of `{"name": "propertyName", "replaceBy": "replacement value"}` like in the example  
+`name` is the property name, and `replaceBy` is the property name replacement as it will appear in the generated prompt
 
-As for everything that ends up in the prompt, words used in the `B` value should be carefully picked and tested  
-Using words such as `input` and `output` in the name replacement `B` seems to help in some cases
+As for everything that ends up in the prompt, words used in the `replaceBy` value should be carefully picked and tested  
+Using words such as `input` and `output` in the name replacement `replaceBy` seems to help in some cases
 
 ***Important: the order in which properties are defined will be the order used in the generated prompt!***
 
@@ -249,9 +255,9 @@ An as example, you could write a translation generator, provide translated sente
 examples, then make specialized submodules that will only pull two selected languages and order them to translate one
 way or another!
 
-Below is an example of an ***"Enemy Generator"***, it contains ***three submodules*** to uses the same `exampleList`
-items with different properties, in different orders, and overriding AI generation parameters when needed (this is a
-fake example)
+Below is an example of an ***"Enemy Generator"***, it contains ***three submodules*** that uses the same `exampleList`
+items, but with different properties, in different orders, and overriding AI generation parameters when needed (this is a
+fake example to illustrate this, check out the `enemy.json` generator file for a real example)
 
 ```
 {
@@ -259,13 +265,34 @@ fake example)
   "description": "Generates enemies, enemy equipment and loot when killed",
   "context": "...",
   "properties": [
-    ["name", "Enemy Name:"],
-    ["difficulty", "Enemy Difficulty:"],
-    ["item", "Item Name:"],
-    ["type", "Item Type:"],
-    ["rarity", "Item Rarity:"],
-    ["price", "Item Price:"],
-    ["encounterDescription", "Encounter Description:"]
+    {
+      "name": "name",
+      "replaceBy": "Enemy Name:"
+    },
+    {
+      "name": "difficulty",
+      "replaceBy": "Enemy Difficulty:"
+    },
+    {
+      "name": "item",
+      "replaceBy": "Item Name:"
+    },
+    {
+      "name": "type",
+      "replaceBy": "Item Type:"
+    },
+    {
+      "name": "rarity",
+      "replaceBy": "Item Rarity:"
+    },
+    {
+      "name": "price",
+      "replaceBy": "Item Price:"
+    },
+    {
+      "name": "encounterDescription",
+      "replaceBy": "Encounter Description:"
+    }
   ],
   "placeholders": {...},
   "exampleList": [
@@ -291,44 +318,77 @@ fake example)
   "aiParameters": {...},
   "aiModel": "6B-v4",
   "submodules": {
-    "generateEnemy": {
-      "context": "[ Generates random enemies and encounter description ]",
+    "spawn": {
+      "context": "[ Encounter Generator: outputs an encounter description given the enemy difficulty and name as input ]",
       "properties": [
-        ["difficulty", "Enemy Difficulty:"],
-        ["name", "Enemy Name:"],
-        ["encounterDescription", "Encounter Description:"]
+        {
+          "name": "difficulty",
+          "replaceBy": "Enemy Difficulty:"
+        },
+        {
+          "name": "name",
+          "replaceBy": "Enemy Name:"
+        },
+        {
+          "name": "encounterDescription",
+          "replaceBy": "Encounter Description:"
+        }
+      ],
+      "aiParameters": {...different parameters...}
+    },
+    "loot": {
+      "context": "[ Item Loot Generator: outputs an item name, type and rarity given the defeated enemy name and difficulty as input ]",
+      "properties": [
+        {
+          "name": "name",
+          "replaceBy": "Defeated Enemy Name:"
+        },
+        {
+          "name": "difficulty",
+          "replaceBy": "Defeated Enemy Difficulty:"
+        },
+        {
+          "name": "item",
+          "replaceBy": "Looted Item Name:"
+        },
+        {
+          "name": "type",
+          "replaceBy": "Looted Item Type:"
+        },
+        {
+          "name": "rarity",
+          "replaceBy": "Looted Item Rarity:"
+        }
       ],
       "aiModel": "2.7B"
     },
-    "generateEnemyEquipment": {
-      "context": "[ Detects the equipment of an enemy given its name and difficulty ]",
-      "properties": [
-        ["name", "Enemy Name:"],
-        ["difficulty", "Enemy Difficulty:"],
-        ["equipment", "Enemy Equipment:"]
-      ],
-      "aiParameters": {
-        "bad_words_ids": [[27,91,437,1659,5239,91,29],[1279,91,437,1659,5239,91,29],[27,91,10619,46,9792,13918,91,29],[1279,91,10619,46,9792,13918,91,29]]
-        "temperature": 0.9
-      }
-    },
-    "generateLoot": {
-      "context": "[ Generates a random loot given and enemy's name and difficulty ]",
+    "sell": {
+      "context": "[ Price Estimator: outputs an estimated price for an item given its name, type and rarity as input ]",
       "placeholders": {
-        "currency": "gold coin(s)"
+        "currency": "gold"
       },
       "properties": [
-        ["name", "Enemy Name:"],
-        ["difficulty", "Enemy Difficulty:"],
-        ["item", "Looted Item Name:"],
-        ["type", "Looted Item Type:"],
-        ["rarity", "Looted Item Rarity:"],
-        ["price", "Looted Item Price:"],
-      ],
+        {
+          "name": "item",
+          "replaceBy": "Item Name:"
+        },
+        {
+          "name": "type",
+          "replaceBy": "Item Type:"
+        },
+        {
+          "name": "rarity",
+          "replaceBy": "Item Rarity:"
+        },
+        {
+          "name": "price",
+          "replaceBy": "Item Price:"
+        }
+      ]
     }
   }
 }
 ```
 
 Every property of a submodule is optional and will override general values if provided  
-You can remove a general value by overriding it with a `null` value in the submodule values
+You can remove a general value by overriding it with a `null` value in the submodule values  

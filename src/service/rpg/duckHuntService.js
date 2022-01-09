@@ -49,7 +49,7 @@ class DuckHuntService {
             ]
         }
 
-        const object = generatorService.generator(generatorEnemy, args, channel.startsWith("##"))
+        const {object, result, module} = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "spawn")
 
         pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
@@ -69,7 +69,8 @@ class DuckHuntService {
     static async attack(channel, username) {
         if (!pawnService.isPawnAliveOnChannel(channel)) return {
             error: `# ${username} tried to attack, but there is no enemy...`,
-            deleteUserMsg: true
+            deleteUserMsg: true,
+            deleteNewMessage: true,
         }
 
         const player = playerService.getPlayer(channel, username)
@@ -79,7 +80,7 @@ class DuckHuntService {
                 error: `${username} tried to attack but is still too tired, ${username} will have to wait for ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds to attack again`,
                 reactWith: '⌛',
                 deleteNewMessage: true,
-                deleteUserMsg: true
+                deleteUserMsg: true,
             }
         }
 
@@ -107,7 +108,7 @@ class DuckHuntService {
             {name: "bloodLoss"},
             {name: "status"}
         ]
-        const object = generatorService.generator(generatorAttackNew, args, channel.startsWith("##"))
+        const {object, result, module} = await generatorService.generator(generatorAttackNew, args, channel.startsWith("##"))
 
         pawn.attacks.push({player: username, description: object.description})
         if (object.wounds && object.wounds.trim() && !["n/a", "no damage", "none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"].includes(object.wounds.trim().toLowerCase())) {
@@ -170,8 +171,7 @@ class DuckHuntService {
             {name: "type"},
             {name: "rarity"},
         ]
-        const object = generatorService.generator(generatorEnemy, args, channel.startsWith("##"))
-
+        const {object, result, module} = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
 
         worldItemsService.appendItem(channel, {name: object.item, type: object.type, rarity: object.rarity})
         pawnService.removePawn(channel)
@@ -183,7 +183,7 @@ class DuckHuntService {
             .addField("Item type", object.type, true)
             .addField("Item rarity", object.rarity, true)
 
-        if (result) {
+        if (object) {
             return embed
         }
     }
@@ -287,11 +287,10 @@ class DuckHuntService {
             {name: "rarity", value: item.rarity},
             {name: "price"},
         ]
-        const object = generatorService.generator(generatorEnemy, args, channel.startsWith("##"))
+        const {object, result, module} = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "sell")
 
-        // TODO: clean and generify
-        const goldAmount = !object?.price ? 0 : parseInt(
-            object?.price.replace("${" + generatorEnemy.placeholders[0][0] + "}", generatorEnemy.placeholders[0][1])
+        const goldAmount = !object?.price ? null : parseInt(
+            object.price.replace(module.placeholders["currency"], '').trim()
         )
 
         if (goldAmount && typeof goldAmount === "number" && !isNaN(goldAmount)) {
@@ -672,7 +671,7 @@ class DuckHuntService {
     }
 
     static async generateSpell(channel, args) {
-        const object = generatorService.generator(generatorSpellBook, args, channel.startsWith("##"))
+        const {object, result, module} = await generatorService.generator(generatorSpellBook, args, channel.startsWith("##"))
 
         return {
             message: JSON.stringify(object, null, 4),
@@ -727,20 +726,7 @@ class DuckHuntService {
         let properties = json.length > 0 ? json : generator["properties"]
         let results = []
         for (let i = 0; i < nbResults; i++) {
-            let prompt = generatorService.getPrompt(
-                generator,
-                properties,
-                true
-            )
-
-            if (generator.placeholders) {
-                for (let placeholder of generator.placeholders) {
-                    prompt.completePrompt = prompt.completePrompt.replace("${" + placeholder[0] + "}", placeholder[1])
-                }
-            }
-
-            const result = await generatorService.executePrompt(generator, prompt.completePrompt, channel.startsWith("##"))
-            const object = generatorService.parseResult(generator, prompt.placeholderPrompt, result)
+            const {object, result, module} = await generatorService.generator(generator, properties, channel.startsWith("##"))
             results.push(object)
         }
 

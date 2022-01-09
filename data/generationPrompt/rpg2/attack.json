@@ -27,7 +27,7 @@
       "replaceBy": "Enemy current status:"
     }
   ],
-  "placeholders": [],
+  "placeholders": {},
   "context": "[ RANDOM ATTACK GENERATOR ]\n[ Given a player and an enemy, generates a player attack description and deducts the damages/wounds and status. ]",
   "list": [
     {

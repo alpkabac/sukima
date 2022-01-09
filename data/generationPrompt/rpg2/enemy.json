@@ -32,12 +32,6 @@
       "replaceBy": "Encounter Description:"
     }
   ],
-  "placeholders": [
-    [
-      "currency",
-      "gold"
-    ]
-  ],
   "submodules": {
     "spawn": {
       "context": "[ Encounter Generator: outputs an encounter description given the enemy difficulty and name as input ]",
@@ -83,6 +77,9 @@
     },
     "sell": {
       "context": "[ Price Estimator: outputs an estimated price for an item given its name, type and rarity as input ]",
+      "placeholders": {
+        "currency": "gold"
+      },
       "properties": [
         {
           "name": "item",
