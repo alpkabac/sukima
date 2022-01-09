@@ -45,7 +45,7 @@ const messageCommands = {
                 }
             }
             historyService.getChannelHistory(channel).reverse()
-            return {message: answer, success: true, deleteUserMsg: true, appendToLastMessage: true}
+            return {message: answer, success: true, deleteUserMsg: true, appendToLastMessage: true, instantReply: true}
         },
         false
     ),
@@ -70,7 +70,7 @@ const messageCommands = {
             historyService.getChannelHistory(channel).reverse()
             return {
                 message: answer, success: true, deleteUserMsg: true, editLastMessage: !targetMessageId,
-                editMessage: targetMessageId, reactWith: null//"🔄"
+                editMessage: targetMessageId, reactWith: null /*🔄*/, instantReply: true
             }
         },
         false
@@ -95,7 +95,10 @@ const messageCommands = {
         ["!prune "],
         process.env.ALLOW_PRUNE_MESSAGES,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            if (!targetMessageId) return {error: `# You need to provide a messageID for this command`, deleteUserMsg: true}
+            if (!targetMessageId) return {
+                error: `# You need to provide a messageID for this command`,
+                deleteUserMsg: true
+            }
             const success = historyService.prune(channel, targetMessageId)
             if (success) {
                 return {success: true, deleteUserMsg: true, deleteMessagesUpTo: targetMessageId}
@@ -116,7 +119,8 @@ const messageCommands = {
                     success: true,
                     deleteUserMsg: true,
                     editLastMessage: !targetMessageId,
-                    editMessage: targetMessageId
+                    editMessage: targetMessageId,
+                    instantReply: true
                 }
             } else {
                 return {error: `# No message was found for ID #${targetMessageId}`, deleteUserMsg: true}

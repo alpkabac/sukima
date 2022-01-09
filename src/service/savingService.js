@@ -67,21 +67,27 @@ class SavingService {
             if (personality) {
                 personalityService.channelBotPersonality[channel] = personality
             }
+
             if (history) {
                 historyService.channelHistories[channel] = history
             }
+
             if (memory) {
                 memoryService.channelMemories[channel] = memory
             }
+
             if (pawn) {
                 pawnService.activePawn[channel] = pawn
             }
+
             if (lastPawnCreatedAt) {
                 pawnService.lastPawnCreatedAt[channel] = lastPawnCreatedAt
             }
+
             if (players) {
                 playerService.players[channel] = players
             }
+
             if (activeItems) {
                 worldItemsService.activeItems[channel] = activeItems
             }

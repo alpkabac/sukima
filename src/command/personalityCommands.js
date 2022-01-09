@@ -84,7 +84,8 @@ const personalityCommands = {
 
             return {
                 message: message + stringJSONPersonality,
-                success: true
+                success: true,
+                instantReply: true
             }
         }
     ),

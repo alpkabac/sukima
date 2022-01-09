@@ -185,7 +185,7 @@ const setJSONPersonalityCommand = new Command(
                     `Personality successfully loaded! `
                     : `Personality loaded, but there were errors while trying to edit the AI personality:\n${errorMessages}\n`)
                 + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`,
-            fastTyping: true
+            instantReply: true
         }
     },
     true
