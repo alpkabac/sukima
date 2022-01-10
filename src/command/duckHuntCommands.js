@@ -117,7 +117,7 @@ const duckHuntCommands = {
     equipWeapon: new Command(
         "Equip Weapon",
         [],
-        ["!equip", "!equipWeapon", "!equip Weapon", "!equip weapon", "!equipW", "!equip W"],
+        ["!equipWeapon", "!equip Weapon", "!equip weapon", "!equipW", "!equip W", "!equip"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipWeapon(channel, from, parsedMsg.trim())
