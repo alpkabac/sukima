@@ -39,8 +39,8 @@ class Command {
         if (!this.worksWhenMuted && MuteService.isChannelMuted(channel))
             return false
 
-        const command = this.commands.find(c => msg === c)
-        const commandStartsWith = this.commandsStartsWith.find(c => msg.startsWith(c))
+        const command = this.commands.find(c => msg.toLowerCase() === c.toLowerCase())
+        const commandStartsWith = this.commandsStartsWith.find(c => msg.toLowerCase().startsWith(c.toLowerCase()))
         const noCommand = this.commands.length === 0 && this.commandsStartsWith.length === 0
 
         // If a command matched or if there is no command at all

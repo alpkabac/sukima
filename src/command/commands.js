@@ -11,6 +11,9 @@ import personalityCommands from "../command/personalityCommands.js";
 import messageCommands from "../command/messageCommands.js";
 import saveCommands from "../command/saveCommands.js";
 import duckHuntCommands from "./duckHuntCommands.js";
+import answerToNameCommand from "./answerToNameCommand.js";
+import fallbackCommand from "./fallbackCommand.js";
+import generatorCommands from "./generatorCommands.js";
 
 
 class Commands {
@@ -20,16 +23,19 @@ class Commands {
         .concat(languageCommands.all)
         .concat(promptCommands.all)
         .concat(voiceCommands.all)
-        .concat(duckHuntCommands.all)
         .concat(injectionCommands.all)
         .concat(wikiCommands.all)
         .concat(danbooruCommands.all)
         .concat(epornerCommands.all)
         .concat(personalityCommands.all)
         .concat(saveCommands.all)
-        .concat(messageCommands.all)    // Should always be last
+        .concat(duckHuntCommands.all)
+        .concat(generatorCommands.all)
+        .concat(messageCommands.all)
+        .concat(fallbackCommand.all)        // Should always be penultimate
+        .concat(answerToNameCommand.all)    // Should always be very last
 
-    static getOnMessageCommands(){
+    static getOnMessageCommands() {
         return this.commands
     }
 

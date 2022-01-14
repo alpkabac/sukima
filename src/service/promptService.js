@@ -1,10 +1,12 @@
 import {config} from "dotenv";
-
-config()
 import channelBotTranslationService from "./personalityService.js";
 import historyService from "./historyService.js";
 import memoryService from "./memoryService.js";
 import encoder from "gpt-3-encoder";
+import playerService from "./rpg/playerService.js";
+import envService from "../util/envService.js";
+
+config()
 
 
 class PromptService {
@@ -17,8 +19,8 @@ class PromptService {
         )
             .map((e) => {
                 return {
-                    from: e.from.replace("${botName}", process.env.BOTNAME),
-                    msg: e.msg.replace("${botName}", process.env.BOTNAME)
+                    from: e.from?.replace("${botName}", process.env.BOTNAME),
+                    msg: e.msg?.replace("${botName}", process.env.BOTNAME)
                 }
             })
     }
@@ -54,6 +56,10 @@ class PromptService {
             : botTranslations.context
         const botDescription = botTranslations.description
 
+
+        const botPlayer = playerService.getPlayer(channel, process.env.BOTNAME)
+        const botPlayerContext = playerService.getPlayerPrompt(botPlayer)
+
         const channelMemory = this.getChannelMemory(channel)
             .map(m => m.msg).join("\n")         // Insert channel `!remember`s
 
@@ -79,6 +85,11 @@ class PromptService {
         if (introduction) {
             promptContext += PromptService.mapJoinMessages(introduction) + '\n'
         }
+        if (envService.isRpgModeEnabled()) {
+            promptContext += `...\n`
+            promptContext += botPlayerContext + '\n'
+            // TODO: add other players (last X who talked or did an action)
+        }
 
         const contextLength = encoder.encode(promptContext).length
         const lastLine = process.env.BOTNAME + ":"
@@ -92,12 +103,12 @@ class PromptService {
             let lastBotMessageFound = false
             for (let i = history.length - 1; i >= 0; i--) {
 
-                if (messageId && history[i].messageId === messageId){
+                if (messageId && history[i].messageId === messageId) {
                     messageIdDetected = true
                     continue
                 }
 
-                if (!messageIdDetected){
+                if (!messageIdDetected) {
                     continue
                 }
 
@@ -132,7 +143,7 @@ class PromptService {
         // Bot presentation message
         // ...
         // History messages
-        let completePrompt = promptContext + (couldInsertAllHistory ? "" : "...\n") + promptHistory
+        let completePrompt = promptContext + (couldInsertAllHistory || envService.isRpgModeEnabled() ? "" : "...\n") + promptHistory
         if (isContinuation) {
             completePrompt = completePrompt.substr(0, completePrompt.length - 1)
         } else {

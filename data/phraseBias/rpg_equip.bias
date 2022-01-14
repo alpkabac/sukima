@@ -4,16 +4,15 @@
       "phrases": [
         {
           "sequences": [
-            [
-              3740,
-              1378
-            ]
+            [5145, 4853, 541, 27632, 198],
+            [5145, 4853, 541, 31512, 198],
+            [5145, 4853, 541, 41629, 198]
           ],
           "type": 1
         }
       ],
       "bias": 0.05,
-      "ensure_sequence_finish": true,
+      "ensure_sequence_finish": false,
       "generate_once": true,
       "enabled": true,
       "whenInactive": false

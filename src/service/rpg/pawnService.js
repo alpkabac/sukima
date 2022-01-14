@@ -23,6 +23,7 @@ class Pawn {
 class PawnService {
     static activePawn = {}
     static lastPawnCreatedAt = {}
+    static lastPawnKilledAt = {}
 
     static getActivePawn(channel) {
         if (this.activePawn[channel]) return this.activePawn[channel]

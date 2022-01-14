@@ -5,13 +5,10 @@ import pawnService from "./pawnService.js";
 import envService from "../../util/envService.js";
 import worldItemsService from "./worldItemsService.js";
 import {MessageAttachment, MessageEmbed} from "discord.js";
-import axios from "axios";
 
 const generatorAttackNew = utils.load("./data/generator/rpg/attack.json")
-const generatorEnemy = utils.load("./data/generator/rpg/enemy.json")
+const generatorEnemy = utils.load("./data/generator/rpg/enemyLight.json")
 const generatorSpellBook = utils.load("./data/generationPrompt/rpg/generateSpellBook.json")
-
-const stopToken = 224 // "⁂"
 
 let lastUploadedGenerator = null
 
@@ -57,14 +54,20 @@ class DuckHuntService {
 
         pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
-        return new MessageEmbed()
-            .setColor('#0099ff')
-            .setTitle('New Encounter!')
-            .setDescription(object.encounterDescription)
-            .addFields(
-                {name: 'Enemy name', value: object.name, inline: true},
-                {name: 'Difficulty', value: object.difficulty, inline: true},
-            )
+        return {
+            message: new MessageEmbed()
+                .setColor('#0099ff')
+                .setTitle('New Encounter!')
+                .setDescription(object.encounterDescription)
+                .addFields(
+                    {name: 'Enemy name', value: object.name, inline: true},
+                    {name: 'Difficulty', value: object.difficulty, inline: true},
+                ),
+            pushIntoHistory: [`[ New Enemy Encounter: ${object.name} (${object.difficulty}) ]\nNarrator to the group: ${object.encounterDescription}`, null, channel],
+            success: true,
+            deleteUserMsg: true,
+            instantReply: true
+        }
     }
 
     /**
@@ -72,37 +75,30 @@ class DuckHuntService {
      */
     static async attack(channel, username) {
         if (!pawnService.isPawnAliveOnChannel(channel)) return {
-            error: `# ${username} tried to attack, but there is no enemy...`,
+            message: `# ${username} tried to attack, but there is no enemy...`,
             deleteUserMsg: true,
-            deleteNewMessage: true,
+            deleteNewMessage: username !== process.env.BOTNAME,
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack, but there is no enemy yet... ]`, null, channel],
         }
 
         const player = playerService.getPlayer(channel, username)
         const timeDiff = Date.now() - player.lastAttackAt
         if (player.lastAttackAt && timeDiff < 1000 * envService.getRpgAttackCoolDown()) {
             return {
-                error: `${username} tried to attack but is still too tired, ${username} will have to wait for ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds to attack again`,
+                message: `# ${username} tried to attack but is still too tired, ${username} will have to wait for ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds to attack again`,
                 reactWith: '⌛',
-                deleteNewMessage: true,
+                deleteNewMessage: username !== process.env.BOTNAME,
                 deleteUserMsg: true,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack but is still too tired, ${username} will have to wait for ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds to attack again ]`, null, channel],
             }
         }
 
         const pawn = pawnService.getActivePawn(channel)
 
-        let weapon = "No Weapon"
-        if (player.weapon) {
-            weapon = player.weapon
-        }
-
-        let armor = "No Armor"
-        if (player.armor) {
-            armor = player.armor
-        }
 
         const enemyWounds = pawn.wounds.length === 0 ? 'none' : [...new Set(pawn.wounds)].join(', ')
-        const enemyStatus = `[ Name: ${pawn.name}; difficulty: ${pawn.difficulty}; wounds: ${enemyWounds}; blood loss: ${pawn.bloodLoss}; status: ${pawn.status} ]`
-        const playerEquipment = `[ ${!weapon ? 'No Weapon' : weapon.name}; ${!armor ? 'No Armor' : armor.name}` + (player.accessory ? `; ${player.accessory.name}` : '') + ` ]`
+        const enemyStatus = `[ Enemy: ${pawn.name}; difficulty: ${pawn.difficulty}; wounds: ${enemyWounds}; blood loss: ${pawn.bloodLoss}; status: ${pawn.status} ]`
+        const playerEquipment = playerService.getEquipmentPrompt(player)
 
         // Attack part
         const argsAttack = [
@@ -122,19 +118,27 @@ class DuckHuntService {
 
         const {object: objectWounds} = await generatorService.generator(generatorAttackNew, argsWounds, channel.startsWith("##"), "woundDetection")
 
-        // Health part
-        const argsHealth = [
-            {name: "enemyCurrentWounds", value: enemyWounds},
+        // Blood loss part
+        const argsBloodLoss = [
+            {name: "enemyCurrentBloodLoss", value: pawn.bloodLoss},
+            {name: "description", value: objectAttack.description},
+            {name: "wounds", value: objectWounds.wounds},
+            {name: "bloodLoss"},
+        ]
+
+        const {object: objectBloodLoss} = await generatorService.generator(generatorAttackNew, argsBloodLoss, channel.startsWith("##"), "bloodLossDetection")
+
+        // State part
+        const argsStatus = [
+            {name: "enemyCurrentWounds", value: pawn.wounds},
             {name: "enemyCurrentBloodLoss", value: pawn.bloodLoss},
             {name: "enemyCurrentStatus", value: pawn.status},
             {name: "description", value: objectAttack.description},
             {name: "wounds", value: objectWounds.wounds},
-            {name: "bloodLoss"},
             {name: "status"},
         ]
 
-        const {object: objectHealth} = await generatorService.generator(generatorAttackNew, argsHealth, channel.startsWith("##"), "healthDetection")
-
+        const {object: objectStatus} = await generatorService.generator(generatorAttackNew, argsStatus, channel.startsWith("##"), "statusDetection")
 
         pawn.attacks.push({player: username, description: objectAttack.description})
 
@@ -150,15 +154,15 @@ class DuckHuntService {
             }
         }
 
-        if (objectHealth.bloodLoss && objectHealth.bloodLoss.trim()) {
-            pawn.bloodLoss = objectHealth.bloodLoss
+        if (objectBloodLoss.bloodLoss && objectBloodLoss.bloodLoss.trim()) {
+            pawn.bloodLoss = objectBloodLoss.bloodLoss
         }
 
-        if (objectHealth.status && objectHealth.status.trim() && !["failed"].includes(objectHealth.status.trim().toLowerCase())) {
-            pawn.status = objectHealth.status.toLowerCase()
+        if (objectStatus.status && objectStatus.status.trim() && !["failed"].includes(objectStatus.status.trim().toLowerCase())) {
+            pawn.status = objectStatus.status.toLowerCase()
         }
 
-        if (objectHealth.status && objectHealth.status.trim() && ["dead", "killed", "died"].includes(objectHealth.status.trim().toLowerCase())) {
+        if (objectStatus.status && objectStatus.status.trim() && ["dead", "killed", "died", "deceased"].includes(objectStatus.status.trim().toLowerCase())) {
             pawn.alive = false
         }
 
@@ -169,13 +173,25 @@ class DuckHuntService {
             .setTitle(`${username} attacks the ${pawn.name} (${pawn.difficulty})`)
             .setDescription(`${objectAttack.description || 'undefined'}`)
             .addField('New enemy wounds', objectWounds.wounds || 'undefined', true)
-            .addField('New enemy blood loss', objectHealth.bloodLoss || 'undefined', true)
-            .addField('New enemy status', objectHealth.status || 'undefined', true)
+            .addField('New enemy blood loss', objectBloodLoss.bloodLoss || 'undefined', true)
+            .addField('New enemy status', objectStatus.status || 'undefined', true)
             .addField('All enemy wounds', [...new Set(pawn.wounds)].join('\n') || 'none', false)
 
-        const embed = pawn.alive ? null : (await this.loot(channel))
+        const {embed, pushIntoHistory} = pawn.alive ? {embed: null, pushIntoHistory: null} : (await this.loot(channel))
+
+        if (!pawn.alive) {
+            pawnService.lastPawnKilledAt[channel] = Date.now()
+        }
+
+        const historyMessage = (username !== process.env.BOTNAME ? "!attack\n" : '')
+            + `[ ${username} attacks the ${pawn.name}! ]`
+            + `\n[ Enemy new wound(s): ${objectWounds.wounds}; Enemy new status: ${objectStatus.status}${pawn.alive ? ' (not dead yet)' : ''} ]`
+            + `\nNarrator to ${username}: ${objectAttack.description}`
+            + (pawn.alive ? '' : `\n[ Enemy ${pawn.name} (${pawn.difficulty}) has been defeated! ]`)
+            + (pushIntoHistory ? `\n${pushIntoHistory}` : '')
 
         return {
+            pushIntoHistory: [historyMessage, username !== process.env.BOTNAME ? username : null, channel],
             message: msg,
             reactWith: '⚔',
             deleteUserMsg: true,
@@ -209,57 +225,81 @@ class DuckHuntService {
 
         const embed = new MessageEmbed()
             .setColor('#ffff66')
-            .setTitle(`Loot for ${pawn.name} (difficulty: ${pawn.difficulty.toLowerCase()}): "${object.item}"`)
+            .setTitle(`Loot for ${pawn.name} (${pawn.difficulty.toLowerCase()}): ${object.item} (${object.rarity} ${object.type})`)
             .setDescription(`Looted item "${object.item}" is on the ground slot number [${worldItemsService.getActiveItems(channel).length - 1}]`)
             .addField("Item type", object.type, true)
             .addField("Item rarity", object.rarity, true)
 
         if (object) {
-            return embed
+            return {
+                embed,
+                pushIntoHistory: `[ Loot item falling on the ground for defeating ${pawn.name} (${pawn.difficulty.toLowerCase()}): ${object.item} (${object.rarity} ${object.type}) ]`
+            }
         }
     }
 
     static take(channel, username, itemSlot) {
         const activeItems = worldItemsService.getActiveItems(channel)
-        const itemSlotNotProvided = (!itemSlot.trim() && typeof itemSlot === "string")
-        const itemSlotNumber = parseInt(itemSlot?.trim())
-
-        if (activeItems.length === 0) return null
+        const fromBot = username === process.env.BOTNAME
+        const itemSlotNotProvided = fromBot ? true : (!itemSlot?.trim() && typeof itemSlot === "string")
+        const itemSlotNumber = itemSlotNotProvided ? activeItems.length - 1 : parseInt(itemSlot?.trim())
 
         const player = playerService.getPlayer(channel, username)
 
-        const tookItem = playerService.takeItem(channel, username, itemSlotNotProvided ? activeItems[0] : activeItems[itemSlotNumber])
+        const tookItem = playerService.takeItem(channel, username, activeItems[itemSlotNumber])
         if (tookItem) {
-            activeItems.splice(itemSlotNotProvided ? 0 : itemSlotNumber, 1)
+            activeItems.splice(itemSlotNumber, 1)
         }
 
-        return tookItem ? player.inventory[player.inventory.length - 1] : tookItem
+        const item = tookItem ? player.inventory[player.inventory.length - 1] : tookItem
+
+        if (item) {
+            const embed = new MessageEmbed()
+                .setColor('#884422')
+                .setTitle(`Player ${username} takes the item "${item.name}"`)
+                .setDescription(`${username} puts the item in its backpack slot number [${player.inventory.length - 1}]`)
+
+            return {
+                message: embed,
+                success: true,
+                deleteUserMsg: true,
+                instantReply: true,
+                pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !take\n` : '') + `[ Player ${username} takes the item ${item.name} (${item.rarity} ${item.type}) from the ground and puts it in its backpack ]`, null, channel]
+            }
+        } else if (item === false) {
+            return {
+                message: `# ${username} tried to take an item, but its backpack is full. Try to \`!sell\` or \`!drop\` an item first, or \`!upgrade\` your backpack!!`,
+                instantReply: true,
+                deleteUserMsg: true,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to take an item, but its backpack is full. Try to "!sell" or "!drop" your backpack selected item first, or use "!upgradeBackpack"! ]`, null, channel]
+            }
+        }
+        return {
+            message: `# ${username} tried to take an item on the ground, but there is no item to grab...`,
+            instantReply: true,
+            deleteUserMsg: true,
+            deleteNewMessage: username !== process.env.BOTNAME,
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to take an item on the ground, but there is no item to grab... ]`, null, channel]
+        }
     }
 
     static async drop(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
+        const fromBot = username === process.env.BOTNAME
+        const itemSlotNotProvided = fromBot ? true : (!itemSlot?.trim() && typeof itemSlot === "string")
+        const itemSlotNumber = itemSlotNotProvided ? player.inventory.length - 1 : parseInt(itemSlot?.trim())
 
-        const itemSlotNotProvided = (!itemSlot.trim() && typeof itemSlot === "string")
-
-        if (itemSlotNotProvided) {
-            return {
-                error: "# This command takes the inventory slot number in argument",
-                instantReply: true
-            }
-        }
-
-        const itemSlotNumber = parseInt(itemSlot)
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
         if (!item) {
-            player.inventory.splice(player.inventory.indexOf(item), 1)
             return {
-                error: `# ${username} tried to drop an item but has no item in inventory slot [${itemSlotNumber}]`,
+                message: `# ${username} tried to drop an item but has no item in inventory slot [${itemSlotNumber}]`,
                 instantReply: true,
-                deleteUserMsg: true
+                deleteUserMsg: true,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to drop an item from backpack but doesn't have any item! ]`, null, channel]
             }
         }
-
 
         worldItemsService.appendItem(channel, item)
         player.inventory.splice(player.inventory.indexOf(item), 1)
@@ -271,13 +311,14 @@ class DuckHuntService {
 
         return {
             success: true,
-            message: embed, //`[ Player ${username} drops item "${item}" on the ground ]`,
+            message: embed,
             deleteUserMsg: true,
-            instantReply: true
+            instantReply: true,
+            pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !drop\n` : '') + `[ Player ${username} drops the item ${item.name} (${item.rarity} ${item.type}) on the ground ]`, null, channel]
         }
     }
 
-    static async look(channel) {
+    static async look(channel, username) {
         const items = worldItemsService.getActiveItems(channel)
 
         const msg = new MessageEmbed()
@@ -290,27 +331,30 @@ class DuckHuntService {
             success: true,
             message: msg,
             deleteUserMsg: true,
-            instantReply: true
+            instantReply: true,
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Item on the ground: ${items[items.length - 1]?.name || 'none'} ]`, null, channel]
         }
     }
 
     static async sell(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
 
-        const itemSlotNotProvided = (!itemSlot && typeof itemSlot === "string")
+        const itemSlotNotProvided = username === process.env.BOTNAME ? true : (!itemSlot && typeof itemSlot === "string")
 
-        const itemSlotNumber = parseInt(itemSlot)
-        const item = itemSlotNotProvided ?
-            player.weapon ? player.weapon : null
-            : player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
+        const itemSlotNumber = itemSlotNotProvided ? player.inventory.length - 1 : parseInt(itemSlot)
+        const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
-        if (item === null) return {
-            error: itemSlot === null ?
+        if (!item || !item.name || !item.type || !item.rarity) {
+            const message = itemSlotNumber < 0 ?
                 `# ${username} tried to sell an item but has no item in its backpack`
-                : `# ${username} tried to sell an item but has no item in inventory slot [${itemSlotNumber}]`,
-            instantReply: true,
-            deleteUserMsg: true,
-            deleteNewMessage: true
+                : `# ${username} tried to sell an item but has no item in inventory slot [${itemSlotNumber}]`
+            return {
+                message,
+                instantReply: true,
+                deleteUserMsg: true,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to sell an item but has no item in its backpack! ]`, null, channel]
+            }
         }
 
         const args = [
@@ -331,11 +375,7 @@ class DuckHuntService {
 
         if (goldAmount && typeof goldAmount === "number" && !isNaN(goldAmount)) {
             player.gold += goldAmount
-            if (itemSlotNotProvided) {
-                player.weapon = null
-            } else {
-                player.inventory.splice(player.inventory.indexOf(item), 1)
-            }
+            player.inventory.splice(player.inventory.indexOf(item), 1)
         } else {
             return {
                 error: `# ${username} tried to sell an item but something went wrong with the AI generation (missing numerical value in result)\nFull result:\n\`\`\`${result}\`\`\``,
@@ -351,35 +391,81 @@ class DuckHuntService {
 
         return {
             success: true,
-            message: embed, // `[ Player ${username} sold item "${item}" for ${goldAmount} gold! Total player gold: ${player.gold} ]`,
+            message: embed,
             deleteUserMsg: true,
-            instantReply: true
+            instantReply: true,
+            pushIntoHistory: [
+                (username !== process.env.BOTNAME ? `${username}: !sell\n` : '') + `[ Player ${username} sold the item ${item.name} (${item.rarity} ${item.type}) for ${goldAmount} gold! ]`,
+                null,
+                channel
+            ]
+        }
+    }
+
+    static async equipItem(channel, username, itemSlot) {
+        const player = playerService.getPlayer(channel, username)
+
+        let itemSlotNumber
+        if (!itemSlot?.trim()) {
+            itemSlotNumber = player.inventory.length - 1
+        } else {
+            itemSlotNumber = parseInt(itemSlot)
+            if (isNaN(itemSlotNumber)) {
+                itemSlotNumber = player.inventory.length - 1
+            }
+        }
+
+        const item = player.inventory[itemSlotNumber] || null
+
+        if (!item) return {
+            error: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true,
+            deleteUserMsg: true
+        }
+
+        const ITEM_CATEGORIES = {
+            weapon: ["weapon"],
+            armor: ["armor", "clothing"],
+            accessory: ["accessory"]
+        }
+
+        let itemCategory = null
+        for (let c in ITEM_CATEGORIES) {
+            if (item.type.toLowerCase().includes(ITEM_CATEGORIES[c])) {
+                itemCategory = c
+                break
+            }
+        }
+
+        if (itemCategory === null) throw new Error("Null category")
+
+        if (itemCategory === "weapon") {
+
+        } else if (itemCategory === "armor") {
+
+        } else if (itemCategory === "accessory") {
+
         }
     }
 
     static async equipWeapon(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
 
-        const itemSlotNotProvided = (!itemSlot && typeof itemSlot === "string")
-
         let itemSlotNumber
-        if (itemSlotNotProvided && player.inventory.length !== 1) {
-            return {
-                error: "# You have to provide an inventory slot number for this command",
-                instantReply: true
-            }
-        } else if (itemSlotNotProvided) {
-            itemSlotNumber = 0
+        if (!itemSlot || !itemSlot.trim() || username === process.env.BOTNAME) {
+            itemSlotNumber = player.inventory.length - 1
         } else {
             itemSlotNumber = parseInt(itemSlot)
         }
 
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
-        if (item === null) return {
-            error: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
+        if (!item) return {
+            message: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
             instantReply: true,
-            deleteUserMsg: true
+            deleteUserMsg: true,
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to equip a weapon but has no item in its backpack! ]`, null, channel]
+
         }
 
         if (!player.weapon) {
@@ -396,9 +482,10 @@ class DuckHuntService {
 
             return {
                 success: true,
-                message: embed, //`[ Player ${username} equips item "${player.weapon}" as weapon ]`,
+                message: embed,
                 deleteUserMsg: true,
-                instantReply: true
+                instantReply: true,
+                pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipWeapon\n` : '') + `[ Player ${username} equips item ${player.weapon.name} (${item.rarity} ${item.type}) as weapon ]`, null, channel]
             }
         } else {
             const weapon = player.weapon
@@ -417,7 +504,8 @@ class DuckHuntService {
                 success: true,
                 message: embed,
                 deleteUserMsg: true,
-                instantReply: true
+                instantReply: true,
+                pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipWeapon\n` : '') + `[ Player ${username} equips item ${player.weapon.name} (${item.rarity} ${item.type}) as weapon and puts previous weapon ${weapon.name} into its backpack ]`, null, channel]
             }
         }
     }
@@ -425,25 +513,20 @@ class DuckHuntService {
     static async equipArmor(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
 
-        const itemSlotNotProvided = (!itemSlot && typeof itemSlot === "string")
 
         let itemSlotNumber
-        if (itemSlotNotProvided && player.inventory.length !== 1) {
-            return {
-                error: "# You have to provide an inventory slot number for this command",
-                instantReply: true
-            }
-        } else if (itemSlotNotProvided) {
-            itemSlotNumber = 0
+        if (!itemSlot || !itemSlot.trim() || username === process.env.BOTNAME) {
+            itemSlotNumber = player.inventory.length - 1
         } else {
             itemSlotNumber = parseInt(itemSlot)
         }
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
-        if (item === null) return {
-            error: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
+        if (!item) return {
+            message: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
             instantReply: true,
-            deleteUserMsg: true
+            deleteUserMsg: true,
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to equip an armor but has no item in its backpack! ]`, null, channel]
         }
 
         if (!player.armor) {
@@ -459,9 +542,10 @@ class DuckHuntService {
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
-                message: embed, // `[ Player ${username} equips item "${player.armor}" as armor ]`,
+                message: embed,
                 deleteUserMsg: true,
-                instantReply: true
+                instantReply: true,
+                pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipArmor\n` : '') + `[ Player ${username} equips item ${player.armor.name} (${item.rarity} ${item.type}) as armor ]`, null, channel]
             }
         } else {
             const armor = player.armor
@@ -480,7 +564,8 @@ class DuckHuntService {
                 success: true,
                 message: embed,
                 deleteUserMsg: true,
-                instantReply: true
+                instantReply: true,
+                pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipArmor\n` : '') + `[ Player ${username} equips item ${player.armor.name} (${item.rarity} ${item.type}) as armor and puts previous armor ${armor.name} into its backpack ]`, null, channel]
             }
         }
     }
@@ -488,25 +573,20 @@ class DuckHuntService {
     static async equipAccessory(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
 
-        const itemSlotNotProvided = (!itemSlot && typeof itemSlot === "string")
 
         let itemSlotNumber
-        if (itemSlotNotProvided && player.inventory.length !== 1) {
-            return {
-                error: "# You have to provide an inventory slot number for this command",
-                instantReply: true
-            }
-        } else if (itemSlotNotProvided) {
-            itemSlotNumber = 0
+        if (!itemSlot || !itemSlot.trim() || username === process.env.BOTNAME) {
+            itemSlotNumber = player.inventory.length - 1
         } else {
             itemSlotNumber = parseInt(itemSlot)
         }
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
-        if (item === null) return {
-            error: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
+        if (!item) return {
+            message: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
             instantReply: true,
-            deleteUserMsg: true
+            deleteUserMsg: true,
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to equip an accessory but has no item in its backpack! ]`, null, channel]
         }
 
         if (!player.accessory) {
@@ -524,7 +604,8 @@ class DuckHuntService {
                 success: true,
                 message: embed,
                 deleteUserMsg: true,
-                instantReply: true
+                instantReply: true,
+                pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipAccessory\n` : '') + `[ Player ${username} equips item ${player.accessory.name} (${item.rarity} ${item.type}) as accessory ]`, null, channel]
             }
         } else {
             const accessory = player.accessory
@@ -543,7 +624,8 @@ class DuckHuntService {
                 success: true,
                 message: embed,
                 deleteUserMsg: true,
-                instantReply: true
+                instantReply: true,
+                pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipAccessory\n` : '') + `[ Player ${username} equips item ${player.accessory.name} (${item.rarity} ${item.type}) as accessory and puts previous accessory ${accessory.name} into its backpack ]`, null, channel]
             }
         }
     }
@@ -573,7 +655,8 @@ class DuckHuntService {
                     success: true,
                     message: embed,
                     deleteUserMsg: true,
-                    instantReply: true
+                    instantReply: true,
+                    pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !unequipWeapon\n` : '') + `[ Player ${username} unequips weapon "${player.inventory[player.inventory.length - 1].name}" (${player.inventory[player.inventory.length - 1].rarity} ${player.inventory[player.inventory.length - 1].type}) ]`, null, channel]
                 }
             } else {
                 return {
@@ -610,7 +693,8 @@ class DuckHuntService {
                     success: true,
                     message: embed,
                     deleteUserMsg: true,
-                    instantReply: true
+                    instantReply: true,
+                    pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !unequipArmor\n` : '') + `[ Player ${username} unequips armor "${player.inventory[player.inventory.length - 1].name}" (${player.inventory[player.inventory.length - 1].rarity} ${player.inventory[player.inventory.length - 1].type}) ]`, null, channel]
                 }
             } else {
                 return {
@@ -647,7 +731,8 @@ class DuckHuntService {
                     success: true,
                     message: embed,
                     deleteUserMsg: true,
-                    instantReply: true
+                    instantReply: true,
+                    pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !unequipAccessory\n` : '') + `[ Player ${username} unequips accessory "${player.inventory[player.inventory.length - 1].name}" (${player.inventory[player.inventory.length - 1].rarity} ${player.inventory[player.inventory.length - 1].type}) ]`, null, channel]
                 }
             } else {
                 return {
@@ -675,7 +760,19 @@ class DuckHuntService {
         return {
             message: embed,
             deleteUserMsg: true,
-            instantReply: true
+            instantReply: true,
+            pushIntoHistory: [
+                (username !== process.env.BOTNAME ? `${username}: !inventory\n` : '')
+                + `[ Inventory of Player ${username};`
+                + ` backpack used space: (${player.inventory.length}/${player.inventorySize}); `
+                + ` backpack selected item: ${player.inventory[player.inventory.length]?.name || 'none'}; `
+                + `weapon: ${!player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`}; `
+                + `armor: ${!player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`}; `
+                + `accessory: ${!player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`} `
+                + `]`,
+                null,
+                channel
+            ]
         }
     }
 
@@ -685,10 +782,11 @@ class DuckHuntService {
         const price = Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2))
 
         if (player.gold < price) return {
-            error: `# ${username} tried to upgrade its backpack but doesn't have enough gold! (${player.gold}/${price})`,
+            message: `# ${username} tried to upgrade its backpack but doesn't have enough gold! (${player.gold}/${price})`,
             instantReply: true,
             deleteUserMsg: true,
-            deleteNewMessage: true
+            deleteNewMessage: username !== process.env.BOTNAME,
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to upgrade its backpack but doesn't have enough gold! (${player.gold}/${price}) ]`, null, channel]
         }
 
         player.inventorySize += 1
@@ -703,7 +801,8 @@ class DuckHuntService {
         return {
             message: embed,
             deleteUserMsg: true,
-            instantReply: true
+            instantReply: true,
+            pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !upgradeBackpack\n` : '') + `[ Player ${username} upgraded its backpack for ${price} gold! ]`, null, channel]
         }
     }
 
@@ -852,8 +951,14 @@ class DuckHuntService {
             instantReply: true
         }
     }
-}
 
+    static async fallback(channel, command, msg) {
+        return {
+            message: `# Command \`${msg}\` isn't implemented yet!`,
+            instantReply: true
+        }
+    }
+}
 
 
 export default DuckHuntService

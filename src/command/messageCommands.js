@@ -81,11 +81,8 @@ const messageCommands = {
         ["!delete "],
         process.env.ALLOW_DELETE_MESSAGE,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            const success = historyService.delete(channel, targetMessageId)
-            if (success) {
-                return {success: true, deleteUserMsg: true, deleteMessage: targetMessageId}
-            }
-            return {error: `# No message with ID #${targetMessageId}`, deleteUserMsg: true}
+            historyService.delete(channel, targetMessageId)
+            return {success: true, deleteUserMsg: true, deleteMessage: targetMessageId}
         },
         true
     ),
@@ -99,11 +96,8 @@ const messageCommands = {
                 error: `# You need to provide a messageID for this command`,
                 deleteUserMsg: true
             }
-            const success = historyService.prune(channel, targetMessageId)
-            if (success) {
-                return {success: true, deleteUserMsg: true, deleteMessagesUpTo: targetMessageId}
-            }
-            return {error: `# No message with ID #${targetMessageId}`, deleteUserMsg: true}
+            historyService.prune(channel, targetMessageId)
+            return {success: true, deleteUserMsg: true, deleteMessagesUpTo: targetMessageId}
         },
         true
     ),
@@ -171,30 +165,10 @@ const messageCommands = {
         process.env.ALLOW_COMMENT_MESSAGE,
         (msg, from, channel, command) => {
             // Do nothing (ignore the comment message)
-        }),
-    answerToName: new Command(
-        "Answer to Name",
-        [],
-        [],
-        null,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            historyService.pushIntoHistory(msg, from, channel, messageId)
-
-            if (!utils.checkPermissions(roles, process.env.ALLOW_REPLY_TO_NAME, channel.startsWith("##"))) {
-                return
-            }
-
-            if (msg.toLowerCase().includes(process.env.BOTNAME.toLowerCase())) {
-                const prompt = promptService.getPrompt(channel)
-                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
-                return {
-                    message: answer,
-                    pushIntoHistory: [answer, process.env.BOTNAME, channel]
-                }
-            }
         },
-        false
+        true
     ),
+
     talk: new Command(
         "Talk",
         [],
@@ -213,7 +187,7 @@ const messageCommands = {
             if (lastAuthorIsBot) return
 
             const timeStep = 1000
-            const lastMessageIsOldEnough = Date.now() - lastMessageFromChannel.timestamp > (parseInt(process.env.MIN_BOT_MESSAGE_INTERVAL) * timeStep)
+            const lastMessageIsOldEnough = (Date.now() - lastMessageFromChannel.timestamp) > (parseInt(process.env.MIN_BOT_MESSAGE_INTERVAL) * timeStep)
 
             if (lastMessageIsOldEnough) {
                 const prompt = promptService.getPrompt(channel)
@@ -258,7 +232,6 @@ messageCommands.all = [
     messageCommands.retryMessage,
     messageCommands.editMessage,
     messageCommands.answerMessage,
-    messageCommands.answerToName,
     // messageCommands.talk,
     // messageCommands.reactToAction,
 ]

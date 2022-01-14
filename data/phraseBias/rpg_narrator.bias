@@ -4,16 +4,13 @@
       "phrases": [
         {
           "sequences": [
-            [
-              3740,
-              1378
-            ]
+            [28390, 1352]
           ],
           "type": 1
         }
       ],
-      "bias": 0.05,
-      "ensure_sequence_finish": true,
+      "bias": -0.05,
+      "ensure_sequence_finish": false,
       "generate_once": true,
       "enabled": true,
       "whenInactive": false

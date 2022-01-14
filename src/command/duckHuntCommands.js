@@ -1,8 +1,6 @@
 import {config} from "dotenv";
 import Command from "./Command.js";
 import duckHuntService from "../service/rpg/duckHuntService.js";
-import playerService from "../service/rpg/playerService.js";
-import {MessageEmbed} from "discord.js";
 
 config()
 
@@ -27,19 +25,14 @@ const duckHuntCommands = {
                 difficulty = parsedMsg || null
             }
 
-            return {
-                message: await duckHuntService.spawn(channel, difficulty, name),
-                success: true,
-                deleteUserMsg: true,
-                instantReply: true
-            }
+            return await duckHuntService.spawn(channel, difficulty, name)
         },
         false
     ),
     attack: new Command(
         "Attack",
         [],
-        ["!atk", "!attack", "⚔", "⚔️", ":crossed_swords:", ":baguette_attack:"],
+        ["!atk", "!attack", "⚔", "⚔️", ":crossed_swords:", ":baguette_attack:", "Attack!", "!fight", "!kill", "!charge", "!finish"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return await duckHuntService.attack(channel, from)
@@ -49,38 +42,10 @@ const duckHuntCommands = {
     take: new Command(
         "Grab loot",
         [],
-        ["!grab", "!pick", "!take"],
+        ["!grab", "!pick", "!take", "!keep"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            const item = duckHuntService.take(channel, from, parsedMsg)
-            const player = playerService.getPlayer(channel, from)
-
-            if (item && item.name && item.name !== "undefined" && item.name !== undefined) {
-                const embed = new MessageEmbed()
-                    .setColor('#884422')
-                    .setTitle(`Player ${from} takes the item "${item.name}"`)
-                    .setDescription(`${from} puts the item in its backpack slot number [${player.inventory.length - 1}]`)
-
-                return {
-                    message: embed,
-                    success: true,
-                    deleteUserMsg: true,
-                    instantReply: true
-                }
-            } else if (item === false) {
-                return {
-                    error: `# ${from} tried to take an item, but its backpack is full. Try to \`!sell\` or \`!drop\` an item first!`,
-                    instantReply: true,
-                    deleteUserMsg: true,
-                    deleteNewMessage: true
-                }
-            }
-            return {
-                error: `# ${from} tried to take an item on the ground, but there is no item to grab...`,
-                instantReply: true,
-                deleteUserMsg: true,
-                deleteNewMessage: true
-            }
+            return duckHuntService.take(channel, from, parsedMsg)
         },
         false
     ),
@@ -100,7 +65,7 @@ const duckHuntCommands = {
         ["!look"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            return duckHuntService.look(channel)
+            return duckHuntService.look(channel, from)
         },
         false
     ),
@@ -114,10 +79,20 @@ const duckHuntCommands = {
         },
         false
     ),
+    equip: new Command(
+        "Equip Item",
+        [],
+        ["!equipItem", "!equip"],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return duckHuntService.equipItem(channel, from, parsedMsg.trim())
+        },
+        false
+    ),
     equipWeapon: new Command(
         "Equip Weapon",
         [],
-        ["!equipWeapon", "!equip Weapon", "!equip weapon", "!equipW", "!equip W", "!equip"],
+        ["!equipWeapon", "!equip Weapon", "!equip weapon", "!equipW", "!equip W", "!equip", "!weapon"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipWeapon(channel, from, parsedMsg.trim())
@@ -127,7 +102,7 @@ const duckHuntCommands = {
     equipArmor: new Command(
         "Equip armor",
         [],
-        ["!equipArmor", "!equip Armor", "!equip armor", "!equipAr", "!equip Ar", "!equip ar"],
+        ["!equipArmor", "!equip Armor", "!equip armor", "!equipAr", "!equip Ar", "!equip ar", "!armor", "!wear"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipArmor(channel, from, parsedMsg.trim())
@@ -137,7 +112,7 @@ const duckHuntCommands = {
     equipAccessory: new Command(
         "Equip accessory",
         [],
-        ["!equipAccessory", "!equip Accessory", "!equip accessory", "!equipAcc", "!equip Acc", "!equip acc", "!equipAc", "!equip Ac", "!equip ac"],
+        ["!equipRing", "!equipAccessory", "!equip Accessory", "!equip accessory", "!equipAcc", "!equip Acc", "!equip acc", "!equipAc", "!equip Ac", "!equip ac", "!accessory"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipAccessory(channel, from, parsedMsg.trim())
@@ -176,8 +151,8 @@ const duckHuntCommands = {
     ),
     showInventory: new Command(
         "Show Inventory",
-        ["!inventory", "!showInventory"],
         [],
+        ["!inventory", "!showInventory", "!showEquipment", "!checkEquipment", "!checkInventory"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.showInventory(channel, from)
@@ -186,41 +161,11 @@ const duckHuntCommands = {
     ),
     upgradeBackpack: new Command(
         "Upgrade Backpack",
-        ["!upgradeBackpack", "!upgrade"],
         [],
+        ["!upgradeBackpack", "!upgrade", "!Upgrade"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.upgradeBackpack(channel, from)
-        },
-        false
-    ),
-    generateSpell: new Command(
-        "Generate Spell",
-        [],
-        ["!spellBook", "!spellbook", "!spell"],
-        process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            return duckHuntService.generateSpell(channel, parsedMsg)
-        },
-        false
-    ),
-    generator: new Command(
-        "Generate Spell",
-        [],
-        ["!generator"],
-        process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            return duckHuntService.generator(channel, parsedMsg, attachmentUrl)
-        },
-        false
-    ),
-    generatorPrompt: new Command(
-        "Generate Spell",
-        [],
-        ["!generatorPrompt"],
-        process.env.ALLOW_RPG_ATTACK,
-        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            return duckHuntService.generatorPrompt(channel, parsedMsg, attachmentUrl)
         },
         false
     ),
@@ -238,12 +183,10 @@ duckHuntCommands.all = [
     duckHuntCommands.unequipWeapon,
     duckHuntCommands.unequipArmor,
     duckHuntCommands.unequipAccessory,
-    duckHuntCommands.equipWeapon,
     duckHuntCommands.showInventory,
     duckHuntCommands.upgradeBackpack,
-    duckHuntCommands.generateSpell,
-    duckHuntCommands.generatorPrompt,
-    duckHuntCommands.generator,
+    duckHuntCommands.equipWeapon,
+    //duckHuntCommands.equip,
 ]
 
 export default duckHuntCommands

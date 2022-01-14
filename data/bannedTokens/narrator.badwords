@@ -1,0 +1,30 @@
+{
+  "bannedSequenceGroups": [
+    {
+      "sequences": [
+        {
+          "sequences": [],
+          "sequence": "28390,1352",
+          "type": 1,
+          "tokens": [
+            [
+              28390,
+              1352
+            ]
+          ]
+        },
+        {
+          "sequences": [],
+          "sequence": "32339",
+          "type": 1,
+          "tokens": [
+            [
+              32339
+            ]
+          ]
+        }
+      ],
+      "enabled": true
+    }
+  ]
+}

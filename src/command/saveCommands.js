@@ -78,9 +78,7 @@ const saveCommands = {
 
             if (success) {
                 return {
-                    message: "# Save file loaded successfully!",
-                    success: true,
-                    deleteNewMessage: true
+                    success: true
                 }
             }else{
                 return {

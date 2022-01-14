@@ -44,18 +44,18 @@
   "list": [
     {
       "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Name: Orc; difficulty: hard; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Enemy: Orc; difficulty: hard; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
-      "description": "You attack the orc using your bare hands. The orc is quite a good fighter, and dodges or blocks all your attacks, but also gets tired from the efforts.",
-      "wounds": "tired (general)",
-      "bloodLoss": "none",
+      "description": "You attack the orc using your bare hands. The orc manages to dodge or block some of your attacks, but still gets bruised and tired from the efforts.",
+      "wounds": "bruised (general), tired (general)",
+      "bloodLoss": "minor",
       "status": "healthy"
     },
     {
       "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Name: Orc; difficulty: medium; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Enemy: Orc; difficulty: medium; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -66,40 +66,40 @@
     },
     {
       "player": "[ Iron Sword;No Armor ]",
-      "enemy": "[ Name: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose; blood loss: minor; status: slightly wounded ]",
+      "enemy": "[ Enemy: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose; blood loss: minor; status: slightly wounded ]",
       "enemyCurrentWounds": "broken nose",
       "enemyCurrentBloodLoss": "minor",
       "enemyCurrentStatus": "slightly wounded",
-      "description": "You strike the orc with your iron sword. You cut into orc's stomach and guts, spreading his blood everywhere",
+      "description": "You strike the orc in the stomach with your iron sword. You cut into orc's abdomen and some guts come out, spreading his blood everywhere",
       "wounds": "eviscerated",
       "bloodLoss": "major",
       "status": "heavily wounded"
     },
     {
       "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Name: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs, eviscerated; blood loss: major; status: heavily wounded ]",
+      "enemy": "[ Enemy: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs, eviscerated; blood loss: major; status: heavily wounded ]",
       "enemyCurrentWounds": "broken nose, broken ribs, eviscerated",
       "enemyCurrentBloodLoss": "major",
       "enemyCurrentStatus": "heavily wounded",
-      "description": "You punch the semi-conscious orc in the torso. Your blows doesn't do much, but the orc finally succumbs to his severe wounds and dies.",
-      "wounds": "none",
+      "description": "You punch the semi-conscious orc in the torso. Your blows doesn't do much, but the orc is already so badly mangled that it succumbs to his severe wounds and dies.",
+      "wounds": "bruises (torso)",
       "bloodLoss": "extreme",
       "status": "dead"
     },
     {
       "player": "[ Iron Longsword; No Armor ]",
-      "enemy": "[ Name: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs; blood loss: minimal; status: heavily wounded ]",
+      "enemy": "[ Enemy: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs; blood loss: minimal; status: heavily wounded ]",
       "enemyCurrentWounds": "broken nose, broken ribs",
       "enemyCurrentBloodLoss": "minimal",
       "enemyCurrentStatus": "heavily wounded",
-      "description": "You swing your iron longsword at the orc. Due to his wounds, he fails to dodge and you cut his head off.",
+      "description": "You swing your iron longsword at the orc's throat. Due to his wounds, he fails to dodge and you cut his head off.",
       "wounds": "decapitated",
       "bloodLoss": "extreme",
       "status": "dead"
     },
     {
       "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Name: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Enemy: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -110,7 +110,7 @@
     },
     {
       "player": "[ Small Knife; No Armor ]",
-      "enemy": "[ Name: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Enemy: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -121,7 +121,7 @@
     },
     {
       "player": "[ Wooden Spear; No Armor ]",
-      "enemy": "[ Name: Goblin; difficulty: easy; armor: Cloth Armor; wounds: slashed chest; blood loss: moderate; status: moderately wounded ]",
+      "enemy": "[ Enemy: Goblin; difficulty: easy; armor: Cloth Armor; wounds: slashed chest; blood loss: moderate; status: moderately wounded ]",
       "enemyCurrentWounds": "slashed chest",
       "enemyCurrentBloodLoss": "moderate",
       "enemyCurrentStatus": "moderately wounded",
@@ -132,7 +132,7 @@
     },
     {
       "player": "[ Rare Large Steel Axe; Leather Armor ]",
-      "enemy": "[ Name: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Enemy: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -143,7 +143,7 @@
     },
     {
       "player": "[ Rare Small Copper Dagger; Leather Armor ]",
-      "enemy": "[ Name: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Enemy: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -154,7 +154,7 @@
     },
     {
       "player": "[ Rusty Copper Dagger; Leather Armor ]",
-      "enemy": "[ Name: Kobold; difficulty: easy; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: heavily wounded ]",
+      "enemy": "[ Enemy: Kobold; difficulty: easy; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: heavily wounded ]",
       "enemyCurrentWounds": "lacerations (right arm), severed limb (left arm)",
       "enemyCurrentBloodLoss": "major",
       "enemyCurrentStatus": "heavily wounded",
@@ -165,18 +165,18 @@
     },
     {
       "player": "[ Wooden Club; No Armor ]",
-      "enemy": "[ Name: Troll; difficulty: very hard; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
+      "enemy": "[ Enemy: Troll; difficulty: very hard; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
       "enemyCurrentWounds": "disemboweled, amputated (right leg)",
       "enemyCurrentBloodLoss": "major",
       "enemyCurrentStatus": "heavily wounded",
-      "description": "You strike the troll with your wooden club, only doing light bruises on its torso. The troll is however badly in shape and bleeding profusely. He just crumbles to the floor, dead.",
-      "wounds": "light bruises (torso)",
+      "description": "You strike the troll with your wooden club, only doing light bruises on its sternum. The troll is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead.",
+      "wounds": "light bruises (sternum)",
       "bloodLoss": "extreme",
       "status": "dead"
     }
   ],
   "aiParameters": {
-    "temperature": 1.25
+    "temperature": 0.8
   },
   "submodules": {
     "attack": {
@@ -208,6 +208,54 @@
         {
           "name": "wounds",
           "replaceBy": "Enemy new wound(s):"
+        }
+      ]
+    },
+    "bloodLossDetection": {
+      "properties": [
+        {
+          "name": "enemyCurrentBloodLoss",
+          "replaceBy": "Enemy blood loss level before your attack::"
+        },
+        {
+          "name": "description",
+          "replaceBy": "Description of your attack:"
+        },
+        {
+          "name": "wounds",
+          "replaceBy": "Enemy new wound(s) after your attack:"
+        },
+        {
+          "name": "bloodLoss",
+          "replaceBy": "Enemy blood loss level after your attack:"
+        }
+      ]
+    },
+    "statusDetection": {
+      "properties": [
+        {
+          "name": "enemyCurrentWounds",
+          "replaceBy": "Enemy wounds before your attack:"
+        },
+        {
+          "name": "enemyCurrentBloodLoss",
+          "replaceBy": "Enemy blood loss level before your attack:"
+        },
+        {
+          "name": "enemyCurrentStatus",
+          "replaceBy": "Enemy status before your attack:"
+        },
+        {
+          "name": "description",
+          "replaceBy": "Description of your attack:"
+        },
+        {
+          "name": "wounds",
+          "replaceBy": "Enemy new wound(s) after your attack:"
+        },
+        {
+          "name": "status",
+          "replaceBy": "Enemy status after your attack:"
         }
       ]
     },

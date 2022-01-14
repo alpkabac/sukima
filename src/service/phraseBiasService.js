@@ -1,8 +1,8 @@
 import {config} from "dotenv";
-
-config()
 import utils from "../utils.js";
 import personalityService from "./personalityService.js";
+
+config()
 
 class PhraseBiasService {
     static channelPhraseBiases = {}
@@ -10,6 +10,7 @@ class PhraseBiasService {
     static getPhraseBiases(channel) {
         if (!channel) throw new Error("Channel argument is mandatory")
 
+        // cached biases
         if (this.channelPhraseBiases[channel]) {
             return this.channelPhraseBiases[channel]
         }
@@ -30,25 +31,19 @@ class PhraseBiasService {
 
         // load default phrase bias from environment file
         if (process.env.PHRASE_BIASES_FILE) {
-            this.channelPhraseBiases[channel] = this.loadBias(process.env.PHRASE_BIASES_FILE)
+            this.loadChannelPhraseBiasFiles(channel, this.parsePhraseBiasFilesString(process.env.PHRASE_BIASES_FILE))
             return this.channelPhraseBiases[channel]
         }
 
         // load phrase bias files from personality
-        if (personality && personality.phraseBiasFiles) {
-            let phraseBiasFiles
-            if (typeof personality.phraseBiasFiles === "string") {
-                phraseBiasFiles = this.parsePhraseBiasFilesString(personality.phraseBiasFiles)
-            } else if (personality.phraseBiasFiles instanceof Array) {
-                phraseBiasFiles = personality.phraseBiasFiles
-            }
-
+        if (personality && personality.phraseBiasFiles && typeof personality.phraseBiasFiles === "string") {
+            let phraseBiasFiles = this.parsePhraseBiasFilesString(personality.phraseBiasFiles)
             this.loadChannelPhraseBiasFiles(channel, phraseBiasFiles)
             return this.channelPhraseBiases[channel]
         }
 
         // load default phrase bias
-        this.channelPhraseBiases[channel] = this.loadBias(`default`)
+        this.loadChannelPhraseBiasFiles(channel, this.parsePhraseBiasFilesString('default'))
         return this.channelPhraseBiases[channel]
     }
 
@@ -65,6 +60,7 @@ class PhraseBiasService {
         for (let logitBiasGroup of logitBiasGroups) {
             if (!logitBiasGroup.enabled) continue
             for (let phrase of logitBiasGroup.phrases) {
+                if (!phrase.sequences || !phrase.sequences.length) continue
                 for (let sequence of phrase.sequences) {
                     const logitBias = {
                         sequence,
@@ -72,6 +68,7 @@ class PhraseBiasService {
                         "ensure_sequence_finish": logitBiasGroup.ensure_sequence_finish,
                         "generate_once": logitBiasGroup.generate_once
                     }
+
                     logit_bias_exp.push(logitBias)
                 }
             }
@@ -84,7 +81,7 @@ class PhraseBiasService {
         let allPhraseBiases = []
         for (let phraseBiasFile of phraseBiasFiles) {
             const phraseBias = this.loadBias(`${phraseBiasFile}`)
-            allPhraseBiases.concat(phraseBias)
+            allPhraseBiases = allPhraseBiases.concat(phraseBias)
         }
         this.channelPhraseBiases[channel] = allPhraseBiases
     }

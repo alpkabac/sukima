@@ -3,8 +3,9 @@ import axios from "axios";
 import utils from '../utils.js'
 import messageService from "./messageService.js";
 import lmiService from "./lmiService.js";
-import bannedTokensService from "./bannedTokensService.js";
 import phraseBiasService from "./phraseBiasService.js";
+import bannedTokensService from "./bannedTokensService.js";
+import aiParametersService from "./aiParametersService.js";
 
 config()
 
@@ -133,11 +134,16 @@ class AiService {
         let answer
         let parsedAnswer
         let nbTry = 0
-        const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
+        let params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
 
         params.repetition_penalty_range = prompt.repetition_penalty_range
 
         if (channel) {
+            const aiParameters = aiParametersService.getAiParameters(channel)
+            if (aiParameters){
+                params = aiParameters
+            }
+
             const bannedTokens = bannedTokensService.getBannedTokens(channel)
             if (bannedTokens && bannedTokens.length > 0)
                 params.bad_words_ids = bannedTokens
@@ -182,11 +188,11 @@ class AiService {
         params.bad_words_ids = [[27, 91, 437, 1659, 5239, 91, 29], [1279, 91, 437, 1659, 5239, 91, 29], [27, 91, 10619, 46, 9792, 13918, 91, 29], [1279, 91, 10619, 46, 9792, 13918, 91, 29]]
         params.logit_bias_exp = undefined
         delete params.logit_bias_exp
-        params.repetition_penalty = 1.16
-        params.repetition_penalty_range = 1024
-        params.repetition_penalty_slope = 5
-        params.tail_free_sampling = 0.422
-        params.temperature = 0.55
+        params.repetition_penalty = 1.20
+        params.repetition_penalty_range = 2048
+        params.repetition_penalty_slope = null
+        params.tail_free_sampling = null
+        params.temperature = 0.8
         params.top_p = 1
         params.top_k = 0
         params.eos_token_id = eos_token_id

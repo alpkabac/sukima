@@ -10,19 +10,23 @@ class HistoryService {
     }
 
     static delete(channel, messageId) {
-        let history = this.channelHistories[channel]
+        let history = this.getChannelHistory()[channel]
         let index
 
-        for (let h in history) {
-            if (history[h].messageId === messageId) {
-                index = h
+        for (let i in history) {
+            if (history[i].messageId.toString() === messageId.toString()) {
+                index = i
                 break
             }
         }
 
         if (index !== null) {
-            history.splice(index, 1)
-            return true
+            try {
+                history.splice(index, 1)
+                return true
+            } catch {
+
+            }
         }
         return false
     }
@@ -39,16 +43,20 @@ class HistoryService {
         let history = this.channelHistories[channel]
         let index
 
-        for (let h in history) {
-            if (history[h].messageId === messageId) {
-                index = h
+        for (let i in history) {
+            if (history[i].messageId.toString() === messageId.toString()) {
+                index = i
                 break
             }
         }
 
         if (index !== null) {
-            history.splice(index)
-            return true
+            try {
+                history.splice(index)
+                return true
+            } catch {
+
+            }
         }
 
         return false

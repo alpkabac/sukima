@@ -16,8 +16,25 @@ import discordCommands from "../discord/command/discordCommands.js";
 import envService from "../util/envService.js";
 import pawnService from "../service/rpg/pawnService.js";
 import duckHuntService from "../service/rpg/duckHuntService.js";
+import muteService from "../service/muteService.js";
+import duckHuntCommands from "../command/duckHuntCommands.js";
 
 dotenv.config()
+
+const allowedCommands = []
+    .concat(duckHuntCommands.attack.commandsStartsWith)
+    .concat(duckHuntCommands.take.commandsStartsWith)
+    .concat(duckHuntCommands.drop.commandsStartsWith)
+    .concat(duckHuntCommands.look.commandsStartsWith)
+    .concat(duckHuntCommands.sell.commandsStartsWith)
+    .concat(duckHuntCommands.equipWeapon.commandsStartsWith)
+    .concat(duckHuntCommands.equipArmor.commandsStartsWith)
+    .concat(duckHuntCommands.equipAccessory.commandsStartsWith)
+    .concat(duckHuntCommands.unequipWeapon.commandsStartsWith)
+    .concat(duckHuntCommands.unequipArmor.commandsStartsWith)
+    .concat(duckHuntCommands.unequipAccessory.commandsStartsWith)
+    .concat(duckHuntCommands.showInventory.commandsStartsWith)
+    .concat(duckHuntCommands.upgradeBackpack.commandsStartsWith)
 
 const bot = new Client({
     allowedMentions: {
@@ -170,6 +187,32 @@ function appendMessage(msg) {
     messageList.push(msg)
 }
 
+function isMessageAnAllowedCommand(msg) {
+    if (!msg.startsWith('!')) return false
+    return allowedCommands.some(ac => msg.toLowerCase()?.trim()?.startsWith(ac))
+}
+
+function clearRpgBotTextOutput(text) {
+    let cleanContent = text
+    const isCommand = text.startsWith('!')
+    // removes commands if they are not the first word
+    cleanContent = (isCommand ? '!' : '')
+        + cleanContent
+            .substr(isCommand ? 1 : 0)
+            .replace(/![a-zA-Z0-9*'\]].*$/, '')
+
+    if (cleanContent.startsWith('!')) {
+        cleanContent = '!' + cleanContent.substr(1).replace(/!.*$/, '')
+        cleanContent = cleanContent.replace(/\*.*$/, '')
+    }
+
+    // removes arguments from commands
+    if (text.startsWith('!')) {
+        cleanContent = cleanContent.replace(/ .*$/, '')
+    }
+
+    return cleanContent
+}
 
 async function processMessage(msg) {
     const privateMessage = msg.channel.type === "dm"
@@ -189,22 +232,37 @@ async function processMessage(msg) {
     if (!utils.isMessageFromAllowedChannel(channelName)) return
 
     const originalMsg = msg
+
     if (!channels[channelName])
         channels[channelName] = originalMsg.channel
+
+    let cleanContent = replaceAliasesInMessage(replaceBackQuotesByAsterisks(originalMsg.cleanContent), process.env.BOTNAME)
 
     // Prevents messages from the bot itself
     // Also cache the last bot message for later retries
     if (originalMsg.author.username === bot.user.username) {
         channels[channelName].lastBotMessage = originalMsg
-        return
+
+        if (!envService.isRpgModeEnabled()) return
+
+        cleanContent = clearRpgBotTextOutput(cleanContent)
+
+        const isCommandAllowed = isMessageAnAllowedCommand(cleanContent)
+
+        if (!isCommandAllowed) {
+            if (cleanContent.startsWith('!')) {
+                await originalMsg?.delete().catch(e => console.error(e))
+            }
+            return
+        }
     }
+
     if (originalMsg.content === ";ai me") return                        // Prevents commands from other bots
 
     const userRoles = originalMsg.member?.roles?.cache.map(r => {
         return {id: r.id, name: r.name}
     }) || []
 
-    const cleanContent = replaceAliasesInMessage(replaceBackQuotesByAsterisks(originalMsg.cleanContent), process.env.BOTNAME)
 
     locked[channelName] = true
 
@@ -259,44 +317,13 @@ async function processMessage(msg) {
         }
     }
 
-    if (message && message.deleteMessage) {
-        const m = await originalMsg?.channel?.messages?.fetch(message.deleteMessage).catch(() => null)
-        if (m) {
-            setTimeout(() => {
-                m.delete().catch(() => null)
-            }, 2000)
-        } else {
-            console.log("Weird...")
-        }
-    }
-
-    if (message && message.deleteMessagesUpTo) {
-        const allMessages = await originalMsg.channel.messages.fetch()
-        const targetMessage = allMessages.find((m) => m.id === message.deleteMessagesUpTo)
-        if (targetMessage) {
-            setTimeout(async () => {
-                const messagesToDelete = allMessages.filter(m => m.createdTimestamp >= targetMessage.createdTimestamp)
-
-                // Synchronize history by removing newer messages
-                historyService.channelHistories[channelName] = historyService.channelHistories[channelName].filter(m => {
-                    const fetchedMessage = allMessages.find(_ => _.id === m.messageId)
-                    return !(fetchedMessage && fetchedMessage.createdTimestamp >= targetMessage.createdTimestamp);
-                })
-
-                if (originalMsg.channel?.bulkDelete) {
-                    await originalMsg.channel?.bulkDelete(messagesToDelete).catch(() => null)
-                }
-            }, 2000)
-        }
-    }
-
     if (message && message.setActivityType && message.setActivityName) {
         await bot.user.setActivity(message.setActivityName, {type: message.setActivityType})
     } else if (message && message.setActivityName) {
         await bot.user.setActivity(message.setActivityName)
     }
 
-    if (message.message) {
+    if (message && message.message) {
         let parsedMessage
         let messageLength
         let embedMessage = false
@@ -336,7 +363,7 @@ async function processMessage(msg) {
                     if (embedMessage) {
                         newMessage = await channels[channelName].send(parsedMessage).catch(() => null)
                     } else {
-                        newMessage = await originalMsg.inlineReply(parsedMessage).catch(() => null)
+                        await originalMsg.inlineReply(parsedMessage).catch(() => null)
                     }
                 }
             }
@@ -346,7 +373,7 @@ async function processMessage(msg) {
             }
 
             if (message && message.pushIntoHistory) {
-                historyService.pushIntoHistory(message.pushIntoHistory[0], message.pushIntoHistory[1], message.pushIntoHistory[2], newMessage?.id)
+                historyService.pushIntoHistory(message.pushIntoHistory[0], message.pushIntoHistory[1], message.pushIntoHistory[2], newMessage.id)
             }
 
             if (newMessage && message.deleteNewMessage) {
@@ -377,6 +404,37 @@ async function processMessage(msg) {
         locked[channelName] = false
     }
 
+    if (message && message.deleteMessage) {
+        const m = await originalMsg?.channel?.messages?.fetch(message.deleteMessage).catch(() => null)
+        if (m) {
+            setTimeout(() => {
+                m.delete().catch(() => null)
+            }, 2000)
+        } else {
+            console.log("Weird...")
+        }
+    }
+
+    if (message && message.deleteMessagesUpTo) {
+        const allMessages = await originalMsg.channel.messages.fetch()
+        const targetMessage = allMessages.find((m) => m.id === message.deleteMessagesUpTo)
+        if (targetMessage) {
+            setTimeout(async () => {
+                const messagesToDelete = allMessages.filter(m => m.createdTimestamp >= targetMessage.createdTimestamp)
+
+                // Synchronize history by removing newer messages
+                historyService.channelHistories[channelName] = historyService.channelHistories[channelName].filter(m => {
+                    const fetchedMessage = allMessages.find(_ => _.id === m.messageId)
+                    return !(fetchedMessage && fetchedMessage.createdTimestamp >= targetMessage.createdTimestamp);
+                })
+
+                if (originalMsg.channel?.bulkDelete) {
+                    await originalMsg.channel?.bulkDelete(messagesToDelete).catch(() => null)
+                }
+            }, 2000)
+        }
+    }
+
     if (message && message.deleteUserMsg) {
         setTimeout(() => {
             originalMsg.delete().catch(() => null)
@@ -391,19 +449,12 @@ async function messageLoop() {
         msg = messageList.shift()
     }
 
-    setTimeout(messageLoop, 200)
-}
-
-messageLoop()
-
-bot.on('message', appendMessage);
-
-async function loop() {
-
+    // Auto answer
     if (utils.getBoolFromString(process.env.ENABLE_AUTO_ANSWER)) {
         for (let channel in channels) {
             // Present sending double messages
             if (locked[channel]) continue
+            if (muteService.isChannelMuted(channel)) continue
 
             locked[channel] = true
             const msg = await messageCommands.talk.call(null, null, channel, [], undefined, bot)
@@ -413,9 +464,9 @@ async function loop() {
                 const timeToWait = encoder.encode(parsedMessage).length * 50
                 channels[channel].startTyping().then()
                 setTimeout(async () => {
-                    const m = await channels[channel].send(parsedMessage).catch(() => null)
-                    if (msg.pushIntoHistory) {
-                        historyService.pushIntoHistory(msg.message, process.env.BOTNAME, channel, m?.id)
+                    const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
+                    if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
+                        historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
                     }
                     channels[channel].stopTyping(true)
                     locked[channel] = false
@@ -429,68 +480,117 @@ async function loop() {
         }
     }
 
-    setTimeout(loop, 1000)
-}
-
-setTimeout(loop, 5000)
-
-setInterval(async () => {
-// Waits two seconds if an answer is still generating
-    if (locked) return setTimeout(loop, 2000)
-
+    // Auto message
     if (utils.getBoolFromString(process.env.ENABLE_AUTO_MESSAGE)) {
         for (let channel in channels) {
 
             // Prevents auto messages in DMs (temporary, hopefully)
             if (channel.startsWith("##")) continue
+            if (muteService.isChannelMuted(channel)) continue
+            if (locked[channel]) continue
 
-            // TODO: put into a command
             const history = historyService.getChannelHistory(channel)
 
             // Checks if the conditions for new message are met
-            const historyIsEmpty = !(history.length > 0)
-            const lastMessage = historyIsEmpty ? history[history.length - 1] : null
+            const historyIsEmpty = history.length === 0
+            const lastMessage = historyIsEmpty ? null : history[history.length - 1]
             const timePassed = Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
-            const enoughPassedTime = lastMessage?.timestamp > timePassed
-            const isLastMessageFromUser = lastMessage?.from !== process.env.BOTNAME && !!lastMessage?.from
+            const enoughPassedTime = timePassed > lastMessage?.timestamp
+            const isLastMessageFromBot = lastMessage?.from?.toLowerCase() === process.env.BOTNAME.toLowerCase()
 
-            if (historyIsEmpty || !enoughPassedTime || isLastMessageFromUser) {
+            if (historyIsEmpty || !enoughPassedTime || !isLastMessageFromBot) {
                 continue
             }
-
+            locked[channel] = true
             const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
             const prompt = promptService.getPrompt(channel, true).prompt + "\n"
             const result = await aiService.simpleEvalbot(prompt, tokenCount, channel.startsWith("##"))
             // If next message is from the AI
-            if (result === process.env.BOTNAME) {
-                const prompt = promptService.getPrompt(channel)
-                const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
-                if (answer) {
-                    const parsedMessage = replaceAsterisksByBackQuotes(answer)
+            if (result && result.toLowerCase().trim() === process.env.BOTNAME.toLowerCase()) {
+                const msg = await messageCommands.forceTalk.call('!talk', null, channel, [], undefined, bot)
+                // If normal answer
+                if (msg && msg.message?.trim()) {
+                    const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
                     const timeToWait = encoder.encode(parsedMessage).length * 50
                     channels[channel].startTyping().then()
                     setTimeout(async () => {
-                        const m = await channels[channel].send(parsedMessage).catch(() => null)
-                        historyService.pushIntoHistory(answer, process.env.BOTNAME, channel, m.id)
-
+                        const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
+                        if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
+                            historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
+                        }
                         channels[channel].stopTyping(true)
+                        locked[channel] = false
                     }, timeToWait)
+                    if (!channel.startsWith("##")) {
+                        await speak(parsedMessage, channel)
+                    }
+                } else {
+                    locked[channel] = false
                 }
+            } else {
+                locked[channel] = false
             }
         }
     }
-}, parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
 
+    setTimeout(messageLoop, 2000)
+}
+
+messageLoop()
+
+bot.on('message', appendMessage);
+
+bot.on('messageReactionAdd', async (reaction, user) => {
+    if (!reaction.me) {
+        const privateMessage = reaction.message?.channel?.type === "dm"
+        const channelName = privateMessage ? '##' + reaction.message?.channel?.id : `#` + reaction.message?.channel?.name
+
+        if (reaction._emoji.name === '❌') {
+            await messageCommands.deleteMessage.call(`!delete #${reaction.message.id}`, null, channelName, [], reaction.message?.id, bot, null)
+            setTimeout(async () => {
+                await reaction.message?.delete().catch(() => null)
+            }, 1000)
+        } else if (reaction._emoji.name === '🚮') {
+            await messageCommands.pruneMessages.call(`!prune #${reaction.message?.id}`, null, channelName, [], reaction.message?.id, bot, null)
+
+            const allMessages = await reaction.message.channel.messages.fetch()
+            const targetMessage = allMessages.find((m) => m.id === reaction.message?.id)
+            if (targetMessage) {
+                setTimeout(async () => {
+                    const messagesToDelete = allMessages
+                        .filter(m =>
+                            (m.createdTimestamp >= targetMessage.createdTimestamp)
+                            || (m.id === targetMessage.id)
+                        )
+
+                    // Synchronize history by removing newer messages
+                    historyService.channelHistories[channelName] = historyService.channelHistories[channelName]
+                        .filter(m => {
+                            const fetchedMessage = allMessages.find(_ => _.id === m.messageId)
+                            return (fetchedMessage?.createdTimestamp < targetMessage.createdTimestamp)
+                                || (m.id === targetMessage.id)
+                        })
+
+                    if (reaction.message.channel?.bulkDelete) {
+                        await reaction.message.channel?.bulkDelete(messagesToDelete).catch(() => null)
+                    }
+                }, 1000)
+            }
+
+        }
+    }
+});
 
 setInterval(async () => {
     if (envService.isRpgModeEnabled()) {
         for (let channel in channels) {
             // Prevents auto messages in DMs (temporary, hopefully)
             if (channel.startsWith("##")) continue
+            if (muteService.isChannelMuted(channel)) continue
 
             const pawn = pawnService.getActivePawn(channel)
             if (pawn && (Date.now() - pawn.createdAt < 1000 * envService.getRpgRespawnCoolDown())) continue
-            if (pawnService.lastPawnCreatedAt[channel] && (Date.now() - pawnService.lastPawnCreatedAt[channel] < 1000 * envService.getRpgSpawnCoolDown())) continue
+            if (pawnService.lastPawnKilledAt[channel] && (Date.now() - pawnService.lastPawnKilledAt[channel] < 1000 * envService.getRpgSpawnCoolDown())) continue
 
             let difficulty = "easy"
             if (Math.random() < 0.4) {
@@ -502,8 +602,13 @@ setInterval(async () => {
                     }
                 }
             }
-            const newPawn = await duckHuntService.spawn(channel, difficulty, null)
-            const m = await channels[channel].send(newPawn).catch(() => null)
+            const spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
+
+            const m = await channels[channel].send(spawnMessage?.message).catch((e) => console.error(e))
+
+            if (m && spawnMessage && spawnMessage.pushIntoHistory) {
+                historyService.pushIntoHistory(spawnMessage.pushIntoHistory[0], spawnMessage.pushIntoHistory[1], spawnMessage.pushIntoHistory[2], m?.id)
+            }
 
             savingService.save(channel)
         }
