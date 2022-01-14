@@ -4,6 +4,8 @@ import {encode} from "gpt-3-encoder";
 import lmiService from "./lmiService.js";
 import aiService from "./aiService.js";
 
+const DEFAULT_PARAMETERS_GENERATOR = utils.load("./data/aiParameters/generator_default.json")
+
 class GeneratorService {
 
     static mergeSubmodule(generator, submoduleName = null) {
@@ -89,20 +91,7 @@ class GeneratorService {
     }
 
     static buildParams(generator, submoduleName = null) {
-        const defaultParams = {
-            prefix: "vanilla",
-            use_string: true,
-            min_length: 1,
-            max_length: 150,
-            temperature: 0.5,
-            top_k: 0,
-            top_p: 1,
-            eos_token_id: 224,
-            repetition_penalty: 1.15,
-            repetition_penalty_range: 2048,
-            tail_free_sampling: 0.8,
-            bad_words_ids: [[27, 91, 437, 1659, 5239, 91, 29], [1279, 91, 437, 1659, 5239, 91, 29], [27, 91, 10619, 46, 9792, 13918, 91, 29], [1279, 91, 10619, 46, 9792, 13918, 91, 29]],   // "<|endoftext|>" tokens
-        }
+        const defaultParams = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS_GENERATOR))
 
         if (!generator) throw new Error("No generator provided")
 

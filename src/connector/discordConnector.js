@@ -467,6 +467,7 @@ async function messageLoop() {
                     const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
                     if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
                         historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
+                        savingService.save(channel)
                     }
                     channels[channel].stopTyping(true)
                     locked[channel] = false
@@ -517,6 +518,7 @@ async function messageLoop() {
                         const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
                         if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
                             historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
+                            savingService.save(channel)
                         }
                         channels[channel].stopTyping(true)
                         locked[channel] = false
@@ -532,6 +534,7 @@ async function messageLoop() {
             }
         }
     }
+
 
     setTimeout(messageLoop, 2000)
 }

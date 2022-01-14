@@ -31,20 +31,8 @@ const getAccessToken = async (access_key) => {
 
 let ACCESS_TOKEN
 
-const DEFAULT_PARAMETERS = {
-    use_string: true,
-    min_length: 1,
-    max_length: 150,
-    temperature: 1,
-    top_k: 0,
-    top_p: 0.725,
-    eos_token_id: 198,
-    repetition_penalty: 1.1925,
-    repetition_penalty_range: 1024,
-    repetition_penalty_slope: 6.66,
-    tail_free_sampling: 1,
-    prefix: "vanilla",
-}
+const DEFAULT_PARAMETERS = utils.load("./data/aiParameters/personality_default.json")
+const DEFAULT_PARAMETERS_EVALBOT = utils.load("./data/aiParameters/evalbot_default.json")
 
 const generateUnthrottled = async (accessToken, input, params) => {
     let res
@@ -182,19 +170,9 @@ class AiService {
      * @param eos_token_id
      */
     static async simpleEvalbot(prompt, tokensToGenerate = 1, preventLMI = false, eos_token_id = 198) {
-        const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
+        const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS_EVALBOT))
 
         params.max_length = tokensToGenerate
-        params.bad_words_ids = [[27, 91, 437, 1659, 5239, 91, 29], [1279, 91, 437, 1659, 5239, 91, 29], [27, 91, 10619, 46, 9792, 13918, 91, 29], [1279, 91, 10619, 46, 9792, 13918, 91, 29]]
-        params.logit_bias_exp = undefined
-        delete params.logit_bias_exp
-        params.repetition_penalty = 1.20
-        params.repetition_penalty_range = 2048
-        params.repetition_penalty_slope = null
-        params.tail_free_sampling = null
-        params.temperature = 0.8
-        params.top_p = 1
-        params.top_k = 0
         params.eos_token_id = eos_token_id
 
         const result = await this.sendPromptDefault(prompt, params)

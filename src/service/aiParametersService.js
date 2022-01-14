@@ -1,4 +1,4 @@
-import personalityService from "./personalityService";
+import personalityService from "./personalityService.js";
 
 class AiParametersService {
     static aiParameters = {}
