@@ -35,9 +35,7 @@ const messageCommands = {
 }
 
 messageCommands.all = [
-    messageCommands.answerToName,
-    // messageCommands.talk,
-    // messageCommands.reactToAction,
+    messageCommands.answerToName
 ]
 
 export default messageCommands

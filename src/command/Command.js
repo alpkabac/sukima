@@ -68,8 +68,10 @@ class Command {
                 return callbackResult
             }
 
-            if (this.commands || this.commandsStartsWith)
+            if ((this.commands && this.commands.length && this.commands.length > 0)
+                || (this.commandsStartsWith && this.commandsStartsWith.length && this.commandsStartsWith.length > 0)) {
                 return true
+            }
         }
 
         return false

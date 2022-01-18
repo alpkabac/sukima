@@ -16,10 +16,10 @@ class TranslationsService {
 
     static changeLanguage(code = "en-EN") {
         try {
-            this._translations = utils.load(`./translations/${code}.json`)
+            this._translations = utils.loadJSONFile(`./translations/${code}.json`)
             return true
         } catch (e) {
-            this._translations = utils.load(`./translations/en-EN.json`)
+            this._translations = utils.loadJSONFile(`./translations/en-EN.json`)
         }
         return false
     }

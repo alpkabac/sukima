@@ -32,7 +32,7 @@ const duckHuntCommands = {
     attack: new Command(
         "Attack",
         [],
-        ["!atk", "!attack", "⚔", "⚔️", ":crossed_swords:", ":baguette_attack:", "Attack!", "!fight", "!kill", "!charge", "!finish"],
+        ["!attack", "!atk", "⚔", "⚔️", ":crossed_swords:", ":baguette_attack:", "!fight", "!kill", "!charge", "!finish"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return await duckHuntService.attack(channel, from)
@@ -42,7 +42,7 @@ const duckHuntCommands = {
     take: new Command(
         "Grab loot",
         [],
-        ["!grab", "!pick", "!take", "!keep"],
+        ["!take", "!grab", "!pick", "!keep"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.take(channel, from, parsedMsg)
@@ -112,7 +112,7 @@ const duckHuntCommands = {
     equipAccessory: new Command(
         "Equip accessory",
         [],
-        ["!equipRing", "!equipAccessory", "!equip Accessory", "!equip accessory", "!equipAcc", "!equip Acc", "!equip acc", "!equipAc", "!equip Ac", "!equip ac", "!accessory"],
+        ["!equipAccessory", "!equipRing", "!equip Accessory", "!equip accessory", "!equipAcc", "!equip Acc", "!equip acc", "!equipAc", "!equip Ac", "!equip ac", "!accessory"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipAccessory(channel, from, parsedMsg.trim())
@@ -152,7 +152,7 @@ const duckHuntCommands = {
     showInventory: new Command(
         "Show Inventory",
         [],
-        ["!inventory", "!showInventory", "!showEquipment", "!checkEquipment", "!checkInventory"],
+        ["!inventory", "!backpack", "!equipment", "!showInventory", "!showBackpack", "!showEquipment", "!checkInventory", "!checkBackpack", "!checkEquipment"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.showInventory(channel, from)

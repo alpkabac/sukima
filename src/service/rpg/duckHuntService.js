@@ -6,9 +6,9 @@ import envService from "../../util/envService.js";
 import worldItemsService from "./worldItemsService.js";
 import {MessageAttachment, MessageEmbed} from "discord.js";
 
-const generatorAttackNew = utils.load("./data/generator/rpg/attack.json")
-const generatorEnemy = utils.load("./data/generator/rpg/enemyLight.json")
-const generatorSpellBook = utils.load("./data/generationPrompt/rpg/generateSpellBook.json")
+const generatorAttackNew = utils.loadJSONFile("./data/generator/rpg/attack.json")
+const generatorEnemy = utils.loadJSONFile("./data/generator/rpg/enemyLight.json")
+const generatorSpellBook = utils.loadJSONFile("./data/generationPrompt/rpg/generateSpellBook.json")
 
 let lastUploadedGenerator = null
 
@@ -177,7 +177,10 @@ class DuckHuntService {
             .addField('New enemy status', objectStatus.status || 'undefined', true)
             .addField('All enemy wounds', [...new Set(pawn.wounds)].join('\n') || 'none', false)
 
-        const {embed, pushIntoHistory} = pawn.alive ? {embed: null, pushIntoHistory: null} : (await this.loot(channel))
+        const loot = await this.loot(channel)
+        const {embed, pushIntoHistory} = pawn.alive ?
+            {embed: null, pushIntoHistory: null}
+            : (loot || {embed: null, pushIntoHistory: null})
 
         if (!pawn.alive) {
             pawnService.lastPawnKilledAt[channel] = Date.now()
@@ -272,7 +275,7 @@ class DuckHuntService {
                 instantReply: true,
                 deleteUserMsg: true,
                 deleteNewMessage: username !== process.env.BOTNAME,
-                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to take an item, but its backpack is full. Try to "!sell" or "!drop" your backpack selected item first, or use "!upgradeBackpack"! ]`, null, channel]
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to take an item, but its backpack is full. Try to "!sell" or "!drop" your backpack selected item first, or use "!upgradeBackpack"! ]`, null, channel]
             }
         }
         return {
@@ -280,7 +283,7 @@ class DuckHuntService {
             instantReply: true,
             deleteUserMsg: true,
             deleteNewMessage: username !== process.env.BOTNAME,
-            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to take an item on the ground, but there is no item to grab... ]`, null, channel]
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to take an item on the ground, but there is no item to grab... ]`, null, channel]
         }
     }
 
@@ -327,12 +330,15 @@ class DuckHuntService {
 
         msg.setDescription(`${items.map((item, i) => `${i}: [${item.rarity} ${item.type}] "${item.name}"`).join('\n') || 'None'}`)
 
+        const seenItem = items[items.length - 1]
+        const backpackSelectedItem = `${seenItem?.name || 'none'}`
+            + (!seenItem ? `` : ` (${seenItem.rarity} ${seenItem.type})`)
         return {
             success: true,
             message: msg,
             deleteUserMsg: true,
             instantReply: true,
-            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Item on the ground: ${items[items.length - 1]?.name || 'none'} ]`, null, channel]
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Item on the ground: ${backpackSelectedItem} ]`, null, channel]
         }
     }
 
@@ -757,18 +763,21 @@ class DuckHuntService {
             .addField('Gold', player.gold, false)
             .addField('Backpack size', player.inventorySize, true)
 
+        const playerLastInventoryItem = player.inventory[player.inventory.length - 1]
+        const backpackSelectedItem = `${playerLastInventoryItem?.name || 'none'}`
+            + (!playerLastInventoryItem ? `` : ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
         return {
             message: embed,
             deleteUserMsg: true,
             instantReply: true,
             pushIntoHistory: [
                 (username !== process.env.BOTNAME ? `${username}: !inventory\n` : '')
-                + `[ Inventory of Player ${username};`
-                + ` backpack used space: (${player.inventory.length}/${player.inventorySize}); `
-                + ` backpack selected item: ${player.inventory[player.inventory.length]?.name || 'none'}; `
-                + `weapon: ${!player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`}; `
-                + `armor: ${!player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`}; `
-                + `accessory: ${!player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`} `
+                + `[ Inventory of Player ${username}; `
+                + `backpack used space: (${player.inventory.length}/${player.inventorySize}); `
+                + `backpack selected item: ${backpackSelectedItem}; `
+                + `weapon: ${!player.weapon ? 'No Weapon' : `${player.weapon.name} (${player.weapon.rarity})`}; `
+                + `armor: ${!player.armor ? 'No Armor' : `${player.armor.name} (${player.armor.rarity})`}; `
+                + `accessory: ${!player.accessory ? 'No Accessory' : `${player.accessory.name} (${player.accessory.rarity})`} `
                 + `]`,
                 null,
                 channel
@@ -948,13 +957,6 @@ class DuckHuntService {
         const attachment = utils.getMessageAsFile(prompt.completePrompt, 'generator.json')
         return {
             message: attachment,
-            instantReply: true
-        }
-    }
-
-    static async fallback(channel, command, msg) {
-        return {
-            message: `# Command \`${msg}\` isn't implemented yet!`,
             instantReply: true
         }
     }

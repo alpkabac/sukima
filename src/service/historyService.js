@@ -1,6 +1,6 @@
 import utils from '../utils.js'
 
-const conf = utils.load("./conf.json")
+const conf = utils.loadJSONFile("./conf.json")
 
 class HistoryService {
     static channelHistories = {}

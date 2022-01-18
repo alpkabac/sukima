@@ -6,7 +6,7 @@ import utils from "../utils.js";
 import aiService from "../service/aiService.js";
 import encoder from "gpt-3-encoder";
 
-const loreGenerationToolEntries = utils.load("./data/generationPrompt/loreGenerationToolEntries.json")
+const loreGenerationToolEntries = utils.loadJSONFile("./data/generationPrompt/loreGenerationToolEntries.json")
 
 
 const promptCommands = {

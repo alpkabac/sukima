@@ -16,13 +16,13 @@ class PersonalityService {
 
     static changeChannelPersonality(channel, code = process.env.TRANSLATION_FILE || "en-EN", botName = process.env.BOTNAME) {
         try {
-            this.channelBotPersonality[channel] = utils.load(`./translations/aiPersonality/${botName}/${code}.json`)
+            this.channelBotPersonality[channel] = utils.loadJSONFile(`./translations/aiPersonality/${botName}/${code}.json`)
             return true
         } catch (e) {
             try {
-                this.channelBotPersonality[channel] = utils.load(`./translations/aiPersonality/${botName}/${process.env.TRANSLATION_FILE}.json`)
+                this.channelBotPersonality[channel] = utils.loadJSONFile(`./translations/aiPersonality/${botName}/${process.env.TRANSLATION_FILE}.json`)
             } catch (e2) {
-                this.channelBotPersonality[channel] = utils.load(`./translations/aiPersonality/CustomAI/en-EN.json`)
+                this.channelBotPersonality[channel] = utils.loadJSONFile(`./translations/aiPersonality/CustomAI/en-EN.json`)
             }
         }
     }

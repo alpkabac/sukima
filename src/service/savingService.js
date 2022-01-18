@@ -103,7 +103,7 @@ class SavingService {
 
     static load(channel) {
         try {
-            const json = utils.load(`./save/${process.env.BOTNAME}/${channel}.json`)
+            const json = utils.loadJSONFile(`./save/${process.env.BOTNAME}/${channel}.json`)
             this.loadJSON(channel, json)
         } catch (e) {
             console.log(e)

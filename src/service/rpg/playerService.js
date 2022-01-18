@@ -41,7 +41,10 @@ class PlayerService {
         const weapon = player.weapon?.name || 'No Weapon'
         const armor = player.armor?.name || 'No Armor'
         const accessory = player.accessory?.name || 'No Accessory'
-        return `[ Player: ${player.name}; weapon: ${weapon}; armor: ${armor}; accessory: ${accessory}; backpack selected item: ${player.inventory[player.inventory.length-1]?.name || 'none'}; wounds: ${player.health.wounds}; blood loss: ${player.health.bloodLoss}; status: ${player.health.status} ]`
+        const playerLastInventoryItem = player.inventory[player.inventory.length-1]
+        const backpackSelectedItem = `${playerLastInventoryItem?.name || 'none'}`
+            + (!playerLastInventoryItem ? ``: ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
+        return `[ Player: ${player.name}; weapon: ${weapon}; armor: ${armor}; accessory: ${accessory}; ${backpackSelectedItem}; wounds: ${player.health.wounds}; blood loss: ${player.health.bloodLoss}; status: ${player.health.status} ]`
     }
 
     static getEquipmentPrompt(player) {

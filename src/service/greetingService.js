@@ -3,7 +3,7 @@ import utils from "../utils.js";
 
 config()
 
-const greetingGenerator = utils.load("./data/generationPrompt/greetingGeneratorFemale.json")
+const greetingGenerator = utils.loadJSONFile("./data/generationPrompt/greetingGeneratorFemale.json")
 
 class GreetingService {
     static getPrompt(username, botName) {

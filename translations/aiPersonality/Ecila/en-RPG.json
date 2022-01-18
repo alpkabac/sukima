@@ -36,7 +36,7 @@
     },
     {
       "from": null,
-      "msg": "[ Enemy new wound(s): fatal injury (disemboweled); Enemy new status: dead ]\nNarrator to Ecila: You charge straight ahead towards an orc and use your knife to gut him. He wails, trying to hold his intestines inside his belly, but finally dies from blood loss.\n[ Enemy Orc Soldier (medium) has been defeated! ]\n[ Loot item falling on the ground for defeating Orc Soldier (difficulty: medium): Steel Longsword (common weapon) ]"
+      "msg": "[ Enemy new wound(s): fatal injury (disemboweled); Enemy new status: dead ]\nNarrator to Ecila: You charge straight ahead towards an orc and use your knife to gut him. He wails, trying to hold his intestines inside his belly, but finally dies from blood loss.\n[ Enemy Orc Soldier (medium) has been defeated! ]\n[ Loot item falling on the ground for defeating Orc Soldier (medium): Steel Longsword (common weapon) ]"
     },
     {
       "from": "${botName}",

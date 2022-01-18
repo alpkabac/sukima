@@ -6,7 +6,7 @@ import utils from "../../utils.js";
 
 dotenv.config()
 
-const voices = utils.load('./src/tts/languages.json')
+const voices = utils.loadJSONFile('./src/tts/languages.json')
 
 const setJSONPersonalityCommand = new Command(
     "Set JSON Personality",

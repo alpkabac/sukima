@@ -55,7 +55,7 @@ class BannedTokensService {
     static loadChannelBannedTokenFiles(channel, bannedTokenFiles) {
         let allBannedTokens = []
         for (let bannedTokenFile of bannedTokenFiles) {
-            const badWords = utils.load(`./data/bannedTokens/${bannedTokenFile}.badwords`)
+            const badWords = utils.loadJSONFile(`./data/bannedTokens/${bannedTokenFile}.badwords`)
             const bannedSequenceGroups = badWords?.bannedSequenceGroups
             if (bannedSequenceGroups && bannedSequenceGroups.length > 0) {
                 for (let group of bannedSequenceGroups) {

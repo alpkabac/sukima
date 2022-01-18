@@ -3,12 +3,12 @@
   "use_string": true,
   "min_length": 1,
   "max_length": 150,
-  "temperature": 1,
-  "top_k": 0,
-  "top_p": 0.725,
+  "temperature": 1.5,
+  "top_k": 150,
+  "top_p": 1,
+  "tail_free_sampling": 0.8,
   "eos_token_id": 198,
-  "repetition_penalty": 1.1925,
-  "repetition_penalty_range": 1024,
-  "repetition_penalty_slope": 6.66,
-  "tail_free_sampling": 1
+  "repetition_penalty": 1.21,
+  "repetition_penalty_range": 2048,
+  "repetition_penalty_slope": 6
 }

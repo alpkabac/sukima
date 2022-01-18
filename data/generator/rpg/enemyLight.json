@@ -161,7 +161,7 @@
       "type": "weapon",
       "rarity": "common",
       "price": "100 ${currency}",
-      "encounterDescription": "The Orc soldier with it's worn leather armor and broad sword slowly and silently approach you from deep in the woods reading its weapon for a powerful and swift attack."
+      "encounterDescription": "You spot an orc soldier with it's worn leather armor and broad sword slowly and silently approach you from deep in the woods, readying its weapon for a powerful and swift attack."
     },
     {
       "name": "Famished Goblin",

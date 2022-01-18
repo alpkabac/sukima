@@ -5,7 +5,7 @@ import Command from "./Command.js";
 import personalityService from "../service/personalityService.js";
 import utils from '../utils.js'
 
-const voices = utils.load("./src/tts/languages.json")
+const voices = utils.loadJSONFile("./src/tts/languages.json")
 
 
 const voiceCommands = {

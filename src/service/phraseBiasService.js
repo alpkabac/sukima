@@ -54,7 +54,7 @@ class PhraseBiasService {
     }
 
     static loadBias(filename) {
-        const logitBiasGroups = utils.load(`./data/phraseBias/${filename}.bias`)?.logit_bias_groups || []
+        const logitBiasGroups = utils.loadJSONFile(`./data/phraseBias/${filename}.bias`)?.logit_bias_groups || []
         const logit_bias_exp = []
 
         for (let logitBiasGroup of logitBiasGroups) {

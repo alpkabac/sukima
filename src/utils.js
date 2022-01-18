@@ -7,11 +7,11 @@ import axios from "axios";
 
 config()
 
-const conf = load("./conf.json")
+const conf = loadJSONFile("./conf.json")
 const client = new textToSpeech.TextToSpeechClient()
 
 
-function load(filename) {
+function loadJSONFile(filename) {
     let file
     try {
         file = fs.readFileSync(filename)
@@ -146,8 +146,8 @@ class Utils {
         }
     }
 
-    static load(filename) {
-        return load(filename)
+    static loadJSONFile(filename) {
+        return loadJSONFile(filename)
     }
 
     static getMessageId(message) {

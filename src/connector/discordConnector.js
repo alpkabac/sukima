@@ -36,6 +36,21 @@ const allowedCommands = []
     .concat(duckHuntCommands.showInventory.commandsStartsWith)
     .concat(duckHuntCommands.upgradeBackpack.commandsStartsWith)
 
+const allowedCommandsMap = {
+    attack: duckHuntCommands.attack.commandsStartsWith,
+    take: duckHuntCommands.take.commandsStartsWith,
+    drop: duckHuntCommands.drop.commandsStartsWith,
+    look: duckHuntCommands.look.commandsStartsWith,
+    sell: duckHuntCommands.sell.commandsStartsWith,
+    equipWeapon: duckHuntCommands.equipWeapon.commandsStartsWith,
+    equipArmor: duckHuntCommands.equipArmor.commandsStartsWith,
+    equipAccessory: duckHuntCommands.equipAccessory.commandsStartsWith,
+    unequipWeapon: duckHuntCommands.unequipWeapon.commandsStartsWith,
+    unequipArmor: duckHuntCommands.unequipArmor.commandsStartsWith,
+    unequipAccessory: duckHuntCommands.unequipAccessory.commandsStartsWith,
+    showInventory: duckHuntCommands.showInventory.commandsStartsWith,
+    upgradeBackpack: duckHuntCommands.upgradeBackpack.commandsStartsWith,
+}
 const bot = new Client({
     allowedMentions: {
         // set repliedUser value to `false` to turn off the mention by default
@@ -193,22 +208,38 @@ function isMessageAnAllowedCommand(msg) {
 }
 
 function clearRpgBotTextOutput(text) {
-    let cleanContent = text
     const isCommand = text.startsWith('!')
-    // removes commands if they are not the first word
-    cleanContent = (isCommand ? '!' : '')
-        + cleanContent
-            .substr(isCommand ? 1 : 0)
+    let cleanContent = (isCommand ? '!' : '')
+        + text.substr(isCommand ? 1 : 0)
             .replace(/![a-zA-Z0-9*'\]].*$/, '')
 
-    if (cleanContent.startsWith('!')) {
-        cleanContent = '!' + cleanContent.substr(1).replace(/!.*$/, '')
+    if (isCommand) {
+        // removes commands if they are not the first word
+        cleanContent = '!' + cleanContent.substr(1)
+            .replace(/!.*$/, '')
+            .replace(/\[.*$/, '')
+            .replace(/;.*$/, '')
+            .replace(/>.*$/, '')
+            .replace(/:.*$/, '')
         cleanContent = cleanContent.replace(/\*.*$/, '')
-    }
 
-    // removes arguments from commands
-    if (text.startsWith('!')) {
+        // removes arguments from commands
         cleanContent = cleanContent.replace(/ .*$/, '')
+
+
+        if (isMessageAnAllowedCommand(cleanContent)) {
+            let command = null
+            for (let c in allowedCommandsMap) {
+                if (allowedCommandsMap[c].some(ac => cleanContent.toLowerCase()?.trim()?.startsWith(ac))) {
+                    command = c
+                    break
+                }
+            }
+
+            if (command) {
+                return allowedCommandsMap[command][0]
+            }
+        }
     }
 
     return cleanContent
@@ -257,7 +288,7 @@ async function processMessage(msg) {
         }
     }
 
-    if (originalMsg.content === ";ai me") return                        // Prevents commands from other bots
+    if (originalMsg.content === ";ai me") return    // Prevents commands from @Patos bots
 
     const userRoles = originalMsg.member?.roles?.cache.map(r => {
         return {id: r.id, name: r.name}
@@ -281,8 +312,15 @@ async function processMessage(msg) {
 
     savingService.save(channelName)
 
+    if ((!message) && utils.getBoolFromString(process.env.ENABLE_SMART_ANSWER)) {
+        if (await isNextMessageFromBot(channelName)) {
+            await forceTalk(channelName)
+        }
+    }
+
     if (!message) {
         locked[channelName] = false
+        return
     }
 
     if (message && message.permissionError) {
@@ -306,7 +344,7 @@ async function processMessage(msg) {
     }
 
     if (message && message.reactWith) {
-        if (message.reactWith.length > 1) {
+        if (message.reactWith instanceof Array && message.reactWith.length > 1) {
             for (let i = 0; i < message.reactWith.length; i++) {
                 setTimeout(() => {
                     originalMsg.react(message.reactWith[i]).catch(() => null)
@@ -442,6 +480,36 @@ async function processMessage(msg) {
     }
 }
 
+async function isNextMessageFromBot(channel) {
+    const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
+    const promptLines = promptService.getPrompt(channel).prompt.split('\n')
+    const prompt = promptLines.slice(0, -1).join('\n') + "\n"
+    const result = await aiService.simpleEvalbot(prompt, tokenCount, channel.startsWith("##"))
+    console.log(result.toLowerCase().trim())
+    return !!(result && result.toLowerCase().trim() === process.env.BOTNAME.toLowerCase().trim())
+}
+
+async function forceTalk(channel) {
+    const msg = await messageCommands.forceTalk.call('!talk', null, channel, [], undefined, bot)
+    // If normal answer
+    if (msg && msg.message?.trim()) {
+        const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
+        const timeToWait = encoder.encode(parsedMessage).length * 50
+        channels[channel].startTyping().then()
+        setTimeout(async () => {
+            const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
+            if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
+                historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
+                savingService.save(channel)
+            }
+            channels[channel].stopTyping(true)
+        }, timeToWait)
+        if (!channel.startsWith("##")) {
+            await speak(parsedMessage, channel)
+        }
+    }
+}
+
 async function messageLoop() {
     let msg = messageList.shift()
     while (msg) {
@@ -502,41 +570,18 @@ async function messageLoop() {
             if (historyIsEmpty || !enoughPassedTime || !isLastMessageFromBot) {
                 continue
             }
+
             locked[channel] = true
-            const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
-            const prompt = promptService.getPrompt(channel, true).prompt + "\n"
-            const result = await aiService.simpleEvalbot(prompt, tokenCount, channel.startsWith("##"))
+
             // If next message is from the AI
-            if (result && result.toLowerCase().trim() === process.env.BOTNAME.toLowerCase()) {
-                const msg = await messageCommands.forceTalk.call('!talk', null, channel, [], undefined, bot)
-                // If normal answer
-                if (msg && msg.message?.trim()) {
-                    const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
-                    const timeToWait = encoder.encode(parsedMessage).length * 50
-                    channels[channel].startTyping().then()
-                    setTimeout(async () => {
-                        const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
-                        if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
-                            historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
-                            savingService.save(channel)
-                        }
-                        channels[channel].stopTyping(true)
-                        locked[channel] = false
-                    }, timeToWait)
-                    if (!channel.startsWith("##")) {
-                        await speak(parsedMessage, channel)
-                    }
-                } else {
-                    locked[channel] = false
-                }
-            } else {
-                locked[channel] = false
+            if (await isNextMessageFromBot(channel)) {
+                await forceTalk(channel)
             }
+            locked[channel] = false
         }
     }
 
-
-    setTimeout(messageLoop, 2000)
+    setTimeout(messageLoop, 1000)
 }
 
 messageLoop()

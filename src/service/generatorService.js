@@ -4,10 +4,9 @@ import {encode} from "gpt-3-encoder";
 import lmiService from "./lmiService.js";
 import aiService from "./aiService.js";
 
-const DEFAULT_PARAMETERS_GENERATOR = utils.load("./data/aiParameters/generator_default.json")
+const DEFAULT_PARAMETERS_GENERATOR = utils.loadJSONFile("./data/aiParameters/generator_minimal.json")
 
 class GeneratorService {
-
     static mergeSubmodule(generator, submoduleName = null) {
         const module = JSON.parse(JSON.stringify(generator))
 
@@ -61,8 +60,9 @@ class GeneratorService {
         const result = await this.executePrompt(generator, submoduleName, prompt.completePrompt, preventLMI)
         return {
             object: this.parseResult(module, prompt.placeholderPrompt, result),
+            prompt: prompt.completePrompt,
             result,
-            module
+            module,
         }
     }
 
@@ -115,15 +115,15 @@ class GeneratorService {
     }
 
     static buildModel(generator, submodule = null) {
-        let model = "6B-v4"
-
         if (!generator) throw new Error("No generator provided")
+
+        let model = "6B-v4"
 
         if (!submodule && !generator.aiModel) return model
 
         if (generator.aiModel) model = generator.aiModel
 
-        if (submodule && generator.submodules[submodule] && generator.submodules[submodule].aiModel)
+        if (submodule && generator.submodules?.[submodule] && generator.submodules[submodule].aiModel)
             model = generator.submodules[submodule].aiModel
 
         return model
@@ -132,13 +132,11 @@ class GeneratorService {
     static async executePrompt(generator, moduleName, prompt, preventLMI = false) {
         const params = this.buildParams(generator, moduleName)
         const model = this.buildModel(generator, moduleName)
-
         const result = await aiService.executePrompt(prompt, params, model)
-        const parsedResult = result
         if (!preventLMI) {
-            lmiService.updateLmi(prompt, result, parsedResult)
+            lmiService.updateLmi(prompt, result, result)
         }
-        return parsedResult
+        return result
     }
 
     /**
