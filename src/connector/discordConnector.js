@@ -280,10 +280,11 @@ async function processMessage(msg) {
 
         const isCommandAllowed = isMessageAnAllowedCommand(cleanContent)
 
-        if (!isCommandAllowed) {
-            if (cleanContent.startsWith('!')) {
-                await originalMsg?.delete().catch(e => console.error(e))
-            }
+        if (cleanContent.startsWith('!') &&!isCommandAllowed) {
+            await originalMsg?.delete().catch(e => console.error(e))
+            return
+        }
+        if (!cleanContent.startsWith('!')){
             return
         }
     }
@@ -310,13 +311,13 @@ async function processMessage(msg) {
         }
     }
 
-    savingService.save(channelName)
-
-    if ((!message) && utils.getBoolFromString(process.env.ENABLE_SMART_ANSWER)) {
+    if (!message && utils.getBoolFromString(process.env.ENABLE_SMART_ANSWER) && originalMsg.author.username !== bot.user.username) {
         if (await isNextMessageFromBot(channelName)) {
             await forceTalk(channelName)
         }
     }
+
+    savingService.save(channelName)
 
     if (!message) {
         locked[channelName] = false
@@ -493,20 +494,25 @@ async function forceTalk(channel) {
     const msg = await messageCommands.forceTalk.call('!talk', null, channel, [], undefined, bot)
     // If normal answer
     if (msg && msg.message?.trim()) {
-        const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
-        const timeToWait = encoder.encode(parsedMessage).length * 50
-        channels[channel].startTyping().then()
-        setTimeout(async () => {
-            const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
-            if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
-                historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
-                savingService.save(channel)
-            }
-            channels[channel].stopTyping(true)
-        }, timeToWait)
-        if (!channel.startsWith("##")) {
-            await speak(parsedMessage, channel)
+        await parseForceMessage(channel, msg)
+    }
+}
+
+async function parseForceMessage(channel, msg){
+    const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
+    const timeToWait = encoder.encode(parsedMessage).length * 50
+    channels[channel].startTyping().then()
+    setTimeout(async () => {
+        const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
+        if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
+            historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
+            savingService.save(channel)
         }
+        channels[channel].stopTyping(true)
+        locked[channel] = false
+    }, timeToWait)
+    if (!channel.startsWith("##")) {
+        await speak(parsedMessage, channel)
     }
 }
 
@@ -528,21 +534,7 @@ async function messageLoop() {
             const msg = await messageCommands.talk.call(null, null, channel, [], undefined, bot)
             // If normal answer
             if (msg && msg.message?.trim()) {
-                const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
-                const timeToWait = encoder.encode(parsedMessage).length * 50
-                channels[channel].startTyping().then()
-                setTimeout(async () => {
-                    const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
-                    if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
-                        historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
-                        savingService.save(channel)
-                    }
-                    channels[channel].stopTyping(true)
-                    locked[channel] = false
-                }, timeToWait)
-                if (!channel.startsWith("##")) {
-                    await speak(parsedMessage, channel)
-                }
+                await parseForceMessage(channel, msg)
             } else {
                 locked[channel] = false
             }
@@ -572,8 +564,6 @@ async function messageLoop() {
             }
 
             locked[channel] = true
-
-            // If next message is from the AI
             if (await isNextMessageFromBot(channel)) {
                 await forceTalk(channel)
             }
