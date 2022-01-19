@@ -16,6 +16,8 @@ class AiParametersService {
             this.aiParameters[channel] = personality.aiParameters
             return this.aiParameters[channel]
         }
+
+
     }
 }
 

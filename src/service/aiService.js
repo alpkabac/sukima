@@ -36,6 +36,7 @@ const DEFAULT_PARAMETERS_EVALBOT = utils.loadJSONFile("./data/aiParameters/evalb
 
 const generateUnthrottled = async (accessToken, input, params) => {
     let res
+    console.log(params)
     try {
         res = await axios.post(
             "https://api.novelai.net/ai/generate",
@@ -124,7 +125,6 @@ class AiService {
         let nbTry = 0
         let params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS))
 
-        params.repetition_penalty_range = prompt.repetition_penalty_range
 
         if (channel) {
             const aiParameters = aiParametersService.getAiParameters(channel)
@@ -140,6 +140,8 @@ class AiService {
             if (phraseBiases && phraseBiases.length > 0)
                 params.logit_bias_exp = phraseBiases
         }
+
+        params.repetition_penalty_range = prompt.repetition_penalty_range
 
         while (!parsedAnswer && ++nbTry <= 3) {
             answer = await this.sendPromptDefault(prompt.prompt, params)
