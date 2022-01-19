@@ -42,6 +42,8 @@ class PhraseBiasService {
             return this.channelPhraseBiases[channel]
         }
 
+
+
         // load default phrase bias
         this.loadChannelPhraseBiasFiles(channel, this.parsePhraseBiasFilesString('default'))
         return this.channelPhraseBiases[channel]
