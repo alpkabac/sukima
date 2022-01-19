@@ -602,7 +602,7 @@ bot.on('messageReactionAdd', async (reaction, user) => {
 
                     // Synchronize history by removing newer messages
                     historyService.channelHistories[channelName] = historyService.channelHistories[channelName]
-                        .filter(m => {
+                        ?.filter?.(m => {
                             const fetchedMessage = allMessages.find(_ => _.id === m.messageId)
                             return (fetchedMessage?.createdTimestamp < targetMessage.createdTimestamp)
                                 || (m.id === targetMessage.id)
