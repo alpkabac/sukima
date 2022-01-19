@@ -570,7 +570,7 @@ async function messageLoop() {
         }
     }
 
-    setTimeout(messageLoop, 1000)
+    setTimeout(messageLoop, 2000)
 }
 
 messageLoop()

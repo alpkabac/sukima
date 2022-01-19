@@ -60,9 +60,7 @@ class BannedTokensService {
             if (bannedSequenceGroups && bannedSequenceGroups.length > 0) {
                 for (let group of bannedSequenceGroups) {
                     for (let sequence of group?.sequences) {
-                        for (let tokens of sequence?.tokens) {
-                            allBannedTokens = allBannedTokens.concat(tokens)
-                        }
+                        allBannedTokens = allBannedTokens.concat(sequence?.tokens)
                     }
                 }
             }
