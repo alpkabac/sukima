@@ -486,7 +486,6 @@ async function isNextMessageFromBot(channel) {
     const promptLines = promptService.getPrompt(channel).prompt.split('\n')
     const prompt = promptLines.slice(0, -1).join('\n') + "\n"
     const result = await aiService.simpleEvalbot(prompt, tokenCount, channel.startsWith("##"))
-    console.log(result.toLowerCase().trim())
     return !!(result && result.toLowerCase().trim() === process.env.BOTNAME.toLowerCase().trim())
 }
 
