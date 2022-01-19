@@ -36,7 +36,6 @@ const DEFAULT_PARAMETERS_EVALBOT = utils.loadJSONFile("./data/aiParameters/evalb
 
 const generateUnthrottled = async (accessToken, input, params) => {
     let res
-    console.log(params)
     try {
         res = await axios.post(
             "https://api.novelai.net/ai/generate",
