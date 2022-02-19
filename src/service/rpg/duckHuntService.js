@@ -437,6 +437,9 @@ class DuckHuntService {
             .setColor('#ff0000')
             .setTitle(reviveMode ? `Admin ${username} revived ${targetPlayer.name}, but ${targetPlayer.name}'s wounds are still here.` : `Admin ${username} heals ${targetPlayer.name}!`)
             .setDescription(reviveMode ? `Admin ${username} revived ${targetPlayer.name}, but ${targetPlayer.name}'s wounds are still here.` : `Admin ${username} heals ${targetPlayer.name} to full health!`)
+            .addField(`${targetPlayer.name}'s wounds`, targetPlayer.health.wounds.join(', ') || 'none', true)
+            .addField(`${targetPlayer.name}'s blood loss`, targetPlayer.health.bloodLoss || 'undefined', true)
+            .addField(`${targetPlayer.name}'s status`, targetPlayer.health.status || 'undefined', true)
 
         const historyMessage = reviveMode ? `[ Player ${username} revived ${targetPlayer.name}, but ${targetPlayer.name}'s wounds are still here. ]` : `[ Player ${username} heals ${targetPlayer.name} to full health! ]`
 
