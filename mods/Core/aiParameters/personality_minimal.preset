@@ -1,0 +1,15 @@
+{
+  "presetVersion": 3,
+  "name": "Personality mandatory gen params",
+  "id": "8357c900-8b4d-47d9-86d2-a5ec3ade3392",
+  "remoteId": "",
+  "parameters": {
+    "textGenerationSettingsVersion": 2,
+    "prefix": "vanilla",
+    "use_string": true,
+    "eos_token_id": 198,
+    "max_length": 150,
+    "min_length": 1
+  },
+  "model": "sigurd-v4"
+}

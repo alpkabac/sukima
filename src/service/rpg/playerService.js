@@ -5,6 +5,7 @@ class Player {
             this.weapon = {name: "Steel Longsword", rarity: "uncommon", type: "weapon"}
             this.armor = {name: "Copper Armor", rarity: "uncommon", type: "armor"}
             this.accessory = {name: "Gold Bracelet", rarity: "uncommon", type: "accessory"}
+            this.heal = {name: "Minor Heal", rarity: "minor", type: "healing spell"}
             this.inventorySize = 1
         }
         // Player part
@@ -12,57 +13,75 @@ class Player {
             this.weapon = {name: "Old Rusty Kitchen Knife", rarity: "very common", type: "weapon"}
             this.armor = {name: "Ragged Loincloth", rarity: "very common", type: "clothing"}
             this.accessory = null
+            this.heal = null
             this.inventorySize = 1
         }
         this.name = username
+        this.gender = null
 
         this.gold = 0
         this.inventory = []
         this.health = {
-            wounds: 'none',
+            wounds: [],
             bloodLoss: 'none',
             status: 'healthy'
         }
     }
 }
 
+const STATUS_DEAD = ["dead", "killed", "died", "deceased"]
+
+
 class PlayerService {
     static players = {}
 
-    static getPlayer(channel, username) {
+    static isDead(channel, player) {
+        return this.players[channel] && this.players[channel][player] && !STATUS_DEAD.includes(this.players[channel][player]?.health?.status?.toLowerCase())
+    }
+
+    static getPlayer(channel, username, createIfAbsent = true) {
         if (!this.players[channel]) {
             this.players[channel] = {}
         }
-        if (!this.players[channel][username]) this.players[channel][username] = new Player(username)
+        if (createIfAbsent && !this.players[channel][username]) this.players[channel][username] = new Player(username)
         return this.players[channel][username]
     }
 
-    static getPlayerPrompt(player){
-        const weapon = player.weapon?.name || 'No Weapon'
-        const armor = player.armor?.name || 'No Armor'
-        const accessory = player.accessory?.name || 'No Accessory'
-        const playerLastInventoryItem = player.inventory[player.inventory.length-1]
+    static getPlayerPrompt(player) {
+        const weapon = player.weapon ? `${player.weapon.name} (${player.weapon.rarity} ${player.weapon.type})` : 'No Weapon'
+        const armor = player.armor ? `${player.armor.name} (${player.armor.rarity} ${player.armor.type})` : 'No Armor'
+        const accessory = player.accessory ? `${player.accessory.name} (${player.accessory.rarity} ${player.accessory.type})` : 'No Accessory'
+        const heal = player.heal ? `${player.heal.name} (${player.heal.rarity} ${player.heal.type})` : 'No Heal'
+        const playerLastInventoryItem = player.inventory[player.inventory.length - 1]
         const backpackSelectedItem = `${playerLastInventoryItem?.name || 'none'}`
-            + (!playerLastInventoryItem ? ``: ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
-        return `[ Player: ${player.name}; weapon: ${weapon}; armor: ${armor}; accessory: ${accessory}; ${backpackSelectedItem}; wounds: ${player.health.wounds}; blood loss: ${player.health.bloodLoss}; status: ${player.health.status} ]`
+            + (!playerLastInventoryItem ? `` : ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
+        return `[ Player: ${player.name}; gender: ${player.gender || "unspecified"}; race: human; weapon: ${weapon}; armor: ${armor}; accessory: ${accessory}; heal: ${heal}; selectable item in backpack: ${backpackSelectedItem}; wounds: ${player.health.wounds}; blood loss: ${player.health.bloodLoss}; status: ${player.health.status} ]`
     }
 
-    static getEquipmentPrompt(player) {
-        let weapon = "No Weapon"
-        if (player.weapon) {
-            weapon = player.weapon
+    static getItemPrompt(item) {
+        return `${item.name} (${item.rarity} ${item.type})`
+    }
+
+    static getEquipmentPrompt(player, healMode = false) {
+        return `[ ${this.getEquipmentString(player, healMode)} ]`
+    }
+
+    static getEquipmentString(player, healMode = false) {
+        let weapon = player.weapon || {
+            name: "Unarmed",
+            type: "fists",
+            rarity: "bare"
         }
 
-        let armor = "No Armor"
-        if (player.armor) {
-            armor = player.armor
+        if (healMode) {
+            weapon = player.heal
         }
 
-        const promptWeapon = `${!weapon ? 'No Weapon' : weapon.name}`
-        const promptArmor = `${!armor ? 'No Armor' : armor.name}`
-        const promptAccessory = player.accessory ? `; ${player.accessory.name}` : ''
+        const promptWeapon = PlayerService.getItemPrompt(weapon)
+        const promptArmor = healMode ? '' : player.armor ? `; ${PlayerService.getItemPrompt(player.armor)}` : ''
+        const promptAccessory = healMode ? '' : player.accessory ? `; ${PlayerService.getItemPrompt(player.accessory)}` : ''
 
-        return `[ ${promptWeapon}; ${promptArmor}${promptAccessory} ]`
+        return `${promptWeapon}${promptArmor}${promptAccessory}`
     }
 
     static takeItem(channel, username, item) {

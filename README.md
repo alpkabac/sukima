@@ -169,36 +169,15 @@ You have to install and run it in order for simple prompt to work
 # Install
 
 1. `npm i` to install node modules
-2. Copy `example.general.env`, name it `.env` (this is very important that the file is correctly named exactly `.env`, just the extension, no filename)
-   - `.env` file contains the configs shared by all your bots
-3. Edit the `.env` file and fill the necessary values
-4. Copy `example.personality.env`, name it `YourBotName.env`
-5. Edit the `YourBotName.env` and configure your bot
-   - Each different bot should have its own copy of the `example.personality.env` file
-6. If your bot isn't named Alice (or Lulune or Jarvis or any other current AIs on the official discord)
-   - You need to create the AI own definition files in the `aiPersonalities` folder, see existing folders for example
-   - Each Personality folder should contain only declinations of the same AI (its name should always be the same as the name of the folder and the BOTNAME)
-   - The value `BOTNAME` and `TRANSLATION_FILE` of the `YourBotName.env` file decides which folder is loaded at startup: `./translations/aiPersonality/${BOTNAME}/${TRANSLATION_FILE}.json`
 
-# Launch
+# First launch
 
-### Discord
-You can start one or multiple bots by having different `YourBotName.env` files and starting each one with:  
-`node -r dotenv/config index_discord.js dotenv_config_path=YourBotName.env`
+1. Start the program with `node src/botManagement/botManagement.js`
+2. Go to the URL `http://IP_OF_THE_MACHINE:7319/?login=admin&key=admin` and change your admin credentials
+3. You will be redirected to the new admin account, where you can create your first bot!
+   - You can use the link `http://IP_OF_THE_MACHINE:7319/?login=YOUR_LOGIN&key=YOUR_PASSWORD` to connect to your new admin interface at any time
+   - From there, you can now create bots and new users (creating a user also creates a new bot for this user)
 
-### IRC
-`node ./index_irc.js` for irc version (most likely deprecated and broken)
+# Tips
 
-# Translations and bot personality
-
-Check out the files inside the `translations` folder   
-Feel free to add your own languages and bot personalities  
-Loaded folder for bot personality is the same as the `BOTNAME` in your `.env` file
-
-```
-const botMemory = require(`./translations/aiPersonality/${BOTNAME}/${TRANSLATION_FILE}.json`)
-```
-
-# Banned Tokens and Phrase Biases
-You can create your own set of banned tokens and phrase biases by creating new JSON files in `./data/bannedTokens` and `./data/phraseBias`  
-Then, you can specify the `BANNED_TOKENS_FILE` and `PHRASE_BIASES_FILE` properties in your `YourBotName.env` file
+- Create a `#bots-info` channel for AIs to send their information

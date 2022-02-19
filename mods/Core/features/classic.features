@@ -1,0 +1,24 @@
+{
+  "autoAnswer": {
+    "enabled": true,
+    "interval": 12
+  },
+  "smartAnswer": {
+    "enabled": true
+  },
+  "autoMessage": {
+    "enabled": false
+  },
+  "directMessages": {
+    "enabled": true
+  },
+  "introduction": {
+    "enabled": true
+  },
+  "greeting": {
+    "enabled": true
+  },
+  "rpgMode": {
+    "enabled": false
+  }
+}

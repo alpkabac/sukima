@@ -35,7 +35,7 @@ async function generate(generatorRequest) {
         properties = args.length > 0 ? args : generator["properties"]
     }
 
-    const module = (submoduleName && generator["submodules"]?.[submoduleName]) ? generator["submodules"][submoduleName] : generator
+    const module = (!submoduleName || !generator["submodules"]?.[submoduleName]) ? generator: generator["submodules"][submoduleName]
     if (aiParameters) {
         module.aiParameters = aiParameters
     }
@@ -45,12 +45,6 @@ async function generate(generatorRequest) {
 
     let results = []
     for (let i = 0; i < generatorRequest.nbResults; i++) {
-        /*const {
-            object,
-            result,
-            prompt,
-            module
-        } = await generatorService.generator(generator, properties, true, submoduleName)*/
         const result = await generatorService.generator(generator, properties, true, submoduleName)
         results.push(result)
     }

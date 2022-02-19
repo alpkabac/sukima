@@ -3,7 +3,7 @@
   "use_string": true,
   "min_length": 1,
   "max_length": 150,
-  "eos_token_id": 224,
+  "eos_token_id": 8162,
   "temperature": 1,
   "top_k": 0,
   "top_p": 1,

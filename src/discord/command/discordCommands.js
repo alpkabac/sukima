@@ -1,12 +1,12 @@
-import setJSONPersonalityCommand from "./setJSONPersonalityCommand.js";
 import activityCommands from "./activityCommands.js";
+import setJSONPersonalityCommand from "./setJSONPersonalityCommand.js";
 
 class DiscordCommands {
     static commands = [
         setJSONPersonalityCommand
     ].concat(activityCommands.all)
 
-    static getOnMessageCommands(){
+    static getOnMessageCommands() {
         return this.commands
     }
 

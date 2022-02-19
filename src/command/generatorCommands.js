@@ -26,6 +26,16 @@ const generatorCommands = {
         },
         true
     ),
+    ioGenerator: new Command(
+        "Intput/Output Generator",
+        [],
+        ["!ioGenerator ", "!iogenerator ", "!iog "],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return duckHuntService.ioGenerator(channel, parsedMsg, attachmentUrl)
+        },
+        true
+    ),
     generatorPrompt: new Command(
         "Generate Prompt",
         [],
@@ -42,6 +52,7 @@ generatorCommands.all = [
     generatorCommands.generateSpell,
     generatorCommands.generatorPrompt,
     generatorCommands.generator,
+    generatorCommands.ioGenerator,
 ]
 
 export default generatorCommands

@@ -1,7 +1,7 @@
 import path from 'path';
 import {fileURLToPath} from 'url'
 import axios from "axios";
-import GeneratorRequest from "./dto/GeneratorRequest.js";
+import GeneratorRequest from "./GeneratorRequest.js";
 import utils from "../utils.js";
 
 const POST_CONFIG = {

@@ -4,7 +4,7 @@ import {encode} from "gpt-3-encoder";
 import lmiService from "./lmiService.js";
 import aiService from "./aiService.js";
 
-const DEFAULT_PARAMETERS_GENERATOR = utils.loadJSONFile("./data/aiParameters/generator_minimal.json")
+const DEFAULT_PARAMETERS_GENERATOR = utils.loadJSONFile("./data/aiParameters/generator_default.json")
 
 class GeneratorService {
     static mergeSubmodule(generator, submoduleName = null) {
@@ -39,6 +39,7 @@ class GeneratorService {
      * @param args
      * @param preventLMI
      * @param submoduleName
+     * @param workflowName
      * @return {Promise<{Object}>}
      */
     static async generator(generator, args, preventLMI, submoduleName = null) {
@@ -66,6 +67,61 @@ class GeneratorService {
         }
     }
 
+    static async workflow(generator, workflowName, input) {
+        if (!generator?.submodules[workflowName]) {
+            console.error("You need to provide a generator containing submodules")
+            return
+        }
+
+        const submodule = generator.submodules[workflowName]
+
+        const submoduleInputs = submodule.properties
+            .filter(p => p.input)
+            .map(p => p.name)
+
+        const inputPropertyName = Object.keys(input)
+
+        const submodulesContainsAllInput = submoduleInputs.every(sip => inputPropertyName.includes(sip))
+
+        if (!submodulesContainsAllInput) {
+            console.error("Not every input is mapped inside the submodule")
+            return
+        }
+
+        const persistentObject = JSON.parse(JSON.stringify(input))
+
+        return await GeneratorService.workflowModule(generator, workflowName, persistentObject)
+    }
+
+    static
+    async workflowModule(generator, submoduleName, persistentObject) {
+        let args = generator.submodules[submoduleName].properties
+            .map(p => {
+                return {name: p.name, value: p.input ? persistentObject[p.name] : null}
+            })
+
+        const {object} = await GeneratorService.generator(generator, args, true, submoduleName)
+
+        if (generator?.submodules?.[submoduleName]?.callsSubmodules?.length > 0) {
+            const promises = generator?.submodules?.[submoduleName]?.callsSubmodules.map(
+                sm => GeneratorService.workflowModule(generator, sm, persistentObject)
+            )
+            const results = await Promise.all(promises)
+
+            results.forEach(r => {
+                for (let o in r) {
+                    persistentObject[o] = r[o]
+                }
+            })
+            return persistentObject
+        } else {
+            for (let o in object) {
+                persistentObject[o] = object[o]
+            }
+            return persistentObject
+        }
+    }
+
     /**
      * Generates a prompt given a generic generator
      * @param generator {name: String, description: String, properties: [{name: String, replaceBy: String}], context: String, list: List} Generic generator in parsed JSON
@@ -74,7 +130,7 @@ class GeneratorService {
      */
     static getPrompt(generator, args, shuffle = false) {
         const list = shuffle ? utils.shuffleArray(generator.list) : generator.list
-        let prompt = generator.context ? generator.context + "\n⁂\n" : ""
+        let prompt = generator.context ? generator.context + "\n***\n" : ""
 
         // Build placeholder prompt
         let placeholderPrompt = this.#buildPlaceholder(generator, args)
@@ -129,7 +185,8 @@ class GeneratorService {
         return model
     }
 
-    static async executePrompt(generator, moduleName, prompt, preventLMI = false) {
+    static
+    async executePrompt(generator, moduleName, prompt, preventLMI = false) {
         const params = this.buildParams(generator, moduleName)
         const model = this.buildModel(generator, moduleName)
         const result = await aiService.executePrompt(prompt, params, model)
@@ -152,7 +209,11 @@ class GeneratorService {
         const values = {}
         for (let property of generator.properties) {
             const replaceBy = property.replaceBy ? property.replaceBy : property.name
-            values[property.name] = split.find(l => l.startsWith(replaceBy))?.replace(replaceBy, '')?.trim()
+            values[property.name] = split
+                .find(l => l.startsWith(replaceBy))
+                ?.replace(replaceBy, '')
+                ?.replace(/<\|endoftext\|>.*/g, '')
+                ?.trim()
         }
         return values
     }
@@ -163,7 +224,8 @@ class GeneratorService {
      * @param args {[{name: String, value: String}]} List of arguments, defines the order of the properties too (will stop at first null value)
      * @return {string}
      */
-    static #buildPlaceholder(generator, args) {
+    static
+    #buildPlaceholder(generator, args) {
         let placeholderPrompt = ""
         for (let arg of args) {
             const property = generator.properties.find(p => p["name"] === arg["name"])
@@ -189,8 +251,9 @@ class GeneratorService {
      * @param prompt {String}
      * @return {string}
      */
-    static #buildList(generator, args, list, placeholderPrompt, prompt) {
-        const tokenLimit = envService.getTokenLimit() - 150
+    static
+    #buildList(generator, args, list, placeholderPrompt, prompt) {
+        const tokenLimit = envService.getTokenLimit() - (process.env.TOKEN_LIMIT === "2048" ? 150 : 100)
         let elemsPrompt = ""
         for (let elem of list) {
             let elemPrompt = ""
@@ -202,7 +265,7 @@ class GeneratorService {
                 const replaceBy = property.replaceBy ? property.replaceBy : property.name
                 elemPrompt += `${replaceBy} ${value}\n`
             }
-            elemPrompt += `⁂\n`
+            elemPrompt += `***\n`
 
             if (encode(prompt + elemsPrompt + elemPrompt + placeholderPrompt).length < tokenLimit) {
                 elemsPrompt += elemPrompt

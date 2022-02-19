@@ -1,6 +1,8 @@
 import {config} from "dotenv";
 import utils from "../utils.js";
 import personalityService from "./personalityService.js";
+import fs from "fs";
+import encoder from "gpt-3-encoder";
 
 config()
 
@@ -11,6 +13,11 @@ class BannedTokensService {
         if (!channel) throw new Error("Channel argument is mandatory")
 
         if (this.channelBannedTokens[channel]) {
+            return this.channelBannedTokens[channel]
+        }
+
+        if (fs.existsSync(`./bot/${process.env.BOT_ID}/default.badwords`)) {
+            this.channelBannedTokens[channel] = BannedTokensService.loadBannedTokenFile(`./bot/${process.env.BOT_ID}/default.badwords`)
             return this.channelBannedTokens[channel]
         }
 
@@ -52,22 +59,49 @@ class BannedTokensService {
             .map(f => f.trim())         // ["end_of_text", "nsfw"]
     }
 
+    static loadBannedTokenFile(filePath) {
+        const file = utils.loadJSONFile(filePath)
+        const bannedSequenceGroups = file?.bannedSequenceGroups || file?.banned_sequence_groups || []
+        const allBannedTokens = []
+
+        for (let bannedSequenceGroup of bannedSequenceGroups) {
+            if (!bannedSequenceGroup.enabled) continue
+            for (let sequence of bannedSequenceGroup.sequences) {
+
+                if (sequence.type === 1) {
+                    if (sequence.sequence) {
+                        const tokens = sequence.sequence
+                            .split(',')
+                            .map(s => parseInt(s.trim()))
+                        allBannedTokens.push(tokens)
+                    }
+
+                    if (sequence.sequences?.length > 0) {
+                        for (let sequenceBan of sequence.sequences) {
+                            allBannedTokens.push(sequenceBan)
+                        }
+                    }
+                }
+
+                if (sequence.type === 2 && sequence.sequence) {
+                    const seq = sequence.sequence
+                    allBannedTokens.push(encoder.encode(seq.trim()))
+                    allBannedTokens.push(encoder.encode(seq.trim().toLowerCase()))
+                    allBannedTokens.push(encoder.encode(seq.trim().toUpperCase()))
+                    allBannedTokens.push(encoder.encode(' ' + seq.trim()))
+                    allBannedTokens.push(encoder.encode(' ' + seq.trim().toLowerCase()))
+                    allBannedTokens.push(encoder.encode(' ' + seq.trim().toUpperCase()))
+                }
+            }
+        }
+
+        return allBannedTokens
+    }
+
     static loadChannelBannedTokenFiles(channel, bannedTokenFiles) {
         let allBannedTokens = []
         for (let bannedTokenFile of bannedTokenFiles) {
-            const badWords = utils.loadJSONFile(`./data/bannedTokens/${bannedTokenFile}.badwords`)
-            const bannedSequenceGroups = badWords?.bannedSequenceGroups
-            if (bannedSequenceGroups && bannedSequenceGroups.length > 0) {
-                for (let group of bannedSequenceGroups) {
-                    for (let sequence of group?.sequences) {
-                        allBannedTokens = allBannedTokens.concat(sequence?.tokens)
-                    }
-                }
-            }
-            const bannedTokens = badWords?.bad_words_ids
-            if (bannedTokens && bannedTokens.length > 0) {
-                allBannedTokens = allBannedTokens.concat(bannedTokens)
-            }
+            allBannedTokens = allBannedTokens.concat(BannedTokensService.loadBannedTokenFile(`./data/bannedTokens/${bannedTokenFile}.badwords`))
         }
         this.channelBannedTokens[channel] = allBannedTokens
     }

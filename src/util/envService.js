@@ -38,6 +38,10 @@ class EnvService {
         const max = this.getInt("RPG_RESPAWN_COOLDOWN_MAX", 3600)
         return Math.random() * (max - min) + min
     }
+
+    static getBotId() {
+        return process.env.BOT_ID || null
+    }
 }
 
 export default EnvService

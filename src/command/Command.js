@@ -46,7 +46,7 @@ class Command {
         // If a command matched or if there is no command at all
         if (command || commandStartsWith || noCommand) {
             const triggeredCommand = commandStartsWith || command
-            let parsedMessage = !msg ? '' : utils.upperCaseFirstLetter(msg.replace(triggeredCommand, '').trim())
+            let parsedMessage = !msg ? '' : msg.replace(triggeredCommand, '').trim()
 
             if (this.permission)
                 if (!utils.checkPermissions(roles, this.permission, channel.startsWith("##")) && (triggeredCommand))
@@ -57,7 +57,7 @@ class Command {
             if (triggeredCommand) {
                 targetMessageId = utils.getMessageId(msg.replace(triggeredCommand, ''))
                 if (targetMessageId) {
-                    parsedMessage = utils.upperCaseFirstLetter(parsedMessage.replace("#" + targetMessageId, '').trim())
+                    parsedMessage = parsedMessage.replace("#" + targetMessageId, '').trim()
                 }
             }
             const callbackResult = await this.callback(msg, parsedMessage, from, channel, triggeredCommand, roles, messageId, targetMessageId, client, attachmentUrl)

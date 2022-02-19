@@ -1,0 +1,801 @@
+<head>
+    <title>ALICE Bot Management</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+          integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <style>
+        html, body {
+            min-height: 100%;
+        }
+
+        body, div, form, input, select {
+            padding: 0;
+            margin: 0;
+            outline: none;
+            font-family: Roboto, Arial, sans-serif;
+            font-size: 14px;
+            color: #666;
+            line-height: 22px;
+        }
+
+        h1, h4 {
+            margin: 15px 0 4px;
+            font-weight: 400;
+        }
+
+        h4 {
+            margin: 20px 0 4px;
+            font-weight: 400;
+        }
+
+        span {
+            color: red;
+        }
+
+        .small {
+            font-size: 10px;
+            line-height: 18px;
+        }
+
+        .testbox {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: inherit;
+            padding: 3px;
+        }
+
+        form {
+            max-width: 100%;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 2px 5px #ccc;
+        }
+
+        input {
+            width: calc(100% - 10px);
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            vertical-align: middle;
+        }
+
+        input:hover, textarea:hover, select:hover {
+            outline: none;
+            border: 1px solid #095484;
+            background: #e6eef7;
+        }
+
+        .title-block select, .title-block input {
+            margin-bottom: 10px;
+        }
+
+        select {
+            padding: 7px 0;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            background: transparent;
+        }
+
+        select, table {
+            width: 100%;
+        }
+
+        option {
+            background: #fff;
+        }
+
+        .day-visited, .time-visited {
+            position: relative;
+        }
+
+        input[type="date"]::-webkit-inner-spin-button {
+            display: none;
+        }
+
+        input[type="time"]::-webkit-inner-spin-button {
+            margin: 2px 22px 0 0;
+        }
+
+        .day-visited i, .time-visited i, input[type="date"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            top: 8px;
+            font-size: 20px;
+        }
+
+        .day-visited i, .time-visited i {
+            right: 5px;
+            z-index: 1;
+            color: #a9a9a9;
+        }
+
+        [type="date"]::-webkit-calendar-picker-indicator {
+            right: 0;
+            z-index: 2;
+            opacity: 0;
+        }
+
+        .question-answer label {
+            display: block;
+            padding: 0 20px 10px 0;
+        }
+
+        .question-answer input {
+            width: auto;
+            margin-top: -2px;
+        }
+
+        th, td {
+            padding: 15px 0;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+            vertical-align: unset;
+            line-height: 18px;
+            font-weight: 400;
+            word-break: break-all;
+        }
+
+        .first-col {
+            width: 25%;
+            text-align: left;
+        }
+
+        textarea {
+            width: calc(100% - 6px);
+        }
+
+        .btn-block {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            /*width: 150px;
+            padding: 10px;
+            border: none;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            border-radius: 5px;
+            background-color: #095484;
+            font-size: 16px;
+            color: #fff;
+            cursor: pointer;*/
+        }
+
+        button:hover {
+            background-color: #0666a3;
+        }
+
+        @media (min-width: 568px) {
+            .title-block {
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .title-block select {
+                width: 30%;
+                margin-bottom: 0;
+            }
+
+            .title-block input {
+                width: 31%;
+                margin-bottom: 0;
+            }
+
+            th, td {
+                word-break: keep-all;
+            }
+        }
+
+        /*###########################################################################################################*/
+
+        .loader {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Style the tab */
+        .tab {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+        }
+
+        /* Style the buttons that are used to open the tab content */
+        .tab button {
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+        }
+
+        /* Change background color of buttons on hover */
+        .tab button:hover {
+            background-color: #ddd;
+        }
+
+        /* Create an active/current tablink class */
+        .tab button.active {
+            background-color: #ccc;
+        }
+
+        /* Style the tab content */
+        .tabcontent {
+            display: none;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        /* Style the tab content */
+        .container {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+
+        input {
+            width: 100%
+        }
+    </style>
+</head>
+
+<div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'divAdminUsers')" id="buttonDivAdminUsers" hidden="hidden">
+        Users
+    </button>
+    <button class="tablinks" onclick="openTab(event, 'divAdminCreateUser')" id="buttonDivAdminCreateUser"
+            hidden="hidden">
+        Create User
+    </button>
+    <button class="tablinks" onclick="openTab(event, 'divMyBots')" id="buttonDivMyBots" hidden="hidden">My Bots</button>
+    <button class="tablinks" onclick="openTab(event, 'divEditBot')" id="buttonDivEdit" hidden="hidden">
+        Edit Current Bot
+    </button>
+    <button class="tablinks" onclick="openTab(event, 'divCreateNewBot')" id="buttonDivCreateNewBot" hidden="hidden">
+        Create new Bot
+    </button>
+</div>
+
+<div id="divAdminFirstConnexion" hidden="hidden">
+    <form>
+        <label for="firstConnexionLogin">Login (don't put any space or weird character): <span>*</span></label>
+        <input class="formFirstConnexion" id="firstConnexionLogin" type="text" name="firstConnexionLogin"
+               required><br/><br/>
+
+        <label for="firstConnexionKey">Password (don't put any space or weird character): <span>*</span></label>
+        <input class="formFirstConnexion" id="firstConnexionKey" type="text" name="firstConnexionKey"
+               required><br/><br/>
+
+        <label for="firstConnexionNaiKey">NovelAI API key: <span>*</span></label>
+        <input class="formFirstConnexion" id="firstConnexionNaiKey" type="text" name="firstConnexionNaiKey"
+               required><br/><br/>
+
+        <label for="naiSubTier">NovelAI subscription tier: <span>*</span></label>
+        <select class="formFirstConnexion" id="naiSubTier" name="naiSubTier" required>
+            <option></option>
+            <option value="tablet">Tablet</option>
+            <option value="scroll">Scroll</option>
+            <option value="opus">Opus</option>
+        </select><br/><br/>
+
+        <input type="button" id="submitFormFirstConnexion" value="Change default admin credentials"
+               onclick="sendFormFirstConnexion()"><br/><br/>
+    </form>
+</div>
+
+<div id="divCreateNewBot" class="tabcontent" hidden="hidden">
+    <form>
+        <label for="discordToken">Bot Discord Token: <span>*</span></label>
+        <input class="formCreateNewBot" type="text" name="discordToken"><br/><br/>
+
+        <label for="channelName">Discord channel name: <span>*</span></label>
+        <input class="formCreateNewBot" type="text" name="channelName" placeholder="#general"><br/><br/>
+
+        <label for="botName">Bot name: <span>*</span></label>
+        <input class="formCreateNewBot" type="text" name="botName" placeholder="Alice" required><br/><br/>
+
+        <label for="botGender">Bot gender (can be anything you want, but is still mandatory): <span>*</span></label>
+        <input class="formCreateNewBot" type="text" name="botGender" placeholder="female" required><br/><br/>
+
+        <label for="botDescription">Bot description (only visual, doesn't affect personality):</label>
+        <input class="formCreateNewBot" type="text" name="botDescription"
+               placeholder="Alice is your typical cute AI waifu."><br/><br/>
+
+        <label for="botContext">Bot context (this should describe the setting, genre, or general context of the
+            bot):</label>
+        <input class="formCreateNewBot" type="text" name="botContext"
+               placeholder="[ Setting: a conversation on Discord ]"><br/><br/>
+
+        <label for="botContextDm">Bot context for DMs:</label>
+        <input class="formCreateNewBot" type="text" name="botContextDm"
+               placeholder="[ Setting: a private conversation between Alice and another user on Discord ]"><br/><br/>
+
+        <label for="botPersonality">Bot personality (this is what will be used to define the bot's personality):</label>
+        <input class="formCreateNewBot" type="text" name="botPersonality"
+               placeholder="Alice is joyful and loves to help."><br/><br/>
+
+        <label for="presentationMessage">Bot presentation message for public channels: <span>*</span></label>
+        <input class="formCreateNewBot" type="text" name="presentationMessage"
+               placeholder="Hello everyone! My name is Alice, and I'm an AI! *She smiles and bows down*"
+               required><br/><br/>
+
+        <label for="presentationMessageDm">Bot presentation message for DMs:</label>
+        <input class="formCreateNewBot" type="text" name="presentationMessageDm"
+               placeholder="Hello! My name is Alice, and I'm an AI! *She smiles and bows down*"><br/><br/>
+
+        <label for="discordAvatarUrl">Discord avatar URL: <span>*</span></label>
+        <input class="formCreateNewBot" type="text" name="discordAvatarUrl"
+               placeholder="https://i.imgur.com/FtD3r2p.jpg"
+               required><br/><br/>
+
+        <label for="aiModel">AI model name (2.7B, 6B-v4, euterpe-v0, euterpe-v2, genji-python-6b, genji-jp-6b,
+            genji-jp-6b-v2, pile-test): <span>*</span></label>
+        <input class="formCreateNewBot" type="text" name="aiModel" placeholder="6B-v4" value="euterpe-v2"
+               required><br/><br/>
+
+
+        <input type="button" value="Advanced Options"
+               onclick="document.getElementById('divCreateBotAdvancedMode').hidden = !document.getElementById('divCreateBotAdvancedMode').hidden;"/><br/><br/>
+
+        <div id="divCreateBotAdvancedMode" hidden="hidden">
+            <label for="inputFilePreset">Preset File (.preset file from NovelAI)</label>
+            <input type="file"><br/><br/>
+            <input class="formCreateNewBot" name="presetFile" hidden="hidden">
+
+            <label for="inputFilePhraseBias">Phrase Bias (.bias file from NovelAI)</label>
+            <input type="file"><br/><br/>
+            <input class="formCreateNewBot" name="phraseBias" hidden="hidden">
+
+            <label for="inputFilePhraseBias">Banned Tokens (.badwords file from NovelAI)</label>
+            <input type="file"><br/><br/>
+            <input class="formCreateNewBot" name="bannedTokens" hidden="hidden">
+        </div>
+        <br/>
+
+        <input type="button" value="Create New Bot" onclick="sendCreateNewBot()"><br/><br/>
+    </form>
+</div>
+
+<div hidden="hidden">
+    <form>
+        <label for="login">Login: <span>*</span></label>
+        <input class="formCredentials" id="login" type="text" name="login"><br/>
+        <label for="key">API key: <span>*</span></label>
+        <input class="formCredentials" id="key" type="text" name="key"><br/>
+        <label for="discordToken">Bot Discord Token: <span>*</span></label>
+        <input class="formCredentials" id="discordToken" type="text" name="discordToken"><br/>
+        <label for="id">* Bot ID:</label>
+        <input class="formCredentials" id="id" type="text" name="id"><br/>
+    </form>
+</div>
+
+<div id="divAdminUsers" class="tabcontent" hidden="hidden">
+    <button onclick="refreshUsers()">Refresh Users</button>
+    <div id="divTableAdminUsers">
+
+    </div>
+</div>
+
+<div id="divAdminCreateUser" class="tabcontent" hidden="hidden">
+    <form>
+        <label for="username">User Name: <span>*</span></label>
+        <input class="formAdminCreateUser" type="text" id="username" name="username" required><br/><br/>
+
+        <label for="discordToken">Bot discord token:<span>*</span></label>
+        <input class="formAdminCreateUser" type="text" name="discordToken" required><br/><br/>
+
+        <input type="button" id="submitAdminCreateUser" value="Create User" onclick="sendAdminCreateUser()"><br/><br/>
+
+        <div id="divResultAdminCreateUser"></div>
+    </form>
+</div>
+
+<div id="divMyBots" class="tabcontent" hidden="hidden">
+    <button onclick="refreshBots()">Refresh Bots</button>
+    <div id="divTableMyBots">
+
+    </div>
+</div>
+
+<div id="divEditBot" class="tabcontent" hidden="hidden">
+    <form>
+        <label for="botName">Bot name: <span>*</span></label>
+        <input class="formEdit" type="text" id="botName" name="botName" placeholder="Alice" required><br/><br/>
+
+        <label for="botDiscordName">Bot discord name (only when bot name can't be picked because of discord
+            restrictions, otherwise bot name will be used):</label>
+        <input class="formEdit" type="text" id="botDiscordName" name="botDiscordName" placeholder="AliceBot"><br/><br/>
+
+        <label for="botGender">Bot gender (can be anything you want, but is still mandatory): <span>*</span></label>
+        <input class="formEdit" type="text" id="botGender" name="botGender" placeholder="female" required><br/><br/>
+
+        <label for="botDescription">Bot description (only visual, doesn't affect personality):</label>
+        <input class="formEdit" type="text" id="botDescription" name="botDescription"
+               placeholder="Alice is your typical cute AI waifu."><br/><br/>
+
+        <label for="botContext">Bot context (this should describe the setting, genre, or general context of the
+            bot):</label>
+        <input class="formEdit" type="text" id="botContext" name="botContext"
+               value="[ Setting: a conversation on Discord ]"
+               placeholder="[ Setting: a conversation on Discord ]"><br/><br/>
+
+        <label for="botContextDm">Bot context for DMs:</label>
+        <input class="formEdit" type="text" id="botContextDm" name="botContextDm"
+               placeholder="[ Setting: a private conversation between Alice and another user on Discord ]"><br/><br/>
+
+        <label for="botPersonality">Bot personality (this is what will be used to define the bot's personality):</label>
+        <input class="formEdit" type="text" id="botPersonality" name="botPersonality"
+               placeholder="Alice is joyful and loves to help."><br/><br/>
+
+        <label for="presentationMessage">Bot presentation message for public channels: <span>*</span></label>
+        <input class="formEdit" type="text" id="presentationMessage" name="presentationMessage"
+               placeholder="Hello everyone! My name is Alice, and I'm an AI! *She smiles and bows down*"
+               required><br/><br/>
+
+        <label for="presentationMessageDm">Bot presentation message for DMs:</label>
+        <input class="formEdit" type="text" id="presentationMessageDm" name="presentationMessageDm"
+               placeholder="Hello! My name is Alice, and I'm an AI! *She smiles and bows down*"><br/><br/>
+
+        <label for="discordAvatarUrl">Discord avatar URL: <span>*</span></label>
+        <input class="formEdit" type="text" id="discordAvatarUrl" name="discordAvatarUrl"
+               placeholder="https://i.imgur.com/FtD3r2p.jpg"
+               required><br/><br/>
+
+        <span id="channelNameSpan" hidden="hidden">
+            <label for="channelName">* Channel name (ex: "#test"):</label>
+            <input type="text" id="channelName" name="channelName" placeholder="#yourusername-bot" required><br/><br/>
+        </span>
+
+        <label for="aiModel">AI model name (2.7B, 6B-v4, euterpe-v0, euterpe-v2, genji-python-6b, genji-jp-6b,
+            genji-jp-6b-v2, pile-test): <span>*</span></label>
+        <input class="formEdit" type="text" id="aiModel" name="aiModel" placeholder="6B-v4" value="euterpe-v2" required><br/><br/>
+
+
+        <input type="button" value="Advanced Options"
+               onclick="document.getElementById('divAdvancedMode').hidden = !document.getElementById('divAdvancedMode').hidden;"/><br/><br/>
+        <div id="divAdvancedMode" hidden="hidden">
+            <label for="inputFilePreset">Preset File (.preset file from NovelAI)</label>
+            <input type="file" id="inputFilePreset"><br/><br/>
+            <input class="formEdit" id="inputPreset" name="presetFile" hidden="hidden">
+
+            <label for="inputFilePhraseBias">Phrase Bias (.bias file from NovelAI)</label>
+            <input type="file" id="inputFilePhraseBias"><br/><br/>
+            <input class="formEdit" id="inputPhraseBias" name="phraseBias" hidden="hidden">
+
+            <label for="inputFilePhraseBias">Banned Tokens (.badwords file from NovelAI)</label>
+            <input type="file" id="inputFileBannedTokens"><br/><br/>
+            <input class="formEdit" id="inputBannedTokens" name="bannedTokens" hidden="hidden">
+        </div>
+        <br/>
+
+        <input type="button" id="submitEdit" value="Edit" onclick="sendEditForm()"><br/><br/>
+
+        <table>
+            <tr>
+                <td><input type="button" value="Start" onclick="sendForm(null, '/bot/start'); return false;"></td>
+                <td><input type="button" value="Restart" onclick="sendForm(null, '/bot/restart'); return false;"></td>
+                <td><input type="button" value="Reset" onclick="sendForm(null, '/bot/update'); return false;"></td>
+                <td><input type="button" value="Stop" onclick="sendForm(null, '/bot/stop'); return false;"></td>
+            </tr>
+        </table>
+
+    </form>
+</div>
+
+
+<div class="container">
+    <div class="loader" id="spinner" hidden="hidden"></div>
+
+    <pre id="result">
+
+    </pre>
+</div>
+
+<script>
+    const restApiUrl = "/api/v1"
+    const queryString = window.location.search
+    const urlParams = new URLSearchParams(queryString)
+    const login = urlParams.get('login')
+    const key = urlParams.get('key')
+    const discordToken = urlParams.get('discordToken')
+    const botId = urlParams.get('botId')
+    const channelName = urlParams.get('channelName')
+    const spinner = document.getElementById('spinner')
+    const result = document.getElementById('result')
+    const inputFilePhraseBias = document.getElementById('inputFilePhraseBias')
+    const inputFileBannedTokens = document.getElementById('inputFileBannedTokens')
+    const inputFilePreset = document.getElementById('inputFilePreset')
+    const inputPhraseBias = document.getElementById('inputPhraseBias')
+    const inputBannedTokens = document.getElementById('inputBannedTokens')
+    const inputPreset = document.getElementById('inputPreset')
+    let authenticatedUser
+
+
+    if (login) {
+        document.getElementById("login").value = login
+    }
+    if (key) {
+        document.getElementById("key").value = key
+    }
+    if (discordToken) {
+        document.getElementById("discordToken").value = discordToken
+    }
+    if (botId) {
+        document.getElementById("id").value = botId
+    }
+    if (channelName) {
+        document.getElementById("channelName").value = '#' + channelName
+    }
+
+    inputFilePhraseBias.onchange = async function (event) {
+        const fileList = inputFilePhraseBias.files;
+        if (fileList?.length > 1) return console.error("Only one file is allowed")
+        inputPhraseBias.value = JSON.stringify(JSON.parse(await fileList[0].text()))
+    }
+
+    inputFileBannedTokens.onchange = async function (event) {
+        const fileList = inputFileBannedTokens.files;
+        if (fileList?.length > 1) return console.error("Only one file is allowed")
+        inputBannedTokens.value = JSON.stringify(JSON.parse(await fileList[0].text()))
+    }
+
+    inputFilePreset.onchange = async function (event) {
+        const fileList = inputFilePreset.files;
+        if (fileList?.length > 1) return console.error("Only one file is allowed")
+        inputPreset.value = JSON.stringify(JSON.parse(await fileList[0].text()))
+    }
+
+    main()
+
+    async function main() {
+        await connect()
+
+        await refreshBots()
+        await refreshUsers()
+
+        if (botId) {
+            openTab({currentTarget: document.getElementById("divEditBot")}, 'divEditBot')
+        } else if (authenticatedUser.id !== "admin" && authenticatedUser.key !== "admin") {
+            openTab({currentTarget: document.getElementById("divMyBots")}, 'divMyBots')
+        }
+    }
+
+    async function connect() {
+        let authenticateRequest = await sendForm(null, "/user/get", {id: login})
+
+        if (authenticateRequest.status === "SUCCESS") {
+            authenticatedUser = authenticateRequest.data.user
+            if (authenticatedUser.isAdmin) {
+                if (authenticatedUser.id === "admin" && authenticatedUser.key === "admin") {
+                    document.getElementById("divMyBots").hidden = true
+                    document.getElementById("divEditBot").hidden = true
+                    document.getElementById("divAdminFirstConnexion").hidden = false
+                    document.getElementById("buttonDivCreateNewBot").hidden = true
+                    return
+                } else {
+                    document.getElementById("buttonDivAdminUsers").hidden = false
+                    document.getElementById("buttonDivAdminCreateUser").hidden = false
+                    document.getElementById("buttonDivMyBots").hidden = false
+                    document.getElementById("buttonDivEdit").hidden = !botId
+                    document.getElementById("buttonDivCreateNewBot").hidden = false
+                }
+            } else {
+                document.getElementById("buttonDivMyBots").hidden = false
+                document.getElementById("buttonDivEdit").hidden = !botId
+                document.getElementById("buttonDivCreateNewBot").hidden = authenticatedUser.bots.length < authenticatedUser.maxBots
+            }
+
+            if (!botId) return
+
+            const currentBot = await sendForm(null, "/bot/get", {id: botId})
+
+            if (currentBot.status === "SUCCESS") {
+                const botData = currentBot.data.botData
+                document.getElementById("botName").value = botData.botName || ``
+                document.getElementById("botDiscordName").value = botData.botDiscordName || ``
+                document.getElementById("discordToken").value = botData.discordToken
+                document.getElementById("botGender").value = botData.botGender || ``
+                document.getElementById("botDescription").value = botData.botDescription || ``
+                document.getElementById("botContext").value = botData.botContext || ``
+                document.getElementById("botContextDm").value = botData.botContextDm || ``
+                document.getElementById("botPersonality").value = botData.botPersonality || ``
+                document.getElementById("presentationMessage").value = botData.presentationMessage || ``
+                document.getElementById("presentationMessageDm").value = botData.presentationMessageDm || ``
+                document.getElementById("discordAvatarUrl").value = botData.discordAvatarUrl || ``
+                document.getElementById("channelName").value = botData.channelName
+                document.getElementById("aiModel").value = botData.aiModel
+            } else {
+                console.error("Failed to retrieve bot data. Error: " + currentBot.error)
+            }
+        } else {
+            console.error("Authentication failed.")
+        }
+    }
+
+    function openTab(evt, tabName) {
+        // Declare all variables
+        var i, tabcontent, tablinks;
+
+        // Get all elements with class="tabcontent" and hide them
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+
+        // Get all elements with class="tablinks" and remove the class "active"
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+
+        // Show the current tab, and add an "active" class to the button that opened the tab
+        document.getElementById(tabName).style.display = "block";
+        if (evt) evt.currentTarget.className += " active";
+    }
+
+    async function refreshUsers() {
+        if (!authenticatedUser.isAdmin) return
+        const result = await sendForm(null, "/user/all")
+
+        const divTableAdminUsers = document.getElementById("divTableAdminUsers")
+
+        const table = document.createElement('table')
+        const header = table.createTHead()
+        const row = header.insertRow()
+        row.insertCell().innerHTML = 'Username'
+        row.insertCell().innerHTML = 'ID'
+        row.insertCell().innerHTML = 'key'
+        row.insertCell().innerHTML = 'isAdmin'
+        row.insertCell().innerHTML = 'Bot count'
+        row.insertCell().innerHTML = 'Bot names'
+        row.insertCell().innerHTML = 'Impersonate'
+
+        for (let b of result.data.users) {
+            const userRequest = await sendForm(null, "/user/get", {id: b.id})
+
+            const tr = table.insertRow()
+            tr.insertCell().innerHTML = `${userRequest.data?.user?.username}`
+            tr.insertCell().innerHTML = `${userRequest.data?.user?.id}`
+            tr.insertCell().innerHTML = `${userRequest.data?.user?.key}`
+            tr.insertCell().innerHTML = `${userRequest.data?.user?.isAdmin}`
+            tr.insertCell().innerHTML = `${userRequest.data?.user?.bots?.length}/${userRequest.data?.user?.maxBots}`
+            tr.insertCell().innerHTML = `${userRequest.data?.user?.bots.join(', ')}`
+            tr.insertCell().innerHTML = `<input type="button" value="Impersonate" onclick="window.location.href='/?login=${userRequest.data?.user?.id}&key=${userRequest.data?.user?.key}'" >`
+        }
+
+        divTableAdminUsers.innerHTML = ''
+        divTableAdminUsers.appendChild(table)
+    }
+
+    async function refreshBots() {
+        const result = await sendForm(null, "/user/get", {id: login})
+
+        const divTableMyBots = document.getElementById("divTableMyBots")
+        const table = document.createElement('table')
+        const header = table.createTHead()
+        const row = header.insertRow()
+        row.insertCell().innerHTML = 'Name'
+        row.insertCell().innerHTML = 'Channels'
+        row.insertCell().innerHTML = 'AI Model'
+        row.insertCell().innerHTML = 'Status'
+        row.insertCell().innerHTML = 'Edit'
+        row.insertCell().innerHTML = 'Start'
+        row.insertCell().innerHTML = 'Restart'
+        row.insertCell().innerHTML = 'Reset'
+        row.insertCell().innerHTML = 'Stop'
+
+        const runningBots = await sendForm(null, "/bot/running")
+
+        for (let b of result.data.user.bots) {
+            const botRequest = await sendForm(null, "/bot/get", {id: b})
+
+            const tr = table.insertRow()
+            const isBotOnline = runningBots?.data?.bots?.some(bot => bot.id === b)
+            tr.insertCell().innerHTML = `${botRequest.data?.botData?.botName || 'Name not found, try to Edit your bot to set its name'}`
+            tr.insertCell().innerHTML = `${botRequest.data?.botData?.channelName}`
+            tr.insertCell().innerHTML = `${botRequest.data?.botData?.aiModel}`
+            tr.insertCell().innerHTML = `<span style="color:${isBotOnline ? 'green' : 'red'};">${isBotOnline ? 'ONLINE' : 'OFFLINE'}</span>`
+            tr.insertCell().innerHTML = `<input type="button" value="Edit" onclick="redirectToBotEdition('${b}')">`
+            tr.insertCell().innerHTML = `<input type="button" value="Start" onclick="sendForm(null, '/bot/start', {id: '${b}'}); return false;">`
+            tr.insertCell().innerHTML = `<input type="button" value="Restart" onclick="sendForm(null, '/bot/restart', {id: '${b}'}); return false;">`
+            tr.insertCell().innerHTML = `<input type="button" value="Reset" onclick="sendForm(null, '/bot/update', {id: '${b}'}); return false;">`
+            tr.insertCell().innerHTML = `<input type="button" value="Stop" onclick="sendForm(null, '/bot/stop', {id: '${b}'}); return false;">`
+        }
+
+        divTableMyBots.innerHTML = ''
+        divTableMyBots.appendChild(table)
+
+    }
+
+    function redirectToBotEdition(botId, login, key) {
+        login = login ? login : document.getElementById("login").value
+        key = key ? key : document.getElementById("key").value
+        window.location.href = `/?login=${login}&key=${key}&botId=${botId}`
+    }
+
+    async function sendEditForm() {
+        const result = await sendForm("formEdit", '/bot/edit')
+        alert(JSON.stringify(result))
+    }
+
+    async function sendCreateNewBot() {
+        const result = await sendForm("formCreateNewBot", '/bot/create', {id: null})
+        alert(JSON.stringify(result))
+        if (result.status === "SUCCESS") {
+            window.location.href = `/?login=${document.getElementById("login").value}&key=${document.getElementById("key").value}&botId="${result.data.id}"`
+        }
+    }
+
+    async function sendFormFirstConnexion() {
+        const result = await sendForm("formFirstConnexion", '/admin/firstConnexion')
+        alert(JSON.stringify(result))
+        if (result.status === "SUCCESS") {
+            window.location.href = `/?login=${document.getElementById("firstConnexionLogin").value}&key=${document.getElementById("firstConnexionKey").value}`
+        }
+    }
+
+    async function sendAdminCreateUser() {
+        const result = await sendForm("formAdminCreateUser", '/user/create', {id: null})
+
+        const divResultAdminCreateUser = document.getElementById("divResultAdminCreateUser")
+
+        if (result.status === "SUCCESS") {
+            divResultAdminCreateUser.innerHTML = `<span style="color: green">SUCCESS!</span><br/><button onclick="window.location.href='/?login=${result.data?.user?.id}&key=${result.data?.user?.key}&botId=${result.data?.botId}'">Impersonate</button>`
+            divResultAdminCreateUser.innerHTML += `<br/>channelName: ${result.data.channelName}`
+            divResultAdminCreateUser.innerHTML += `<br/>Bot ID: ${result.data.botId}`
+        }
+
+        console.log(result)
+    }
+
+    function sendForm(formValueClass = null, url = "/test", data = {}) {
+        return new Promise(resolve => {
+            const jsonToPost = {
+                login: document.getElementById("login").value,
+                key: document.getElementById("key").value,
+                discordToken: document.getElementById("discordToken").value,
+                id: document.getElementById("id").value
+            }
+            const elements = formValueClass ? document.getElementsByClassName(formValueClass) : []
+            for (let i = 0; i < elements.length; i++) {
+                jsonToPost[elements[i].name] = elements[i].value
+            }
+            for (let d in data) {
+                jsonToPost[d] = data[d]
+            }
+
+            const xmlHttp = new XMLHttpRequest();
+            xmlHttp.onreadystatechange = function () {
+                if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+                    const resultObject = JSON.parse(xmlHttp.responseText)
+                    resolve(resultObject)
+                    spinner.hidden = true
+                    //result.textContent = JSON.stringify(resultObject, null, 4)
+                }
+            }
+
+            xmlHttp.open("post", restApiUrl + url);
+            xmlHttp.setRequestHeader('Content-Type', 'application/json')
+            xmlHttp.send(JSON.stringify(jsonToPost))
+            spinner.hidden = false
+            //result.textContent = ''
+        })
+    }
+</script>

@@ -19,7 +19,7 @@ const promptCommands = {
             const args = /!prompt *(\d*)\n/g.exec(msg);
             if (args && args[1]) {
                 const message = utils.upperCaseFirstLetter(msg.replace(args[0], ""))
-                const tokenCount = Math.min(150, parseInt(args[1]))
+                const tokenCount = Math.min(process.env.TOKEN_LIMIT === "2048" ? 150 : 100, parseInt(args[1]))
                 const result = await aiService.simpleEvalbot(message, tokenCount, channel.startsWith("##"))
                 return {message: result, success: true}
             }
@@ -53,15 +53,15 @@ const promptCommands = {
                         const entries = utils.shuffleArray(loreGenerationToolEntries)
                         const entry = entries.pop()
                         const currentPromptLength = encoder.encode(prompt).length
-                        const entryText = `INPUT: ${entry.INPUT}\nOUTPUT: ${entry.OUTPUT}\nKEYS: ${entry.KEYS}\n⁂\n`
+                        const entryText = `INPUT: ${entry.INPUT}\nOUTPUT: ${entry.OUTPUT}\nKEYS: ${entry.KEYS}\n***\n`
                         const entryLength = encoder.encode(entryText).length
-                        if (currentPromptLength + entryLength + placeholderLength >= parseInt(process.env.TOKEN_LIMIT || "2048") - 150) {
+                        if (currentPromptLength + entryLength + placeholderLength >= parseInt(process.env.TOKEN_LIMIT || "2048") - (process.env.TOKEN_LIMIT === "2048" ? 150 : 100)) {
                             break
                         } else {
                             prompt += entryText
                         }
                     }
-                    const result = await aiService.simpleEvalbot(prompt + placeholder, 150, channel.startsWith("##"))
+                    const result = await aiService.simpleEvalbot(prompt + placeholder, process.env.TOKEN_LIMIT === "2048" ? 150 : 100, channel.startsWith("##"))
                     results.push(result.trimEnd())
                 }
 

@@ -106,13 +106,13 @@ could look like:
 
 ```
 [ Outputs the enemy difficulty given the enemy name as input ]
-⁂
+***
 Input Enemy Name: Orc Warlock
 Output Enemy Difficulty: hard
-⁂
+***
 Input Enemy Name: Rabid Mouse
 Output Enemy Difficulty: easy
-⁂
+***
 Input Enemy Name:
 ```
 
@@ -120,7 +120,7 @@ Input Enemy Name:
 
 ## `exampleItemSeparator` (not implemented yet)
 
-Defaults to `"⁂\n"`  
+Defaults to `"***\n"`  
 String used to separate example items in the prompt  
 ***Setting this value to `null` may have unexpected results, if not needed, set it to its default value or omit this
 property entirely***
@@ -134,7 +134,7 @@ How to use:
   "context": "...",
   "properties": [...],
   "exampleList": [...],
-  "exampleItemSeparator": "⁂\n"
+  "exampleItemSeparator": "***\n"
 }
 ```
 

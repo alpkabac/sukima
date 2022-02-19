@@ -1,0 +1,74 @@
+{
+  "name": "Pause's Scenario Generator Tool",
+  "description": "Generates a scenario from given input",
+  "context": null,
+  "properties": [
+    {
+      "name": "INPUT",
+      "replaceBy": "INPUT:"
+    },
+    {
+      "name": "OUTPUT",
+      "replaceBy": "OUTPUT:"
+    }
+  ],
+  "list": [
+    {
+      "INPUT": "A train station was in purgatory.",
+      "OUTPUT": "It was a quiet place. Midnight sounds eked through veils of rolling fog, which lapped and swirled in a gentle dance untouched by time. A light wind caressed the cold stone platform, the station empty. It was peaceful here; a solace between the place that was and that which will be, a moment of stillness in the midst of motion. The station was dark, but not so much it was impossible to see. Beneath me was the concrete, cracked and weathered with age, while tall iron lampposts held a watchful perimeter. A single booth stood silhouetted against the night sky, its glass door open to reveal a small desk. Precious little else existed here - for beyond the veil was a vast, grey murk. The only thing visible was the platform itself, and the long, crossed tracks that stretched far, far beyond."
+    },
+    {
+      "INPUT": "I awaken in another world.",
+      "OUTPUT": "Existence rushes by in whirling currents, thoughts and sensations buffeting me in a dizzying tempest. My essence, my very core flickers between an effervescent now and intangible infinite. Eons roll into instants, days into millennia, yet it has no meaning. Nothing has meaning. There is just noise. Then, finally, like a wave crashing upon an unknown shore, order is imposed. The lack of chaos is more startling than anything to come prior. Seconds are seconds, sensation is constant. It is incomprehensible at first, until my mind is able to grasp the unexpected organization to existence. As my thoughts return... Return? Perhaps, whatever I am, these are my first moments, for nothing occupies my memories beyond what I currently describe. Regardless, there now comes a noise and a sensation as a spasm runs through me, before my senses begin processing information in earnest."
+    },
+    {
+      "INPUT": "You're a soldier in a battle while a tornado approaches.",
+      "OUTPUT": "You are Andrew Collins of Delta Team. The harsh cry of a missile whizzes overhead, detonating in a fiery crack that sends shockwaves across the battlefield. The sound echoes through your ears as you crouch behind cover, taking shelter from the barrage. Your head pounds with every impact; it's like someone has taken a hammer to the inside of your skull. Haunting red light bathes the collapsing desert city - dust and smoke wreathed with flame. Through it all is a rising wind; a howling gale that threatens to tear you from your feet. Another detonations rings out. This time, the blast is closer. Through a criss-crossing lattice of tracer rounds to the east, you see a plume of smoke rising, being swept towards the coming tempest. A few seconds later, the ground shakes violently. It's enough to shake you back to your senses."
+    },
+    {
+      "INPUT": "It's a fantasy story about an invasion from another world. The heroes are ordinary people who rise to the challenge.",
+      "OUTPUT": "The sky turns to shadow. An ephemeral tempest flashes across the clouds, and the Obelisks begin to fall. Like great steel jaws they clamp into the earth, their grim ebony chains straining as they seem to pull the very world toward them. From within pours an unholy radiance, soon followed by azure creatures of shadow and flame. Turmoil shakes the world as the forces of Azarak continue to grow. Word from the neighboring realms has begun to filter through; the sudden destruction of villages, unexplained collapses of buildings and bridges, and the unnatural rise of undead horrors in places where there was no hint of such things before... Yet there remains hope. Just as in the previous Age, this strife has given rise to a new generation of heroes - men and women who have faced the coming shadow, and fought with all their heart to quell it with purifying light. Stay strong, for it is only with the combined strength of our souls that we may yet survive this cataclysm, and put an end to Azarak's incursion upon our world."
+    },
+    {
+      "INPUT": "Post-apocalyptic story about people in Denver who have an affinity for dogs.",
+      "OUTPUT": "The people of Denver live off the scraps of the outside world. Like many others throughout the Wasteland, Denver has been hit hard by the Great Fire. Many of those who survived fled west to escape the onslaught of atomic firestorms. Others were driven away by marauding gangs and mutant monsters alike. Still others chose to stay put, hoping that perhaps some semblance of normalcy would return to their ruined homes. Accompanying these hunters are their dogs, great mutated creatures of canine descent. These beasts often serve as pack animals, and sometimes as cavalry for Denver's militia. Though their strength and intelligence vary widely from dog to dog, they're a vital part of the community - indeed, much of Denver's culture revolves around them."
+    },
+    {
+      "INPUT": "Whimsical children's story about woodland critters having a picnic.",
+      "OUTPUT": "It was a beautiful day in Springwood Grove, where all the wonderful animals would come to play. Swallows chirped merrily overhead, and a cool breeze blew through the trees. Mrs. Doe trotted out from the bushes, her tail wagging happily. \"It is a good day, today,\" she remarked aloud, to which a small voice replied: \"But isn't it always?\" Mrs. Doe was surprised to see Mr. Toad peeking out from underneath a mushroom. \"You're far from the pond, Mr. Toad!\" Mrs. Doe observed. Mr. Toad smiled, and pointed through the trees. \"You haven't heard? All the animals are having a picnic this day!\" Sure enough, when Mrs. Doe turned her head, she saw a great blanket laid out across the clearing. All the animals were gathering there, and she knew today would be especially good!"
+    },
+    {
+      "INPUT": "Sci-Fi. The Cesturian Angels, a female force of warriors, have a Knight-Templar of the holy Iron Order visit for a banquet. The Iron Order are super soldiers, and know only the God-King's ways.",
+      "OUTPUT": "Mother Syreen stood at the door anxiously, and we all stood waiting. The air was thick with anticipation - none of us had met one of the Iron Order before, let alone a legendary Knight-Templar. Rarely did any have the chance to even speak with them, and yet Sister Alatiel had somehow convinced this one to visit us for a banquet. How she accomplished this I may never know. A dull thudding echoed from beyond the door. Each of us tensed up, and Mother Syreen gave us one more stern look as if to say \"behave yourselves\". A moment later, the door opened. There he was, a seven-foot giant of a man. Silver-alloyed armor clad his enormous form, shrouded in a regal blue cloak. His stern eyes gazed at each of us in turn, then peered about the room, as if tactically assessing the area. Then, Mother Syreen spoke. \"Thank you ever so much for joining us, Lord Knight-Templar Lucian Veros,\" she quickly said with a bow, and each of us did so as well. \"The Cesturian Angels are honored beyond our station to have you with us this night.\""
+    }
+  ],
+  "aiParameters": {
+    "temperature": 0.48,
+    "top_k": 0,
+    "top_p": 1,
+    "tail_free_sampling": 0.422,
+    "repetition_penalty": 1.2,
+    "repetition_penalty_range": 2048,
+    "repetition_penalty_slope": 3.6,
+    "repetition_penalty_frequency": 0,
+    "repetition_penalty_presence": 0,
+    "order": [
+      {
+        "id": "temperature",
+        "enabled": true
+      },
+      {
+        "id": "top_k",
+        "enabled": true
+      },
+      {
+        "id": "top_p",
+        "enabled": true
+      },
+      {
+        "id": "tfs",
+        "enabled": true
+      }
+    ]
+  }
+}

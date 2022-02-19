@@ -1,0 +1,84 @@
+{
+  "name": "Generator",
+  "description": "Generator",
+  "context": "[ Perspective transformation: given a name and gender, transforms a second person perspective text into third person perspective ]",
+  "placeholders": {},
+  "properties": [
+    {
+      "name": "name",
+      "replaceBy": "Name:"
+    },
+    {
+      "name": "gender",
+      "replaceBy": "Gender:"
+    },
+    {
+      "name": "input",
+      "replaceBy": "INPUT:"
+    },
+    {
+      "name": "output",
+      "replaceBy": "OUTPUT:"
+    }
+  ],
+  "list": [
+    {
+      "input": "You shoot the giant toad with one of your venom-fangs arrows. Unfortunately, your shot misses and hits another monster instead.",
+      "name": "Kate",
+      "gender": "female",
+      "output": "Kate shoots the giant toad with one of her venom-fangs arrows. Unfortunately, Kate's shot misses and hits another monster instead."
+    },
+    {
+      "input": "You hit the hungry bear with your bronze hammer of vengeance, killing it instantly. The spirit-wrought mantle absorbs all damage done by the blow.",
+      "name": "John",
+      "gender": "male",
+      "output": "John hits the hungry bear with his bronze hammer of vengeance, killing it instantly. The spirit-wrought mantle absorbs all damage done by the blow."
+    },
+    {
+      "input": "You slice the minotaur in two with your platinum shortsword, almost severing its thigh, then impale it in the gut with your legendary magical blade. Its blood splashes all over the place, making you fall unconscious due to your own injuries.",
+      "name": "Alice",
+      "gender": "female",
+      "output": "Alice slices the minotaur in two with her platinum shortsword, almost severing its thigh, then impales it in the gut with her legendary magical blade. The minotaur's blood splashes all over the place, making Alice fall unconscious due to her own injuries."
+    },
+    {
+      "input": "You attack the hobgoblin berserker, who has managed to take down two other players, one by bashing him over the head and the second by stabbing him in the heart. He is holding both weapons and seems unconcerned about your attacks, even though they are causing him no harm.",
+      "name": "Adam",
+      "gender": "male",
+      "output": "Adam attacks the hobgoblin berserker, who has managed to take down two other players, one by bashing him over the head and the second by stabbing him in the heart. The hobgoblin is holding both weapons and seems unconcerned about Adam's attacks, even though they are causing him no harm."
+    },
+    {
+      "name": "Jack",
+      "gender": "male",
+      "input": "You stab the cyclops in the eye with your iron dagger of justice. It lets out a howl and falls to the ground, dead.",
+      "output": "Jack stabs the cyclops in the eye with his iron dagger of justice. It lets out a howl and falls to the ground, dead."
+    },
+    {
+      "name": "Mary",
+      "gender": "female",
+      "input": "You slash the ogre with your silver sword of mercy, cutting off an ear.",
+      "output": "Mary slashes the ogre with her silver sword of mercy, cutting off an ear."
+    },
+    {
+      "name": "Eve",
+      "gender": "female",
+      "input": "You cut the troll in half with your magic axe, cleaving it cleanly from shoulder to hip.",
+      "output": "Eve cuts the troll in half with her magic axe, cleaving it cleanly from shoulder to hip."
+    },
+    {
+      "name": "Jill",
+      "gender": "female",
+      "input": "You shoot the werewolf in the leg with your silver crossbow, and it yelps in pain and runs away, limping. You chase after it, but you quickly get tired and abandon.",
+      "output": "Jill shoots the werewolf in the leg with her silver crossbow, and it yelps in pain and runs away, limping. Jill chases after it, but she quickly gets tired and abandons."
+    },
+    {
+      "name": "Aini",
+      "gender": "female",
+      "input": "You kill the orc shaman with your enchanted mace, crushing his skull. Your mace glows for a moment before returning to normal.",
+      "output": "Aini kills the orc shaman with her enchanted mace, crushing his skull. Her mace glows for a moment before returning to normal."
+    }
+  ],
+  "aiParameters": {
+    "temperature": 0.5,
+    "repetition_penalty": 1.15
+  }
+}

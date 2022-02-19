@@ -36,15 +36,20 @@ class HistoryService {
      * If the message isn't in the history, method does nothing and returns false
      * @param {String} channel
      * @param {String} messageId
+     * @param {Number} timestamp
      * @return {boolean}
      */
-    static prune(channel, messageId) {
+    static prune(channel, messageId, timestamp = null) {
         if (!this.channelHistories[channel]) return false
         let history = this.channelHistories[channel]
         let index
 
         for (let i in history) {
             if (history[i].messageId.toString() === messageId.toString()) {
+                index = i
+                break
+            }
+            if (timestamp && history[i].timestamp >= timestamp){
                 index = i
                 break
             }

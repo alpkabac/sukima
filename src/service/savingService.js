@@ -22,13 +22,13 @@ class SavingService {
         const data = this.getCompleteJSON(channel)
 
         try {
-            fs.mkdirSync(`./save/${process.env.BOTNAME}`)
+            fs.mkdirSync(`./bot/${process.env.BOT_ID}/save`)
         } catch (e) {
 
         }
 
         try {
-            const filename = `./save/${process.env.BOTNAME}/${channel}.json`
+            const filename = `./bot/${process.env.BOT_ID}/save/${channel}.json`
             utils.save(filename, JSON.stringify(data, null, 4))
             return true
         } catch (e) {
@@ -103,7 +103,7 @@ class SavingService {
 
     static load(channel) {
         try {
-            const json = utils.loadJSONFile(`./save/${process.env.BOTNAME}/${channel}.json`)
+            const json = utils.loadJSONFile(`./bot/${process.env.BOT_ID}/save/${channel}.json`)
             this.loadJSON(channel, json)
         } catch (e) {
             console.log(e)
@@ -114,7 +114,7 @@ class SavingService {
 
     static loadAllChannels() {
         try {
-            const channelFiles = fs.readdirSync(`./save/${process.env.BOTNAME}`)
+            const channelFiles = fs.readdirSync(`./bot/${process.env.BOT_ID}/save`)
             if (channelFiles) {
                 for (let channelFile of channelFiles) {
                     SavingService.load(channelFile.replace('.json', ''))

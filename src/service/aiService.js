@@ -34,11 +34,11 @@ let ACCESS_TOKEN
 const DEFAULT_PARAMETERS = utils.loadJSONFile("./data/aiParameters/personality_default.json")
 const DEFAULT_PARAMETERS_EVALBOT = utils.loadJSONFile("./data/aiParameters/evalbot_default.json")
 
-const generateUnthrottled = async (accessToken, input, params) => {
+const generateUnthrottled = async (input, params) => {
     let res
     try {
         res = await axios.post(
-            "https://api.novelai.net/ai/generate",
+            "http://localhost:7319/generate",
             {
                 input,
                 model: process.env.AI_MODEL || "6B-v4",
@@ -46,12 +46,12 @@ const generateUnthrottled = async (accessToken, input, params) => {
             },
             {
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': "Bearer " + ACCESS_TOKEN
+                    'Content-Type': 'application/json'
                 }
             }
         )
-    } catch {
+    } catch (e) {
+        console.error(e)
         res = null
     }
 
@@ -59,24 +59,24 @@ const generateUnthrottled = async (accessToken, input, params) => {
 }
 
 
-const generateUnthrottledCustom = async (input, parameters, model) => {
+const generateUnthrottledCustom = async (input, params, model) => {
     let res
     try {
         res = await axios.post(
-            "https://api.novelai.net/ai/generate",
+            "http://localhost:7319/generate",
             {
                 input,
                 model,
-                parameters
+                parameters: params
             },
             {
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': "Bearer " + ACCESS_TOKEN
+                    'Content-Type': 'application/json'
                 }
             }
         )
-    } catch {
+    } catch (e) {
+        console.error(e)
         res = null
     }
 
@@ -87,7 +87,6 @@ const generateUnthrottledCustom = async (input, parameters, model) => {
 let isProcessing = false
 // throttles generation at one request per second
 const generate = async function (input, params, lowPriority = false) {
-    if (!ACCESS_TOKEN) ACCESS_TOKEN = await getAccessToken(process.env.NOVEL_AI_API_KEY)
     const timeStep = parseInt(conf.minTimeBetweenApiRequestsInSeconds) * 1000
 
     if (lowPriority && isProcessing) {
@@ -97,14 +96,13 @@ const generate = async function (input, params, lowPriority = false) {
         const timeDiff = Date.now() - lastGenerationTimestamp
         lastGenerationTimestamp = Date.now()
         await utils.sleep(timeDiff < timeStep ? timeStep - timeDiff : 0)
-        const res = await generateUnthrottled(ACCESS_TOKEN, input, params)
+        const res = await generateUnthrottled(input, params)
         isProcessing = false
         return res
     }
 }
 
 const generateCustom = async function (input, parameters, model) {
-    if (!ACCESS_TOKEN) ACCESS_TOKEN = await getAccessToken(process.env.NOVEL_AI_API_KEY)
     const timeStep = parseInt(conf.minTimeBetweenApiRequestsInSeconds) * 1000
 
     isProcessing = true
@@ -127,7 +125,7 @@ class AiService {
 
         if (channel) {
             const aiParameters = aiParametersService.getAiParameters(channel)
-            if (aiParameters){
+            if (aiParameters) {
                 params = aiParameters
             }
 
@@ -182,6 +180,10 @@ class AiService {
             lmiService.updateLmi(prompt, result, parsedResult)
         }
         return parsedResult
+    }
+
+    static async getAccessToken(key) {
+        return await getAccessToken(key)
     }
 }
 

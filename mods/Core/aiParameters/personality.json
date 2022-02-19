@@ -1,0 +1,12 @@
+{
+  "prefix": "vanilla",
+  "use_string": true,
+  "min_length": 1,
+  "max_length": 150,
+  "temperature": 1.5,
+  "top_k": 150,
+  "top_p": 1,
+  "tail_free_sampling": 0.8,
+  "repetition_penalty": 3,
+  "repetition_penalty_slope": 3
+}

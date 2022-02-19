@@ -1,6 +1,8 @@
 import {config} from "dotenv";
 import utils from "../utils.js";
 import personalityService from "./personalityService.js";
+import encoder from "gpt-3-encoder";
+import fs from "fs";
 
 config()
 
@@ -12,6 +14,11 @@ class PhraseBiasService {
 
         // cached biases
         if (this.channelPhraseBiases[channel]) {
+            return this.channelPhraseBiases[channel]
+        }
+
+        if (fs.existsSync(`./bot/${process.env.BOT_ID}/default.bias`)) {
+            this.channelPhraseBiases[channel] = PhraseBiasService.loadBiasFile(`./bot/${process.env.BOT_ID}/default.bias`)
             return this.channelPhraseBiases[channel]
         }
 
@@ -42,8 +49,6 @@ class PhraseBiasService {
             return this.channelPhraseBiases[channel]
         }
 
-
-
         // load default phrase bias
         this.loadChannelPhraseBiasFiles(channel, this.parsePhraseBiasFilesString('default'))
         return this.channelPhraseBiases[channel]
@@ -55,28 +60,59 @@ class PhraseBiasService {
             .map(f => f.trim())         // ["end_of_text ", " nsfw"]
     }
 
-    static loadBias(filename) {
-        const logitBiasGroups = utils.loadJSONFile(`./data/phraseBias/${filename}.bias`)?.logit_bias_groups || []
+    static loadBiasFile(filePath) {
+        const file = utils.loadJSONFile(filePath)
+        const logitBiasGroups = file?.phraseBiasGroups || file.logit_bias_groups || []
         const logit_bias_exp = []
 
         for (let logitBiasGroup of logitBiasGroups) {
             if (!logitBiasGroup.enabled) continue
             for (let phrase of logitBiasGroup.phrases) {
-                if (!phrase.sequences || !phrase.sequences.length) continue
-                for (let sequence of phrase.sequences) {
+
+                if (phrase.type === 1) {
+                    if (phrase.sequence) {
+                        const tokens = phrase.sequence
+                            .split(',')
+                            .map(s => parseInt(s.trim()))
+                        const logitBias = {
+                            sequence: tokens,
+                            "bias": logitBiasGroup.bias,
+                            "ensure_sequence_finish": logitBiasGroup.ensure_sequence_finish,
+                            "generate_once": logitBiasGroup.generate_once
+                        }
+                        logit_bias_exp.push(logitBias)
+                    }
+
+                    if (phrase.sequences?.length > 0) {
+                        for (let sequence of phrase.sequences) {
+                            const logitBias = {
+                                sequence,
+                                "bias": logitBiasGroup.bias,
+                                "ensure_sequence_finish": logitBiasGroup.ensure_sequence_finish,
+                                "generate_once": logitBiasGroup.generate_once
+                            }
+                            logit_bias_exp.push(logitBias)
+                        }
+                    }
+                }
+
+                if (phrase.type === 2 && phrase.sequence) {
                     const logitBias = {
-                        sequence,
+                        sequence: encoder.encode(phrase.sequence),
                         "bias": logitBiasGroup.bias,
                         "ensure_sequence_finish": logitBiasGroup.ensure_sequence_finish,
                         "generate_once": logitBiasGroup.generate_once
                     }
-
                     logit_bias_exp.push(logitBias)
                 }
             }
         }
 
         return logit_bias_exp
+    }
+
+    static loadBias(filename) {
+        return this.loadBiasFile(`./data/phraseBias/${filename}.bias`)
     }
 
     static loadChannelPhraseBiasFiles(channel, phraseBiasFiles) {

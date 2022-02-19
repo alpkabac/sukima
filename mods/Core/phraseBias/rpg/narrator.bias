@@ -1,0 +1,19 @@
+{
+  "logit_bias_groups": [
+    {
+      "phrases": [
+        {
+          "sequences": [
+            [28390, 1352]
+          ],
+          "type": 1
+        }
+      ],
+      "bias": -0.05,
+      "ensure_sequence_finish": false,
+      "generate_once": true,
+      "enabled": true,
+      "whenInactive": false
+    }
+  ]
+}

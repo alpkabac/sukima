@@ -23,6 +23,7 @@ dotenv.config()
 
 const allowedCommands = []
     .concat(duckHuntCommands.attack.commandsStartsWith)
+    .concat(duckHuntCommands.heal.commandsStartsWith)
     .concat(duckHuntCommands.take.commandsStartsWith)
     .concat(duckHuntCommands.drop.commandsStartsWith)
     .concat(duckHuntCommands.look.commandsStartsWith)
@@ -30,14 +31,18 @@ const allowedCommands = []
     .concat(duckHuntCommands.equipWeapon.commandsStartsWith)
     .concat(duckHuntCommands.equipArmor.commandsStartsWith)
     .concat(duckHuntCommands.equipAccessory.commandsStartsWith)
+    .concat(duckHuntCommands.equipHeal.commandsStartsWith)
     .concat(duckHuntCommands.unequipWeapon.commandsStartsWith)
     .concat(duckHuntCommands.unequipArmor.commandsStartsWith)
     .concat(duckHuntCommands.unequipAccessory.commandsStartsWith)
+    .concat(duckHuntCommands.unequipHeal.commandsStartsWith)
     .concat(duckHuntCommands.showInventory.commandsStartsWith)
     .concat(duckHuntCommands.upgradeBackpack.commandsStartsWith)
+    .concat(duckHuntCommands.setGender.commandsStartsWith)
 
 const allowedCommandsMap = {
     attack: duckHuntCommands.attack.commandsStartsWith,
+    heal: duckHuntCommands.heal.commandsStartsWith,
     take: duckHuntCommands.take.commandsStartsWith,
     drop: duckHuntCommands.drop.commandsStartsWith,
     look: duckHuntCommands.look.commandsStartsWith,
@@ -45,11 +50,14 @@ const allowedCommandsMap = {
     equipWeapon: duckHuntCommands.equipWeapon.commandsStartsWith,
     equipArmor: duckHuntCommands.equipArmor.commandsStartsWith,
     equipAccessory: duckHuntCommands.equipAccessory.commandsStartsWith,
+    equipHeal: duckHuntCommands.equipHeal.commandsStartsWith,
     unequipWeapon: duckHuntCommands.unequipWeapon.commandsStartsWith,
     unequipArmor: duckHuntCommands.unequipArmor.commandsStartsWith,
     unequipAccessory: duckHuntCommands.unequipAccessory.commandsStartsWith,
+    unequipHeal: duckHuntCommands.unequipHeal.commandsStartsWith,
     showInventory: duckHuntCommands.showInventory.commandsStartsWith,
     upgradeBackpack: duckHuntCommands.upgradeBackpack.commandsStartsWith,
+    setGender: duckHuntCommands.setGender.commandsStartsWith,
 }
 const bot = new Client({
     allowedMentions: {
@@ -78,9 +86,37 @@ bot.on('ready', async () => {
     console.info(`Logged in as ${bot.user.tag}!`)
 
     if (process.env.BOT_DISCORD_USERNAME) {
-        await bot.user.setUsername(process.env.BOT_DISCORD_USERNAME)
+        try {
+            await bot.user.setUsername(process.env.BOT_DISCORD_USERNAME)
+        } catch (e) {
+            console.error("Couldn't rename the bot")
+            try {
+                await bot.user.setUsername(process.env.BOTNAME + 'Bot')
+            }catch(e){
+                process.env.BOT_DISCORD_USERNAME = bot.user.tag.replace(/#.*$/, "")
+            }
+        }
     } else {
-        process.env.BOT_DISCORD_USERNAME = replaceAliases(bot.user.tag.replace(/#.*$/, ""))
+        try {
+            await bot.user.setUsername(process.env.BOTNAME)
+        } catch (e) {
+            console.error("Couldn't rename the bot")
+            try {
+                await bot.user.setUsername(process.env.BOTNAME + 'Bot')
+            }catch(e){
+                process.env.BOT_DISCORD_USERNAME = bot.user.tag.replace(/#.*$/, "")
+            }
+        }
+    }
+
+    if (process.env.BOT_DISCORD_AVATAR && bot.user.displayAvatarURL() !== process.env.BOT_DISCORD_AVATAR) {
+        try {
+            console.log("Changing discord avatar...")
+            await bot.user.setAvatar(process.env.BOT_DISCORD_AVATAR)
+            console.log("Discord avatar changed!")
+        } catch (e) {
+            console.error("Couldn't change the bot's avatar")
+        }
     }
 
     savingService.loadAllChannels()
@@ -171,13 +207,6 @@ bot.on('guildMemberAdd', async (member) => {
         channel.send(parsedMessage).catch(() => null)
 });
 
-function replaceAliases(nick) {
-    if (nick === process.env.BOT_DISCORD_USERNAME) {
-        return process.env.BOTNAME
-    }
-    return nick
-}
-
 // TODO: move into config
 function replaceAliasesInMessage(message, nick) {
     if (nick === "AliceBot") {
@@ -203,15 +232,14 @@ function appendMessage(msg) {
 }
 
 function isMessageAnAllowedCommand(msg) {
-    if (!msg.startsWith('!')) return false
-    return allowedCommands.some(ac => msg.toLowerCase()?.trim()?.startsWith(ac))
+    return allowedCommands.some(ac => msg.toLowerCase().trim().startsWith(ac.toLowerCase()))
 }
 
 function clearRpgBotTextOutput(text) {
     const isCommand = text.startsWith('!')
     let cleanContent = (isCommand ? '!' : '')
         + text.substr(isCommand ? 1 : 0)
-            .replace(/![a-zA-Z0-9*'\]].*$/, '')
+    //.replace(/![a-zA-Z0-9*'\]].*$/, '')
 
     if (isCommand) {
         // removes commands if they are not the first word
@@ -221,11 +249,10 @@ function clearRpgBotTextOutput(text) {
             .replace(/;.*$/, '')
             .replace(/>.*$/, '')
             .replace(/:.*$/, '')
-        cleanContent = cleanContent.replace(/\*.*$/, '')
-
-        // removes arguments from commands
-        cleanContent = cleanContent.replace(/ .*$/, '')
-
+            .replace(/\/.*$/, '')
+            .replace(/\\.*$/, '')
+            .replace(/\*.*$/, '')
+        //.replace(/ .*$/, '')  // removes arguments from commands
 
         if (isMessageAnAllowedCommand(cleanContent)) {
             let command = null
@@ -237,7 +264,7 @@ function clearRpgBotTextOutput(text) {
             }
 
             if (command) {
-                return allowedCommandsMap[command][0]
+                return cleanContent // allowedCommandsMap[command][0]
             }
         }
     }
@@ -280,11 +307,11 @@ async function processMessage(msg) {
 
         const isCommandAllowed = isMessageAnAllowedCommand(cleanContent)
 
-        if (cleanContent.startsWith('!') &&!isCommandAllowed) {
+        if (cleanContent.startsWith('!') && !isCommandAllowed) {
             await originalMsg?.delete().catch(e => console.error(e))
             return
         }
-        if (!cleanContent.startsWith('!')){
+        if (!cleanContent.startsWith('!')) {
             return
         }
     }
@@ -303,7 +330,7 @@ async function processMessage(msg) {
         const allCommands = discordCommands.getOnMessageCommands()
             .concat(commands.getOnMessageCommands())
         for (let command of allCommands) {
-            const commandResult = await command.call(utils.replaceNickByBotName(cleanContent).trim(), replaceAliases(originalMsg.author.username), channelName, userRoles, originalMsg.id, bot, file)
+            const commandResult = await command.call(utils.replaceNickByBotName(cleanContent).trim(), originalMsg.author.username, channelName, userRoles, originalMsg.id, bot, file)
             if (commandResult) {
                 message = commandResult
                 break
@@ -311,7 +338,10 @@ async function processMessage(msg) {
         }
     }
 
-    if (!message && utils.getBoolFromString(process.env.ENABLE_SMART_ANSWER) && originalMsg.author.username !== bot.user.username) {
+    if (!message && utils.getBoolFromString(process.env.ENABLE_SMART_ANSWER)
+        && originalMsg.author.username !== bot.user.username
+        && !cleanContent.startsWith("!")
+        && !cleanContent.startsWith("#")) {
         if (await isNextMessageFromBot(channelName)) {
             await forceTalk(channelName)
         }
@@ -412,7 +442,7 @@ async function processMessage(msg) {
             }
 
             if (message && message.pushIntoHistory) {
-                historyService.pushIntoHistory(message.pushIntoHistory[0], message.pushIntoHistory[1], message.pushIntoHistory[2], newMessage.id)
+                historyService.pushIntoHistory(message.pushIntoHistory[0], message.pushIntoHistory[1], message.pushIntoHistory[2], newMessage?.id)
             }
 
             if (newMessage && message.deleteNewMessage) {
@@ -482,7 +512,7 @@ async function processMessage(msg) {
 }
 
 async function isNextMessageFromBot(channel) {
-    const tokenCount = Math.min(150, encoder.encode(process.env.BOTNAME).length)
+    const tokenCount = Math.min(process.env.TOKEN_LIMIT === "2048" ? 150 : 100, encoder.encode(process.env.BOTNAME).length)
     const promptLines = promptService.getPrompt(channel).prompt.split('\n')
     const prompt = promptLines.slice(0, -1).join('\n') + "\n"
     const result = await aiService.simpleEvalbot(prompt, tokenCount, channel.startsWith("##"))
@@ -497,7 +527,7 @@ async function forceTalk(channel) {
     }
 }
 
-async function parseForceMessage(channel, msg){
+async function parseForceMessage(channel, msg) {
     const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
     const timeToWait = encoder.encode(parsedMessage).length * 50
     channels[channel].startTyping().then()
@@ -583,12 +613,12 @@ bot.on('messageReactionAdd', async (reaction, user) => {
         const channelName = privateMessage ? '##' + reaction.message?.channel?.id : `#` + reaction.message?.channel?.name
 
         if (reaction._emoji.name === '❌') {
-            await messageCommands.deleteMessage.call(`!delete #${reaction.message.id}`, null, channelName, [], reaction.message?.id, bot, null)
+            historyService.delete(channelName, reaction.message?.id)
             setTimeout(async () => {
                 await reaction.message?.delete().catch(() => null)
             }, 1000)
         } else if (reaction._emoji.name === '🚮') {
-            await messageCommands.pruneMessages.call(`!prune #${reaction.message?.id}`, null, channelName, [], reaction.message?.id, bot, null)
+            historyService.prune(channelName, reaction.message?.id, reaction.message?.createdTimestamp)
 
             const allMessages = await reaction.message.channel.messages.fetch()
             const targetMessage = allMessages.find((m) => m.id === reaction.message?.id)
@@ -639,6 +669,7 @@ setInterval(async () => {
                     }
                 }
             }
+
             const spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
 
             const m = await channels[channel].send(spawnMessage?.message).catch((e) => console.error(e))

@@ -13,14 +13,14 @@ class PromptService {
     static getIntroduction(botTranslations, usesIntroduction = true, privateMessage = false) {
         if (!usesIntroduction) return []
         return (
-            privateMessage ?
-                botTranslations.introductionDm
-                : botTranslations.introduction
+            (privateMessage ?
+                botTranslations?.introductionDm
+                : botTranslations?.introduction) || []
         )
-            .map((e) => {
+            ?.map((e) => {
                 return {
-                    from: e.from?.replace("${botName}", process.env.BOTNAME),
-                    msg: e.msg?.replace("${botName}", process.env.BOTNAME)
+                    from: e?.from?.replace?.("${botName}", process.env.BOTNAME),
+                    msg: e?.msg?.replace?.("${botName}", process.env.BOTNAME)
                 }
             })
     }
@@ -52,9 +52,9 @@ class PromptService {
         const privateConversation = channel.startsWith("##")
         const botTranslations = channelBotTranslationService.getChannelPersonality(channel)
         const channelContext = privateConversation ?
-            botTranslations.contextDm
-            : botTranslations.context
-        const botDescription = botTranslations.description
+            botTranslations?.contextDm
+            : botTranslations?.context
+        const botDescription = botTranslations?.description
 
 
         const botPlayer = playerService.getPlayer(channel, process.env.BOTNAME)

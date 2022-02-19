@@ -4,23 +4,28 @@
   "properties": [
     {
       "name": "player",
-      "replaceBy": "Your equipment:"
+      "replaceBy": "Your equipment:",
+      "input": true
     },
     {
       "name": "enemy",
-      "replaceBy": "Enemy data:"
+      "replaceBy": "Enemy data:",
+      "input": true
     },
     {
       "name": "enemyCurrentWounds",
-      "replaceBy": "Current wounds:"
+      "replaceBy": "Current wounds:",
+      "input": true
     },
     {
       "name": "enemyCurrentBloodLoss",
-      "replaceBy": "Current blood loss:"
+      "replaceBy": "Current blood loss:",
+      "input": true
     },
     {
       "name": "enemyCurrentStatus",
-      "replaceBy": "Current status:"
+      "replaceBy": "Current status:",
+      "input": true
     },
     {
       "name": "description",
@@ -39,12 +44,12 @@
       "replaceBy": "Enemy new status:"
     }
   ],
-  "placeholders": {},
+  "placeholders": {"difficulty":  "difficulty"},
   "context": "[ Random Attack Generator ]\n[ Given a player and an enemy, generates a player attack description and detects the damages done to the enemy, the new wounds if the attack was successful, and the enemy status after the attack. ]",
   "list": [
     {
       "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Enemy: Orc; difficulty: hard; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Target: Orc; difficulty: hard; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -55,7 +60,7 @@
     },
     {
       "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Enemy: Orc; difficulty: medium; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -66,7 +71,7 @@
     },
     {
       "player": "[ Iron Sword;No Armor ]",
-      "enemy": "[ Enemy: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose; blood loss: minor; status: slightly wounded ]",
+      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose; blood loss: minor; status: slightly wounded ]",
       "enemyCurrentWounds": "broken nose",
       "enemyCurrentBloodLoss": "minor",
       "enemyCurrentStatus": "slightly wounded",
@@ -77,7 +82,7 @@
     },
     {
       "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Enemy: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs, eviscerated; blood loss: major; status: heavily wounded ]",
+      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs, eviscerated; blood loss: major; status: heavily wounded ]",
       "enemyCurrentWounds": "broken nose, broken ribs, eviscerated",
       "enemyCurrentBloodLoss": "major",
       "enemyCurrentStatus": "heavily wounded",
@@ -88,7 +93,7 @@
     },
     {
       "player": "[ Iron Longsword; No Armor ]",
-      "enemy": "[ Enemy: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs; blood loss: minimal; status: heavily wounded ]",
+      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs; blood loss: minimal; status: heavily wounded ]",
       "enemyCurrentWounds": "broken nose, broken ribs",
       "enemyCurrentBloodLoss": "minimal",
       "enemyCurrentStatus": "heavily wounded",
@@ -99,7 +104,7 @@
     },
     {
       "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Enemy: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Target: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -110,7 +115,7 @@
     },
     {
       "player": "[ Small Knife; No Armor ]",
-      "enemy": "[ Enemy: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Target: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -121,7 +126,7 @@
     },
     {
       "player": "[ Wooden Spear; No Armor ]",
-      "enemy": "[ Enemy: Goblin; difficulty: easy; armor: Cloth Armor; wounds: slashed chest; blood loss: moderate; status: moderately wounded ]",
+      "enemy": "[ Target: Goblin; difficulty: easy; armor: Cloth Armor; wounds: slashed chest; blood loss: moderate; status: moderately wounded ]",
       "enemyCurrentWounds": "slashed chest",
       "enemyCurrentBloodLoss": "moderate",
       "enemyCurrentStatus": "moderately wounded",
@@ -132,7 +137,7 @@
     },
     {
       "player": "[ Rare Large Steel Axe; Leather Armor ]",
-      "enemy": "[ Enemy: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Target: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -143,7 +148,7 @@
     },
     {
       "player": "[ Rare Small Copper Dagger; Leather Armor ]",
-      "enemy": "[ Enemy: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Target: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
       "enemyCurrentWounds": "none",
       "enemyCurrentBloodLoss": "none",
       "enemyCurrentStatus": "healthy",
@@ -154,7 +159,7 @@
     },
     {
       "player": "[ Rusty Copper Dagger; Leather Armor ]",
-      "enemy": "[ Enemy: Kobold; difficulty: easy; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: heavily wounded ]",
+      "enemy": "[ Target: Kobold; difficulty: easy; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: heavily wounded ]",
       "enemyCurrentWounds": "lacerations (right arm), severed limb (left arm)",
       "enemyCurrentBloodLoss": "major",
       "enemyCurrentStatus": "heavily wounded",
@@ -165,7 +170,7 @@
     },
     {
       "player": "[ Wooden Club; No Armor ]",
-      "enemy": "[ Enemy: Troll; difficulty: very hard; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
+      "enemy": "[ Target: Troll; difficulty: very hard; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
       "enemyCurrentWounds": "disemboweled, amputated (right leg)",
       "enemyCurrentBloodLoss": "major",
       "enemyCurrentStatus": "heavily wounded",
@@ -182,217 +187,212 @@
     "attack": {
       "properties": [
         {
-          "name": "player",
-          "replaceBy": "Your equipment:"
+          "name": "enemy",
+          "replaceBy": "Target:"
         },
         {
-          "name": "enemy",
-          "replaceBy": "Enemy data:"
+          "name": "player",
+          "replaceBy": "Your equipment:"
         },
         {
           "name": "description",
           "replaceBy": "Description of your attack:"
         }
       ],
+      "callsSubmodules": ["woundDetection"],
       "aiParameters": {
-        "repetition_penalty": 1.22,
+        "repetition_penalty": 1.15,
         "repetition_penalty_slope": 9.99
       }
+    },
+    "attackPlayer": {
+      "properties": [
+        {
+          "name": "enemy",
+          "replaceBy": "Target:"
+        },
+        {
+          "name": "player",
+          "replaceBy": "Your equipment:"
+        },
+        {
+          "name": "description",
+          "replaceBy": "Description of your attack:"
+        }
+      ],
+      "callsSubmodules": ["woundDetection"],
+      "aiParameters": {
+        "repetition_penalty": 1.15,
+        "repetition_penalty_slope": 9.99
+      },
+      "list": [
+        {
+          "player": "[ Rare Small Copper Dagger; Leather Armor ]",
+          "enemy": "[ Target: John; race/species: human; wounds: none; blood loss: none; status: healthy ]",
+          "enemyCurrentWounds": "none",
+          "enemyCurrentBloodLoss": "none",
+          "enemyCurrentStatus": "healthy",
+          "description": "You swiftly attack John with your copper dagger, cutting his left ear right off",
+          "wounds": "amputated (left ear)",
+          "bloodLoss": "minor",
+          "status": "moderately wounded"
+        },
+        {
+          "player": "[ Rusty Copper Dagger; Leather Armor ]",
+          "enemy": "[ Target: Emma; race/species: human; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: heavily wounded ]",
+          "enemyCurrentWounds": "lacerations (right arm), severed limb (left arm)",
+          "enemyCurrentBloodLoss": "major",
+          "enemyCurrentStatus": "heavily wounded",
+          "description": "You stab Emma in the chest, pushing the blade deep through her hearth. Emma is badly wounded and doesn't even fight back, she falls on the floor, dead.",
+          "wounds": "pierced heart",
+          "bloodLoss": "extreme",
+          "status": "dead"
+        },
+        {
+          "player": "[ Wooden Club; No Armor ]",
+          "enemy": "[ Target: Robert; race/species: human; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
+          "enemyCurrentWounds": "disemboweled, amputated (right leg)",
+          "enemyCurrentBloodLoss": "major",
+          "enemyCurrentStatus": "heavily wounded",
+          "description": "You strike Robert with your wooden club, only doing light bruises on his sternum. Robert is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead.",
+          "wounds": "light bruises (sternum)",
+          "bloodLoss": "extreme",
+          "status": "dead"
+        }
+      ]
+    },
+    "heal": {
+      "properties": [
+        {
+          "name": "enemy",
+          "replaceBy": "Target:"
+        },
+        {
+          "name": "player",
+          "replaceBy": "Your equipment:"
+        },
+        {
+          "name": "description",
+          "replaceBy": "Description of your heal:"
+        }
+      ],
+      "callsSubmodules": ["healDetection"],
+      "aiParameters": {
+        "repetition_penalty": 1.15,
+        "repetition_penalty_slope": 9.99
+      },
+      "list": [
+        {
+          "player": "[ Minor Healing (common healing spell) ]",
+          "enemy": "[ Target: Kate; race/species: human; wounds: bruised arm (right); blood loss: minimal; status: slightly wounded ]",
+          "enemyCurrentWounds": "bruised arm (right)",
+          "enemyCurrentBloodLoss": "minimal",
+          "enemyCurrentStatus": "slightly wounded",
+          "description": "You cast a minor healing spell on Kate, and her arm is completely healed!",
+          "wounds": "healed arm",
+          "bloodLoss": "none",
+          "status": "healthy"
+        },
+        {
+          "player": "[ Major Healing (rare healing spell) ]",
+          "enemy": "[ Target: John; race/species: human; wounds: amputated (right leg), amputated (left arm); blood loss: heavy; status: severely wounded ]",
+          "enemyCurrentWounds": "amputated (right leg), amputated (left arm)",
+          "enemyCurrentBloodLoss": "heavy",
+          "enemyCurrentStatus": "severely wounded",
+          "description": "You cast a major healing spell on John, and his arm and leg regrow instantly. He's now completely healed!",
+          "wounds": "healed",
+          "bloodLoss": "none",
+          "status": "healthy"
+        },
+        {
+          "player": "[ Light Healing (basic healing spell) ]",
+          "enemy": "[ Target: Robert; race/species: human; wounds: heavy bruises, eviscerated, amputated (left arm), perforated heart; blood loss: major; status: dying ]",
+          "enemyCurrentWounds": "heavy bruises, eviscerated, amputated (left arm), perforated heart",
+          "enemyCurrentBloodLoss": "major",
+          "enemyCurrentStatus": "dying",
+          "description": "You use your light healing spell on Robert, which heals some of his injuries. He's still badly injured.",
+          "wounds": "healed bruises",
+          "bloodLoss": "moderate",
+          "status": "heavily wounded"
+        }
+      ]
     },
     "woundDetection": {
       "properties": [
         {
           "name": "description",
-          "replaceBy": "Description of your attack:"
+          "replaceBy": "Description of your action:"
         },
         {
           "name": "wounds",
-          "replaceBy": "Enemy new wound(s):"
+          "replaceBy": "Target new wound(s):"
         }
-      ]
+      ],
+      "callsSubmodules": ["bloodLossDetection"]
+    },
+    "healDetection": {
+      "context": "[ Heals Detection: Given a player heal action description, detects the new heals if the heal was successful. ]",
+      "properties": [
+        {
+          "name": "description",
+          "replaceBy": "Description of your action:",
+          "input": true
+        },
+        {
+          "name": "wounds",
+          "replaceBy": "Target new heal(s):"
+        }
+      ],
+      "callsSubmodules": ["bloodLossDetection"]
     },
     "bloodLossDetection": {
       "properties": [
         {
           "name": "enemyCurrentBloodLoss",
-          "replaceBy": "Enemy blood loss level before your attack::"
+          "replaceBy": "Target blood loss level before your attack:"
         },
         {
           "name": "description",
-          "replaceBy": "Description of your attack:"
+          "replaceBy": "Description of your action:"
         },
         {
           "name": "wounds",
-          "replaceBy": "Enemy new wound(s) after your attack:"
+          "replaceBy": "Target new wound(s) after your action:"
         },
         {
           "name": "bloodLoss",
-          "replaceBy": "Enemy blood loss level after your attack:"
+          "replaceBy": "Target blood loss level after your action:"
         }
-      ]
+      ],
+      "callsSubmodules": ["statusDetection"]
     },
     "statusDetection": {
       "properties": [
         {
           "name": "enemyCurrentWounds",
-          "replaceBy": "Enemy wounds before your attack:"
+          "replaceBy": "Target wounds before your action:"
         },
         {
           "name": "enemyCurrentBloodLoss",
-          "replaceBy": "Enemy blood loss level before your attack:"
+          "replaceBy": "Target blood loss level before your action:"
         },
         {
           "name": "enemyCurrentStatus",
-          "replaceBy": "Enemy status before your attack:"
+          "replaceBy": "Target status before your action:"
         },
         {
           "name": "description",
-          "replaceBy": "Description of your attack:"
+          "replaceBy": "Description of your action:"
         },
         {
           "name": "wounds",
-          "replaceBy": "Enemy new wound(s) after your attack:"
+          "replaceBy": "Target new wound(s) after your action:"
         },
         {
           "name": "status",
-          "replaceBy": "Enemy status after your attack:"
+          "replaceBy": "Target status after your action:"
         }
       ]
-    },
-    "healthDetection": {
-      "properties": [
-        {
-          "name": "enemyCurrentWounds",
-          "replaceBy": "Enemy previous wounds:"
-        },
-        {
-          "name": "enemyCurrentBloodLoss",
-          "replaceBy": "Enemy previous blood loss:"
-        },
-        {
-          "name": "enemyCurrentStatus",
-          "replaceBy": "Enemy previous status:"
-        },
-        {
-          "name": "description",
-          "replaceBy": "Description of your attack:"
-        },
-        {
-          "name": "wounds",
-          "replaceBy": "Enemy new wound(s):"
-        },
-        {
-          "name": "bloodLoss",
-          "replaceBy": "Enemy new blood loss level:"
-        },
-        {
-          "name": "status",
-          "replaceBy": "Enemy new status:"
-        }
-      ],
-      "aiParameters": {
-        "logit_bias_exp": [
-          {
-            "sequence": [
-              4844
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              10926
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              4159
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              10768
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              1688
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              3257
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              5448
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              4622,
-              10657
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              10657
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              19475,
-              10657
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              2636
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              7272,
-              10657
-            ],
-            "bias": 0.2,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          }
-        ]
-      }
     }
   }
 }

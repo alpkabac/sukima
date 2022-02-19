@@ -48,7 +48,10 @@
           "name": "encounterDescription",
           "replaceBy": "Encounter Description:"
         }
-      ]
+      ],
+      "aiParameters": {
+        "temperature": 0.7
+      }
     },
     "loot": {
       "context": "[ Item Loot Generator: outputs an item name, type and rarity given the defeated enemy name and difficulty as input ]",
@@ -201,6 +204,6 @@
     }
   ],
   "aiParameters": {
-    "temperature": 0.8
+    "temperature": 1.8
   }
 }

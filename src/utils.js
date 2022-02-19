@@ -78,7 +78,11 @@ class Utils {
     }
 
     static shuffleArray(array) {
-        return Utils.shuffleArrayInPlace(JSON.parse(JSON.stringify(array)))
+        try {
+            return Utils.shuffleArrayInPlace(JSON.parse(JSON.stringify(array)))
+        } catch {
+            return array
+        }
     }
 
     static shuffleArrayInPlace(array) {
@@ -138,12 +142,8 @@ class Utils {
     }
 
     static save(filename, content) {
-        try {
-            fs.writeFileSync(filename, content)
-            return true
-        } catch (err) {
-            console.error(err)
-        }
+        fs.writeFileSync(filename, content)
+        return true
     }
 
     static loadJSONFile(filename) {
@@ -177,6 +177,10 @@ class Utils {
 
         // take the response stream and read it to completion
         return response.data;
+    }
+
+    static fileExists(filePath) {
+        return fs.existsSync(filePath);
     }
 }
 

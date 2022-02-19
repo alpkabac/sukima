@@ -1,0 +1,21 @@
+{
+  "discordToken": "YOUR DISCORD BOT TOKEN HERE",
+  "name": "Alice",
+  "alias": "AliceBot",
+  "personalityFile": "Alice",
+  "featuresFile": "classic",
+  "channel": "#alice-default",
+  "greetingChannel": "#new-users",
+  "dataFiles": {
+    "basePersonalityParametersFile": "personality",
+    "baseGeneratorParametersFile": "generator",
+    "bannedTokensFiles": "endoftext",
+    "phraseBiasFiles": "body_language + links",
+    "generatorGreetingFile": "female"
+  },
+  "latestModelInput": {
+    "enabled": false,
+    "url": "localhost",
+    "port": 3000
+  }
+}

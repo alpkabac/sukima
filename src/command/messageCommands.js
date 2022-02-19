@@ -49,6 +49,34 @@ const messageCommands = {
         },
         false
     ),
+    retryFinish: new Command(
+        "Retry and finish message from text input",
+        [],
+        ["!retryF ", "!retryFinish "],
+        process.env.ALLOW_RETRY_MESSAGE,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            let prompt = promptService.getPrompt(channel, false, true)
+            if (targetMessageId) {
+                prompt = promptService.getPrompt(channel, false, true, true, targetMessageId)
+            }
+            prompt.prompt += ' ' + parsedMsg.trim()
+            let answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
+            answer = parsedMsg.trim() + answer
+            historyService.getChannelHistory(channel).reverse()
+            for (let h of historyService.getChannelHistory(channel)) {
+                if (targetMessageId ? h.messageId === targetMessageId : h.from === process.env.BOTNAME) {
+                    h.msg = answer
+                    break
+                }
+            }
+            historyService.getChannelHistory(channel).reverse()
+            return {
+                message: answer, success: true, deleteUserMsg: true, editLastMessage: !targetMessageId,
+                editMessage: targetMessageId, reactWith: null /*🔄*/, instantReply: true
+            }
+        },
+        false
+    ),
     retryMessage: new Command(
         "Retry Message",
         ["²", "○", "!retry"],
@@ -118,6 +146,51 @@ const messageCommands = {
                 }
             } else {
                 return {error: `# No message was found for ID #${targetMessageId}`, deleteUserMsg: true}
+            }
+        },
+        false
+    ),
+    finishMessage: new Command(
+        "Finish Message",
+        [],
+        ["!finish "],
+        process.env.ALLOW_ANSWER_MESSAGE,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            if (!parsedMsg) return {
+                message: "# This command requires text as argument. Example: `!finish My name is`",
+                instantReply: true
+            }
+
+            const prompt = promptService.getPrompt(channel)
+            prompt.prompt += ' ' + parsedMsg.trim()
+            const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
+            const result = parsedMsg.trim() + answer
+            return {
+                message: result,
+                success: true,
+                deleteUserMsg: false,
+                pushIntoHistory: [result.trim(), process.env.BOTNAME, channel]
+            }
+        },
+        false
+    ),
+    impersonate: new Command(
+        "Impersonate the AI",
+        [],
+        ["!impersonate ", "!imp "],
+        process.env.ALLOW_ANSWER_MESSAGE,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            if (!parsedMsg) return {
+                message: "# This command requires text as argument. Example: `!impersonate My name is Alice`",
+                instantReply: true
+            }
+
+            const result = parsedMsg.trim()
+            return {
+                message: result,
+                success: true,
+                deleteUserMsg: false,
+                pushIntoHistory: [result, process.env.BOTNAME, channel]
             }
         },
         false
@@ -223,12 +296,15 @@ const messageCommands = {
 }
 
 messageCommands.all = [
+    messageCommands.impersonate,
+    messageCommands.finishMessage,
     messageCommands.deleteMessage,
     messageCommands.pruneMessages,
     messageCommands.forceTalk,
     messageCommands.comment,
     messageCommands.noContextMessage,
     messageCommands.continueMessage,
+    messageCommands.retryFinish,
     messageCommands.retryMessage,
     messageCommands.editMessage,
     messageCommands.answerMessage,

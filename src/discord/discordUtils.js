@@ -28,6 +28,8 @@ function updateBotInfo(botClient) {
 
             const botPersonality = channelBotTranslationService.getChannelPersonality("#" + channel.name.toLowerCase())
 
+            if (!botPersonality) return
+
             const embed = new MessageEmbed()
                 .setColor('#0099ff')
                 .setTitle(process.env.BOTNAME)

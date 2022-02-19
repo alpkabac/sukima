@@ -5,14 +5,124 @@ import pawnService from "./pawnService.js";
 import envService from "../../util/envService.js";
 import worldItemsService from "./worldItemsService.js";
 import {MessageAttachment, MessageEmbed} from "discord.js";
+import personalityService from "../personalityService.js";
+import memoryService from "../memoryService.js";
 
-const generatorAttackNew = utils.loadJSONFile("./data/generator/rpg/attack.json")
-const generatorEnemy = utils.loadJSONFile("./data/generator/rpg/enemyLight.json")
+const generatorAttackNew = utils.fileExists(`./bot/${envService.getBotId()}/generator/attack.json`) ?
+    utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/attack.json`)
+    : utils.loadJSONFile("./data/generator/rpg/attack.json")
+
+const generatorPerspective = utils.fileExists(`./bot/${envService.getBotId()}/generator/secondToThirdPersonPerspective.json`) ?
+    utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/secondToThirdPersonPerspective.json`)
+    : utils.loadJSONFile("./data/generator/rpg/secondToThirdPersonPerspective.json")
+
+const generatorEnemy = utils.fileExists(`./bot/${envService.getBotId()}/generator/enemy.json`) ?
+    utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/enemy.json`)
+    : utils.loadJSONFile("./data/generator/rpg/enemy.json")
 const generatorSpellBook = utils.loadJSONFile("./data/generationPrompt/rpg/generateSpellBook.json")
+
+
+const STATUS_DEAD = ["dead", "killed", "died", "deceased"]
+const FULL_HEALS = ['healed', 'cured', 'healed (general)', 'cured (general)', 'completely healed', 'completely cured',
+    'full heal', 'full cure', 'fully restored', 'fully healed', 'fully cured', 'recovered', 'fully recovered',
+    'fully restored health', 'healed (all types)', 'cured (all wounds)', 'no more injuries']
+
+function isAlive(target) {
+    return !!(target?.health?.status && !STATUS_DEAD.includes(target?.health?.status.toLowerCase()));
+}
 
 let lastUploadedGenerator = null
 
 class DuckHuntService {
+
+    /**
+     * Generate a loot for that pawn
+     */
+    static async spawnItem(channel, username, rarity, type, name) {
+
+        rarity = rarity?.replace('!spawnitem ', '')
+        type = type?.replace('!spawnitem ', '')
+
+        if (!name || !rarity) {
+            const args = [
+                {name: "type", value: type},
+                {name: "rarity", value: rarity},
+                {name: "item"},
+            ]
+            const {
+                object,
+                result,
+                module
+            } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
+
+            name = object.item
+            if (!rarity) {
+                rarity = object.rarity
+            }
+        }
+
+        worldItemsService.appendItem(channel, {name, type, rarity})
+
+        const embed = new MessageEmbed()
+            .setColor('#ffff66')
+            .setTitle(`Admin ${username} spawned an item on the ground: ${name} (${rarity} ${type})`)
+            .setDescription(`Spawned item "${name}" is on the ground slot number [${worldItemsService.getActiveItems(channel).length - 1}]`)
+            .addField("Item type", type, true)
+            .addField("Item rarity", rarity, true)
+
+        return {
+            message: embed,
+            success: true,
+            instantReply: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            pushIntoHistory: [`[ Admin ${username} spawned an item on the ground: ${name} (${rarity} ${type}) ]`, null, channel]
+        }
+    }
+
+    static async spawnEquipItem(channel, username, rarity, type, name) {
+        rarity = rarity?.replace('!spawnequipitem ', '')
+        type = type?.replace('!spawnequipitem ', '')
+
+        if (!name || !rarity) {
+            const args = [
+                {name: "type", value: type},
+                {name: "rarity", value: rarity},
+                {name: "item"},
+            ]
+            const {
+                object,
+            } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
+
+            name = object.item
+            if (!rarity) {
+                rarity = object.rarity
+            }
+        }
+
+        const player = playerService.getPlayer(channel, username)
+
+        const item = {name, type, rarity}
+
+        if (player.weapon) {
+            player.inventory.push(player.weapon)
+        }
+        player.weapon = item
+
+        const embed = new MessageEmbed()
+            .setColor('#ffff66')
+            .setTitle(`Admin ${username} spawned and equipped an item: ${name} (${rarity} ${type})`)
+            .setDescription(`Spawned item "${name}" is now used as weapon by ${username}`)
+            .addField("Item type", type, true)
+            .addField("Item rarity", rarity, true)
+
+        return {
+            message: embed,
+            success: true,
+            instantReply: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            pushIntoHistory: [`[ Player ${username} spawned and equipped an item: ${name} (${rarity} ${type}) ]`, null, channel]
+        }
+    }
 
     /**
      * Spawns a random animal/critter/enemy
@@ -63,7 +173,7 @@ class DuckHuntService {
                     {name: 'Enemy name', value: object.name, inline: true},
                     {name: 'Difficulty', value: object.difficulty, inline: true},
                 ),
-            pushIntoHistory: [`[ New Enemy Encounter: ${object.name} (${object.difficulty}) ]\nNarrator to the group: ${object.encounterDescription}`, null, channel],
+            pushIntoHistory: [`[ New Enemy Encounter: ${object.name} (${object.difficulty}) ]\n[ ${object.encounterDescription} ]`, null, channel],
             success: true,
             deleteUserMsg: true,
             instantReply: true
@@ -73,133 +183,268 @@ class DuckHuntService {
     /**
      * Attack the current pawn
      */
-    static async attack(channel, username) {
-        if (!pawnService.isPawnAliveOnChannel(channel)) return {
+    static async attack(channel, username, healMode = false, target = null) {
+        let targetPlayer
+        const pawn = pawnService.getActivePawn(channel)
+        const player = playerService.getPlayer(channel, username)
+
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to ${healMode ? 'heal' : 'attack'}, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to ${healMode ? 'heal' : 'attack'}, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
+        if (target) {
+            targetPlayer = playerService.getPlayer(channel, target, false)
+            if (targetPlayer) {
+                if (!healMode && isAlive(targetPlayer)) {
+                    // Target player acquired
+                    target = targetPlayer
+                } else if (!healMode && !isAlive(targetPlayer)) {
+                    return {
+                        message: `# ${username} tried to attack ${target}, but player ${target} is already dead...`,
+                        deleteUserMsg: username !== process.env.BOTNAME,
+                        deleteNewMessage: username !== process.env.BOTNAME,
+                        pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack ${target}, but player ${target} is already dead... ]`, null, channel],
+                    }
+                } else {
+                    if (player.heal) {
+                        target = targetPlayer
+                    } else {
+                        return {
+                            message: `# ${username} tried to heal ${target}, but player ${username} doesn't have any healing item or spell equipped...`,
+                            deleteUserMsg: username !== process.env.BOTNAME,
+                            deleteNewMessage: username !== process.env.BOTNAME,
+                            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to heal ${target}, but player ${username} doesn't have any healing item or spell equipped... ]`, null, channel],
+                        }
+                    }
+                }
+            } else {
+                return {
+                    message: `# ${username} tried to ${healMode ? 'heal' : 'attack'} player "${target}", but no player with that name would be found...`,
+                    deleteUserMsg: username !== process.env.BOTNAME,
+                    deleteNewMessage: username !== process.env.BOTNAME,
+                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack player "${target}", but no player with that name would be found... ]`, null, channel],
+                }
+            }
+        } else {
+            target = pawn
+        }
+
+        if (target === pawn && !pawnService.isPawnAliveOnChannel(channel)) return {
             message: `# ${username} tried to attack, but there is no enemy...`,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             deleteNewMessage: username !== process.env.BOTNAME,
             pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack, but there is no enemy yet... ]`, null, channel],
         }
 
-        const player = playerService.getPlayer(channel, username)
         const timeDiff = Date.now() - player.lastAttackAt
         if (player.lastAttackAt && timeDiff < 1000 * envService.getRpgAttackCoolDown()) {
             return {
-                message: `# ${username} tried to attack but is still too tired, ${username} will have to wait for ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds to attack again`,
+                message: `# ${username} tried to ${healMode ? 'heal' : 'attack'} but is still too tired, ${username} will have to wait for ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds to ${healMode ? 'heal' : 'attack'} again`,
                 reactWith: '⌛',
                 deleteNewMessage: username !== process.env.BOTNAME,
-                deleteUserMsg: true,
-                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack but is still too tired, ${username} will have to wait for ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds to attack again ]`, null, channel],
+                deleteUserMsg: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to ${healMode ? 'heal' : 'attack'} but is still too tired, ${username} will have to wait for ${((1000 * envService.getRpgAttackCoolDown() - timeDiff) / 1000).toFixed(0)} seconds to ${healMode ? 'heal' : 'attack'} again ]`, null, channel],
             }
         }
 
-        const pawn = pawnService.getActivePawn(channel)
+        const enemyWounds = target.health.wounds.length === 0 ? 'none' : [...new Set(target.health.wounds)].join(', ')
+        const enemyStatus = target !== pawn ?
+            `[ Target: ${target.name}; race/species: human; wounds: ${enemyWounds}; blood loss: ${target.health.bloodLoss}; status: ${target.health.status} ]`
+            : `[ Target: ${target.name}; \${difficulty}: ${target.difficulty}; wounds: ${enemyWounds}; blood loss: ${target.health.bloodLoss}; status: ${target.health.status} ]`
+        const playerEquipment = playerService.getEquipmentPrompt(player, healMode)
 
+        const input = {
+            player: playerEquipment,
+            enemy: enemyStatus,
+            enemyCurrentWounds: enemyWounds,
+            enemyCurrentBloodLoss: target.health.bloodLoss,
+            enemyCurrentStatus: target.health.status
+        }
 
-        const enemyWounds = pawn.wounds.length === 0 ? 'none' : [...new Set(pawn.wounds)].join(', ')
-        const enemyStatus = `[ Enemy: ${pawn.name}; difficulty: ${pawn.difficulty}; wounds: ${enemyWounds}; blood loss: ${pawn.bloodLoss}; status: ${pawn.status} ]`
-        const playerEquipment = playerService.getEquipmentPrompt(player)
+        const object = await generatorService.workflow(generatorAttackNew, healMode ? "heal" : target === pawn ? "attack" : "attackPlayer", input)
 
-        // Attack part
-        const argsAttack = [
-            {name: "player", value: playerEquipment},
-            {name: "enemy", value: enemyStatus},
-            {name: "description"}
-        ]
-
-        const {object: objectAttack} = await generatorService.generator(generatorAttackNew, argsAttack, channel.startsWith("##"), "attack")
-
-
-        // Wounds part
-        const argsWounds = [
-            {name: "description", value: objectAttack.description},
-            {name: "wounds"},
-        ]
-
-        const {object: objectWounds} = await generatorService.generator(generatorAttackNew, argsWounds, channel.startsWith("##"), "woundDetection")
-
-        // Blood loss part
-        const argsBloodLoss = [
-            {name: "enemyCurrentBloodLoss", value: pawn.bloodLoss},
-            {name: "description", value: objectAttack.description},
-            {name: "wounds", value: objectWounds.wounds},
-            {name: "bloodLoss"},
-        ]
-
-        const {object: objectBloodLoss} = await generatorService.generator(generatorAttackNew, argsBloodLoss, channel.startsWith("##"), "bloodLossDetection")
-
-        // State part
-        const argsStatus = [
-            {name: "enemyCurrentWounds", value: pawn.wounds},
-            {name: "enemyCurrentBloodLoss", value: pawn.bloodLoss},
-            {name: "enemyCurrentStatus", value: pawn.status},
-            {name: "description", value: objectAttack.description},
-            {name: "wounds", value: objectWounds.wounds},
-            {name: "status"},
-        ]
-
-        const {object: objectStatus} = await generatorService.generator(generatorAttackNew, argsStatus, channel.startsWith("##"), "statusDetection")
-
-        pawn.attacks.push({player: username, description: objectAttack.description})
+        if (target === pawn) pawn.attacks.push({player: username, description: object.description})
 
         const noDamageStrings = ["n/a", "no damage", "none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"]
-        if (objectWounds.wounds && objectWounds.wounds.trim() && !noDamageStrings.includes(objectWounds.wounds.trim().toLowerCase())) {
-            const newWounds = [...new Set(objectWounds.wounds.toLowerCase().split(',').map(e => e.trim()))]
-            if (newWounds instanceof Array && newWounds.length === 1) {
-                pawn.wounds.push(newWounds[0])
-            } else if (newWounds instanceof Array && newWounds.length > 1) {
-                pawn.wounds.push(...newWounds)
+        if (object.wounds && object.wounds.trim() && !noDamageStrings.includes(object.wounds.trim().toLowerCase())) {
+            const parsedWounds = object.wounds.toLowerCase()
+                .split(/[;,+]./)
+                .map(e => e.trim())
+            const newWounds = [...new Set(parsedWounds)]
+
+            if (healMode) {
+                if (newWounds.some(nw => FULL_HEALS.includes(nw))) {
+                    target.health.wounds = []
+                    object.bloodLoss = 'none'
+                    object.status = 'healthy'
+                }
+
+                // removes wounds if any word matches with healing "wound"
+                target.health.wounds = target.health.wounds.filter(
+                    wound => !wound.split(' ').some(word =>
+                        !newWounds.some(nw =>
+                            !nw.split(' ').some(nww => word === nww)
+                        )
+                    )
+                )
             } else {
-                pawn.wounds.push(newWounds.join(', '))
+                target.health?.wounds?.push?.(...newWounds)
             }
         }
 
-        if (objectBloodLoss.bloodLoss && objectBloodLoss.bloodLoss.trim()) {
-            pawn.bloodLoss = objectBloodLoss.bloodLoss
+        if (object.bloodLoss && object.bloodLoss.trim()) {
+            target.health.bloodLoss = object.bloodLoss
         }
 
-        if (objectStatus.status && objectStatus.status.trim() && !["failed"].includes(objectStatus.status.trim().toLowerCase())) {
-            pawn.status = objectStatus.status.toLowerCase()
+        if (object.status && object.status.trim() && !["failed"].includes(object.status.trim().toLowerCase())) {
+            target.health.status = object.status.toLowerCase()
         }
 
-        if (objectStatus.status && objectStatus.status.trim() && ["dead", "killed", "died", "deceased"].includes(objectStatus.status.trim().toLowerCase())) {
-            pawn.alive = false
+        if (object.status && object.status.trim() && STATUS_DEAD.includes(object.status.trim().toLowerCase())) {
+            if (target === pawn) pawn.alive = false
         }
 
         player.lastAttackAt = Date.now()
 
         const msg = new MessageEmbed()
             .setColor('#ff0000')
-            .setTitle(`${username} attacks the ${pawn.name} (${pawn.difficulty})`)
-            .setDescription(`${objectAttack.description || 'undefined'}`)
-            .addField('New enemy wounds', objectWounds.wounds || 'undefined', true)
-            .addField('New enemy blood loss', objectBloodLoss.bloodLoss || 'undefined', true)
-            .addField('New enemy status', objectStatus.status || 'undefined', true)
-            .addField('All enemy wounds', [...new Set(pawn.wounds)].join('\n') || 'none', false)
+            .setTitle(target === pawn ?
+                `${username} ${healMode ? 'heals' : 'attacks'} the ${target.name} (${pawn.difficulty})`
+                : `${username} ${healMode ? 'heals' : 'attacks'} ${target.name}!`)
+            .setDescription(`${object.description || 'undefined'}`)
+            .addField('New enemy wounds', object.wounds || 'undefined', true)
+            .addField('New enemy blood loss', object.bloodLoss || 'undefined', true)
+            .addField('New enemy status', object.status || 'undefined', true)
+            .addField('All enemy wounds', [...new Set(target.health.wounds)].join('\n') || 'none', false)
+            .addField(`Player equipment used for ${healMode ? 'heal' : 'attack'}`, playerEquipment, false)
 
-        const loot = await this.loot(channel)
-        const {embed, pushIntoHistory} = pawn.alive ?
+
+        const {embed, pushIntoHistory} = (target.alive || target !== pawn) ?
             {embed: null, pushIntoHistory: null}
-            : (loot || {embed: null, pushIntoHistory: null})
+            : (await this.loot(channel) || {embed: null, pushIntoHistory: null})
 
-        if (!pawn.alive) {
+        if (target === pawn && !pawn.alive) {
             pawnService.lastPawnKilledAt[channel] = Date.now()
         }
 
-        const historyMessage = (username !== process.env.BOTNAME ? "!attack\n" : '')
-            + `[ ${username} attacks the ${pawn.name}! ]`
-            + `\n[ Enemy new wound(s): ${objectWounds.wounds}; Enemy new status: ${objectStatus.status}${pawn.alive ? ' (not dead yet)' : ''} ]`
-            + `\nNarrator to ${username}: ${objectAttack.description}`
-            + (pawn.alive ? '' : `\n[ Enemy ${pawn.name} (${pawn.difficulty}) has been defeated! ]`)
+        const historyMessage = (username !== process.env.BOTNAME ? `!${healMode ? 'heal' : 'attack'}${target === pawn ? '' : ` ${target.name}`}\n` : '')
+            + (target === pawn ?
+                `[ ${username} ${healMode ? 'heals' : 'attacks'} the ${target.name} ]`
+                : `[ ${username} ${healMode ? 'heals' : 'attacks'} ${target.name} ]`)
+            + `\n[ Narrator to ${username}: ${object.description} ]`
+            + (target === pawn ?
+                `\n[ Target new wound(s): ${object.wounds}; Target new status: ${object.status}${pawn.alive ? ' (not dead yet)' : ''} ]`
+                : `\n[ Target: ${target.name}; new wound(s): ${object.wounds}; Target new status: ${object.status}${isAlive(target) ? ' (not dead yet)' : ''} ]`)
+            + (isAlive(target) ? '' : `\n[ ${target === pawn ? `Enemy ${pawn.name} (${pawn.difficulty})` : `Target ${target.name}`} has been defeated and is now dead! ]`)
             + (pushIntoHistory ? `\n${pushIntoHistory}` : '')
 
         return {
             pushIntoHistory: [historyMessage, username !== process.env.BOTNAME ? username : null, channel],
             message: msg,
             reactWith: '⚔',
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
-            alsoSend: pawn.alive ? null : embed
+            alsoSend: (target !== pawn || pawn.alive) ? null : embed
+        }
+    }
+
+    static async wound(channel, username, healMode = false, target = null) {
+        let targetPlayer
+        const pawn = pawnService.getActivePawn(channel)
+
+        let wound
+        [target, wound] = target.split(';').map(s => s.trim())
+
+        if (!wound || !target) return {deleteUserMsg: username !== process.env.BOTNAME}
+
+        if (target) {
+            targetPlayer = playerService.getPlayer(channel, target, false)
+            if (targetPlayer) {
+                if (!healMode && isAlive(targetPlayer)) {
+                    // Target player acquired
+                    target = targetPlayer
+                } else if (!healMode && !isAlive(targetPlayer)) {
+                    return {
+                        message: `# ${username} tried to attack ${target}, but player ${target} is already dead...`,
+                        deleteUserMsg: username !== process.env.BOTNAME,
+                        deleteNewMessage: username !== process.env.BOTNAME,
+                        pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack ${target}, but player ${target} is already dead... ]`, null, channel],
+                    }
+                } else {
+                    target = targetPlayer
+                }
+            } else {
+                return {
+                    message: `# ${username} tried to attack player "${target}", but no player with that name would be found...`,
+                    deleteUserMsg: username !== process.env.BOTNAME,
+                    deleteNewMessage: username !== process.env.BOTNAME,
+                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack player "${target}", but no player with that name would be found... ]`, null, channel],
+                }
+            }
+        } else {
+            target = pawn
+        }
+
+        if (target === pawn && !pawnService.isPawnAliveOnChannel(channel)) return {
+            deleteUserMsg: username !== process.env.BOTNAME,
+            deleteNewMessage: username !== process.env.BOTNAME
+        }
+
+        target.health.wounds.push(wound.toLowerCase())
+
+        return {
+            success: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true
+        }
+    }
+
+    static async resurrect(channel, username, target = null, reviveMode = false) {
+        let targetPlayer
+        if (target) {
+            targetPlayer = playerService.getPlayer(channel, target, false)
+            if (targetPlayer) {
+
+            } else {
+                return {
+                    message: `# ${username} tried to attack a player, but no player with that name would be found...`,
+                    deleteUserMsg: username !== process.env.BOTNAME,
+                    deleteNewMessage: username !== process.env.BOTNAME,
+                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack a player, but no player with that name would be found... ]`, null, channel],
+                }
+            }
+        } else {
+            return {
+                message: `# ${username} tried to resurrect a player, but no player with that name would be found...`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to resurrect a player, but no player with that name would be found... ]`, null, channel],
+            }
+        }
+
+        if (!reviveMode) {
+            targetPlayer.health.wounds = []
+        }
+        targetPlayer.health.bloodLoss = 'none'
+        targetPlayer.health.status = 'healthy'
+
+        const msg = new MessageEmbed()
+            .setColor('#ff0000')
+            .setTitle(reviveMode ? `Admin ${username} revived ${targetPlayer.name}, but ${targetPlayer.name}'s wounds are still here.` : `Admin ${username} heals ${targetPlayer.name}!`)
+            .setDescription(reviveMode ? `Admin ${username} revived ${targetPlayer.name}, but ${targetPlayer.name}'s wounds are still here.` : `Admin ${username} heals ${targetPlayer.name} to full health!`)
+
+        const historyMessage = reviveMode ? `[ Player ${username} revived ${targetPlayer.name}, but ${targetPlayer.name}'s wounds are still here. ]` : `[ Player ${username} heals ${targetPlayer.name} to full health! ]`
+
+        return {
+            pushIntoHistory: [historyMessage, username !== process.env.BOTNAME ? username : null, channel],
+            message: msg,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true
         }
     }
 
@@ -249,6 +494,15 @@ class DuckHuntService {
 
         const player = playerService.getPlayer(channel, username)
 
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to take an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to take an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
         const tookItem = playerService.takeItem(channel, username, activeItems[itemSlotNumber])
         if (tookItem) {
             activeItems.splice(itemSlotNumber, 1)
@@ -265,7 +519,7 @@ class DuckHuntService {
             return {
                 message: embed,
                 success: true,
-                deleteUserMsg: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
                 instantReply: true,
                 pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !take\n` : '') + `[ Player ${username} takes the item ${item.name} (${item.rarity} ${item.type}) from the ground and puts it in its backpack ]`, null, channel]
             }
@@ -273,7 +527,7 @@ class DuckHuntService {
             return {
                 message: `# ${username} tried to take an item, but its backpack is full. Try to \`!sell\` or \`!drop\` an item first, or \`!upgrade\` your backpack!!`,
                 instantReply: true,
-                deleteUserMsg: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
                 deleteNewMessage: username !== process.env.BOTNAME,
                 pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to take an item, but its backpack is full. Try to "!sell" or "!drop" your backpack selected item first, or use "!upgradeBackpack"! ]`, null, channel]
             }
@@ -281,7 +535,7 @@ class DuckHuntService {
         return {
             message: `# ${username} tried to take an item on the ground, but there is no item to grab...`,
             instantReply: true,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             deleteNewMessage: username !== process.env.BOTNAME,
             pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to take an item on the ground, but there is no item to grab... ]`, null, channel]
         }
@@ -295,11 +549,20 @@ class DuckHuntService {
 
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to drop an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to drop an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
         if (!item) {
             return {
                 message: `# ${username} tried to drop an item but has no item in inventory slot [${itemSlotNumber}]`,
                 instantReply: true,
-                deleteUserMsg: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
                 pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to drop an item from backpack but doesn't have any item! ]`, null, channel]
             }
         }
@@ -315,7 +578,7 @@ class DuckHuntService {
         return {
             success: true,
             message: embed,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
             pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !drop\n` : '') + `[ Player ${username} drops the item ${item.name} (${item.rarity} ${item.type}) on the ground ]`, null, channel]
         }
@@ -328,36 +591,72 @@ class DuckHuntService {
             .setColor('#0099ff')
             .setTitle(`Items on the ground`)
 
-        msg.setDescription(`${items.map((item, i) => `${i}: [${item.rarity} ${item.type}] "${item.name}"`).join('\n') || 'None'}`)
+        const itemListString = `${items.map((item, i) => `${i}: [${item.rarity} ${item.type}] "${item.name}"`).join('\n') || 'None'}`
+        msg.setDescription(itemListString)
 
         const seenItem = items[items.length - 1]
         const backpackSelectedItem = `${seenItem?.name || 'none'}`
             + (!seenItem ? `` : ` (${seenItem.rarity} ${seenItem.type})`)
+
+        return {
+            success: true,
+            message: itemListString.length >= 2000 ? new MessageAttachment(Buffer.from(itemListString), 'items_on_the_ground.txt') : msg,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true,
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Item on the ground: ${backpackSelectedItem} ]`, null, channel]
+        }
+    }
+
+    static async cleanup(channel, username, from = null, to = null) {
+        const items = worldItemsService.getActiveItems(channel)
+
+        const msg = new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle(`${username} cleaned up the ground! Items left on the ground:`)
+
+        if (to === null && from === null) {
+            items.splice(from, items.length)
+        } else if (to === null && from !== null) {
+            items.splice(from, 1)
+        } else if (typeof to === "number") {
+            items.splice(from, to - from)
+        }
+
+        msg.setDescription(`${items.map((item, i) => `${i}: [${item.rarity} ${item.type}] "${item.name}"`).join('\n') || 'None'}`)
         return {
             success: true,
             message: msg,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
-            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Item on the ground: ${backpackSelectedItem} ]`, null, channel]
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Administrator deleted some items on the ground to clean up the server ]`, null, channel]
         }
     }
 
     static async sell(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
 
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to sell an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to sell an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
         const itemSlotNotProvided = username === process.env.BOTNAME ? true : (!itemSlot && typeof itemSlot === "string")
 
         const itemSlotNumber = itemSlotNotProvided ? player.inventory.length - 1 : parseInt(itemSlot)
         const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
 
-        if (!item || !item.name || !item.type || !item.rarity) {
+        if (!item) {
             const message = itemSlotNumber < 0 ?
                 `# ${username} tried to sell an item but has no item in its backpack`
                 : `# ${username} tried to sell an item but has no item in inventory slot [${itemSlotNumber}]`
             return {
                 message,
                 instantReply: true,
-                deleteUserMsg: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
                 deleteNewMessage: username !== process.env.BOTNAME,
                 pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to sell an item but has no item in its backpack! ]`, null, channel]
             }
@@ -365,8 +664,8 @@ class DuckHuntService {
 
         const args = [
             {name: "item", value: item.name},
-            {name: "type", value: item.type},
-            {name: "rarity", value: item.rarity},
+            {name: "type", value: item.type || 'undefined type'},
+            {name: "rarity", value: item.rarity || 'undefined rarity'},
             {name: "price"},
         ]
         const {
@@ -375,18 +674,23 @@ class DuckHuntService {
             module
         } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "sell")
 
-        const goldAmount = !object?.price ? null : parseInt(
-            object.price.replace(module.placeholders["currency"], '').trim()
+        let goldAmount = !object?.price ? null : parseInt(
+            object.price.trim().split(' ')[0]
         )
 
         if (goldAmount && typeof goldAmount === "number" && !isNaN(goldAmount)) {
+            player.gold += goldAmount
+            player.inventory.splice(player.inventory.indexOf(item), 1)
+        } else if (['infinite', 'unlimited', 'unknown', 'infinity', '-infinity', 'unlimited!', 'infinity!']
+            .includes(object.price.trim().split(' ')[0]?.split?.(' ')?.[0]?.toLowerCase())) {
+            goldAmount = 100000
             player.gold += goldAmount
             player.inventory.splice(player.inventory.indexOf(item), 1)
         } else {
             return {
                 error: `# ${username} tried to sell an item but something went wrong with the AI generation (missing numerical value in result)\nFull result:\n\`\`\`${result}\`\`\``,
                 instantReply: true,
-                deleteUserMsg: true
+                deleteUserMsg: username !== process.env.BOTNAME
             }
         }
 
@@ -398,7 +702,7 @@ class DuckHuntService {
         return {
             success: true,
             message: embed,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
             pushIntoHistory: [
                 (username !== process.env.BOTNAME ? `${username}: !sell\n` : '') + `[ Player ${username} sold the item ${item.name} (${item.rarity} ${item.type}) for ${goldAmount} gold! ]`,
@@ -410,6 +714,15 @@ class DuckHuntService {
 
     static async equipItem(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
+
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to equip an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to equip an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
 
         let itemSlotNumber
         if (!itemSlot?.trim()) {
@@ -426,7 +739,7 @@ class DuckHuntService {
         if (!item) return {
             error: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
             instantReply: true,
-            deleteUserMsg: true
+            deleteUserMsg: username !== process.env.BOTNAME
         }
 
         const ITEM_CATEGORIES = {
@@ -457,6 +770,15 @@ class DuckHuntService {
     static async equipWeapon(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
 
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to equip an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to equip an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
         let itemSlotNumber
         if (!itemSlot || !itemSlot.trim() || username === process.env.BOTNAME) {
             itemSlotNumber = player.inventory.length - 1
@@ -469,7 +791,7 @@ class DuckHuntService {
         if (!item) return {
             message: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
             instantReply: true,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to equip a weapon but has no item in its backpack! ]`, null, channel]
 
         }
@@ -483,13 +805,14 @@ class DuckHuntService {
                 .setTitle(`Player ${username} equips item "${player.weapon.name}" as weapon`)
                 .setDescription(`Equipped "${player.weapon.name}" as weapon`)
                 .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
 
             return {
                 success: true,
                 message: embed,
-                deleteUserMsg: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
                 instantReply: true,
                 pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipWeapon\n` : '') + `[ Player ${username} equips item ${player.weapon.name} (${item.rarity} ${item.type}) as weapon ]`, null, channel]
             }
@@ -504,14 +827,88 @@ class DuckHuntService {
                 .setTitle(`Player ${username} equips item "${player.weapon.name}" as weapon`)
                 .setDescription(`${username} puts "${weapon.name}" into its backpack slot number [${player.inventory.length - 1}]`)
                 .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
                 message: embed,
-                deleteUserMsg: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
                 instantReply: true,
                 pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipWeapon\n` : '') + `[ Player ${username} equips item ${player.weapon.name} (${item.rarity} ${item.type}) as weapon and puts previous weapon ${weapon.name} into its backpack ]`, null, channel]
+            }
+        }
+    }
+
+    static async equipHeal(channel, username, itemSlot) {
+        const player = playerService.getPlayer(channel, username)
+
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to equip an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to equip an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
+        let itemSlotNumber
+        if (!itemSlot || !itemSlot.trim() || username === process.env.BOTNAME) {
+            itemSlotNumber = player.inventory.length - 1
+        } else {
+            itemSlotNumber = parseInt(itemSlot)
+        }
+
+        const item = player.inventory[itemSlotNumber] ? player.inventory[itemSlotNumber] : null
+
+        if (!item) return {
+            message: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
+            instantReply: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to equip a heal but has no item in its backpack! ]`, null, channel]
+
+        }
+
+        if (!player.heal) {
+            player.heal = player.inventory[itemSlotNumber]
+            player.inventory.splice(player.inventory.indexOf(player.inventory[itemSlotNumber]), 1)
+
+            const embed = new MessageEmbed()
+                .setColor('#665500')
+                .setTitle(`Player ${username} equips item "${player.heal.name}" as heal`)
+                .setDescription(`Equipped "${player.heal.name}" as heal`)
+                .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
+                .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
+
+            return {
+                success: true,
+                message: embed,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                instantReply: true,
+                pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipHeal\n` : '') + `[ Player ${username} equips item ${player.heal.name} (${item.rarity} ${item.type}) as heal ]`, null, channel]
+            }
+        } else {
+            const heal = player.heal
+            player.heal = player.inventory[itemSlotNumber]
+            player.inventory.splice(itemSlotNumber, 1)
+            player.inventory.push(heal)
+
+            const embed = new MessageEmbed()
+                .setColor('#665500')
+                .setTitle(`Player ${username} equips item "${player.heal.name}" as heal`)
+                .setDescription(`${username} puts "${heal.name}" into its backpack slot number [${player.inventory.length - 1}]`)
+                .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
+                .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
+            return {
+                success: true,
+                message: embed,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                instantReply: true,
+                pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipHeal\n` : '') + `[ Player ${username} equips item ${player.heal.name} (${item.rarity} ${item.type}) as heal and puts previous heal ${heal.name} into its backpack ]`, null, channel]
             }
         }
     }
@@ -519,6 +916,14 @@ class DuckHuntService {
     static async equipArmor(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
 
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to equip an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to equip an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
 
         let itemSlotNumber
         if (!itemSlot || !itemSlot.trim() || username === process.env.BOTNAME) {
@@ -531,7 +936,7 @@ class DuckHuntService {
         if (!item) return {
             message: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
             instantReply: true,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to equip an armor but has no item in its backpack! ]`, null, channel]
         }
 
@@ -544,12 +949,13 @@ class DuckHuntService {
                 .setTitle(`Player ${username} equips item "${player.armor.name}" as armor`)
                 .setDescription(`Equipped "${player.armor.name}" as armor`)
                 .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
                 message: embed,
-                deleteUserMsg: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
                 instantReply: true,
                 pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipArmor\n` : '') + `[ Player ${username} equips item ${player.armor.name} (${item.rarity} ${item.type}) as armor ]`, null, channel]
             }
@@ -564,12 +970,13 @@ class DuckHuntService {
                 .setTitle(`Player ${username} equips item "${player.armor.name}" as armor`)
                 .setDescription(`${username} puts "${armor.name}" into its backpack slot number [${player.inventory.length - 1}]`)
                 .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
                 message: embed,
-                deleteUserMsg: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
                 instantReply: true,
                 pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipArmor\n` : '') + `[ Player ${username} equips item ${player.armor.name} (${item.rarity} ${item.type}) as armor and puts previous armor ${armor.name} into its backpack ]`, null, channel]
             }
@@ -579,6 +986,14 @@ class DuckHuntService {
     static async equipAccessory(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
 
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to equip an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to equip an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
 
         let itemSlotNumber
         if (!itemSlot || !itemSlot.trim() || username === process.env.BOTNAME) {
@@ -591,7 +1006,7 @@ class DuckHuntService {
         if (!item) return {
             message: `# ${username} tried to equip an item but has no item in inventory slot [${itemSlotNumber}]`,
             instantReply: true,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to equip an accessory but has no item in its backpack! ]`, null, channel]
         }
 
@@ -604,12 +1019,13 @@ class DuckHuntService {
                 .setTitle(`Player ${username} equips item "${player.accessory.name}" as accessory`)
                 .setDescription(`Equipped "${player.accessory.name}" as accessory`)
                 .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
                 message: embed,
-                deleteUserMsg: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
                 instantReply: true,
                 pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipAccessory\n` : '') + `[ Player ${username} equips item ${player.accessory.name} (${item.rarity} ${item.type}) as accessory ]`, null, channel]
             }
@@ -624,12 +1040,13 @@ class DuckHuntService {
                 .setTitle(`Player ${username} equips item "${player.accessory.name}" as accessory`)
                 .setDescription(`${username} puts "${accessory.name}" into its backpack slot number [${player.inventory.length - 1}]`)
                 .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
             return {
                 success: true,
                 message: embed,
-                deleteUserMsg: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
                 instantReply: true,
                 pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !equipAccessory\n` : '') + `[ Player ${username} equips item ${player.accessory.name} (${item.rarity} ${item.type}) as accessory and puts previous accessory ${accessory.name} into its backpack ]`, null, channel]
             }
@@ -639,11 +1056,20 @@ class DuckHuntService {
     static async unequipWeapon(channel, username) {
         const player = playerService.getPlayer(channel, username)
 
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to unequip an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to unequip an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
         if (!player.weapon) {
             return {
                 error: `# ${username} tried to unequip its weapon but doesn't have any!`,
                 instantReply: true,
-                deleteUserMsg: true
+                deleteUserMsg: username !== process.env.BOTNAME
             }
         } else {
             if (player.inventory.length < player.inventorySize) {
@@ -655,12 +1081,13 @@ class DuckHuntService {
                     .setTitle(`Player ${username} unequips weapon "${player.inventory[player.inventory.length - 1].name}"`)
                     .setDescription(`${username} puts item "${player.inventory[player.inventory.length - 1].name}" into its backpack slot number [${player.inventory.length - 1}]`)
                     .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                    .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
                     .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                     .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 return {
                     success: true,
                     message: embed,
-                    deleteUserMsg: true,
+                    deleteUserMsg: username !== process.env.BOTNAME,
                     instantReply: true,
                     pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !unequipWeapon\n` : '') + `[ Player ${username} unequips weapon "${player.inventory[player.inventory.length - 1].name}" (${player.inventory[player.inventory.length - 1].rarity} ${player.inventory[player.inventory.length - 1].type}) ]`, null, channel]
                 }
@@ -668,7 +1095,56 @@ class DuckHuntService {
                 return {
                     error: `# ${username} tried to unequip its weapon but doesn't have enough space in inventory!`,
                     instantReply: true,
-                    deleteUserMsg: true
+                    deleteUserMsg: username !== process.env.BOTNAME
+                }
+            }
+
+        }
+    }
+
+    static async unequipHeal(channel, username) {
+        const player = playerService.getPlayer(channel, username)
+
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to unequip an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to unequip an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
+        if (!player.heal) {
+            return {
+                error: `# ${username} tried to unequip its heal but doesn't have any!`,
+                instantReply: true,
+                deleteUserMsg: username !== process.env.BOTNAME
+            }
+        } else {
+            if (player.inventory.length < player.inventorySize) {
+                player.inventory.push(player.heal)
+                player.heal = null
+
+                const embed = new MessageEmbed()
+                    .setColor('#665500')
+                    .setTitle(`Player ${username} unequips heal "${player.inventory[player.inventory.length - 1].name}"`)
+                    .setDescription(`${username} puts item "${player.inventory[player.inventory.length - 1].name}" into its backpack slot number [${player.inventory.length - 1}]`)
+                    .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                    .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
+                    .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
+                    .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
+                return {
+                    success: true,
+                    message: embed,
+                    deleteUserMsg: username !== process.env.BOTNAME,
+                    instantReply: true,
+                    pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !unequipHeal\n` : '') + `[ Player ${username} unequips heal "${player.inventory[player.inventory.length - 1].name}" (${player.inventory[player.inventory.length - 1].rarity} ${player.inventory[player.inventory.length - 1].type}) ]`, null, channel]
+                }
+            } else {
+                return {
+                    error: `# ${username} tried to unequip its heal but doesn't have enough space in inventory!`,
+                    instantReply: true,
+                    deleteUserMsg: username !== process.env.BOTNAME
                 }
             }
 
@@ -678,11 +1154,20 @@ class DuckHuntService {
     static async unequipArmor(channel, username) {
         const player = playerService.getPlayer(channel, username)
 
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to unequip an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to unequip an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
         if (!player.armor) {
             return {
                 error: `# ${username} tried to unequip its armor but doesn't have any!`,
                 instantReply: true,
-                deleteUserMsg: true
+                deleteUserMsg: username !== process.env.BOTNAME
             }
         } else {
             if (player.inventory.length < player.inventorySize) {
@@ -693,12 +1178,13 @@ class DuckHuntService {
                     .setTitle(`Player ${username} unequips armor "${player.inventory[player.inventory.length - 1].name}"`)
                     .setDescription(`${username} puts item "${player.inventory[player.inventory.length - 1].name}" into its backpack slot number [${player.inventory.length - 1}]`)
                     .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                    .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
                     .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                     .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 return {
                     success: true,
                     message: embed,
-                    deleteUserMsg: true,
+                    deleteUserMsg: username !== process.env.BOTNAME,
                     instantReply: true,
                     pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !unequipArmor\n` : '') + `[ Player ${username} unequips armor "${player.inventory[player.inventory.length - 1].name}" (${player.inventory[player.inventory.length - 1].rarity} ${player.inventory[player.inventory.length - 1].type}) ]`, null, channel]
                 }
@@ -706,7 +1192,7 @@ class DuckHuntService {
                 return {
                     error: `# ${username} tried to unequip its armor but doesn't have enough space in its backpack!`,
                     instantReply: true,
-                    deleteUserMsg: true
+                    deleteUserMsg: username !== process.env.BOTNAME
                 }
             }
 
@@ -716,11 +1202,20 @@ class DuckHuntService {
     static async unequipAccessory(channel, username) {
         const player = playerService.getPlayer(channel, username)
 
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to unequip an item, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to unequip an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
         if (!player.accessory) {
             return {
                 error: `# ${username} tried to unequip its accessory but doesn't have any!`,
                 instantReply: true,
-                deleteUserMsg: true
+                deleteUserMsg: username !== process.env.BOTNAME
             }
         } else {
             if (player.inventory.length < player.inventorySize) {
@@ -731,12 +1226,13 @@ class DuckHuntService {
                     .setTitle(`Player ${username} unequips accessory "${player.inventory[player.inventory.length - 1].name}"`)
                     .setDescription(`${username} puts item "${player.inventory[player.inventory.length - 1].name}" into its backpack slot number [${player.inventory.length - 1}]`)
                     .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
+                    .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
                     .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                     .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 return {
                     success: true,
                     message: embed,
-                    deleteUserMsg: true,
+                    deleteUserMsg: username !== process.env.BOTNAME,
                     instantReply: true,
                     pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !unequipAccessory\n` : '') + `[ Player ${username} unequips accessory "${player.inventory[player.inventory.length - 1].name}" (${player.inventory[player.inventory.length - 1].rarity} ${player.inventory[player.inventory.length - 1].type}) ]`, null, channel]
                 }
@@ -744,7 +1240,7 @@ class DuckHuntService {
                 return {
                     error: `# ${username} tried to unequip its accessory but doesn't have enough space in its backpack!`,
                     instantReply: true,
-                    deleteUserMsg: true
+                    deleteUserMsg: username !== process.env.BOTNAME
                 }
             }
 
@@ -760,6 +1256,10 @@ class DuckHuntService {
             .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}`, true)
             .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
             .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
+            .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
+            .addField('Health', player.health.status, true)
+            .addField('Blood Loss', player.health.bloodLoss, true)
+            .addField('Wounds', player.health.wounds.join(', ') || 'none', true)
             .addField('Gold', player.gold, false)
             .addField('Backpack size', player.inventorySize, true)
 
@@ -768,16 +1268,18 @@ class DuckHuntService {
             + (!playerLastInventoryItem ? `` : ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
         return {
             message: embed,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
             pushIntoHistory: [
                 (username !== process.env.BOTNAME ? `${username}: !inventory\n` : '')
                 + `[ Inventory of Player ${username}; `
                 + `backpack used space: (${player.inventory.length}/${player.inventorySize}); `
                 + `backpack selected item: ${backpackSelectedItem}; `
-                + `weapon: ${!player.weapon ? 'No Weapon' : `${player.weapon.name} (${player.weapon.rarity})`}; `
-                + `armor: ${!player.armor ? 'No Armor' : `${player.armor.name} (${player.armor.rarity})`}; `
-                + `accessory: ${!player.accessory ? 'No Accessory' : `${player.accessory.name} (${player.accessory.rarity})`} `
+                + `weapon: ${!player.weapon ? 'No Weapon' : `${player.weapon.name} (${player.weapon.rarity} ${player.weapon.type})`}; `
+                + `heal: ${!player.heal ? 'No healing item or spell' : `${player.heal.name} (${player.heal.rarity} ${player.heal.type})`}; `
+                + `armor: ${!player.armor ? 'No Armor' : `${player.armor.name} (${player.armor.rarity} ${player.armor.type})`}; `
+                + `accessory: ${!player.accessory ? 'No Accessory' : `${player.accessory.name} (${player.accessory.rarity} ${player.accessory.type})`}; `
+                + `status: ${player.health.status}; blood loss: ${player.health.bloodLoss}; wounds: ${player.health.wounds.join(', ') || 'none'} `
                 + `]`,
                 null,
                 channel
@@ -788,12 +1290,21 @@ class DuckHuntService {
     static async upgradeBackpack(channel, username) {
         const player = playerService.getPlayer(channel, username)
 
+        if (!isAlive(player)) {
+            return {
+                message: `# ${username} tried to upgrade its backpack, but player ${username} is currently dead and thus cannot make any action.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to upgrade its backpack, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
         const price = Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2))
 
         if (player.gold < price) return {
             message: `# ${username} tried to upgrade its backpack but doesn't have enough gold! (${player.gold}/${price})`,
             instantReply: true,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             deleteNewMessage: username !== process.env.BOTNAME,
             pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to upgrade its backpack but doesn't have enough gold! (${player.gold}/${price}) ]`, null, channel]
         }
@@ -809,9 +1320,33 @@ class DuckHuntService {
             .setDescription(`New backpack size: ${player.inventorySize}\nCost of next upgrade: ${newPrice} gold\nCurrent gold balance after upgrade: ${player.gold}`)
         return {
             message: embed,
-            deleteUserMsg: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
             pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !upgradeBackpack\n` : '') + `[ Player ${username} upgraded its backpack for ${price} gold! ]`, null, channel]
+        }
+    }
+
+    static async setGender(channel, username, gender) {
+        const player = playerService.getPlayer(channel, username)
+
+        if (["male", "female"].includes(gender.toLowerCase())) {
+            player.gender = gender.toLowerCase()
+        } else {
+            return {
+                message: `# ${username} tried to change its gender to ${gender.toLowerCase()}, but gender must be either "male" or "female"`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                instantReply: true
+            }
+        }
+
+        const embed = new MessageEmbed()
+            .setColor('#ffffff')
+            .setTitle(`Player ${username} sets its gender to ${gender}!`)
+            .setDescription(`Player gender set to ${gender}`)
+        return {
+            message: embed,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true
         }
     }
 
@@ -905,6 +1440,54 @@ class DuckHuntService {
 
         return {
             message: attachment,
+            instantReply: true
+        }
+    }
+
+    static async ioGenerator(channel, arg, attachmentUrl) {
+        if (!attachmentUrl && !lastUploadedGenerator) return {
+            error: "# You need to upload a JSON generator file as attachment to your command"
+        }
+
+        let generator
+        if (!lastUploadedGenerator || attachmentUrl) {
+            generator = await utils.getAttachment(attachmentUrl)
+            lastUploadedGenerator = generator
+        } else {
+            generator = lastUploadedGenerator
+        }
+
+        const properties = [
+            {name: "input", value: arg},
+            {name: "output"},
+        ]
+
+        if (!generator.context) {
+            const personality = personalityService.getChannelPersonality(channel)
+            if (personality?.description) {
+                generator.context = personality.description
+            }
+
+            const memories = memoryService.getChannelMemory(channel)
+            if (memories) {
+                for (let key in memories) {
+                    generator.context += `\n${memories[key]}`
+                }
+            }
+        }
+
+        const {
+            object,
+            result,
+            module,
+            prompt
+        } = await generatorService.generator(generator, properties, channel.startsWith("##"))
+
+        const message = object.output
+
+        return {
+            message,
+            //pushIntoHistory: message ? [`${message}`, null, channel] : null,
             instantReply: true
         }
     }

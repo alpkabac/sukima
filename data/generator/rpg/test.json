@@ -1,0 +1,59 @@
+{
+  "name": "RPG Companion Summoning",
+  "description": "Generates an RPG companion to fight along side you",
+  "context": "[ Familiar summoning ]\n[ Example: \"Player {username} begins summoning magic, and summons a {reason}\" ]",
+  "properties": [
+    {
+      "name": "username",
+      "replaceBy": "Username:"
+    },
+    {
+      "name": "summoned",
+      "replaceBy": "Companion summoned:"
+    },
+    {
+      "name": "message",
+      "replaceBy": "Message:"
+    },
+    {
+      "name": "type",
+      "replaceBy": "Summon Type:"
+    }
+  ],
+  "list": [
+    {
+      "username": "Carl",
+      "summoned": "Skeleton",
+      "message": "The ground opens up, and a skeleton crawls out of it wielding a sword made of bone.",
+      "type": "Common Undead"
+    },
+    {
+      "username": "Mary",
+      "summoned": "Elven Mage",
+      "message": "A sudden gust of wind takes form as an elf infront of you, 'a pleasure to meet you,' it says.",
+      "type": "Uncommon Humanoid"
+    },
+    {
+      "username": "Elise",
+      "summoned": "Magic Sword",
+      "message": "A nearby sword begins to float and take on a purple glow, before coming to hover at your side.",
+      "type": "Rare Cursed Item"
+    },
+    {
+      "username": "Allie",
+      "summoned": "Wind Fairy",
+      "message": "A Wind fairy appears infront of you, its wings fluttering and giving off a blue glow.",
+      "type": "Rare Humanoid"
+    },
+    {
+      "username": "Bob",
+      "summoned": "Lesser Spirit",
+      "message": "A Lesser Spirit takes shape nearby, it circles you a few times before settling beside you.",
+      "type": "Common Spirit"
+    }
+  ],
+  "aiParameters": {
+    "temperature": 1,
+    "repetition_penalty": 1.15
+  }
+}

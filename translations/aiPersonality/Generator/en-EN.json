@@ -1,0 +1,10 @@
+{
+  "voice": null,
+  "noContextSentence": null,
+  "context": null,
+  "contextDm": null,
+  "description": null,
+  "displayDescription": "Special AI meant to be used as a generator for test purposes only",
+  "introduction": [],
+  "introductionDm": []
+}

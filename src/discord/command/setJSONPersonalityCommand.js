@@ -18,7 +18,7 @@ const setJSONPersonalityCommand = new Command(
         let errorMessages = ""
 
         if (!process.env.ENABLE_CUSTOM_AI || process.env.ENABLE_CUSTOM_AI.toLowerCase() !== "true") {
-            return {error: "# Sorry, but this command is not enabled on this AI."}
+            return {message: "# Sorry, but this command is not enabled on this AI."}
         }
 
         const personalityJSON = msg.replace(command, "")
@@ -26,11 +26,11 @@ const setJSONPersonalityCommand = new Command(
         try {
             personality = JSON.parse(personalityJSON)
         } catch (e) {
-            return {error: "# JSON could not be parsed"}
+            return {message: "# JSON could not be parsed"}
         }
 
-        if (!personality){
-            return {error: "# Err, I have no clue what happened =/"}
+        if (!personality) {
+            return {message: "# Err, I have no clue what happened =/"}
         }
 
         const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
@@ -49,6 +49,7 @@ const setJSONPersonalityCommand = new Command(
             try {
                 await client.user.setUsername(personality.username)
                 process.env.BOT_DISCORD_USERNAME = personality.username
+                process.env.BOTNAME = personality.username
             } catch (e) {
                 return {
                     error: `# Personality failed to load: Username already taken by too many people or was changed too recently`
@@ -111,7 +112,7 @@ const setJSONPersonalityCommand = new Command(
         }
 
         if (personality.introductionDm !== undefined) {
-            aiPersonality.introductionDm = personality.introductionDm.split("\n").map((l) => {
+            aiPersonality.introductionDm = personality.introductionDm?.split?.("\n")?.map((l) => {
                 return {
                     from: process.env.BOTNAME,
                     msg: l

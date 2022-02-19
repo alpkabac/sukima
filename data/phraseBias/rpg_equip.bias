@@ -11,7 +11,7 @@
           "type": 1
         }
       ],
-      "bias": 0.05,
+      "bias": 0.01,
       "ensure_sequence_finish": false,
       "generate_once": true,
       "enabled": true,

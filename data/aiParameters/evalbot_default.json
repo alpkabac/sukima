@@ -6,7 +6,7 @@
   "temperature": 0.8,
   "top_k": 0,
   "top_p": 1,
-  "eos_token_id": 224,
+  "eos_token_id": 8162,
   "repetition_penalty":1.20,
   "repetition_penalty_range": 2048,
   "_bad_words_ids_desc": "Bans all <|endoftext|> tokens",

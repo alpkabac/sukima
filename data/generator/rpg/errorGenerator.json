@@ -1,5 +1,5 @@
 {
-  "name": "RPG Enemy Generator",
+  "name": "RPG Error Message Generator",
   "description": "Generates an RPG enemy given a difficulty",
   "context": "[ Error Message Generator ]\n[ Example: \"Player {username} tried/attempted to {action}, but couldn't because {reason}\" ]",
   "properties": [

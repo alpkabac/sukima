@@ -1,0 +1,35 @@
+{
+  "autoAnswer": {
+    "enabled": true,
+    "description": "When enabled, will send a message after {interval} seconds without receiving messages if the bot isn't the author of the last message",
+    "interval": 12
+  },
+  "smartAnswer": {
+    "enabled": true,
+    "description": "When enabled, will use the AI to decide whether or not the bot should respond to any message, it can be coupled with ENABLE_AUTO_ANSWER safely if interval is not too low (> 2sec)"
+  },
+  "autoMessage": {
+    "enabled": false,
+    "description": "When enabled, will periodically predict who the next message author should be, and send a message if the predicted name is the name of the bot (interval is in seconds)",
+    "interval": 60
+  },
+  "directMessages": {
+    "enabled": false,
+    "description": "When enabled, users will be able to send direct messages to the bot"
+  },
+  "introduction": {
+    "enabled": false,
+    "description": "When enabled, the bot will send its introduction message (from .personality file) at first boot"
+  },
+  "greeting": {
+    "enabled": false,
+    "description": "When enabled, will send a generated greeting message everytime a new user joins the server (experimental feature)"
+  },
+  "rpgMode": {
+    "enabled": false,
+    "description": "When enabled, activates the RPG minigame for this bot (very experimental and intrusive feature)",
+    "attackCooldown": 20,
+    "spawnInterval": 240,
+    "enemyLeavesAfter": 600
+  }
+}

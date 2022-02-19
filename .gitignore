@@ -6,3 +6,7 @@ node_modules
 *.env
 google_api.json
 /save/*
+/bot/*
+/user/*
+/runningBots.json
+/buildUrl.js

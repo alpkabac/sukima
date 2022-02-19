@@ -1,20 +1,14 @@
 class Pawn {
-    name;
-    difficulty;
-    description;
-    attacks;
-    wounds;
-    alive;
-    createdAt;
-
     constructor(name, difficulty, description) {
         this.name = name;
         this.difficulty = difficulty;
         this.description = description;
         this.attacks = []
-        this.wounds = []
-        this.bloodLoss = 'none'
-        this.status = "alive"
+        this.health = {
+            wounds: [],
+            bloodLoss: 'none',
+            status: "alive"
+        }
         this.alive = true
         this.createdAt = Date.now()
     }
