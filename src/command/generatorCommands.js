@@ -26,6 +26,16 @@ const generatorCommands = {
         },
         true
     ),
+    workflow: new Command(
+        "Generator Workflow",
+        [],
+        ["!workflow"],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return duckHuntService.workflow(channel, parsedMsg, attachmentUrl)
+        },
+        true
+    ),
     ioGenerator: new Command(
         "Intput/Output Generator",
         [],
@@ -52,6 +62,7 @@ generatorCommands.all = [
     generatorCommands.generateSpell,
     generatorCommands.generatorPrompt,
     generatorCommands.generator,
+    generatorCommands.workflow,
     generatorCommands.ioGenerator,
 ]
 

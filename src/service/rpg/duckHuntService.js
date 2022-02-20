@@ -1447,6 +1447,66 @@ class DuckHuntService {
         }
     }
 
+    static async workflow(channel, args, attachmentUrl) {
+        if (!attachmentUrl && !lastUploadedGenerator) return {
+            error: "# You need to upload a JSON generator file as attachment to your command"
+        }
+
+        let generator
+        if (!lastUploadedGenerator || attachmentUrl) {
+            generator = await utils.getAttachment(attachmentUrl)
+            lastUploadedGenerator = generator
+        } else {
+            generator = lastUploadedGenerator
+        }
+        let argsJSON
+        try {
+            argsJSON = !args ? null : JSON.parse(args.trim())
+        } catch (e) {
+            return {
+                error: "# Invalid JSON",
+                instantReply: true
+            }
+        }
+
+        let json = {}
+        let nbResults = 1
+        let submoduleName = null
+        if (argsJSON) {
+            for (let name in argsJSON) {
+                if (name === 'nbResults') {
+                    if (typeof argsJSON[name] === "string") {
+                        argsJSON[name] = parseInt(argsJSON[name])
+                    }
+                    nbResults = Math.min(5, argsJSON[name])
+                } else if (name === "aiParameters") {
+                    generator.aiParameters = argsJSON[name]
+                } else if (name === "aiModel") {
+                    generator.aiModel = argsJSON[name]
+                } else if (name === "submodule") {
+                    submoduleName = argsJSON[name]
+                } else {
+                    json[name] = argsJSON[name]
+                }
+            }
+        }
+
+        let results = []
+        for (let i = 0; i < nbResults; i++) {
+            const object = await generatorService.workflow(generator, submoduleName, json)
+            results.push(object)
+        }
+
+        const resultsJSONString = JSON.stringify(results, null, 1)
+
+        const attachment = resultsJSONString.length < 2000 ? resultsJSONString : new MessageAttachment(Buffer.from(resultsJSONString), 'results.json')
+
+        return {
+            message: attachment,
+            instantReply: true
+        }
+    }
+
     static async ioGenerator(channel, arg, attachmentUrl) {
         if (!attachmentUrl && !lastUploadedGenerator) return {
             error: "# You need to upload a JSON generator file as attachment to your command"
