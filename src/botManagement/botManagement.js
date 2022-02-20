@@ -679,6 +679,7 @@ app.post('/api/v1/bot/give', async function (req, res, next) {
 
         authenticatedUser.bots = authenticatedUser.bots.filter(bid=>bid !== data.botId)
         targetUser.bots.push(data.botId)
+        targetUser.maxBots++
 
         fs.writeFileSync(`./user/${targetUser.id}.json`, JSON.stringify(targetUser))
         fs.writeFileSync(`./user/${authenticatedUser.id}.json`, JSON.stringify(authenticatedUser))
