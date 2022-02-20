@@ -99,8 +99,13 @@ class GeneratorService {
                 return {name: p.name, value: p.input ? persistentObject[p.name] : null}
             })
 
+
         const {object} = await GeneratorService.generator(generator, args, true, submoduleName)
 
+        for (let o in object) {
+            persistentObject[o] = object[o]
+        }
+        
         if (generator?.submodules?.[submoduleName]?.callsSubmodules?.length > 0) {
             const promises = generator?.submodules?.[submoduleName]?.callsSubmodules.map(
                 sm => GeneratorService.workflowModule(generator, sm, persistentObject)
@@ -112,13 +117,10 @@ class GeneratorService {
                     persistentObject[o] = r[o]
                 }
             })
-            return persistentObject
         } else {
-            for (let o in object) {
-                persistentObject[o] = object[o]
-            }
-            return persistentObject
+
         }
+        return persistentObject
     }
 
     /**
