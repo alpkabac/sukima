@@ -600,7 +600,7 @@
             } else {
                 document.getElementById("buttonDivMyBots").hidden = false
                 document.getElementById("buttonDivEdit").hidden = !botId
-                document.getElementById("buttonDivCreateNewBot").hidden = authenticatedUser.bots.length < authenticatedUser.maxBots
+                document.getElementById("buttonDivCreateNewBot").hidden = authenticatedUser.bots.length >= authenticatedUser.maxBots
             }
 
             if (!botId) return
