@@ -338,7 +338,7 @@ async function processMessage(msg) {
         }
     }
 
-    if (!message && utils.getBoolFromString(process.env.ENABLE_SMART_ANSWER)
+    if (!message && !cleanContent.startsWith("#") && utils.getBoolFromString(process.env.ENABLE_SMART_ANSWER)
         && originalMsg.author.username !== bot.user.username
         && !cleanContent.startsWith("!")
         && !cleanContent.startsWith("#")) {
