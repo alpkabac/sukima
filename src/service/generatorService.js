@@ -105,7 +105,7 @@ class GeneratorService {
         for (let o in object) {
             persistentObject[o] = object[o]
         }
-        
+
         if (generator?.submodules?.[submoduleName]?.callsSubmodules?.length > 0) {
             const promises = generator?.submodules?.[submoduleName]?.callsSubmodules.map(
                 sm => GeneratorService.workflowModule(generator, sm, persistentObject)
