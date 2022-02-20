@@ -276,11 +276,13 @@
 <div id="divAdminFirstConnexion" hidden="hidden">
     <h1>First Launch Configuration</h1>
     <form>
-        <label for="firstConnexionLogin">New Administrator Login (don't put any space or weird character): <span>*</span></label>
+        <label for="firstConnexionLogin">New Administrator Login (don't put any space or weird character):
+            <span>*</span></label>
         <input class="formFirstConnexion" id="firstConnexionLogin" type="text" name="firstConnexionLogin"
                required><br/><br/>
 
-        <label for="firstConnexionKey">New Administrator Password (don't put any space or weird character): <span>*</span></label>
+        <label for="firstConnexionKey">New Administrator Password (don't put any space or weird character):
+            <span>*</span></label>
         <input class="formFirstConnexion" id="firstConnexionKey" type="text" name="firstConnexionKey"
                required><br/><br/>
 
@@ -488,6 +490,13 @@
 
         <input type="button" id="submitEdit" value="Edit" onclick="sendEditForm()"><br/><br/>
 
+        <div id="divAdminEdit" hidden="hidden">
+            <label for="inputGiveBotToUser">Give bot to user:</label>
+            <select class="formGiveBotToUser" id="inputGiveBotToUser" name="userId" required>
+            </select><br/><br/>
+            <input type="button" id="submitGiveBotToUser" value="Give Bot to User" onclick="sendGiveBotToUserForm()"><br/><br/>
+        </div>
+
         <table>
             <tr>
                 <td><input type="button" value="Start" onclick="sendForm(null, '/bot/start'); return false;"></td>
@@ -656,6 +665,11 @@
         const result = await sendForm(null, "/user/all")
 
         const divTableAdminUsers = document.getElementById("divTableAdminUsers")
+        const inputGiveBotToUser = document.getElementById("inputGiveBotToUser")
+
+        if (result?.data?.users?.length > 1){
+            document.getElementById("divAdminEdit").hidden = false
+        }
 
         const table = document.createElement('table')
         const header = table.createTHead()
@@ -671,6 +685,16 @@
         for (let b of result.data.users) {
             const userRequest = await sendForm(null, "/user/get", {id: b.id})
 
+            if (b !== authenticatedUser.id) {
+                const option = document.createElement('option')
+                option.label = `${userRequest.data?.user?.username}`
+                option.value = `${userRequest.data?.user?.id}`
+                option.innerText = `${userRequest.data?.user?.username}`
+                inputGiveBotToUser.append(option)
+            }
+
+
+            inputGiveBotToUser.append()
             const tr = table.insertRow()
             tr.insertCell().innerHTML = `${userRequest.data?.user?.username}`
             tr.insertCell().innerHTML = `${userRequest.data?.user?.id}`
@@ -733,6 +757,12 @@
 
     async function sendEditForm() {
         const result = await sendForm("formEdit", '/bot/edit')
+        alert(JSON.stringify(result))
+    }
+
+    async function sendGiveBotToUserForm() {
+        const inputGiveBotToUser = document.getElementById("inputGiveBotToUser")
+        const result = await sendForm("formGiveBotToUser", '/bot/give', {botId ,userId: inputGiveBotToUser.options[inputGiveBotToUser.selectedIndex].value})
         alert(JSON.stringify(result))
     }
 

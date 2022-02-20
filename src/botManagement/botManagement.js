@@ -666,6 +666,30 @@ app.post('/api/v1/bot/get', async function (req, res, next) {
     }
 })
 
+app.post('/api/v1/bot/give', async function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    try {
+        const authenticatedUser = authenticate(req.body, true)
+        const data = req.body
+        if (!data.userId) return handleError(res, "You must provide the userId")
+        if (!data.botId) return handleError(res, "You must provide the botId")
+        userHasPermissionOverBot(authenticatedUser, data.botId)
+
+        const targetUser = loadUser(data.id)
+
+        authenticatedUser.bots = authenticatedUser.bots.filter(bid=>bid !== data.botId)
+        targetUser.bots.push(data.botId)
+
+        fs.writeFileSync(`./user/${targetUser.id}.json`, JSON.stringify(targetUser))
+        fs.writeFileSync(`./user/${authenticatedUser.id}.json`, JSON.stringify(authenticatedUser))
+
+        res.json({status: 'SUCCESS'})
+    } catch (e) {
+        console.error(e)
+        res.json({status: 'ERROR', error: e.message})
+    }
+})
+
 app.post('/api/v1/bot/running', async function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*')
     try {
