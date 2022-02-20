@@ -93,8 +93,7 @@ class GeneratorService {
         return await GeneratorService.workflowModule(generator, workflowName, persistentObject)
     }
 
-    static
-    async workflowModule(generator, submoduleName, persistentObject) {
+    static async workflowModule(generator, submoduleName, persistentObject) {
         let args = generator.submodules[submoduleName].properties
             .map(p => {
                 return {name: p.name, value: p.input ? persistentObject[p.name] : null}
