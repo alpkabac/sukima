@@ -1,3 +1,6 @@
+import {config} from "dotenv";
+
+config()
 import personalityService from "./personalityService.js";
 import fs from "fs";
 import utils from "../utils.js";

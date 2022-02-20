@@ -1,3 +1,6 @@
+import {config} from "dotenv";
+
+config()
 import utils from "../utils.js";
 import envService from "../util/envService.js";
 import {encode} from "gpt-3-encoder";
