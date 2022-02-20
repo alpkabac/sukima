@@ -224,10 +224,10 @@ class DuckHuntService {
                 }
             } else {
                 return {
-                    message: `# ${username} tried to ${healMode ? 'heal' : 'attack'} player "${target}", but no player with that name would be found...`,
+                    message: `# ${username} tried to ${healMode ? 'heal' : 'attack'} player "${target}", but no player with that name could be found...`,
                     deleteUserMsg: username !== process.env.BOTNAME,
                     deleteNewMessage: username !== process.env.BOTNAME,
-                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack player "${target}", but no player with that name would be found... ]`, null, channel],
+                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack player "${target}", but no player with that name could be found... ]`, null, channel],
                 }
             }
         } else {
@@ -380,10 +380,10 @@ class DuckHuntService {
                 }
             } else {
                 return {
-                    message: `# ${username} tried to attack player "${target}", but no player with that name would be found...`,
+                    message: `# ${username} tried to attack player "${target}", but no player with that name could be found...`,
                     deleteUserMsg: username !== process.env.BOTNAME,
                     deleteNewMessage: username !== process.env.BOTNAME,
-                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack player "${target}", but no player with that name would be found... ]`, null, channel],
+                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack player "${target}", but no player with that name could be found... ]`, null, channel],
                 }
             }
         } else {
@@ -412,18 +412,18 @@ class DuckHuntService {
 
             } else {
                 return {
-                    message: `# ${username} tried to attack a player, but no player with that name would be found...`,
+                    message: `# ${username} tried to attack a player, but no player with that name could be found...`,
                     deleteUserMsg: username !== process.env.BOTNAME,
                     deleteNewMessage: username !== process.env.BOTNAME,
-                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack a player, but no player with that name would be found... ]`, null, channel],
+                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack a player, but no player with that name could be found... ]`, null, channel],
                 }
             }
         } else {
             return {
-                message: `# ${username} tried to resurrect a player, but no player with that name would be found...`,
+                message: `# ${username} tried to resurrect a player, but no player with that name could be found...`,
                 deleteUserMsg: username !== process.env.BOTNAME,
                 deleteNewMessage: username !== process.env.BOTNAME,
-                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to resurrect a player, but no player with that name would be found... ]`, null, channel],
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to resurrect a player, but no player with that name could be found... ]`, null, channel],
             }
         }
 
