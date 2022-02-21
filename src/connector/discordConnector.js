@@ -675,7 +675,7 @@ setInterval(async () => {
 
             let spawnMessage
             if (swarmMode){
-                spawnMessage = await duckHuntService.swarm(channel, difficulty, null)
+                spawnMessage = await duckHuntService.swarm(channel, difficulty, swarm.name || null)
             }else {
                 spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
             }
