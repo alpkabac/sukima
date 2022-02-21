@@ -355,7 +355,7 @@ class DuckHuntService {
 
         // Blood loss part
         const argsBloodLoss = [
-            {name: "enemyCurrentBloodLoss", value: pawn.bloodLoss},
+            {name: "enemyCurrentBloodLoss", value: target.health.bloodLoss},
             {name: "description", value: objectAttack.description},
             {name: "wounds", value: objectWounds.wounds},
             {name: "bloodLoss"},
@@ -365,9 +365,9 @@ class DuckHuntService {
 
         // State part
         const argsStatus = [
-            {name: "enemyCurrentWounds", value: pawn.wounds},
-            {name: "enemyCurrentBloodLoss", value: pawn.bloodLoss},
-            {name: "enemyCurrentStatus", value: pawn.status},
+            {name: "enemyCurrentWounds", value: target.health.wounds},
+            {name: "enemyCurrentBloodLoss", value: target.health.bloodLoss},
+            {name: "enemyCurrentStatus", value: target.health.status},
             {name: "description", value: objectAttack.description},
             {name: "wounds", value: objectWounds.wounds},
             {name: "status"},
