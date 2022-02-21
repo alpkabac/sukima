@@ -108,7 +108,7 @@ const duckHuntCommands = {
                 difficulty = parsedMsg || null
             }
 
-            duckHuntService.getSwarm().duration = Math.floor(Math.random() * (180 - 60) + 60) * 1000
+            duckHuntService.getSwarm().duration = Math.floor(Math.random() * (240 - 120) + 120) * 1000
             duckHuntService.getSwarm().timestamp = Date.now()
 
             return await duckHuntService.swarm(channel, difficulty, name)
