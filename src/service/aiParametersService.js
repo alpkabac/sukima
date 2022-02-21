@@ -1,9 +1,9 @@
 import {config} from "dotenv";
-
-config()
 import personalityService from "./personalityService.js";
 import fs from "fs";
 import utils from "../utils.js";
+
+config()
 
 class AiParametersService {
     static aiParameters = {}
@@ -37,6 +37,12 @@ class AiParametersService {
         parameters.min_length = 1
         parameters.max_length = process.env.TOKEN_LIMIT === "2048" ? 150 : 100
         parameters.eos_token_id = 198
+
+        if (parameters.repetition_penalty) {
+            const oldRange = 1 - 8
+            const newRange = 1 - 1.525
+            parameters.repetition_penalty = ((parameters.repetition_penalty - 1) * newRange) / oldRange + 1
+        }
 
         if (parameters.order) {
             parameters.order = parameters.order.map(o =>

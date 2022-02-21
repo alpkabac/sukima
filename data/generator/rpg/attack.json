@@ -46,140 +46,6 @@
   ],
   "placeholders": {"difficulty":  "difficulty"},
   "context": "[ Random Attack Generator ]\n[ Given a player and an enemy, generates a player attack description and detects the damages done to the enemy, the new wounds if the attack was successful, and the enemy status after the attack. ]",
-  "list": [
-    {
-      "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Target: Orc; difficulty: hard; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
-      "enemyCurrentWounds": "none",
-      "enemyCurrentBloodLoss": "none",
-      "enemyCurrentStatus": "healthy",
-      "description": "You attack the orc using your bare hands. The orc manages to dodge or block some of your attacks, but still gets bruised and tired from the efforts.",
-      "wounds": "bruised (general), tired (general)",
-      "bloodLoss": "minor",
-      "status": "healthy"
-    },
-    {
-      "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
-      "enemyCurrentWounds": "none",
-      "enemyCurrentBloodLoss": "none",
-      "enemyCurrentStatus": "healthy",
-      "description": "You attack the orc using your fists. It's not very effective, but you manage to break the orc's nose.",
-      "wounds": "broken nose",
-      "bloodLoss": "minor",
-      "status": "slightly wounded"
-    },
-    {
-      "player": "[ Iron Sword;No Armor ]",
-      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose; blood loss: minor; status: slightly wounded ]",
-      "enemyCurrentWounds": "broken nose",
-      "enemyCurrentBloodLoss": "minor",
-      "enemyCurrentStatus": "slightly wounded",
-      "description": "You strike the orc in the stomach with your iron sword. You cut into orc's abdomen and some guts come out, spreading his blood everywhere",
-      "wounds": "eviscerated",
-      "bloodLoss": "major",
-      "status": "heavily wounded"
-    },
-    {
-      "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs, eviscerated; blood loss: major; status: heavily wounded ]",
-      "enemyCurrentWounds": "broken nose, broken ribs, eviscerated",
-      "enemyCurrentBloodLoss": "major",
-      "enemyCurrentStatus": "heavily wounded",
-      "description": "You punch the semi-conscious orc in the torso. Your blows doesn't do much, but the orc is already so badly mangled that it succumbs to his severe wounds and dies.",
-      "wounds": "bruises (torso)",
-      "bloodLoss": "extreme",
-      "status": "dead"
-    },
-    {
-      "player": "[ Iron Longsword; No Armor ]",
-      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs; blood loss: minimal; status: heavily wounded ]",
-      "enemyCurrentWounds": "broken nose, broken ribs",
-      "enemyCurrentBloodLoss": "minimal",
-      "enemyCurrentStatus": "heavily wounded",
-      "description": "You swing your iron longsword at the orc's throat. Due to his wounds, he fails to dodge and you cut his head off.",
-      "wounds": "decapitated",
-      "bloodLoss": "extreme",
-      "status": "dead"
-    },
-    {
-      "player": "[ No Weapon; No Armor ]",
-      "enemy": "[ Target: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
-      "enemyCurrentWounds": "none",
-      "enemyCurrentBloodLoss": "none",
-      "enemyCurrentStatus": "healthy",
-      "description": "You attack the goblin using your bare fists. The goblin is quite aa agile fighter, and dodges most of your attacks.",
-      "wounds": "small bruises (general)",
-      "bloodLoss": "minimal",
-      "status": "very slightly wounded"
-    },
-    {
-      "player": "[ Small Knife; No Armor ]",
-      "enemy": "[ Target: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
-      "enemyCurrentWounds": "none",
-      "enemyCurrentBloodLoss": "none",
-      "enemyCurrentStatus": "healthy",
-      "description": "You slash the goblin with your knife across the chest. The goblin's cloth armor does nothing for protection, it slowly starts to bleed from the cut.",
-      "wounds": "slashed chest (chest)",
-      "bloodLoss": "moderate",
-      "status": "slightly wounded"
-    },
-    {
-      "player": "[ Wooden Spear; No Armor ]",
-      "enemy": "[ Target: Goblin; difficulty: easy; armor: Cloth Armor; wounds: slashed chest; blood loss: moderate; status: moderately wounded ]",
-      "enemyCurrentWounds": "slashed chest",
-      "enemyCurrentBloodLoss": "moderate",
-      "enemyCurrentStatus": "moderately wounded",
-      "description": "You pierce the goblin with your wooden spear. Your speer flies into the goblin's stomach and guts, spreading his blood and intestines everywhere.",
-      "wounds": "disemboweled",
-      "bloodLoss": "extreme",
-      "status": "dead"
-    },
-    {
-      "player": "[ Rare Large Steel Axe; Leather Armor ]",
-      "enemy": "[ Target: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
-      "enemyCurrentWounds": "none",
-      "enemyCurrentBloodLoss": "none",
-      "enemyCurrentStatus": "healthy",
-      "description": "You swing your steel axe at the boar with strength, severing its right leg",
-      "wounds": "amputated (right leg)",
-      "bloodLoss": "severe",
-      "status": "heavily wounded"
-    },
-    {
-      "player": "[ Rare Small Copper Dagger; Leather Armor ]",
-      "enemy": "[ Target: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
-      "enemyCurrentWounds": "none",
-      "enemyCurrentBloodLoss": "none",
-      "enemyCurrentStatus": "healthy",
-      "description": "You swiftly attack the kobold with your copper dagger, cutting his left ear right off",
-      "wounds": "amputated (left ear)",
-      "bloodLoss": "minor",
-      "status": "moderately wounded"
-    },
-    {
-      "player": "[ Rusty Copper Dagger; Leather Armor ]",
-      "enemy": "[ Target: Kobold; difficulty: easy; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: heavily wounded ]",
-      "enemyCurrentWounds": "lacerations (right arm), severed limb (left arm)",
-      "enemyCurrentBloodLoss": "major",
-      "enemyCurrentStatus": "heavily wounded",
-      "description": "You stab the enemy in the chest, pushing the blade deep through the kobold's hearth. The kobold is badly wounded and doesn't even fight back.",
-      "wounds": "pierced heart",
-      "bloodLoss": "extreme",
-      "status": "dead"
-    },
-    {
-      "player": "[ Wooden Club; No Armor ]",
-      "enemy": "[ Target: Troll; difficulty: very hard; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
-      "enemyCurrentWounds": "disemboweled, amputated (right leg)",
-      "enemyCurrentBloodLoss": "major",
-      "enemyCurrentStatus": "heavily wounded",
-      "description": "You strike the troll with your wooden club, only doing light bruises on its sternum. The troll is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead.",
-      "wounds": "light bruises (sternum)",
-      "bloodLoss": "extreme",
-      "status": "dead"
-    }
-  ],
   "aiParameters": {
     "temperature": 0.8
   },
@@ -362,7 +228,59 @@
           "replaceBy": "Target new heal(s):"
         }
       ],
-      "callsSubmodules": ["bloodLossDetection"]
+      "callsSubmodules": ["bloodLossDetection"],
+      "list": [
+        [
+          {
+            "description": "You attack the orc using your bare hands. The orc manages to dodge or block some of your attacks, but still gets bruised and tired from the efforts.",
+            "wounds": "bruised (general), tired (general)"
+          },
+          {
+            "description": "You attack the orc using your fists. It's not very effective, but you manage to break the orc's nose.",
+            "wounds": "broken nose"
+          },
+          {
+            "description": "You strike the orc in the stomach with your iron sword. You cut into orc's abdomen and some guts come out, spreading his blood everywhere",
+            "wounds": "eviscerated"
+          },
+          {
+            "description": "You punch the semi-conscious orc in the torso. Your blows doesn't do much, but the orc is already so badly mangled that it succumbs to his severe wounds and dies.",
+            "wounds": "bruises (torso)"
+          },
+          {
+            "description": "You swing your iron longsword at the orc's throat. Due to his wounds, he fails to dodge and you cut his head off.",
+            "wounds": "decapitated"
+          },
+          {
+            "description": "You attack the goblin using your bare fists. The goblin is quite aa agile fighter, and dodges most of your attacks.",
+            "wounds": "small bruises (general)"
+          },
+          {
+            "description": "You slash the goblin with your knife across the chest. The goblin's cloth armor does nothing for protection, it slowly starts to bleed from the cut.",
+            "wounds": "slashed chest (chest)"
+          },
+          {
+            "description": "You pierce the goblin with your wooden spear. Your speer flies into the goblin's stomach and guts, spreading his blood and intestines everywhere.",
+            "wounds": "disemboweled"
+          },
+          {
+            "description": "You swing your steel axe at the boar with strength, severing its right leg",
+            "wounds": "amputated (right leg)"
+          },
+          {
+            "description": "You swiftly attack the kobold with your copper dagger, cutting his left ear right off",
+            "wounds": "amputated (left ear)"
+          },
+          {
+            "description": "You stab the enemy in the chest, pushing the blade deep through the kobold's hearth. The kobold is badly wounded and doesn't even fight back.",
+            "wounds": "pierced heart"
+          },
+          {
+            "description": "You strike the troll with your wooden club, only doing light bruises on its sternum. The troll is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead.",
+            "wounds": "light bruises (sternum)"
+          }
+        ]
+      ]
     },
     "woundDetection": {
       "properties": [
@@ -376,7 +294,59 @@
           "replaceBy": "Target new wound(s):"
         }
       ],
-      "callsSubmodules": ["bloodLossDetection"]
+      "callsSubmodules": ["bloodLossDetection"],
+      "list": [
+        [
+          {
+            "description": "You attack the orc using your bare hands. The orc manages to dodge or block some of your attacks, but still gets bruised and tired from the efforts.",
+            "wounds": "bruised (general), tired (general)"
+          },
+          {
+            "description": "You attack the orc using your fists. It's not very effective, but you manage to break the orc's nose.",
+            "wounds": "broken nose"
+          },
+          {
+            "description": "You strike the orc in the stomach with your iron sword. You cut into orc's abdomen and some guts come out, spreading his blood everywhere",
+            "wounds": "eviscerated"
+          },
+          {
+            "description": "You punch the semi-conscious orc in the torso. Your blows doesn't do much, but the orc is already so badly mangled that it succumbs to his severe wounds and dies.",
+            "wounds": "bruises (torso)"
+          },
+          {
+            "description": "You swing your iron longsword at the orc's throat. Due to his wounds, he fails to dodge and you cut his head off.",
+            "wounds": "decapitated"
+          },
+          {
+            "description": "You attack the goblin using your bare fists. The goblin is quite aa agile fighter, and dodges most of your attacks.",
+            "wounds": "small bruises (general)"
+          },
+          {
+            "description": "You slash the goblin with your knife across the chest. The goblin's cloth armor does nothing for protection, it slowly starts to bleed from the cut.",
+            "wounds": "slashed chest (chest)"
+          },
+          {
+            "description": "You pierce the goblin with your wooden spear. Your speer flies into the goblin's stomach and guts, spreading his blood and intestines everywhere.",
+            "wounds": "disemboweled"
+          },
+          {
+            "description": "You swing your steel axe at the boar with strength, severing its right leg",
+            "wounds": "amputated (right leg)"
+          },
+          {
+            "description": "You swiftly attack the kobold with your copper dagger, cutting his left ear right off",
+            "wounds": "amputated (left ear)"
+          },
+          {
+            "description": "You stab the enemy in the chest, pushing the blade deep through the kobold's hearth. The kobold is badly wounded and doesn't even fight back.",
+            "wounds": "pierced heart"
+          },
+          {
+            "description": "You strike the troll with your wooden club, only doing light bruises on its sternum. The troll is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead.",
+            "wounds": "light bruises (sternum)"
+          }
+        ]
+      ]
     },
     "bloodLossDetection": {
       "properties": [
@@ -400,7 +370,81 @@
           "replaceBy": "Target blood loss level after your action:"
         }
       ],
-      "callsSubmodules": ["statusDetection"]
+      "callsSubmodules": ["statusDetection"],
+      "list": [
+        {
+          "enemyCurrentBloodLoss": "none",
+          "description": "You attack the orc using your bare hands. The orc manages to dodge or block some of your attacks, but still gets bruised and tired from the efforts.",
+          "wounds": "bruised (general), tired (general)",
+          "bloodLoss": "minor"
+        },
+        {
+          "enemyCurrentBloodLoss": "none",
+          "description": "You attack the orc using your fists. It's not very effective, but you manage to break the orc's nose.",
+          "wounds": "broken nose",
+          "bloodLoss": "minor"
+        },
+        {
+          "enemyCurrentBloodLoss": "minor",
+          "description": "You strike the orc in the stomach with your iron sword. You cut into orc's abdomen and some guts come out, spreading his blood everywhere",
+          "wounds": "eviscerated",
+          "bloodLoss": "major"
+        },
+        {
+          "enemyCurrentBloodLoss": "major",
+          "description": "You punch the semi-conscious orc in the torso. Your blows doesn't do much, but the orc is already so badly mangled that it succumbs to his severe wounds and dies.",
+          "wounds": "bruises (torso)",
+          "bloodLoss": "extreme"
+        },
+        {
+          "enemyCurrentBloodLoss": "minimal",
+          "description": "You swing your iron longsword at the orc's throat. Due to his wounds, he fails to dodge and you cut his head off.",
+          "wounds": "decapitated",
+          "bloodLoss": "extreme"
+        },
+        {
+          "enemyCurrentBloodLoss": "none",
+          "description": "You attack the goblin using your bare fists. The goblin is quite aa agile fighter, and dodges most of your attacks.",
+          "wounds": "small bruises (general)",
+          "bloodLoss": "minimal"
+        },
+        {
+          "enemyCurrentBloodLoss": "none",
+          "description": "You slash the goblin with your knife across the chest. The goblin's cloth armor does nothing for protection, it slowly starts to bleed from the cut.",
+          "wounds": "slashed chest (chest)",
+          "bloodLoss": "moderate"
+        },
+        {
+          "enemyCurrentBloodLoss": "moderate",
+          "description": "You pierce the goblin with your wooden spear. Your speer flies into the goblin's stomach and guts, spreading his blood and intestines everywhere.",
+          "wounds": "disemboweled",
+          "bloodLoss": "extreme"
+        },
+        {
+          "enemyCurrentBloodLoss": "none",
+          "description": "You swing your steel axe at the boar with strength, severing its right leg",
+          "wounds": "amputated (right leg)",
+          "bloodLoss": "severe"
+        },
+        {
+          "enemyCurrentBloodLoss": "none",
+          "description": "You swiftly attack the kobold with your copper dagger, cutting his left ear right off",
+          "wounds": "amputated (left ear)",
+          "bloodLoss": "minor"
+        },
+        {
+          "enemyCurrentBloodLoss": "major",
+          "description": "You stab the enemy in the chest, pushing the blade deep through the kobold's hearth. The kobold is badly wounded and doesn't even fight back.",
+          "wounds": "pierced heart",
+          "bloodLoss": "extreme"
+        },
+        {
+          "enemyCurrentBloodLoss": "major",
+          "description": "You strike the troll with your wooden club, only doing light bruises on its sternum. The troll is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead.",
+          "wounds": "light bruises (sternum)",
+          "bloodLoss": "extreme"
+        }
+      ]
     },
     "statusDetection": {
       "properties": [
@@ -432,6 +476,104 @@
         {
           "name": "status",
           "replaceBy": "Target status after your action:"
+        }
+      ],
+      "list": [
+        {
+          "enemyCurrentWounds": "none",
+          "enemyCurrentBloodLoss": "none",
+          "enemyCurrentStatus": "healthy",
+          "description": "You attack the orc using your bare hands. The orc manages to dodge or block some of your attacks, but still gets bruised and tired from the efforts.",
+          "wounds": "bruised (general), tired (general)",
+          "status": "healthy"
+        },
+        {
+          "enemyCurrentWounds": "none",
+          "enemyCurrentBloodLoss": "none",
+          "enemyCurrentStatus": "healthy",
+          "description": "You attack the orc using your fists. It's not very effective, but you manage to break the orc's nose.",
+          "wounds": "broken nose",
+          "status": "slightly wounded"
+        },
+        {
+          "enemyCurrentWounds": "broken nose",
+          "enemyCurrentBloodLoss": "minor",
+          "enemyCurrentStatus": "slightly wounded",
+          "description": "You strike the orc in the stomach with your iron sword. You cut into orc's abdomen and some guts come out, spreading his blood everywhere",
+          "wounds": "eviscerated",
+          "status": "heavily wounded"
+        },
+        {
+          "enemyCurrentWounds": "broken nose, broken ribs, eviscerated",
+          "enemyCurrentBloodLoss": "major",
+          "enemyCurrentStatus": "heavily wounded",
+          "description": "You punch the semi-conscious orc in the torso. Your blows doesn't do much, but the orc is already so badly mangled that it succumbs to his severe wounds and dies.",
+          "wounds": "bruises (torso)",
+          "status": "dead"
+        },
+        {
+          "enemyCurrentWounds": "broken nose, broken ribs",
+          "enemyCurrentBloodLoss": "minimal",
+          "enemyCurrentStatus": "heavily wounded",
+          "description": "You swing your iron longsword at the orc's throat. Due to his wounds, he fails to dodge and you cut his head off.",
+          "wounds": "decapitated",
+          "status": "dead"
+        },
+        {
+          "enemyCurrentWounds": "none",
+          "enemyCurrentBloodLoss": "none",
+          "enemyCurrentStatus": "healthy",
+          "description": "You attack the goblin using your bare fists. The goblin is quite aa agile fighter, and dodges most of your attacks.",
+          "wounds": "small bruises (general)",
+          "status": "very slightly wounded"
+        },
+        {
+          "enemyCurrentWounds": "none",
+          "enemyCurrentBloodLoss": "none",
+          "enemyCurrentStatus": "healthy",
+          "description": "You slash the goblin with your knife across the chest. The goblin's cloth armor does nothing for protection, it slowly starts to bleed from the cut.",
+          "wounds": "slashed chest (chest)",
+          "status": "slightly wounded"
+        },
+        {
+          "enemyCurrentWounds": "slashed chest",
+          "enemyCurrentBloodLoss": "moderate",
+          "enemyCurrentStatus": "moderately wounded",
+          "description": "You pierce the goblin with your wooden spear. Your speer flies into the goblin's stomach and guts, spreading his blood and intestines everywhere.",
+          "wounds": "disemboweled",
+          "status": "dead"
+        },
+        {
+          "enemyCurrentWounds": "none",
+          "enemyCurrentBloodLoss": "none",
+          "enemyCurrentStatus": "healthy",
+          "description": "You swing your steel axe at the boar with strength, severing its right leg",
+          "wounds": "amputated (right leg)",
+          "status": "heavily wounded"
+        },
+        {
+          "enemyCurrentWounds": "none",
+          "enemyCurrentBloodLoss": "none",
+          "enemyCurrentStatus": "healthy",
+          "description": "You swiftly attack the kobold with your copper dagger, cutting his left ear right off",
+          "wounds": "amputated (left ear)",
+          "status": "moderately wounded"
+        },
+        {
+          "enemyCurrentWounds": "lacerations (right arm), severed limb (left arm)",
+          "enemyCurrentBloodLoss": "major",
+          "enemyCurrentStatus": "heavily wounded",
+          "description": "You stab the enemy in the chest, pushing the blade deep through the kobold's hearth. The kobold is badly wounded and doesn't even fight back.",
+          "wounds": "pierced heart",
+          "status": "dead"
+        },
+        {
+          "enemyCurrentWounds": "disemboweled, amputated (right leg)",
+          "enemyCurrentBloodLoss": "major",
+          "enemyCurrentStatus": "heavily wounded",
+          "description": "You strike the troll with your wooden club, only doing light bruises on its sternum. The troll is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead.",
+          "wounds": "light bruises (sternum)",
+          "status": "dead"
         }
       ]
     }
