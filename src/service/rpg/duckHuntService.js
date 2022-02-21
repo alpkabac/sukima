@@ -495,9 +495,18 @@ class DuckHuntService {
             }
         }
 
-        target.health.status = "dead"
+        targetPlayer.health.status = "dead"
+
+        const msg = new MessageEmbed()
+            .setColor('#ff0000')
+            .setTitle(`Admin ${username} kills ${targetPlayer.name}!`)
+            .setDescription(`Admin ${username} kills ${targetPlayer.name}!`)
+            .addField(`${targetPlayer.name}'s wounds`, targetPlayer.health.wounds.join(', ') || 'none', true)
+            .addField(`${targetPlayer.name}'s blood loss`, targetPlayer.health.bloodLoss || 'undefined', true)
+            .addField(`${targetPlayer.name}'s status`, targetPlayer.health.status || 'undefined', true)
 
         return {
+            message: msg,
             success: true,
             deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true
