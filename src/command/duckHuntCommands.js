@@ -89,6 +89,32 @@ const duckHuntCommands = {
         },
         false
     ),
+    spawnSwarm: new Command(
+        "Spawn Swarm of Enemies",
+        ["!spawnSwarm"],
+        ["!spawnSwarm "],
+        process.env.ALLOW_RPG_SPAWN,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            let difficulty
+            let name
+
+            const args = parsedMsg.split(';').map(s => s.trim())
+            if (args.length === 2) {
+                difficulty = args[0]
+                name = args[1]
+            } else if (args.length === 1) {
+                difficulty = args[0]
+            } else {
+                difficulty = parsedMsg || null
+            }
+
+            duckHuntService.getSwarm().duration = Math.floor(Math.random() * (180 - 60) + 60) * 1000
+            duckHuntService.getSwarm().timestamp = Date.now()
+
+            return await duckHuntService.swarm(channel, difficulty, name)
+        },
+        false
+    ),
     attack: new Command(
         "Attack",
         [],

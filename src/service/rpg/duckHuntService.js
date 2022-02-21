@@ -28,6 +28,13 @@ const FULL_HEALS = ['healed', 'cured', 'healed (general)', 'cured (general)', 'c
     'fully restored health', 'healed (all types)', 'cured (all wounds)', 'no more injuries', 'removed all injuries',
     'resurrected']
 
+let swarmSettings = {
+    difficulty: null,
+    name: null,
+    timestamp: null,
+    duration: null
+}
+
 function isAlive(target) {
     return !!(target?.health?.status && !STATUS_DEAD.includes(target?.health?.status.toLowerCase()));
 }
@@ -122,6 +129,66 @@ class DuckHuntService {
             instantReply: true,
             deleteUserMsg: username !== process.env.BOTNAME,
             pushIntoHistory: [`[ Player ${username} spawned and equipped an item: ${name} (${rarity} ${type}) ]`, null, channel]
+        }
+    }
+
+    static getSwarm() {
+        return swarmSettings
+    }
+
+    async static swarm(channel, difficulty = null, name = null) {
+        let args
+        if (!difficulty && !name) {
+            args = [
+                {name: "name"},
+                {name: "difficulty"},
+                {name: "encounterDescription"},
+            ]
+        } else if (difficulty && !name) {
+            args = [
+                {name: "difficulty", value: difficulty},
+                {name: "name"},
+                {name: "encounterDescription"},
+            ]
+        } else if (!difficulty && name) {
+            args = [
+                {name: "name", value: name},
+                {name: "difficulty"},
+                {name: "encounterDescription"},
+            ]
+        } else {
+            args = [
+                {name: "name", value: name},
+                {name: "difficulty", value: difficulty},
+                {name: "encounterDescription"},
+            ]
+        }
+
+        swarmSettings.difficulty = difficulty
+        swarmSettings.name = name
+
+        const {
+            object,
+            result,
+            module
+        } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "spawn")
+
+        pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
+
+        const remainingTime = (Date.now() - swarmSettings.timestamp)/1000
+        return {
+            message: new MessageEmbed()
+                .setColor('#0099ff')
+                .setTitle(`New Swarm Event Encounter! (remaining time: ${remainingTime.toFixed(2)} seconds)`)
+                .setDescription(object.encounterDescription)
+                .addFields(
+                    {name: 'Enemy name', value: object.name, inline: true},
+                    {name: 'Difficulty', value: object.difficulty, inline: true},
+                ),
+            pushIntoHistory: [`[ New Enemy Encounter: ${object.name} (${object.difficulty}) ]\n[ ${object.encounterDescription} ]`, null, channel],
+            success: true,
+            deleteUserMsg: true,
+            instantReply: true
         }
     }
 

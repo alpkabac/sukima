@@ -92,7 +92,7 @@ bot.on('ready', async () => {
             console.error("Couldn't rename the bot")
             try {
                 await bot.user.setUsername(process.env.BOTNAME + 'Bot')
-            }catch(e){
+            } catch (e) {
                 process.env.BOT_DISCORD_USERNAME = bot.user.tag.replace(/#.*$/, "")
             }
         }
@@ -103,7 +103,7 @@ bot.on('ready', async () => {
             console.error("Couldn't rename the bot")
             try {
                 await bot.user.setUsername(process.env.BOTNAME + 'Bot')
-            }catch(e){
+            } catch (e) {
                 process.env.BOT_DISCORD_USERNAME = bot.user.tag.replace(/#.*$/, "")
             }
         }
@@ -655,12 +655,14 @@ setInterval(async () => {
             if (channel.startsWith("##")) continue
             if (muteService.isChannelMuted(channel)) continue
 
+            const swarm = duckHuntService.getSwarm()
+            const swarmMode = !swarm.timestamp ? false : Date.now() - (swarm.timestamp + swarm.duration) < 0
             const pawn = pawnService.getActivePawn(channel)
             if (pawn && (Date.now() - pawn.createdAt < 1000 * envService.getRpgRespawnCoolDown())) continue
-            if (pawnService.lastPawnKilledAt[channel] && (Date.now() - pawnService.lastPawnKilledAt[channel] < 1000 * envService.getRpgSpawnCoolDown())) continue
+            if (!swarmMode || (pawnService.lastPawnKilledAt[channel] && (Date.now() - pawnService.lastPawnKilledAt[channel] < 1000 * envService.getRpgSpawnCoolDown()))) continue
 
-            let difficulty = "easy"
-            if (Math.random() < 0.4) {
+            let difficulty = swarmMode ? swarm.difficulty : "easy"
+            if (!swarmMode && Math.random() < 0.4) {
                 difficulty = "medium"
                 if (Math.random() < 0.25) {
                     difficulty = "hard"
@@ -670,7 +672,12 @@ setInterval(async () => {
                 }
             }
 
-            const spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
+            let spawnMessage
+            if (swarmMode){
+                spawnMessage = await duckHuntService.swarm(channel, difficulty, null)
+            }else {
+                spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
+            }
 
             const m = await channels[channel].send(spawnMessage?.message).catch((e) => console.error(e))
 
