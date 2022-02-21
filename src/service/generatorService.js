@@ -102,8 +102,7 @@ class GeneratorService {
                 return {name: p.name, value: p.input ? persistentObject[p.name] : null}
             })
 
-
-        const {object} = await GeneratorService.generator(generator, args, true, submoduleName)
+        const {object} = await GeneratorService.generator(generator, args, false, submoduleName)
 
         for (let o in object) {
             persistentObject[o] = object[o]
@@ -120,9 +119,8 @@ class GeneratorService {
                     persistentObject[o] = r[o]
                 }
             })
-        } else {
-
         }
+
         return persistentObject
     }
 
