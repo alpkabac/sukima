@@ -175,7 +175,7 @@ class DuckHuntService {
 
         pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
-        const remainingTime = (Date.now() - (swarmSettings.timestamp + swarmSettings.duration)) / 1000
+        const remainingTime = ((swarmSettings.timestamp + swarmSettings.duration) - Date.now()) / 1000
         return {
             message: new MessageEmbed()
                 .setColor('#0099ff')
