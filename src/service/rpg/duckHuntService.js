@@ -25,7 +25,8 @@ const generatorSpellBook = utils.loadJSONFile("./data/generationPrompt/rpg/gener
 const STATUS_DEAD = ["dead", "killed", "died", "deceased"]
 const FULL_HEALS = ['healed', 'cured', 'healed (general)', 'cured (general)', 'completely healed', 'completely cured',
     'full heal', 'full cure', 'fully restored', 'fully healed', 'fully cured', 'recovered', 'fully recovered',
-    'fully restored health', 'healed (all types)', 'cured (all wounds)', 'no more injuries', 'removed all injuries']
+    'fully restored health', 'healed (all types)', 'cured (all wounds)', 'no more injuries', 'removed all injuries',
+    'resurrected']
 
 function isAlive(target) {
     return !!(target?.health?.status && !STATUS_DEAD.includes(target?.health?.status.toLowerCase()));
