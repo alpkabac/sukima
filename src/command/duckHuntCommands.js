@@ -91,8 +91,8 @@ const duckHuntCommands = {
     ),
     spawnSwarm: new Command(
         "Spawn Swarm of Enemies",
-        ["!spawnSwarm"],
-        ["!spawnSwarm "],
+        ["!spawnSwarm", "!swarm"],
+        ["!spawnSwarm ", "!swarm "],
         process.env.ALLOW_RPG_SPAWN,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             let difficulty
@@ -345,6 +345,7 @@ duckHuntCommands.all = [
     duckHuntCommands.spawnItem,
     duckHuntCommands.spawnEquipItem,
     duckHuntCommands.spawn,
+    duckHuntCommands.spawnSwarm,
     duckHuntCommands.attack,
     duckHuntCommands.heal,
     duckHuntCommands.resurrect,
