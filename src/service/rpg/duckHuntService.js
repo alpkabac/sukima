@@ -136,7 +136,7 @@ class DuckHuntService {
         return swarmSettings
     }
 
-    async static swarm(channel, difficulty = null, name = null) {
+    static async swarm(channel, difficulty = null, name = null) {
         let args
         if (!difficulty && !name) {
             args = [
