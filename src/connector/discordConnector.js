@@ -660,7 +660,7 @@ setInterval(async () => {
             const pawn = pawnService.getActivePawn(channel)
             if (pawn && (Date.now() - pawn.createdAt < 1000 * envService.getRpgRespawnCoolDown())) continue
             if (!swarmMode && (pawnService.lastPawnKilledAt[channel] && (Date.now() - pawnService.lastPawnKilledAt[channel] < 1000 * envService.getRpgSpawnCoolDown()))) continue
-            if (swarmMode && pawn.alive) continue
+            if (swarmMode && pawn?.alive) continue
 
             let difficulty = swarmMode ? swarm.difficulty : "easy"
             if (!swarmMode && Math.random() < 0.4) {

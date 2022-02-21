@@ -343,8 +343,7 @@ class DuckHuntService {
             {name: "description"}
         ]
 
-        const {object: objectAttack} = await generatorService.generator(generatorAttackNew, argsAttack, channel.startsWith("##"), "attack")
-
+        const {object: objectAttack} = await generatorService.generator(generatorAttackNew, argsAttack, channel.startsWith("##"), healMode ? "heal" : target === pawn ? "attack" : "attackPlayer")
 
         // Wounds part
         const argsWounds = [
@@ -432,7 +431,7 @@ class DuckHuntService {
             .addField(`Player equipment used for ${healMode ? 'heal' : 'attack'}`, playerEquipment, false)
 
 
-        const {embed, pushIntoHistory} = (target.alive || target !== pawn) ?
+        const {embed, pushIntoHistory} = (target !== pawn || target.alive) ?
             {embed: null, pushIntoHistory: null}
             : (await this.loot(channel) || {embed: null, pushIntoHistory: null})
 
