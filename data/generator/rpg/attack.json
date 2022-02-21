@@ -51,6 +51,7 @@
   },
   "submodules": {
     "attack": {
+      "context": "[ Attack Description: given a target and a player's equipment, generates an attack description ]",
       "properties": [
         {
           "name": "enemy",
@@ -136,6 +137,7 @@
       }
     },
     "attackPlayer": {
+      "context": "[ Attack Description: given a target and a player's equipment, generates an attack description ]",
       "properties": [
         {
           "name": "enemy",
@@ -176,6 +178,7 @@
       ]
     },
     "heal": {
+      "context": "[ Heal Description: given a target and a player's equipment, generates a heal description ]",
       "properties": [
         {
           "name": "enemy",
@@ -291,7 +294,7 @@
         },
         {
           "name": "wounds",
-          "replaceBy": "Target new wound(s):"
+          "replaceBy": "Target's new wound(s):"
         }
       ],
       "callsSubmodules": ["bloodLossDetection"],
