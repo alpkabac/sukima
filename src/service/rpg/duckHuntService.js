@@ -472,6 +472,38 @@ class DuckHuntService {
         }
     }
 
+    static async kill(channel, username, target = null) {
+        if (!target) return {deleteUserMsg: username !== process.env.BOTNAME}
+
+        let targetPlayer = playerService.getPlayer(channel, target, false)
+
+        if (targetPlayer) {
+            if (!isAlive(targetPlayer)) {
+                return {
+                    message: `# Admin ${username} tried to kill ${target}, but player ${target} is already dead...`,
+                    deleteUserMsg: username !== process.env.BOTNAME,
+                    deleteNewMessage: username !== process.env.BOTNAME,
+                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Admin ${username} tried to kill ${target}, but player ${target} is already dead... ]`, null, channel],
+                }
+            }
+        } else {
+            return {
+                message: `# Admin ${username} tried to kill player "${target}", but no player with that name could be found...`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Admin ${username} tried to kill player "${target}", but no player with that name could be found... ]`, null, channel],
+            }
+        }
+
+        target.health.status = "dead"
+
+        return {
+            success: true,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true
+        }
+    }
+
     static async resurrect(channel, username, target = null, reviveMode = false) {
         let targetPlayer
         if (target) {

@@ -138,6 +138,16 @@ const duckHuntCommands = {
         },
         false
     ),
+    kill: new Command(
+        "Kill Player",
+        [],
+        ["!kill "],
+        process.env.ALLOW_RPG_SPAWN,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return await duckHuntService.kill(channel, from, parsedMsg)
+        },
+        false
+    ),
     heal: new Command(
         "Heal",
         [],
@@ -354,6 +364,7 @@ duckHuntCommands.all = [
     duckHuntCommands.resurrect,
     duckHuntCommands.revive,
     duckHuntCommands.wound,
+    duckHuntCommands.kill,
     duckHuntCommands.take,
     duckHuntCommands.drop,
     duckHuntCommands.look,
