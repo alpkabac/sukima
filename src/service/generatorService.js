@@ -112,13 +112,7 @@ class GeneratorService {
             const promises = generator?.submodules?.[submoduleName]?.callsSubmodules.map(
                 sm => GeneratorService.workflowModule(generator, sm, persistentObject)
             )
-            const results = await Promise.all(promises)
-
-            results.forEach(r => {
-                for (let o in r) {
-                    persistentObject[o] = r[o]
-                }
-            })
+            await Promise.all(promises)
         }
 
         return persistentObject
