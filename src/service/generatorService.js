@@ -105,7 +105,9 @@ class GeneratorService {
         const r = await GeneratorService.generator(generator, args, false, submoduleName)
         const object = r.object
 
-        console.log(r)
+        console.log(r.prompt)
+        console.log(r.result)
+        console.log(r.object)
 
         for (let o in object) {
             persistentObject[o] = object[o]
