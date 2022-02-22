@@ -20,6 +20,13 @@ app.use(express.urlencoded({extended: true}))
 const processes = {}
 
 try {
+    fs.mkdirSync('./user')
+    fs.mkdirSync('./bot')
+} catch {
+
+}
+
+try {
     const dir = fs.readdirSync('./user')
     if (dir.length === 0) {
         const admin = {
@@ -677,7 +684,7 @@ app.post('/api/v1/bot/give', async function (req, res, next) {
 
         const targetUser = loadUser(data.id)
 
-        authenticatedUser.bots = authenticatedUser.bots.filter(bid=>bid !== data.botId)
+        authenticatedUser.bots = authenticatedUser.bots.filter(bid => bid !== data.botId)
         targetUser.bots.push(data.botId)
         targetUser.maxBots++
 
