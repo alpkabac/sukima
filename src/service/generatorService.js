@@ -103,14 +103,13 @@ class GeneratorService {
                 return {name: p.name, value: p.input ? persistentObject[p.name] : null}
             })
 
-        const r = await GeneratorService.generator(generator, args, false, submoduleName)
-        const object = r.object
+        const {object, prompt, result} = await GeneratorService.generator(generator, args, false, submoduleName)
 
-        logService.log(`##############################################################################################`)
-        logService.log(r.prompt + "\n\n")
-        logService.log(r.result + "\n\n")
-        logService.log(JSON.parse(r.object, null, 4))
-        logService.log(JSON.parse(persistentObject, null, 4))
+        logService.log(`##############################################################################################\n\n`)
+        logService.log(prompt + "\n\n")
+        logService.log(result + "\n\n")
+        logService.log(JSON.stringify(object, null, 4))
+        logService.log(JSON.stringify(persistentObject, null, 4))
 
         for (let o in object) {
             persistentObject[o] = object[o]
