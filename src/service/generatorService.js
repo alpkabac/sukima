@@ -4,7 +4,6 @@ import envService from "../util/envService.js";
 import {encode} from "gpt-3-encoder";
 import lmiService from "./lmiService.js";
 import aiService from "./aiService.js";
-import logService from "./logService.js";
 
 config()
 
@@ -105,16 +104,9 @@ class GeneratorService {
 
         const {object, prompt, result} = await GeneratorService.generator(generator, args, false, submoduleName)
 
-        logService.log(`##############################################################################################\n\n`)
-        logService.log(prompt + "\n\n")
-        logService.log(result + "\n\n")
-        logService.log(JSON.stringify(object, null, 4))
-
         for (let o in object) {
             persistentObject[o] = object[o]
         }
-
-        logService.log(JSON.stringify(persistentObject, null, 4))
 
         if (generator?.submodules?.[submoduleName]?.callsSubmodules?.length > 0) {
             const promises = generator?.submodules?.[submoduleName]?.callsSubmodules.map(
