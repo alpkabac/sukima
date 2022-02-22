@@ -3,6 +3,8 @@ import utils from "../utils.js";
 
 config()
 
+const jsonBot = utils.loadJSONFile(`./bot/${process.env.BOT_ID}/default.json`)
+
 class EnvService {
     static getInt(envVariable, defaultValue = null) {
         const parsed = parseInt(process.env[envVariable])
@@ -13,7 +15,6 @@ class EnvService {
     static getString(envVariable) {
         return process.env[envVariable]
     }
-
 
     static getTokenLimit() {
         return this.getInt("TOKEN_LIMIT", 2048)
@@ -41,6 +42,10 @@ class EnvService {
 
     static getBotId() {
         return process.env.BOT_ID || null
+    }
+
+    static getAiModule(){
+        return jsonBot?.aiModule || "vanilla"
     }
 }
 

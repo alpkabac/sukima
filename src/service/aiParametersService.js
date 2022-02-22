@@ -2,6 +2,7 @@ import {config} from "dotenv";
 import personalityService from "./personalityService.js";
 import fs from "fs";
 import utils from "../utils.js";
+import envService from "../util/envService.js";
 
 config()
 
@@ -32,7 +33,7 @@ class AiParametersService {
         const file = utils.loadJSONFile(filePath)
         if (!file?.parameters) return null
         const parameters = file.parameters
-        parameters.prefix = "vanilla"
+        parameters.prefix = envService.getAiModule()
         parameters.use_string = true
         parameters.min_length = 1
         parameters.max_length = process.env.TOKEN_LIMIT === "2048" ? 150 : 100

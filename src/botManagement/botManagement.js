@@ -484,7 +484,8 @@ app.post('/api/v1/bot/edit', async function (req, res, next) {
             presentationMessageDm: data.presentationMessageDm,
             discordAvatarUrl: data.discordAvatarUrl,
             channelName: data.channelName,
-            aiModel: data.aiModel
+            aiModel: data.aiModel,
+            aiModule: data.aiModule
         }))
 
         if (data.phraseBias) {

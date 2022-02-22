@@ -29,8 +29,6 @@ const getAccessToken = async (access_key) => {
     })
 }
 
-let ACCESS_TOKEN
-
 const DEFAULT_PARAMETERS = utils.loadJSONFile("./data/aiParameters/personality_default.json")
 const DEFAULT_PARAMETERS_EVALBOT = utils.loadJSONFile("./data/aiParameters/evalbot_default.json")
 
