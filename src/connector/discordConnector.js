@@ -458,10 +458,10 @@ async function processMessage(msg) {
             if (message.alsoSend) {
                 if (Array.isArray(message.alsoSend)) {
                     for (let alsoSend of message.alsoSend) {
-                        await channels[channelName].send(alsoSend)
+                        await channels[channelName].send(alsoSend).catch(e=>console.error(e))
                     }
                 } else {
-                    await channels[channelName].send(message.alsoSend)
+                    await channels[channelName].send(message.alsoSend).catch(e=>console.error(e))
                 }
             }
         }, timeToWait)
