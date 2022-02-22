@@ -334,52 +334,15 @@ class DuckHuntService {
             enemyCurrentStatus: target.health.status
         }
 
-        /*const object = await generatorService.workflow(generatorAttackNew, healMode ? "heal" : target === pawn ? "attack" : "attackPlayer", input)*/
+        const object = await generatorService.workflow(generatorAttackNew, healMode ? "heal" : target === pawn ? "attack" : "attackPlayer", input)
 
-        // Attack part
-        const argsAttack = [
-            {name: "player", value: playerEquipment},
-            {name: "enemy", value: enemyStatus},
-            {name: "description"}
-        ]
+        console.log(object)
 
-        const {object: objectAttack} = await generatorService.generator(generatorAttackNew, argsAttack, channel.startsWith("##"), healMode ? "heal" : target === pawn ? "attack" : "attackPlayer")
-
-        // Wounds part
-        const argsWounds = [
-            {name: "description", value: objectAttack.description},
-            {name: "wounds"},
-        ]
-
-        const {object: objectWounds} = await generatorService.generator(generatorAttackNew, argsWounds, channel.startsWith("##"), "woundDetection")
-
-        // Blood loss part
-        const argsBloodLoss = [
-            {name: "enemyCurrentBloodLoss", value: target.health.bloodLoss},
-            {name: "description", value: objectAttack.description},
-            {name: "wounds", value: objectWounds.wounds},
-            {name: "bloodLoss"},
-        ]
-
-        const {object: objectBloodLoss} = await generatorService.generator(generatorAttackNew, argsBloodLoss, channel.startsWith("##"), "bloodLossDetection")
-
-        // State part
-        const argsStatus = [
-            {name: "enemyCurrentWounds", value: target.health.wounds},
-            {name: "enemyCurrentBloodLoss", value: target.health.bloodLoss},
-            {name: "enemyCurrentStatus", value: target.health.status},
-            {name: "description", value: objectAttack.description},
-            {name: "wounds", value: objectWounds.wounds},
-            {name: "status"},
-        ]
-
-        const {object: objectStatus} = await generatorService.generator(generatorAttackNew, argsStatus, channel.startsWith("##"), "statusDetection")
-
-        if (target === pawn) pawn.attacks.push({player: username, description: objectAttack.description})
+        if (target === pawn) pawn.attacks.push({player: username, description: object.description})
 
         const noDamageStrings = ["n/a", "no damage", "none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"]
-        if (objectWounds.wounds && objectWounds.wounds.trim() && !noDamageStrings.includes(objectWounds.wounds.trim().toLowerCase())) {
-            const parsedWounds = objectWounds.wounds.toLowerCase()
+        if (object.wounds && object.wounds.trim() && !noDamageStrings.includes(object.wounds.trim().toLowerCase())) {
+            const parsedWounds = object.wounds.toLowerCase()
                 .split(/[;,+]./)
                 .map(e => e.trim())
             const newWounds = [...new Set(parsedWounds)]
@@ -387,8 +350,8 @@ class DuckHuntService {
             if (healMode) {
                 if (newWounds.some(nw => FULL_HEALS.includes(nw))) {
                     target.health.wounds = []
-                    objectBloodLoss.bloodLoss = 'none'
-                    objectStatus.status = 'healthy'
+                    object.bloodLoss = 'none'
+                    object.status = 'healthy'
                 }
 
                 // removes wounds if any word matches with healing "wound"
@@ -404,15 +367,15 @@ class DuckHuntService {
             }
         }
 
-        if (objectBloodLoss.bloodLoss && objectBloodLoss.bloodLoss.trim()) {
-            target.health.bloodLoss = objectBloodLoss.bloodLoss
+        if (object.bloodLoss && object.bloodLoss.trim()) {
+            target.health.bloodLoss = object.bloodLoss
         }
 
-        if (objectStatus.status && objectStatus.status.trim() && !["failed"].includes(objectStatus.status.trim().toLowerCase())) {
-            target.health.status = objectStatus.status.toLowerCase()
+        if (object.status && object.status.trim() && !["failed"].includes(object.status.trim().toLowerCase())) {
+            target.health.status = object.status.toLowerCase()
         }
 
-        if (objectStatus.status && objectStatus.status.trim() && STATUS_DEAD.includes(objectStatus.status.trim().toLowerCase())) {
+        if (object.status && object.status.trim() && STATUS_DEAD.includes(object.status.trim().toLowerCase())) {
             if (target === pawn) pawn.alive = false
         }
 
@@ -423,10 +386,10 @@ class DuckHuntService {
             .setTitle(target === pawn ?
                 `${username} ${healMode ? 'heals' : 'attacks'} the ${target.name} (${pawn.difficulty})`
                 : `${username} ${healMode ? 'heals' : 'attacks'} ${target.name}!`)
-            .setDescription(`${objectAttack.description || 'undefined'}`)
-            .addField('New enemy wounds', objectWounds.wounds || 'undefined', true)
-            .addField('New enemy blood loss', objectBloodLoss.bloodLoss || 'undefined', true)
-            .addField('New enemy status', objectStatus.status || 'undefined', true)
+            .setDescription(`${object.description || 'undefined'}`)
+            .addField('New enemy wounds', object.wounds || 'undefined', true)
+            .addField('New enemy blood loss', object.bloodLoss || 'undefined', true)
+            .addField('New enemy status', object.status || 'undefined', true)
             .addField('All enemy wounds', [...new Set(target.health.wounds)].join('\n') || 'none', false)
             .addField(`Player equipment used for ${healMode ? 'heal' : 'attack'}`, playerEquipment, false)
 
@@ -443,10 +406,10 @@ class DuckHuntService {
             + (target === pawn ?
                 `[ ${username} ${healMode ? 'heals' : 'attacks'} the ${target.name} ]`
                 : `[ ${username} ${healMode ? 'heals' : 'attacks'} ${target.name} ]`)
-            + `\n[ Narrator to ${username}: ${objectAttack.description} ]`
+            + `\n[ Narrator to ${username}: ${object.description} ]`
             + (target === pawn ?
-                `\n[ Target new wound(s): ${objectWounds.wounds}; Target new status: ${objectStatus.status}${pawn.alive ? ' (not dead yet)' : ''} ]`
-                : `\n[ Target: ${target.name}; new wound(s): ${objectWounds.wounds}; Target new status: ${objectStatus.status}${isAlive(target) ? ' (not dead yet)' : ''} ]`)
+                `\n[ Target new wound(s): ${object.wounds}; Target new status: ${object.status}${pawn.alive ? ' (not dead yet)' : ''} ]`
+                : `\n[ Target: ${target.name}; new wound(s): ${object.wounds}; Target new status: ${object.status}${isAlive(target) ? ' (not dead yet)' : ''} ]`)
             + (isAlive(target) ? '' : `\n[ ${target === pawn ? `Enemy ${pawn.name} (${pawn.difficulty})` : `Target ${target.name}`} has been defeated and is now dead! ]`)
             + (pushIntoHistory ? `\n${pushIntoHistory}` : '')
 
