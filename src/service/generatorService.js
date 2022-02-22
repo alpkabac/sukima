@@ -109,11 +109,12 @@ class GeneratorService {
         logService.log(prompt + "\n\n")
         logService.log(result + "\n\n")
         logService.log(JSON.stringify(object, null, 4))
-        logService.log(JSON.stringify(persistentObject, null, 4))
 
         for (let o in object) {
             persistentObject[o] = object[o]
         }
+
+        logService.log(JSON.stringify(persistentObject, null, 4))
 
         if (generator?.submodules?.[submoduleName]?.callsSubmodules?.length > 0) {
             const promises = generator?.submodules?.[submoduleName]?.callsSubmodules.map(
