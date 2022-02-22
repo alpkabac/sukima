@@ -18,6 +18,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
 const processes = {}
+const accessTokens = []
 
 try {
     fs.mkdirSync('./user')
@@ -310,6 +311,8 @@ app.post('/api/v1/admin/firstConnexion', function (req, res) {
         if (!fs.existsSync('./.env')) {
             fs.writeFileSync('./.env', `NOVEL_AI_API_KEY="${data.firstConnexionNaiKey}"\nTOKEN_LIMIT=${data.naiSubTier.toLowerCase() === "opus" ? '2048' : '1024'}`)
         }
+
+        loadKeys(data.firstConnexionNaiKey).then()
 
         res.json({"status": "SUCCESS"})
     } catch (e) {
@@ -809,15 +812,20 @@ app.post('/api/v1/bot/stop', async function (req, res, next) {
     }
 })
 
+async function loadKeys(args) {
+    if (!process.env.NOVEL_AI_API_KEY && !args) return console.log("Couldn't load NovelAI API KEY")
 
-async function handleLoadBalancing() {
-    const accessTokens = []
-    const keys = process.env.NOVEL_AI_API_KEY.split(';').map(s => s.trim())
+    const keys = (args ? args : process.env.NOVEL_AI_API_KEY).split(';').map(s => s.trim())
 
     for (let key of keys) {
-        accessTokens.push(await aiService.getAccessToken(key))
+        const token = await aiService.getAccessToken(key)
+        if (!accessTokens.includes(token))
+            accessTokens.push(token)
     }
+}
 
+async function handleLoadBalancing() {
+    await loadKeys()
     let counter = 0
 
     app.post('/generate', async function (req, res, next) {
