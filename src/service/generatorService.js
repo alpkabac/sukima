@@ -1,11 +1,11 @@
 import {config} from "dotenv";
-
-config()
 import utils from "../utils.js";
 import envService from "../util/envService.js";
 import {encode} from "gpt-3-encoder";
 import lmiService from "./lmiService.js";
 import aiService from "./aiService.js";
+
+config()
 
 const DEFAULT_PARAMETERS_GENERATOR = utils.loadJSONFile("./data/aiParameters/generator_default.json")
 
@@ -102,7 +102,10 @@ class GeneratorService {
                 return {name: p.name, value: p.input ? persistentObject[p.name] : null}
             })
 
-        const {object} = await GeneratorService.generator(generator, args, false, submoduleName)
+        const r = await GeneratorService.generator(generator, args, false, submoduleName)
+        const object = r.object
+
+        console.log(r)
 
         for (let o in object) {
             persistentObject[o] = object[o]
