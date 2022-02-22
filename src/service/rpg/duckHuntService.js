@@ -336,8 +336,6 @@ class DuckHuntService {
 
         const object = await generatorService.workflow(generatorAttackNew, healMode ? "heal" : target === pawn ? "attack" : "attackPlayer", input)
 
-        console.log(object)
-
         if (target === pawn) pawn.attacks.push({player: username, description: object.description})
 
         const noDamageStrings = ["n/a", "no damage", "none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"]
