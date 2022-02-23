@@ -271,6 +271,10 @@
     <button class="tablinks" onclick="openTab(event, 'divCreateNewBot')" id="buttonDivCreateNewBot" hidden="hidden">
         Create new Bot
     </button>
+
+    <button class="tablinks" onclick="openTab(event, 'divGeneratorEditor')" id="buttonDivGeneratorEditor">
+        Generator Editor
+    </button>
 </div>
 
 <div id="divAdminFirstConnexion" hidden="hidden">
@@ -301,6 +305,13 @@
         <input type="button" id="submitFormFirstConnexion" value="Change default admin credentials"
                onclick="sendFormFirstConnexion()"><br/><br/>
     </form>
+</div>
+
+<div id="divGeneratorEditor" class="tabcontent" hidden="hidden">
+    <label for="inputFileGenerator">Load your Generator here</label>
+    <input type="file" id="inputFileGenerator">
+
+    <div id="divGenerator"></div>
 </div>
 
 <div id="divCreateNewBot" class="tabcontent" hidden="hidden">
@@ -533,7 +544,8 @@
             <label for="inputGiveBotToUser">Give bot to user:</label>
             <select class="formGiveBotToUser" id="inputGiveBotToUser" name="userId" required>
             </select><br/><br/>
-            <input type="button" id="submitGiveBotToUser" value="Give Bot to User" onclick="sendGiveBotToUserForm()"><br/><br/>
+            <input type="button" id="submitGiveBotToUser" value="Give Bot to User"
+                   onclick="sendGiveBotToUserForm()"><br/><br/>
         </div>
 
         <table>
@@ -574,6 +586,8 @@
     const inputPhraseBias = document.getElementById('inputPhraseBias')
     const inputBannedTokens = document.getElementById('inputBannedTokens')
     const inputPreset = document.getElementById('inputPreset')
+    const inputFileGenerator = document.getElementById('inputFileGenerator')
+    const divGenerator = document.getElementById('divGenerator')
     let authenticatedUser
 
 
@@ -609,6 +623,31 @@
         const fileList = inputFilePreset.files;
         if (fileList?.length > 1) return console.error("Only one file is allowed")
         inputPreset.value = JSON.stringify(JSON.parse(await fileList[0].text()))
+    }
+
+    inputFileGenerator.onchange = async function (event) {
+        const fileList = inputFileGenerator.files;
+        if (fileList?.length > 1) return console.error("Only one file is allowed")
+        const generator = JSON.parse(await fileList[0].text())
+
+        divGenerator.innerHTML = `<br/><br/><h2>Generator Name</h2><input value="${generator.name}"><br/><br/>`
+        divGenerator.innerHTML += `<h2>Generator Description</h2><input value="${generator.description}"><br/><br/>`
+        divGenerator.innerHTML += `<h2>Generator Context</h2><input value="${generator.context?.replace('\n', '\\n')}"><br/><br/>`
+
+        divGenerator.innerHTML += `<h2>Generator Placeholders</h2>`
+        divGenerator.innerHTML += generator.placeholders ?
+            Object.entries(generator.placeholders).map(([k, v]) =>
+                `<label>Name:</label><input value="${k}"><label>Value:</label><input value="${v}">`
+            ).join('<br/><br/>') + '<br/><br/>'
+            : ''
+
+        divGenerator.innerHTML += `<h2>Generator Properties</h2>`
+        divGenerator.innerHTML += generator.properties ?
+            generator.properties.map((prop, i) =>
+                `<h3>Property <input style="max-width: 20%" value="${prop.name}"></h3><label>Replaced by:</label><input value="${prop.replaceBy}"><label>Is property an input?</label><input value="${prop.input || false}">`
+            ).join('<br/>') + '<br/><br/>'
+            : ''
+
     }
 
     main()
@@ -706,7 +745,7 @@
         const divTableAdminUsers = document.getElementById("divTableAdminUsers")
         const inputGiveBotToUser = document.getElementById("inputGiveBotToUser")
 
-        if (result?.data?.users?.length > 1){
+        if (result?.data?.users?.length > 1) {
             document.getElementById("divAdminEdit").hidden = false
         }
 
@@ -801,7 +840,10 @@
 
     async function sendGiveBotToUserForm() {
         const inputGiveBotToUser = document.getElementById("inputGiveBotToUser")
-        const result = await sendForm("formGiveBotToUser", '/bot/give', {botId ,userId: inputGiveBotToUser.options[inputGiveBotToUser.selectedIndex].value})
+        const result = await sendForm("formGiveBotToUser", '/bot/give', {
+            botId,
+            userId: inputGiveBotToUser.options[inputGiveBotToUser.selectedIndex].value
+        })
         alert(JSON.stringify(result))
     }
 
@@ -814,12 +856,12 @@
             return alert("Sorry, but there was an error! Check the console for more info")
         }
 
-        if (requestIsBotUsed.data.warnings){
+        if (requestIsBotUsed.data.warnings) {
             console.log(requestIsBotUsed)
             alert(requestIsBotUsed.data.warnings)
         }
 
-        if (requestIsBotUsed.data.used){
+        if (requestIsBotUsed.data.used) {
             return alert("This Discord Token is already used by another bot!")
         }
 
