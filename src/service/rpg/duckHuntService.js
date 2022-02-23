@@ -712,7 +712,7 @@ class DuckHuntService {
 
         let chunks = null
         if (itemListString.length > 2000) {
-            chunks = itemListString.match(/.{2000}/g)
+            chunks = itemListString.match(/.{1,2000}/g)
         }
 
         return {
