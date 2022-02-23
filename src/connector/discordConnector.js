@@ -74,13 +74,6 @@ let connection
 let voiceChannel
 let speak = null
 
-function replaceAsterisksByBackQuotes(text) {
-    return text.replace(/\*/g, '`')
-}
-
-function replaceBackQuotesByAsterisks(text) {
-    return text.replace(/`/g, '*')
-}
 
 bot.on('ready', async () => {
     console.info(`Logged in as ${bot.user.tag}!`)
@@ -178,7 +171,7 @@ bot.on('ready', async () => {
                 } else {
                     if (historyService.getChannelHistory(`#${c.name.toLowerCase()}`).length === 0)
                         if (channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase())?.introduction.length > 0)
-                            c.send?.(replaceAsterisksByBackQuotes(
+                            c.send?.(utils.replaceAsterisksByBackQuotes(
                                 `${channelBotTranslationService.getChannelPersonality("#" + c.name.toLowerCase()).introduction[0].msg}`
                             ))
                                 .catch(() => null)
@@ -202,27 +195,18 @@ bot.on('guildMemberAdd', async (member) => {
 
     const prompt = greetingService.getPrompt(member.user.username, process.env.BOTNAME)
     const message = await aiService.sendUntilSuccess({prompt}, false, "#" + channel.name)
-    const parsedMessage = replaceAsterisksByBackQuotes(message)
+    const parsedMessage = utils.replaceAsterisksByBackQuotes(message)
     if (parsedMessage)
         channel.send(parsedMessage).catch(() => null)
 });
 
-// TODO: move into config
-function replaceAliasesInMessage(message, nick) {
-    if (nick === "AliceBot") {
-        return message
-            .replace("AliceBot", nick)
-            .replace("Alicebot", nick)
-            .replace("alicebot", nick)
-    }
-
-    if (nick === "GLaDOS") {
-        return message
-            .replace("glados", nick)
-            .replace("Glados", nick)
-    }
+function replaceAliasesInMessage(message) {
+    if (!process.env.BOT_DISCORD_USERNAME) return message
 
     return message
+        .replace(process.env.BOT_DISCORD_USERNAME, process.env.BOTNAME)
+        .replace(process.env.BOT_DISCORD_USERNAME.toLowerCase(), process.env.BOTNAME)
+        .replace(process.env.BOT_DISCORD_USERNAME.toUpperCase(), process.env.BOTNAME)
 }
 
 const messageList = []
@@ -294,7 +278,7 @@ async function processMessage(msg) {
     if (!channels[channelName])
         channels[channelName] = originalMsg.channel
 
-    let cleanContent = replaceAliasesInMessage(replaceBackQuotesByAsterisks(originalMsg.cleanContent), process.env.BOTNAME)
+    let cleanContent = replaceAliasesInMessage(utils.replaceBackQuotesByAsterisks(originalMsg.cleanContent))
 
     // Prevents messages from the bot itself
     // Also cache the last bot message for later retries
@@ -398,7 +382,7 @@ async function processMessage(msg) {
         let embedMessage = false
         try {
             messageLength = encoder.encode(message.message).length
-            parsedMessage = replaceAsterisksByBackQuotes(message.message)
+            parsedMessage = utils.replaceAsterisksByBackQuotes(message.message)
         } catch (e) {
             messageLength = 1
             parsedMessage = message.message
@@ -528,7 +512,7 @@ async function forceTalk(channel) {
 }
 
 async function parseForceMessage(channel, msg) {
-    const parsedMessage = replaceAsterisksByBackQuotes(msg.message)
+    const parsedMessage = utils.replaceAsterisksByBackQuotes(msg.message)
     const timeToWait = encoder.encode(parsedMessage).length * 50
     channels[channel].startTyping().then()
     setTimeout(async () => {

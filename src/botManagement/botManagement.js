@@ -465,9 +465,9 @@ app.post('/api/v1/bot/edit', async function (req, res, next) {
         }
 
         if (data.personality) {
-            fs.writeFileSync(`./bot/${id}/${data.preset || "default"}.personality`, JSON.stringify(data.personality))
+            fs.writeFileSync(`./bot/${id}/${data.preset || "default"}.personality`, JSON.stringify(data.personality, null, 4))
         } else {
-            fs.writeFileSync(`./bot/${id}/${data.preset || "default"}.personality`, JSON.stringify(getDefaultPersonality(data)))
+            fs.writeFileSync(`./bot/${id}/${data.preset || "default"}.personality`, JSON.stringify(getDefaultPersonality(data), null, 4))
         }
 
         fs.writeFileSync(`./bot/${id}/${data.preset || "default"}.json`, JSON.stringify({
@@ -486,7 +486,7 @@ app.post('/api/v1/bot/edit', async function (req, res, next) {
             channelName: data.channelName,
             aiModel: data.aiModel,
             aiModule: data.aiModule
-        }))
+        }, null, 4))
 
         if (data.phraseBias) {
             fs.writeFileSync(`./bot/${id}/default.bias`, data.phraseBias)
@@ -505,7 +505,7 @@ app.post('/api/v1/bot/edit', async function (req, res, next) {
                 fs.mkdirSync(`./bot/${id}/generator`)
             } catch (e) {
             }
-            fs.writeFileSync(`./bot/${id}/generator/attack.json`, JSON.stringify(data.generator.attack))
+            fs.writeFileSync(`./bot/${id}/generator/attack.json`, JSON.stringify(data.generator.attack, null, 4))
         }
 
         if (data.generator?.enemy) {
@@ -513,7 +513,7 @@ app.post('/api/v1/bot/edit', async function (req, res, next) {
                 fs.mkdirSync(`./bot/${id}/generator`)
             } catch (e) {
             }
-            fs.writeFileSync(`./bot/${id}/generator/enemy.json`, JSON.stringify(data.generator.enemy))
+            fs.writeFileSync(`./bot/${id}/generator/enemy.json`, JSON.stringify(data.generator.enemy, null, 4))
         }
 
         res.json({

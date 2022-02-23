@@ -182,6 +182,14 @@ class Utils {
     static fileExists(filePath) {
         return fs.existsSync(filePath);
     }
+
+    static replaceAsterisksByBackQuotes(text) {
+        return text.replace(/\*/g, '`')
+    }
+
+    static replaceBackQuotesByAsterisks(text) {
+        return text.replace(/`/g, '*')
+    }
 }
 
 export default Utils
