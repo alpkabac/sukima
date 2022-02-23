@@ -709,7 +709,7 @@ class DuckHuntService {
         let chunks = []
         let lines = itemListString.split('\n')
         for (let line of lines) {
-            if (chunks.length === 0 || chunks[chunks.length - 1].length + line.length + 2 > 2000) {
+            if (chunks.length === 0 || chunks[chunks.length - 1].length + line.length + 2 > 4000) {
                 chunks.push(line)
             } else {
                 chunks[chunks.length - 1] += "\n" + line
