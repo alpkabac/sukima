@@ -76,7 +76,7 @@ Will append `[ Your text ]` to the currently remembered things
 Command: `!forget`  
 Will delete your remembered things on this channel
 
-### Forger All
+### Forget All
 Command: `!forgetAll`  
 Will delete everyone's things on this channel
 
@@ -123,12 +123,12 @@ When using this command, a hidden context is injected into the bot conversation 
 ### [NSFW] Danbooru
 Command `!danbooru 2girls hand_holding`  
 If you're a naughty person  
-Will also insert contextual data indicated the bot it successfully returned lewd stuff (it'll see the tags)
+Will also insert contextual data indicating the bot it successfully returned lewd stuff (it'll see the tags)
 
 ### [NSFW] Eporner
 Command: `!eporner mathematics`  
 Along the same lines but for videos  
-Will also insert contextual data indicated the bot it successfully returned lewd stuff (it'll see the tags and the name of the video)
+Will also insert contextual data indicating the bot it successfully returned lewd stuff (it'll see the tags and the name of the video)
 
 ### Prompt
 Command: `!prompt <number of tokens to generate>\n<your prompt>`  
