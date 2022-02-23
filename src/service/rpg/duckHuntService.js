@@ -699,29 +699,35 @@ class DuckHuntService {
     static async look(channel, username) {
         const items = worldItemsService.getActiveItems(channel)
 
-        const msg = new MessageEmbed()
-            .setColor('#0099ff')
-            .setTitle(`Items on the ground`)
-
         const itemListString = `${items.map((item, i) => `${i}: [${item.rarity} ${item.type}] "${item.name}"`).join('\n') || 'None'}`
-        msg.setDescription(itemListString)
 
         const seenItem = items[items.length - 1]
         const lastItemOnTheGround = `${seenItem?.name || 'none'}`
             + (!seenItem ? `` : ` (${seenItem.rarity} ${seenItem.type})`)
 
-        let chunks = null
-        if (itemListString.length > 2000) {
-            chunks = itemListString.match(/.{1,2000}/g)
+
+        let chunks = []
+        let lines = itemListString.split('\n')
+        for (let line of lines) {
+            if (chunks.length === 0 || chunks[chunks.length - 1].length + line.length + 2 > 2000) {
+                chunks.push(line)
+            } else {
+                chunks[chunks.length - 1] += "\n" + line
+            }
         }
+
+        const messages = chunks.map((c, i) => new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle(`Items on the ground (page ${i}/${chunks.length})`)
+            .setDescription(chunks))
 
         return {
             success: true,
-            message: chunks && chunks.length > 1 ? chunks[0] : msg,
+            message: messages[0],
             deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
             pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Item on the ground: ${lastItemOnTheGround} ]`, null, channel],
-            alsoSend: chunks && chunks?.length > 1 ? chunks.slice(1) : null
+            alsoSend: messages && messages?.length > 1 ? messages.slice(1) : null
         }
     }
 
