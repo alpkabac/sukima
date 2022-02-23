@@ -719,7 +719,7 @@ class DuckHuntService {
         const messages = chunks.map((c, i) => new MessageEmbed()
             .setColor('#0099ff')
             .setTitle(`Items on the ground (page ${i}/${chunks.length})`)
-            .setDescription(chunks))
+            .setDescription(c))
 
         return {
             success: true,
