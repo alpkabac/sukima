@@ -717,7 +717,7 @@ class DuckHuntService {
 
         return {
             success: true,
-            message: itemListString.length > 2000 ? chunks[0] : msg,
+            message: chunks && chunks.length > 1 ? chunks[0] : msg,
             deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
             pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Item on the ground: ${lastItemOnTheGround} ]`, null, channel],
