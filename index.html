@@ -266,7 +266,7 @@
             font-size: 15px;
         }
 
-        .active, .collapsible:hover {
+        .active.collapsible:hover {
             background-color: #555;
         }
 
@@ -340,7 +340,7 @@
 <div id="divCreateNewBot" class="tabcontent" hidden="hidden">
     <form>
         <label for="discordToken">Bot Discord Token: <span>*</span></label>
-        <input class="formCreateNewBot" type="text" name="discordToken"><br/><br/>
+        <input class="formCreateNewBot" type="text" id="createNewBotDiscordToken" name="discordToken"><br/><br/>
 
         <label for="channelName">Discord channel name: <span>*</span></label>
         <input class="formCreateNewBot" type="text" name="channelName" placeholder="#general"><br/><br/>
@@ -681,6 +681,8 @@
             + '</div><br/><br/>'
 
 
+
+
         let i;
         const coll = document.getElementsByClassName("collapsible");
         for (i = 0; i < coll.length; i++) {
@@ -912,7 +914,7 @@
 
     async function sendCreateNewBot() {
 
-        const requestIsBotUsed = await sendForm("formCreateNewBot", '/bot/getByDiscordToken', {discordToken: document.getElementById("discordToken").value})
+        const requestIsBotUsed = await sendForm("formCreateNewBot", '/bot/getByDiscordToken', {discordToken: document.getElementById("createNewBotDiscordToken").value})
 
         if (requestIsBotUsed.status !== "SUCCESS") {
             console.log(requestIsBotUsed)
