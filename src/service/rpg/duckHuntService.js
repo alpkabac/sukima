@@ -1378,6 +1378,9 @@ class DuckHuntService {
         const playerLastInventoryItem = player.inventory[player.inventory.length - 1]
         const backpackSelectedItem = `${playerLastInventoryItem?.name || 'none'}`
             + (!playerLastInventoryItem ? `` : ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
+
+
+
         return {
             message: embed,
             deleteUserMsg: username !== process.env.BOTNAME,

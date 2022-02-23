@@ -9,6 +9,7 @@ import RunningBot from "./RunningBot.js"
 import axios from "axios";
 import aiService from "../service/aiService.js";
 import generate from "../rest/generatorApi.js";
+import utils from "../utils.js";
 
 config()
 
@@ -712,6 +713,46 @@ app.post('/api/v1/bot/running', async function (req, res, next) {
             : runningBots.filter(rb => authenticatedUser.bots.some(aub => aub === rb.id))
 
         res.json({status: 'SUCCESS', data: {bots: visibleRunningBots}})
+    } catch (e) {
+        console.error(e)
+        res.json({status: 'ERROR', error: e.message})
+    }
+})
+
+app.post('/api/v1/bot/getByDiscordToken', async function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    try {
+        const authenticatedUser = authenticate(req.body, true)
+        const data = req.body
+
+        if (!data.discordToken) return handleError(res, "You must provide the discordToken")
+
+        const allBotFolders = fs.readdirSync('./bot')
+        const allBots = allBotFolders.map(bf => utils.loadJSONFile(`./bot/${bf}/default.json`))
+
+        let used = false
+        let botUsingThisDiscordToken = null
+
+        const botTokens = allBots.map(b => {
+            if (data.discordToken === b.discordToken) {
+                used = true
+                botUsingThisDiscordToken = b
+            }
+            return b.discordToken
+        })
+
+        const duplicates = utils.findDuplicates(botTokens)
+        const warnings = `WARNING: Some discord tokens are used multiple times!`
+
+        res.json({
+            status: 'SUCCESS',
+            data: {
+                used,
+                botUsingThisDiscordToken: used ? botUsingThisDiscordToken : null,
+                warnings: duplicates.length > 0 ? warnings : null,
+                duplicates: duplicates.length > 0 ? duplicates : null
+            }
+        })
     } catch (e) {
         console.error(e)
         res.json({status: 'ERROR', error: e.message})

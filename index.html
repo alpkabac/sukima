@@ -806,9 +806,26 @@
     }
 
     async function sendCreateNewBot() {
+
+        const requestIsBotUsed = await sendForm("formCreateNewBot", '/bot/getByDiscordToken', {discordToken: document.getElementById("discordToken").value})
+
+        if (requestIsBotUsed.status !== "SUCCESS") {
+            console.log(requestIsBotUsed)
+            return alert("Sorry, but there was an error! Check the console for more info")
+        }
+
+        if (requestIsBotUsed.data.warnings){
+            console.log(requestIsBotUsed)
+            alert(requestIsBotUsed.data.warnings)
+        }
+
+        if (requestIsBotUsed.data.used){
+            return alert("This Discord Token is already used by another bot!")
+        }
+
         const result = await sendForm("formCreateNewBot", '/bot/create', {id: null})
-        alert(JSON.stringify(result))
         if (result.status === "SUCCESS") {
+            alert("Bot created!")
             window.location.href = `/?login=${document.getElementById("login").value}&key=${document.getElementById("key").value}&botId="${result.data.id}"`
         }
     }
