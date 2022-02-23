@@ -194,7 +194,7 @@ class Utils {
     }
 
     static findDuplicates(arr, sortFunction = null) {
-        let sorted_arr = arr.slice().sort(sortFunction)
+        let sorted_arr = sortFunction ? arr.slice().sort(sortFunction) : arr.slice().sort()
         let results = []
         for (let i = 0; i < sorted_arr.length - 1; i++) {
             if (sorted_arr[i + 1] === sorted_arr[i]) {
