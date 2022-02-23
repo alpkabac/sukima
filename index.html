@@ -253,6 +253,29 @@
         input {
             width: 100%
         }
+
+        .collapsible {
+            background-color: #777;
+            color: white;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .active, .collapsible:hover {
+            background-color: #555;
+        }
+
+        .content {
+            padding: 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
     </style>
 </head>
 
@@ -625,6 +648,7 @@
         inputPreset.value = JSON.stringify(JSON.parse(await fileList[0].text()))
     }
 
+
     inputFileGenerator.onchange = async function (event) {
         const fileList = inputFileGenerator.files;
         if (fileList?.length > 1) return console.error("Only one file is allowed")
@@ -635,19 +659,54 @@
         divGenerator.innerHTML += `<h2>Generator Context</h2><input value="${generator.context?.replace('\n', '\\n')}"><br/><br/>`
 
         divGenerator.innerHTML += `<h2>Generator Placeholders</h2>`
-        divGenerator.innerHTML += generator.placeholders ?
-            Object.entries(generator.placeholders).map(([k, v]) =>
-                `<label>Name:</label><input value="${k}"><label>Value:</label><input value="${v}">`
-            ).join('<br/><br/>') + '<br/><br/>'
-            : ''
+        divGenerator.innerHTML += `<button type="button" class="collapsible" >Show Placeholders</button><div class="content">`
+            + (generator.placeholders ?
+                Object.entries(generator.placeholders).map(([k, v]) =>
+                    `<label>Name:</label><input value="${k}"><label>Value:</label><input value="${v}">`
+                ).join('<hr/><br/>')
+                : '')
+            + '</div><br/><br/>'
 
         divGenerator.innerHTML += `<h2>Generator Properties</h2>`
-        divGenerator.innerHTML += generator.properties ?
-            generator.properties.map((prop, i) =>
-                `<h3>Property <input style="max-width: 20%" value="${prop.name}"></h3><label>Replaced by:</label><input value="${prop.replaceBy}"><label>Is property an input?</label><input value="${prop.input || false}">`
-            ).join('<br/>') + '<br/><br/>'
-            : ''
+        divGenerator.innerHTML += `<button type="button" class="collapsible" >Show Placeholders</button><div class="content">`
+            + (generator.properties ?
+                generator.properties.map((prop, i) =>
+                    `<h3>Property Name: <input style="max-width: 250px;" value="${prop.name}" disabled/><button type="button" class="toggleEdit">Edit</button></h3><label>Input? <input style="max-width: 100px;" type="checkbox"/></label><br/><label>Replaced by:</label><input value="${prop.replaceBy}">`
+                ).join('<hr/>')
+                : '')
+            + '</div><br/><br/>'
 
+
+        let i;
+        const coll = document.getElementsByClassName("collapsible");
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", toggleCollapse);
+        }
+
+        const toggleEditButton = document.getElementsByClassName("toggleEdit");
+        for (i = 0; i < toggleEditButton.length; i++) {
+            toggleEditButton[i].addEventListener("click", toggleEdit);
+        }
+
+    }
+
+    function toggleCollapse() {
+        this.classList.toggle("active");
+        const content = this.nextElementSibling;
+        if (content.style.display === "block") {
+            content.style.display = "none";
+        } else {
+            content.style.display = "block";
+        }
+    }
+
+    function toggleEdit() {
+        const content = this.previousElementSibling;
+        content.disabled = !content.disabled
+    }
+
+    function getCollapsible() {
+        return ``
     }
 
     main()
