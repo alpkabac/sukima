@@ -710,8 +710,8 @@ class DuckHuntService {
         let lines = itemListString.split('\n')
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i]
-            const messageWillBeTooLong = chunks.length > 0 && chunks[chunks.length - 1].length + line.length + 2 > 4000
-            if (chunks.length === 0 || i % 50 === 0 || messageWillBeTooLong) {
+            const messageWillBeTooLong = chunks.length === 0 || chunks[chunks.length - 1].length + line.length + 2 > 4000
+            if (i % 50 === 0 || messageWillBeTooLong) {
                 chunks.push(line)
             } else {
                 chunks[chunks.length - 1] += "\n" + line
