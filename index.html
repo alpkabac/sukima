@@ -671,8 +671,12 @@
         divGenerator.innerHTML += `<button type="button" class="collapsible" >Show Placeholders</button><div class="content">`
             + (generator.properties ?
                 generator.properties.map((prop, i) =>
-                    `<h3>Property Name: <input style="max-width: 250px;" value="${prop.name}" disabled/><button type="button" class="toggleEdit">Edit</button></h3><label>Input? <input style="max-width: 100px;" type="checkbox"/></label><br/><label>Replaced by:</label><input value="${prop.replaceBy}">`
-                ).join('<hr/>')
+                    `<h3>Property Name: `
+                    + `<input style="max-width: 250px;" value="${prop.name}" disabled/><button type="button" class="toggleEdit">Edit</button>`
+                    + `</h3>`
+                    + `<label>Input? <input style="max-width: 100px;" type="checkbox" ${prop.input ? 'checked="checked"' : ''}/></label>`
+                    + `<br/><label>Replaced by:</label><input value="${prop.replaceBy}">`
+                ).join('<hr/><br/>')
                 : '')
             + '</div><br/><br/>'
 
