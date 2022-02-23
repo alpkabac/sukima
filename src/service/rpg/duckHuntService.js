@@ -708,8 +708,10 @@ class DuckHuntService {
 
         let chunks = []
         let lines = itemListString.split('\n')
-        for (let line of lines) {
-            if (chunks.length === 0 || chunks[chunks.length - 1].length + line.length + 2 > 4000) {
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i]
+            const messageWillBeTooLong = chunks[chunks.length - 1].length + line.length + 2 > 4000
+            if (chunks.length === 0 || i % 50 === 0 || messageWillBeTooLong) {
                 chunks.push(line)
             } else {
                 chunks[chunks.length - 1] += "\n" + line
@@ -718,7 +720,7 @@ class DuckHuntService {
 
         const messages = chunks.map((c, i) => new MessageEmbed()
             .setColor('#0099ff')
-            .setTitle(`Items on the ground (page ${i+1}/${chunks.length})`)
+            .setTitle(`Items on the ground (page ${i + 1}/${chunks.length})`)
             .setDescription(c))
 
         return {
