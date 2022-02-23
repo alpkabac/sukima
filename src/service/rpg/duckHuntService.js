@@ -707,15 +707,21 @@ class DuckHuntService {
         msg.setDescription(itemListString)
 
         const seenItem = items[items.length - 1]
-        const backpackSelectedItem = `${seenItem?.name || 'none'}`
+        const lastItemOnTheGround = `${seenItem?.name || 'none'}`
             + (!seenItem ? `` : ` (${seenItem.rarity} ${seenItem.type})`)
+
+        let chunks = null
+        if (itemListString.length > 2000) {
+            chunks = itemListString.match(/.{2000}/g)
+        }
 
         return {
             success: true,
-            message: itemListString.length >= 2000 ? new MessageAttachment(Buffer.from(itemListString), 'items_on_the_ground.txt') : msg,
+            message: itemListString.length > 2000 ? chunks[0] : msg,
             deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
-            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Item on the ground: ${backpackSelectedItem} ]`, null, channel]
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Item on the ground: ${lastItemOnTheGround} ]`, null, channel],
+            alsoSend: chunks && chunks?.length > 1 ? chunks.slice(1) : null
         }
     }
 
@@ -1378,7 +1384,6 @@ class DuckHuntService {
         const playerLastInventoryItem = player.inventory[player.inventory.length - 1]
         const backpackSelectedItem = `${playerLastInventoryItem?.name || 'none'}`
             + (!playerLastInventoryItem ? `` : ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
-
 
 
         return {

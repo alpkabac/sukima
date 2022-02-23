@@ -11,13 +11,15 @@ const conf = loadJSONFile("./conf.json")
 const client = new textToSpeech.TextToSpeechClient()
 
 
-function loadJSONFile(filename) {
+function loadJSONFile(filename, silent = false) {
     let file
     try {
         file = fs.readFileSync(filename)
         return JSON.parse(file)
     } catch (err) {
-        console.error(err)
+        if (!silent) {
+            console.error(err)
+        }
     }
 }
 
@@ -146,8 +148,8 @@ class Utils {
         return true
     }
 
-    static loadJSONFile(filename) {
-        return loadJSONFile(filename)
+    static loadJSONFile(filename, silent = false) {
+        return loadJSONFile(filename, silent)
     }
 
     static getMessageId(message) {

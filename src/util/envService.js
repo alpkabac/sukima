@@ -3,7 +3,7 @@ import utils from "../utils.js";
 
 config()
 
-const jsonBot = utils.loadJSONFile(`./bot/${process.env.BOT_ID}/default.json`)
+const jsonBot = utils.loadJSONFile(`./bot/${process.env.BOT_ID}/default.json`, true)
 
 class EnvService {
     static getInt(envVariable, defaultValue = null) {
