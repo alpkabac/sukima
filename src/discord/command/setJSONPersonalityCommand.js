@@ -3,6 +3,7 @@ import Command from "../../command/Command.js";
 import channelBotTranslationService from "../../service/personalityService.js";
 import updateBotInfo from "../discordUtils.js";
 import utils from "../../utils.js";
+import {MessageEmbed} from "discord.js";
 
 dotenv.config()
 
@@ -180,13 +181,42 @@ const setJSONPersonalityCommand = new Command(
             }
         }
 
+        let chunks = []
+        let lines = JSON.stringify(JSONPersonality, null, 2).split('\n')
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i]
+            const messageWillBeTooLong = chunks.length === 0 || chunks[chunks.length - 1].length + line.length + 2 > 4000
+            if (i % 50 === 0 || messageWillBeTooLong) {
+                chunks.push(line)
+            } else {
+                chunks[chunks.length - 1] += "\n" + line
+            }
+        }
+
+        const messages = chunks.map((c, i) => new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle(`Complete JSON Personality for AI ${process.env.BOTNAME} (page ${i + 1}/${chunks.length})`)
+            .setDescription(c))
+
+        if (success) {
+            messages.splice(0, 0, new MessageEmbed()
+                .setColor('#0099ff')
+                .setTitle(`Personality successfully loaded!`)
+                .setDescription(`Personality successfully loaded!`)
+            )
+        }else{
+            messages.splice(0, 0, new MessageEmbed()
+                .setColor('#0099ff')
+                .setTitle(`Personality loaded, but there were errors while trying to edit the AI personality:`)
+                .setDescription(errorMessages)
+            )
+        }
+
         updateBotInfo(client)
         return {
-            message: "# " + (success ?
-                    `Personality successfully loaded! `
-                    : `Personality loaded, but there were errors while trying to edit the AI personality:\n${errorMessages}\n`)
-                + `Complete JSON for the loaded personality:\n${stringJSONPersonality}`,
-            instantReply: true
+            message: messages[0],
+            instantReply: true,
+            alsoSend: messages && messages?.length > 1 ? messages.slice(1) : null
         }
     },
     true

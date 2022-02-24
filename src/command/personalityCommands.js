@@ -1,8 +1,9 @@
 import {config} from "dotenv";
-
-config()
 import Command from "./Command.js";
 import channelBotTranslationService from "../service/personalityService.js";
+import {MessageEmbed} from "discord.js";
+
+config()
 
 
 const personalityCommands = {
@@ -48,7 +49,6 @@ const personalityCommands = {
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             const aiPersonality = channelBotTranslationService.getChannelPersonality(channel)
             const JSONPersonality = JSON.parse(JSON.stringify(aiPersonality))
-            const message = `Complete JSON for personality:\n`
 
             if (JSONPersonality?.voice?.name) {
                 JSONPersonality.voice = JSONPersonality.voice.name
@@ -73,19 +73,28 @@ const personalityCommands = {
             JSONPersonality.botname = process.env.BOTNAME
 
 
-            // Try to fit the whole JSON into discords 2000 char limit
-            let stringJSONPersonality = JSON.stringify(JSONPersonality, null, 2)
-            if (stringJSONPersonality.length + message.length >= 2000) {
-                stringJSONPersonality = JSON.stringify(JSONPersonality)
-                if (stringJSONPersonality.length + message.length >= 2000) {
-                    stringJSONPersonality = "{ ...JSON was too long to fit into discord's 2000 character limit per message... }"
+            let chunks = []
+            let lines = JSON.stringify(JSONPersonality, null, 2).split('\n')
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i]
+                const messageWillBeTooLong = chunks.length === 0 || chunks[chunks.length - 1].length + line.length + 2 > 4000
+                if (i % 50 === 0 || messageWillBeTooLong) {
+                    chunks.push(line)
+                } else {
+                    chunks[chunks.length - 1] += "\n" + line
                 }
             }
 
+            const messages = chunks.map((c, i) => new MessageEmbed()
+                .setColor('#0099ff')
+                .setTitle(`Complete JSON Personality for AI ${process.env.BOTNAME} (page ${i + 1}/${chunks.length})`)
+                .setDescription(c))
+
             return {
-                message: message + stringJSONPersonality,
+                message: messages[0],
                 success: true,
-                instantReply: true
+                instantReply: true,
+                alsoSend: messages && messages?.length > 1 ? messages.slice(1) : null
             }
         }
     ),
