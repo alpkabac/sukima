@@ -36,7 +36,7 @@ const generateUnthrottled = async (input, params) => {
     let res
     try {
         res = await axios.post(
-            "http://localhost:7319/generate",
+            `http://localhost:${process.env.PORT || "7319"}/generate`,
             {
                 input,
                 model: process.env.AI_MODEL || "6B-v4",
@@ -61,7 +61,7 @@ const generateUnthrottledCustom = async (input, params, model) => {
     let res
     try {
         res = await axios.post(
-            "http://localhost:7319/generate",
+            `http://localhost:${process.env.PORT || "7319"}/generate`,
             {
                 input,
                 model,
