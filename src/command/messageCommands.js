@@ -79,7 +79,7 @@ const messageCommands = {
     ),
     retryMessage: new Command(
         "Retry Message",
-        ["²", "○", "!retry"],
+        ["~", "²", "○", "!retry"],
         ["!retry "],
         process.env.ALLOW_RETRY_MESSAGE,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
