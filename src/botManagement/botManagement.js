@@ -310,7 +310,7 @@ app.post('/api/v1/admin/firstConnexion', function (req, res) {
         }, null, 4))
 
         if (!fs.existsSync('./.env')) {
-            fs.writeFileSync('./.env', `NOVEL_AI_API_KEY="${data.firstConnexionNaiKey}"\nTOKEN_LIMIT=${data.naiSubTier.toLowerCase() === "opus" ? '2048' : '1024'}`)
+            fs.writeFileSync('./.env', `NOVEL_AI_API_KEY="${data.firstConnexionNaiKey}"\nTOKEN_LIMIT=${["opus", "scroll"].includes(data.naiSubTier.toLowerCase()) ? '2048' : '1024'}`)
         }
 
         loadKeys(data.firstConnexionNaiKey).then()
