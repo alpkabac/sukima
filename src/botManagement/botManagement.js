@@ -377,7 +377,7 @@ app.post('/api/v1/user/create', async function (req, res) {
             "channelName": data.channelName.substr(1),
         }
 
-        const url = `http://localhost:7319/?login=${params.login}&key=${params.key}&channelName=${params.channelName}&botId=${params.id}&discordToken=${params.discordToken}`
+        const url = `http://localhost:${process.env.PORT || "7319"}/?login=${params.login}&key=${params.key}&channelName=${params.channelName}&botId=${params.id}&discordToken=${params.discordToken}`
 
         res.json({
             status: 'SUCCESS',
@@ -933,4 +933,4 @@ function stopBot(id) {
     fs.writeFileSync('./runningBots.json', JSON.stringify(runningBots))
 }
 
-app.listen(7319)
+app.listen(parseInt(process.env.PORT || "7319"))
