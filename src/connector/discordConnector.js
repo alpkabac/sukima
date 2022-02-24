@@ -646,17 +646,8 @@ setInterval(async () => {
             if (!swarmMode && (pawnService.lastPawnKilledAt[channel] && (Date.now() - pawnService.lastPawnKilledAt[channel] < 1000 * envService.getRpgSpawnCoolDown()))) continue
             if (swarmMode && pawn?.alive) continue
 
-            let difficulty = swarmMode ? swarm.difficulty : "easy"
-            if (!swarmMode && Math.random() < 0.4) {
-                difficulty = "medium"
-                if (Math.random() < 0.25) {
-                    difficulty = "hard"
-                    if (Math.random() < 0.1) {
-                        difficulty = "legendary"
-                    }
-                }
-            }
-
+            let difficulty = swarmMode ? swarm.difficulty : null
+            
             let spawnMessage
             if (swarmMode){
                 spawnMessage = await duckHuntService.swarm(channel, difficulty, swarm.name || null)
