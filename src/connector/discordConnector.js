@@ -137,11 +137,7 @@ bot.on('ready', async () => {
         if (!connection) {
             console.log("No connection is present for TTS, getting connection...")
 
-            connection = joinVoiceChannel({
-                channelId: voiceChannel.id,
-                guildId: voiceChannel.guild.id,
-                adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-            })
+            connection = await voiceChannel.join()
 
             if (connection) {
                 console.log("TTS connection found!")
