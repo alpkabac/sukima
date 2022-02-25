@@ -168,6 +168,11 @@ function getDefaultPersonality(data) {
                 "msg": `${data.presentationMessageDm || data.presentationMessage || ''}`
             }
         ],
+        "voice": {
+            "languageCode": "en-US",
+            "name": `en-US-Wavenet-${data.botGender ? data.botGender.toLowerCase() === "female" ? 'F' : 'B' : 'B'}`,
+            "ssmlGender": `${data.botGender ? data.botGender.toLowerCase() === "female" ? 'FEMALE' : 'MALE' : 'MALE'}`
+        },
         "bannedTokenFiles": "endoftext",
         "phraseBiasFiles": "body_language + links",
         "bad_words_ids": null,
