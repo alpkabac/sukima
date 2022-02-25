@@ -668,11 +668,11 @@
             + '</div><br/><br/>'
 
         divGenerator.innerHTML += `<h2>Generator Properties</h2>`
-        divGenerator.innerHTML += `<button type="button" class="collapsible" >Show Placeholders</button><div class="content">`
+        divGenerator.innerHTML += `<button type="button" class="collapsible" >Show Properties</button><div class="content">`
             + (generator.properties ?
                 generator.properties.map((prop, i) =>
                     `<h3>Property Name: `
-                    + `<input style="max-width: 250px;" value="${prop.name}" disabled/><button type="button" class="toggleEdit">Edit</button>`
+                    + `<input style="max-width: 250px;" value="${prop.name}" disabled/> <button type="button" class="toggleEdit">Edit</button>`
                     + `</h3>`
                     + `<label>Input? <input style="max-width: 100px;" type="checkbox" ${prop.input ? 'checked="checked"' : ''}/></label>`
                     + `<br/><label>Replaced by:</label><input value="${prop.replaceBy}">`
@@ -680,7 +680,27 @@
                 : '')
             + '</div><br/><br/>'
 
+        divGenerator.innerHTML += `<h2>AI Generation Parameters</h2>`
+        divGenerator.innerHTML += `<button type="button" class="collapsible" >Show AI Gen Params</button><div class="content">`
+            + `<label>Temperature: </label><input style="max-width: 100px;" type="number" min="0.1" max="5" step="0.1" value="${generator.aiParameters?.temperature}" /><br/>`
 
+            + `<label>Repetition Penalty: </label>`
+            + `<input style="max-width: 100px;" type="number" min="1" max="6" step="0.1" value="${generator.aiParameters?.repetition_penalty}" ${generator.aiParameters?.repetition_penalty ? '' : 'disabled'} /> `
+            + `<button type="button" class="toggleEdit">Edit</button><br/>`
+
+            + `<label>Repetition Penalty Slope: </label>`
+            + `<input style="max-width: 100px;" type="number" min="0.1" max="100" step="0.1" value="${generator.aiParameters?.repetition_penalty_slope}" ${generator.aiParameters?.repetition_penalty_slope ? '' : 'disabled'} /> `
+            + `<button type="button" class="toggleEdit">Edit</button><br/>`
+
+            + `<label>Top-K Sampling: </label>`
+            + `<input style="max-width: 100px;" type="number" min="0" max="256" step="1" value="${generator.aiParameters?.top_k}" ${generator.aiParameters?.top_k ? '' : 'disabled'} /> `
+            + `<button type="button" class="toggleEdit">Edit</button><br/>`
+
+            + `<label>Tail-Free Sampling: </label>`
+            + `<input style="max-width: 100px;" type="number" min="0.05" max="1" step="0.01" value="${generator.aiParameters?.tail_free_sampling}" ${generator.aiParameters?.tail_free_sampling ? '' : 'disabled'} /> `
+            + `<button type="button" class="toggleEdit">Edit</button><br/>`
+
+            + '</div><br/><br/>'
 
 
         let i;

@@ -1,23 +1,25 @@
 import dotenv from 'dotenv'
 import {Client} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
-import savingService from "../service/savingService.js";
-import messageCommands from "../command/messageCommands.js";
-import historyService from "../service/historyService.js";
-import encoder from "gpt-3-encoder";
-import aiService from "../service/aiService.js";
-import promptService from "../service/promptService.js";
-import updateBotInfo from "../discord/discordUtils.js";
-import utils from "../utils.js";
-import channelBotTranslationService from "../service/personalityService.js";
-import greetingService from "../service/greetingService.js";
-import commands from "../command/commands.js";
-import discordCommands from "../discord/command/discordCommands.js";
-import envService from "../util/envService.js";
-import pawnService from "../service/rpg/pawnService.js";
-import duckHuntService from "../service/rpg/duckHuntService.js";
-import muteService from "../service/muteService.js";
-import duckHuntCommands from "../command/duckHuntCommands.js";
+import {getVoiceConnection, joinVoiceChannel} from "@discordjs/voice"
+import savingService from "../service/savingService.js"
+import messageCommands from "../command/messageCommands.js"
+import historyService from "../service/historyService.js"
+import encoder from "gpt-3-encoder"
+import aiService from "../service/aiService.js"
+import promptService from "../service/promptService.js"
+import updateBotInfo from "../discord/discordUtils.js"
+import utils from "../utils.js"
+import channelBotTranslationService from "../service/personalityService.js"
+import greetingService from "../service/greetingService.js"
+import commands from "../command/commands.js"
+import discordCommands from "../discord/command/discordCommands.js"
+import envService from "../util/envService.js"
+import pawnService from "../service/rpg/pawnService.js"
+import duckHuntService from "../service/rpg/duckHuntService.js"
+import muteService from "../service/muteService.js"
+import duckHuntCommands from "../command/duckHuntCommands.js"
+
 
 dotenv.config()
 
@@ -124,19 +126,29 @@ bot.on('ready', async () => {
 
 
     speak = async function (msg, channel) {
-        if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return
-        if (!channelBotTranslationService.getChannelPersonality(channel)?.voice?.languageCode) return
+        if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return console.log("TTS is disabled")
+        if (!channelBotTranslationService.getChannelPersonality(channel)?.voice?.languageCode) return console.log("TTS is enabled but the personality voice isn't set")
         if (!voiceChannel) return
+
+
+        connection = getVoiceConnection(voiceChannel.guild.id)
 
         connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
         if (!connection) {
             console.log("No connection is present for TTS, getting connection...")
-            connection = await voiceChannel.join()
+
+            connection = joinVoiceChannel({
+                channelId: voiceChannel.id,
+                guildId: voiceChannel.guild.id,
+                adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+            })
+
             if (connection) {
                 console.log("TTS connection found!")
             }
         }
         if (connection) {
+
             await utils.tts(connection, msg, channelBotTranslationService.getChannelPersonality(channel).voice)
         } else {
             console.log("Could not establish TTS connection.")
@@ -442,10 +454,10 @@ async function processMessage(msg) {
             if (message.alsoSend) {
                 if (Array.isArray(message.alsoSend)) {
                     for (let alsoSend of message.alsoSend) {
-                        await channels[channelName].send(alsoSend).catch(e=>console.error(e))
+                        await channels[channelName].send(alsoSend).catch(e => console.error(e))
                     }
                 } else {
-                    await channels[channelName].send(message.alsoSend).catch(e=>console.error(e))
+                    await channels[channelName].send(message.alsoSend).catch(e => console.error(e))
                 }
             }
         }, timeToWait)
@@ -647,11 +659,11 @@ setInterval(async () => {
             if (swarmMode && pawn?.alive) continue
 
             let difficulty = swarmMode ? swarm.difficulty : null
-            
+
             let spawnMessage
-            if (swarmMode){
+            if (swarmMode) {
                 spawnMessage = await duckHuntService.swarm(channel, difficulty, swarm.name || null)
-            }else {
+            } else {
                 spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
             }
 
