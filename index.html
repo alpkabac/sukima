@@ -298,6 +298,10 @@
     <button class="tablinks" onclick="openTab(event, 'divGeneratorEditor')" id="buttonDivGeneratorEditor">
         Generator Editor
     </button>
+
+    <button class="tablinks" onclick="openTab(event, 'divGeneratorTester')" id="buttonDivGeneratorTester">
+        Generator Tester
+    </button>
 </div>
 
 <div id="divAdminFirstConnexion" hidden="hidden">
@@ -335,6 +339,20 @@
     <input type="file" id="inputFileGenerator">
 
     <div id="divGenerator"></div>
+</div>
+
+<div id="divGeneratorTester" class="tabcontent" hidden="hidden">
+    <label for="inputFileGeneratorTester">Load your Generator here</label>
+    <input type="file" id="inputFileGeneratorTester">
+
+    <div id="divGeneratorTesterContainer">
+        <div id="divGeneratorTesterInputs">
+
+        </div>
+
+        <button>Test whole generator</button>
+    </div>
+
 </div>
 
 <div id="divCreateNewBot" class="tabcontent" hidden="hidden">
@@ -655,11 +673,11 @@
         const generator = JSON.parse(await fileList[0].text())
 
         divGenerator.innerHTML = `<br/><br/><h2>Generator Name</h2><input value="${generator.name}"><br/><br/>`
-        divGenerator.innerHTML += `<h2>Generator Description</h2><input value="${generator.description}"><br/><br/>`
-        divGenerator.innerHTML += `<h2>Generator Context</h2><input value="${generator.context?.replace('\n', '\\n')}"><br/><br/>`
+            + `<h2>Generator Description</h2><input value="${generator.description}"><br/><br/>`
+            + `<h2>Generator Context</h2><input value="${generator.context?.replace('\n', '\\n')}"><br/><br/>`
 
-        divGenerator.innerHTML += `<h2>Generator Placeholders</h2>`
-        divGenerator.innerHTML += `<button type="button" class="collapsible" >Show Placeholders</button><div class="content">`
+            + `<h2>Generator Placeholders</h2>`
+            + `<button type="button" class="collapsible" >Show Placeholders</button><div class="content">`
             + (generator.placeholders ?
                 Object.entries(generator.placeholders).map(([k, v]) =>
                     `<label>Name:</label><input value="${k}"><label>Value:</label><input value="${v}">`
@@ -667,8 +685,8 @@
                 : '')
             + '</div><br/><br/>'
 
-        divGenerator.innerHTML += `<h2>Generator Properties</h2>`
-        divGenerator.innerHTML += `<button type="button" class="collapsible" >Show Properties</button><div class="content">`
+            + `<h2>Generator Properties</h2>`
+            + `<button type="button" class="collapsible" >Show Properties</button><div class="content">`
             + (generator.properties ?
                 generator.properties.map((prop, i) =>
                     `<h3>Property Name: `
@@ -680,8 +698,8 @@
                 : '')
             + '</div><br/><br/>'
 
-        divGenerator.innerHTML += `<h2>AI Generation Parameters</h2>`
-        divGenerator.innerHTML += `<button type="button" class="collapsible" >Show AI Gen Params</button><div class="content">`
+            + `<h2>AI Generation Parameters</h2>`
+            + `<button type="button" class="collapsible" >Show AI Gen Params</button><div class="content">`
             + `<label>Temperature: </label><input style="max-width: 100px;" type="number" min="0.1" max="5" step="0.1" value="${generator.aiParameters?.temperature}" /><br/>`
 
             + `<label>Repetition Penalty: </label>`
@@ -700,6 +718,15 @@
             + `<input style="max-width: 100px;" type="number" min="0.05" max="1" step="0.01" value="${generator.aiParameters?.tail_free_sampling}" ${generator.aiParameters?.tail_free_sampling ? '' : 'disabled'} /> `
             + `<button type="button" class="toggleEdit">Edit</button><br/>`
 
+            + '</div><br/><br/>'
+
+            + `<h2>Generator Examples</h2>`
+            + `<button type="button" class="collapsible" >Show Examples</button><div class="content">`
+            + (generator.list ?
+                Object.entries(generator.list).map((v) =>
+                    `<label>Name:</label><input value="${k}"><label>Value:</label><input value="${v}">`
+                ).join('<hr/><br/>')
+                : '')
             + '</div><br/><br/>'
 
 
@@ -865,7 +892,7 @@
             tr.insertCell().innerHTML = `${userRequest.data?.user?.isAdmin}`
             tr.insertCell().innerHTML = `${userRequest.data?.user?.bots?.length}/${userRequest.data?.user?.maxBots}`
             tr.insertCell().innerHTML = `${userRequest.data?.user?.bots.join(', ')}`
-            tr.insertCell().innerHTML = `<input type="button" value="Impersonate" onclick="window.location.href='/?login=${userRequest.data?.user?.id}&key=${userRequest.data?.user?.key}'" >`
+            tr.insertCell().innerHTML = `<a href="/?login=${userRequest.data?.user?.id}&key=${userRequest.data?.user?.key}">Impersonate ${userRequest.data?.user?.username}</a>`
         }
 
         divTableAdminUsers.innerHTML = ''

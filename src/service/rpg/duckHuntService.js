@@ -22,7 +22,7 @@ const generatorEnemy = utils.fileExists(`./bot/${envService.getBotId()}/generato
 const generatorSpellBook = utils.loadJSONFile("./data/generationPrompt/rpg/generateSpellBook.json")
 
 
-const STATUS_DEAD = ["dead", "killed", "died", "deceased"]
+const STATUS_DEAD = ["dead", "killed", "died", "deceased", "defeated"]
 const FULL_HEALS = ['healed', 'cured', 'healed (general)', 'cured (general)', 'completely healed', 'completely cured',
     'full heal', 'full health', 'full cure', 'fully restored', 'fully healed', 'fully cured', 'recovered', 'fully recovered',
     'fully restored health', 'healed (all types)', 'cured (all wounds)', 'no more injuries', 'removed all injuries',
@@ -612,6 +612,17 @@ class DuckHuntService {
                 deleteUserMsg: username !== process.env.BOTNAME,
                 deleteNewMessage: username !== process.env.BOTNAME,
                 pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to take an item, but player ${username} is currently dead and thus cannot make any action. ]`, null, channel],
+            }
+        }
+
+        const remainingTime = swarmSettings.timestamp ? ((swarmSettings.timestamp + swarmSettings.duration) - Date.now()) / 1000 : 0
+
+        if (remainingTime > 0){
+            return {
+                message: `# ${username} tried to take an item, but a swarm event is currently happening. You have to defeat the swarm first!`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to take an item, but a swarm event is currently happening. You have to defeat the swarm first! ]`, null, channel],
             }
         }
 

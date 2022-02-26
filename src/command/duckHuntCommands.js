@@ -121,7 +121,7 @@ const duckHuntCommands = {
     attack: new Command(
         "Attack",
         [],
-        ["!attack", "!atk", "!akt", "⚔", "⚔️", ":crossed_swords:", ":baguette_attack:", "!fight", "!kill", "!charge"],
+        ["!attack", "!atk", "!atj", "!akt", "⚔", "⚔️", ":crossed_swords:", ":baguette_attack:", "!fight", "!kill", "!charge"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return await duckHuntService.attack(channel, from, false, parsedMsg)
