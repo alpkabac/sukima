@@ -126,7 +126,7 @@ bot.on('ready', async () => {
 
 
     speak = async function (msg, channel) {
-        if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return console.log("TTS is disabled")
+        if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return
         if (!channelBotTranslationService.getChannelPersonality(channel)?.voice?.languageCode) return console.log("TTS is enabled but the personality voice isn't set")
         if (!voiceChannel) return
 

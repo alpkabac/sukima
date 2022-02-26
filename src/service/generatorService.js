@@ -169,7 +169,7 @@ class GeneratorService {
     static buildModel(generator, submodule = null) {
         if (!generator) throw new Error("No generator provided")
 
-        let model = "6B-v4"
+        let model = "euterpe-v2"
 
         if (!submodule && !generator.aiModel) return model
 

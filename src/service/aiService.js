@@ -39,7 +39,7 @@ const generateUnthrottled = async (input, params) => {
             `http://localhost:${process.env.PORT || "7319"}/generate`,
             {
                 input,
-                model: process.env.AI_MODEL || "6B-v4",
+                model: process.env.AI_MODEL || "euterpe-v2",
                 parameters: params
             },
             {
