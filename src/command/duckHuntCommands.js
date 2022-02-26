@@ -103,9 +103,9 @@ const duckHuntCommands = {
             if (args.length === 2) {
                 difficulty = args[0]
                 try {
-                    if (!isNaN(args[1])){
+                    if (!isNaN(args[1])) {
                         durationInSeconds = parseInt(args[1])
-                    }else{
+                    } else {
                         name = args[1]
                     }
                 } catch {
@@ -113,9 +113,9 @@ const duckHuntCommands = {
                 }
             } else if (args.length === 1) {
                 try {
-                    if (!isNaN(args[0])){
+                    if (!isNaN(args[0])) {
                         durationInSeconds = parseInt(args[0])
-                    }else{
+                    } else {
                         difficulty = args[0]
                     }
                 } catch {
@@ -125,7 +125,7 @@ const duckHuntCommands = {
                 difficulty = parsedMsg || null
             }
 
-            duckHuntService.getSwarm().duration = Math.floor(Math.random() * (240 - 120) + 120) * 1000
+            duckHuntService.getSwarm().duration = durationInSeconds ? durationInSeconds : Math.floor(Math.random() * (240 - 120) + 120) * 1000
             duckHuntService.getSwarm().timestamp = Date.now()
 
             duckHuntService.getSwarm().name = name
