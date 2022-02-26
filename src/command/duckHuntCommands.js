@@ -104,7 +104,7 @@ const duckHuntCommands = {
                 difficulty = args[0]
                 try {
                     if (!isNaN(args[1])) {
-                        durationInSeconds = parseInt(args[1])
+                        durationInSeconds = parseInt(args[1]) * 1000
                     } else {
                         name = args[1]
                     }
@@ -114,7 +114,7 @@ const duckHuntCommands = {
             } else if (args.length === 1) {
                 try {
                     if (!isNaN(args[0])) {
-                        durationInSeconds = parseInt(args[0])
+                        durationInSeconds = parseInt(args[0]) * 1000
                     } else {
                         difficulty = args[0]
                     }
