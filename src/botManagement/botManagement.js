@@ -174,7 +174,7 @@ function getDefaultPersonality(data) {
             "ssmlGender": `${data.botGender ? data.botGender.toLowerCase() === "female" ? 'FEMALE' : 'MALE' : 'MALE'}`
         },
         "bannedTokenFiles": "endoftext",
-        "phraseBiasFiles": "body_language + links",
+        "phraseBiasFiles": "body_language",
         "bad_words_ids": null,
         "logit_bias_exp": null
     }

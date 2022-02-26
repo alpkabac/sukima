@@ -1,36 +1,16 @@
 {
-  "logit_bias_groups": [
+  "phraseBiasGroups": [
     {
       "phrases": [
         {
-          "sequences": [
-            [
-              1635
-            ]
-          ],
+          "sequences": [],
+          "sequence": "1635",
           "type": 1
         }
       ],
       "bias": 0.15,
-      "ensure_sequence_finish": false,
-      "generate_once": true,
-      "enabled": true,
-      "whenInactive": false
-    },
-    {
-      "phrases": [
-        {
-          "sequences": [
-            [
-              9
-            ]
-          ],
-          "type": 1
-        }
-      ],
-      "bias": 0.05,
-      "ensure_sequence_finish": false,
-      "generate_once": true,
+      "ensureSequenceFinish": false,
+      "generateOnce": true,
       "enabled": true,
       "whenInactive": false
     }
