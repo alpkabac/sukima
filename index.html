@@ -998,7 +998,8 @@
         const divResultAdminCreateUser = document.getElementById("divResultAdminCreateUser")
 
         if (result.status === "SUCCESS") {
-            divResultAdminCreateUser.innerHTML = `<span style="color: green">SUCCESS!</span><br/><button onclick="window.location.href='/?login=${result.data?.user?.id}&key=${result.data?.user?.key}&botId=${result.data?.botId}'">Impersonate</button>`
+            divResultAdminCreateUser.innerHTML = `<span style="color: green">SUCCESS!</span><br/>`
+                + `<a href="/?login=${result.data?.user?.id}&key=${result.data?.user?.key}&botId=${result.data?.botId}">Impersonate ${result.data?.user?.username}</a>`
             divResultAdminCreateUser.innerHTML += `<br/>channelName: ${result.data.channelName}`
             divResultAdminCreateUser.innerHTML += `<br/>Bot ID: ${result.data.botId}`
         }

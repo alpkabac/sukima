@@ -25,8 +25,8 @@ const generatorSpellBook = utils.loadJSONFile("./data/generationPrompt/rpg/gener
 const STATUS_DEAD = ["dead", "killed", "died", "deceased", "defeated"]
 const FULL_HEALS = ['healed', 'cured', 'healed (general)', 'cured (general)', 'completely healed', 'completely cured',
     'full heal', 'full health', 'full cure', 'fully restored', 'fully healed', 'fully cured', 'recovered', 'fully recovered',
-    'fully restored health', 'healed (all types)', 'cured (all wounds)', 'no more injuries', 'removed all injuries',
-    'resurrected']
+    'fully restored health', 'restored to full health', 'healed (all types)', 'cured (all wounds)', 'no more injuries', 'removed all injuries',
+    'resurrected', 'restored (hit points)']
 
 let swarmSettings = {
     difficulty: null,
