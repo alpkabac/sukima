@@ -4,6 +4,10 @@ class LogService {
     static log(msg) {
         fs.writeFileSync('./debug.txt', msg, {flag: 'a'})
     }
+
+    static error(){
+        fs.writeFileSync('./debug.txt', msg, {flag: 'a'})
+    }
 }
 
 export default LogService

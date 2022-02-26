@@ -97,13 +97,30 @@ const duckHuntCommands = {
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             let difficulty
             let name
+            let durationInSeconds
 
             const args = parsedMsg.split(';').map(s => s.trim())
             if (args.length === 2) {
                 difficulty = args[0]
-                name = args[1]
+                try {
+                    if (!isNaN(args[1])){
+                        durationInSeconds = parseInt(args[1])
+                    }else{
+                        name = args[1]
+                    }
+                } catch {
+                    name = args[1]
+                }
             } else if (args.length === 1) {
-                difficulty = args[0]
+                try {
+                    if (!isNaN(args[0])){
+                        durationInSeconds = parseInt(args[0])
+                    }else{
+                        difficulty = args[0]
+                    }
+                } catch {
+                    difficulty = args[0]
+                }
             } else {
                 difficulty = parsedMsg || null
             }
