@@ -1,4 +1,5 @@
 import axios from "axios";
+import log from "../service/logService.js"
 
 const GENERATOR_API_URL = 'http://localhost:5000/api/v1'
 
@@ -12,7 +13,7 @@ async function generate(generatorRequest, apiUrl = GENERATOR_API_URL) {
     try {
         return (await axios.post(apiUrl + '/generator', generatorRequest, POST_CONFIG)).data
     } catch (e) {
-        console.error(e)
+        log.error("Could not generate result", e)
     }
 }
 
@@ -29,7 +30,7 @@ async function isServerIsOnline(apiUrl = GENERATOR_API_URL) {
             }
         }
     } catch (e) {
-        console.error(e)
+        log.error("Generator server is not online", e)
     }
     return false
 }

@@ -4,6 +4,7 @@ import fs from "fs";
 import {Duplex} from "stream";
 import {MessageAttachment} from "discord.js";
 import axios from "axios";
+import logService from "./service/logService.js";
 
 config()
 
@@ -18,7 +19,7 @@ function loadJSONFile(filename, silent = false) {
         return JSON.parse(file)
     } catch (err) {
         if (!silent) {
-            console.error(err)
+            logService.error("Couldn't load JSON file", err)
         }
     }
 }

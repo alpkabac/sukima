@@ -1,5 +1,6 @@
 import {config} from "dotenv";
 import utils from "../utils.js";
+import log from "../service/logService.js"
 
 config()
 
@@ -19,7 +20,7 @@ class PersonalityService {
             this.channelBotPersonality[channel] = utils.loadJSONFile(`./bot/${process.env.BOT_ID}/${code}.personality`)
             return true
         } catch (e) {
-            console.error("Personality file not found")
+            log.error("Personality file not found", e)
         }
     }
 }

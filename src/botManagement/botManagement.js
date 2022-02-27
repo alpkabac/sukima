@@ -10,6 +10,7 @@ import axios from "axios";
 import aiService from "../service/aiService.js";
 import generate from "../rest/generatorApi.js";
 import utils from "../utils.js";
+import logService from "../service/logService.js";
 
 config()
 
@@ -43,7 +44,7 @@ try {
         fs.writeFileSync('./user/admin.json', JSON.stringify(admin, null, 4))
     }
 } catch (e) {
-    console.error(e)
+    logService.error("Couldn't create admin user file", e)
 }
 
 let runningBots
@@ -88,7 +89,7 @@ function loadJSONFile(filename) {
         file = fs.readFileSync(filename)
         return JSON.parse(file)
     } catch (err) {
-        console.error(err)
+        logService.error("Couldn't load JSON file", err)
     }
 }
 
@@ -322,7 +323,7 @@ app.post('/api/v1/admin/firstConnexion', function (req, res) {
 
         res.json({"status": "SUCCESS"})
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during first connexion", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -396,7 +397,7 @@ app.post('/api/v1/user/create', async function (req, res) {
             }
         })
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during user creation", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -417,7 +418,7 @@ app.post('/api/v1/user/get', async function (req, res, next) {
 
         res.json({status: 'SUCCESS', data: {user}})
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during user retrieval", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -437,7 +438,7 @@ app.post('/api/v1/user/all', async function (req, res, next) {
 
         res.json({status: 'SUCCESS', data: {users}})
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during all user retrieval", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -534,7 +535,7 @@ app.post('/api/v1/bot/edit', async function (req, res, next) {
             }
         })
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during bot edition", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -609,7 +610,7 @@ app.post('/api/v1/bot/create', async function (req, res, next) {
             data: {id, message: `The preset "${data.preset || "default"}" of your bot ${id} has been created!`}
         })
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during bot creation", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -653,7 +654,7 @@ app.post('/api/v1/bot/init', async function (req, res, next) {
             data: {id, message: `The preset "${data.preset || "default"}" of your bot ${id} has been initialized!`}
         })
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during bot initialization", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -670,19 +671,19 @@ app.post('/api/v1/bot/get', async function (req, res, next) {
         try {
             botData = loadBotData(data.id)
         } catch (e) {
-            console.error(e)
+            logService.error("Bot data couldn't be loaded", e)
         }
 
         let botPersonality
         try {
             botPersonality = loadBotPersonality(data.id)
         } catch (e) {
-            console.error(e)
+            logService.error("Bot personality couldn't be loaded", e)
         }
 
         res.json({status: 'SUCCESS', data: {botData, botPersonality}})
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during bot retrieval", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -707,7 +708,7 @@ app.post('/api/v1/bot/give', async function (req, res, next) {
 
         res.json({status: 'SUCCESS'})
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during bot owner change", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -723,7 +724,7 @@ app.post('/api/v1/bot/running', async function (req, res, next) {
 
         res.json({status: 'SUCCESS', data: {bots: visibleRunningBots}})
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened while trying to retrieve running bots", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -763,7 +764,7 @@ app.post('/api/v1/bot/getByDiscordToken', async function (req, res, next) {
             }
         })
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during bot retrieval by discord token", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -782,7 +783,7 @@ app.post('/api/v1/bot/start', async function (req, res, next) {
         console.log(`Started bot ${data.id} preset ${data.preset || "default"}`)
         res.json({status: 'SUCCESS', data: {id: data.id, message: "Bot started!"}})
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during bot start", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -802,7 +803,7 @@ app.post('/api/v1/bot/restart', async function (req, res, next) {
             res.json({status: 'SUCCESS', data: {id: data.id, message: "Bot restarted!"}})
         }, 3000)
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during bot restart", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -830,7 +831,7 @@ app.post('/api/v1/bot/update', async function (req, res, next) {
                         }
                 })
             } catch (e) {
-                console.error(e)
+                logService.error("An error happened during bot history deletion (bot update)", e)
             }
 
             setTimeout(() => {
@@ -841,7 +842,7 @@ app.post('/api/v1/bot/update', async function (req, res, next) {
             }, 1000)
         }, 2500)
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during bot update", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -858,7 +859,7 @@ app.post('/api/v1/bot/stop', async function (req, res, next) {
 
         res.json({status: 'SUCCESS', data: {id: data.id, message: "Bot stopped!"}})
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened during bot stopping", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
@@ -909,7 +910,7 @@ async function proxy(input, model, params, accessToken) {
             }
         )
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened with the custom proxy", e)
         res = null
     }
 
@@ -922,7 +923,7 @@ app.get('/', async function (req, res, next) {
     try {
         res.sendFile(path.join(path.resolve(), '/index.html'))
     } catch (e) {
-        console.error(e)
+        logService.error("An error happened", e)
         res.json({status: 'ERROR', error: e.message})
     }
 })
