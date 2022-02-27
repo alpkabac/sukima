@@ -115,7 +115,7 @@ class PromptService {
                 if (!entry.enabled) continue
 
                 for (let key of entry.keys) {
-                    if (recentConversation.match(key)) {
+                    if (recentConversation.match(new RegExp(key, 'i'))) {
                         promptContext += entry.text + '\n'
                     }
                 }
