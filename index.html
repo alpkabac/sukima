@@ -626,9 +626,12 @@
     const spinner = document.getElementById('spinner')
     const result = document.getElementById('result')
     const inputFilePhraseBias = document.getElementById('inputFilePhraseBias')
+    const inputFileLorebook = document.getElementById('inputFileLorebook')
     const inputFileBannedTokens = document.getElementById('inputFileBannedTokens')
     const inputFilePreset = document.getElementById('inputFilePreset')
     const inputPhraseBias = document.getElementById('inputPhraseBias')
+    const inputLorebook = document.getElementById('inputLorebook')
+
     const inputBannedTokens = document.getElementById('inputBannedTokens')
     const inputPreset = document.getElementById('inputPreset')
     const inputFileGenerator = document.getElementById('inputFileGenerator')
@@ -656,6 +659,12 @@
         const fileList = inputFilePhraseBias.files;
         if (fileList?.length > 1) return console.error("Only one file is allowed")
         inputPhraseBias.value = JSON.stringify(JSON.parse(await fileList[0].text()))
+    }
+
+    inputFileLorebook.onchange = async function (event) {
+        const fileList = inputFileLorebook.files;
+        if (fileList?.length > 1) return console.error("Only one file is allowed")
+        inputLorebook.value = JSON.stringify(JSON.parse(await fileList[0].text()))
     }
 
     inputFileBannedTokens.onchange = async function (event) {
