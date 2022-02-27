@@ -151,11 +151,6 @@ Will use a scripted version of Pause's Lore Generation Tool to generate a contex
 Useful to create some lore for your personalities, you can then remember them using the `!remember` command  
 Planned: ability to create different list of entries and switch between them to generate more specific things your own way 
 
-# Prerequisites for NovelAI API (latest and current)
-1. A paid NovelAI account (any tier should do)
-2. Grab your NovelAI API key (you can use this simple [google colab](https://colab.research.google.com/drive/1TKRNYKxWTJXjZcFbhK3RnsuZBpPIdW8_))
-3. Node version 14.x or more
-
 # [DEPRECATED] Prerequisites for 6B parameters AI model
 
 You have to run [this colab](https://colab.research.google.com/gist/nolialsea/ba93c54a09b95e3306b69fd2480183e7/gpt-j-6b-inference-demo.ipynb#scrollTo=bsIUxnOdBAYu)  
@@ -165,6 +160,11 @@ Then paste the generated API URL to the `conf.json` file `apiUrl` property
 
 This project uses my [Horni API](https://gitlab.com/nolialsea/horni-api) to generate the AI results  
 You have to install and run it in order for simple prompt to work
+
+# Prerequisites for NovelAI API (latest and current)
+1. A paid NovelAI account (any tier should do)
+2. Grab your NovelAI API key (see https://discord.com/channels/851625855062638603/851625855528075317/883549059271491624)
+3. Node version 14.x or more
 
 # Install
 
