@@ -5,9 +5,11 @@ import memoryService from "./memoryService.js";
 import encoder from "gpt-3-encoder";
 import playerService from "./rpg/playerService.js";
 import envService from "../util/envService.js";
+import utils from "../utils.js";
 
 config()
 
+const lorebook = utils.loadJSONFile(`./bot/${process.env.BOT_ID}/default.lorebook`, true)
 
 class PromptService {
     static getIntroduction(botTranslations, usesIntroduction = true, privateMessage = false) {
@@ -74,6 +76,51 @@ class PromptService {
         if (channelContext) {
             promptContext += channelContext + '\n'
         }
+
+
+        if (lorebook?.entries?.length > 0) {
+            let recentConversation = ""
+            let lastBotMessageFound = false
+
+            for (let i = history.length - 1; i >= history.length - 10 && i >= 0; i--) {
+                if (messageId && history[i].messageId === messageId) {
+                    messageIdDetected = true
+                    continue
+                }
+
+                if (!messageIdDetected) {
+                    continue
+                }
+
+                if (!messageId) {
+                    if ((isRetry || isContinuation) && !lastBotMessageFound) {
+                        if (history[i].from === process.env.BOTNAME) {
+                            lastBotMessageFound = true
+                            if (isRetry) {
+                                continue
+                            }
+                        } else {
+                            continue
+                        }
+                    }
+                }
+
+                const line = (history[i].from ? `${history[i].from}: ${history[i].msg}` : history[i].msg) + '\n'
+                recentConversation = line + recentConversation
+            }
+
+            for (let entry of lorebook?.entries) {
+                if (!entry.enabled) continue
+
+                for (let key of entry.keys) {
+                    if (recentConversation.match(key)) {
+                        promptContext += entry.text + '\n'
+                    }
+                }
+            }
+        }
+
+
         if (botDescription) {
             promptContext += botDescription + '\n'
         }

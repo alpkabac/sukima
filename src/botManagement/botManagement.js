@@ -498,6 +498,10 @@ app.post('/api/v1/bot/edit', async function (req, res, next) {
             fs.writeFileSync(`./bot/${id}/default.bias`, data.phraseBias)
         }
 
+        if (data.lorebook) {
+            fs.writeFileSync(`./bot/${id}/default.lorebook`, data.lorebook)
+        }
+
         if (data.bannedTokens) {
             fs.writeFileSync(`./bot/${id}/default.badwords`, data.bannedTokens)
         }
