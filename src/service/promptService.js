@@ -81,6 +81,8 @@ class PromptService {
         if (lorebook?.entries?.length > 0) {
             let recentConversation = ""
             let lastBotMessageFound = false
+            let messageIdDetected = !messageId
+
 
             for (let i = history.length - 1; i >= history.length - 10 && i >= 0; i--) {
                 if (messageId && history[i].messageId === messageId) {
