@@ -4,6 +4,7 @@ import envService from "../util/envService.js";
 import {encode} from "gpt-3-encoder";
 import lmiService from "./lmiService.js";
 import aiService from "./aiService.js";
+import logService from "./logService.js";
 
 config()
 
@@ -96,7 +97,12 @@ class GeneratorService {
         return await GeneratorService.workflowModule(generator, workflowName, persistentObject)
     }
 
-    static async workflowModule(generator, submoduleName, persistentObject) {
+    static async workflowModule(generator, submoduleName, persistentObject, submoduleCallStack = []) {
+
+        if (submoduleCallStack.includes(submoduleName)) {
+            return logService.error("Infinite loop", new Error(`Submodule ${submoduleName} has already been called during this workflow`))
+        }
+
         let args = generator.submodules[submoduleName].properties
             .map(p => {
                 return {name: p.name, value: p.input ? persistentObject[p.name] : null}
@@ -110,7 +116,7 @@ class GeneratorService {
 
         if (generator?.submodules?.[submoduleName]?.callsSubmodules?.length > 0) {
             const promises = generator?.submodules?.[submoduleName]?.callsSubmodules.map(
-                sm => GeneratorService.workflowModule(generator, sm, persistentObject)
+                sm => GeneratorService.workflowModule(generator, sm, persistentObject, submoduleCallStack)
             )
             await Promise.all(promises)
         }

@@ -1,35 +1,26 @@
 class Player {
     constructor(username) {
-        // Bot part
-        if (process.env.BOTNAME === username) {
-            this.weapon = {name: "Steel Longsword", rarity: "uncommon", type: "weapon"}
-            this.armor = {name: "Copper Armor", rarity: "uncommon", type: "armor"}
-            this.accessory = {name: "Gold Bracelet", rarity: "uncommon", type: "accessory"}
-            this.heal = {name: "Minor Heal", rarity: "minor", type: "healing spell"}
-            this.inventorySize = 1
-        }
-        // Player part
-        else {
-            this.weapon = {name: "Old Rusty Kitchen Knife", rarity: "very common", type: "weapon"}
-            this.armor = {name: "Ragged Loincloth", rarity: "very common", type: "clothing"}
-            this.accessory = null
-            this.heal = null
-            this.inventorySize = 1
-        }
         this.name = username
         this.gender = null
 
-        this.gold = 0
-        this.inventory = []
         this.health = {
             wounds: [],
             bloodLoss: 'none',
             status: 'healthy'
         }
+
+        this.weapon = null
+        this.armor = null
+        this.accessory = null
+        this.heal = null
+
+        this.gold = 0
+        this.inventory = []
+        this.inventorySize = 1
     }
 }
 
-const STATUS_DEAD = ["dead", "killed", "died", "deceased"]
+const STATUS_DEAD = ["dead", "killed", "died", "deceased", "destroyed", "obliterated", "annihilated", "total destruction", "disintegrated", "dissolved"]
 
 
 class PlayerService {
@@ -68,13 +59,17 @@ class PlayerService {
 
     static getEquipmentString(player, healMode = false) {
         let weapon = player.weapon || {
-            name: "Unarmed",
-            type: "fists",
-            rarity: "bare"
+            name: "None",
+            type: "weapon",
+            rarity: "no"
         }
 
         if (healMode) {
-            weapon = player.heal
+            weapon = player.heal || {
+                name: "None",
+                type: "heal",
+                rarity: "no"
+            }
         }
 
         const promptWeapon = PlayerService.getItemPrompt(weapon)

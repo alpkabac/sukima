@@ -22,7 +22,7 @@ const generatorEnemy = utils.fileExists(`./bot/${envService.getBotId()}/generato
 const generatorSpellBook = utils.loadJSONFile("./data/generationPrompt/rpg/generateSpellBook.json")
 
 
-const STATUS_DEAD = ["dead", "killed", "died", "deceased", "defeated"]
+const STATUS_DEAD = ["dead", "killed", "died", "deceased", "defeated", "destroyed", "disabled", "total destruction", "annihilated", "obliterated"]
 const FULL_HEALS = ['healed', 'cured', 'healed (general)', 'cured (general)', 'completely healed', 'completely cured',
     'full heal', 'full health', 'full cure', 'fully restored', 'fully healed', 'fully cured', 'recovered', 'fully recovered',
     'fully restored health', 'restored to full health', 'healed (all types)', 'cured (all wounds)', 'no more injuries', 'removed all injuries',
@@ -617,7 +617,7 @@ class DuckHuntService {
 
         const remainingTime = swarmSettings.timestamp ? ((swarmSettings.timestamp + swarmSettings.duration) - Date.now()) / 1000 : 0
 
-        if (remainingTime > 0){
+        if (remainingTime > 0) {
             return {
                 message: `# ${username} tried to take an item, but a swarm event is currently happening. You have to defeat the swarm first!`,
                 deleteUserMsg: username !== process.env.BOTNAME,
@@ -833,8 +833,8 @@ class DuckHuntService {
 
         const embed = new MessageEmbed()
             .setColor('#ffff00')
-            .setTitle(`Player ${username} sold the item "${item.name}" for ${goldAmount} gold!`)
-            .setDescription(`Total player gold now: ${player.gold}`)
+            .setTitle(`Player ${username} sold the item "${item.name}" for ${goldAmount} ${generatorEnemy.placeholders["currency"] || 'gold'}!`)
+            .setDescription(`Total player ${generatorEnemy.placeholders["currency"] || 'gold'} now: ${player.gold}`)
 
         return {
             success: true,
@@ -842,7 +842,7 @@ class DuckHuntService {
             deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
             pushIntoHistory: [
-                (username !== process.env.BOTNAME ? `${username}: !sell\n` : '') + `[ Player ${username} sold the item ${item.name} (${item.rarity} ${item.type}) for ${goldAmount} gold! ]`,
+                (username !== process.env.BOTNAME ? `${username}: !sell\n` : '') + `[ Player ${username} sold the item ${item.name} (${item.rarity} ${item.type}) for ${goldAmount} ${generatorEnemy.placeholders["currency"] || 'gold'}! ]`,
                 null,
                 channel
             ]
@@ -1397,7 +1397,7 @@ class DuckHuntService {
             .addField('Health', player.health.status, true)
             .addField('Blood Loss', player.health.bloodLoss, true)
             .addField('Wounds', player.health.wounds.join(', ') || 'none', true)
-            .addField('Gold', player.gold, false)
+            .addField(utils.upperCaseFirstLetter(generatorEnemy.placeholders["currency"] || 'gold'), player.gold, false)
             .addField('Backpack size', player.inventorySize, true)
 
         const playerLastInventoryItem = player.inventory[player.inventory.length - 1]
@@ -1441,11 +1441,11 @@ class DuckHuntService {
         const price = Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2))
 
         if (player.gold < price) return {
-            message: `# ${username} tried to upgrade its backpack but doesn't have enough gold! (${player.gold}/${price})`,
+            message: `# ${username} tried to upgrade its backpack but doesn't have enough ${generatorEnemy.placeholders["currency"] || 'gold'}! (${player.gold}/${price})`,
             instantReply: true,
             deleteUserMsg: username !== process.env.BOTNAME,
             deleteNewMessage: username !== process.env.BOTNAME,
-            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to upgrade its backpack but doesn't have enough gold! (${player.gold}/${price}) ]`, null, channel]
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to upgrade its backpack but doesn't have enough ${generatorEnemy.placeholders["currency"] || 'gold'}! (${player.gold}/${price}) ]`, null, channel]
         }
 
         player.inventorySize += 1
@@ -1455,13 +1455,13 @@ class DuckHuntService {
 
         const embed = new MessageEmbed()
             .setColor('#33ff33')
-            .setTitle(`Player ${username} upgraded its backpack for ${price} gold!`)
-            .setDescription(`New backpack size: ${player.inventorySize}\nCost of next upgrade: ${newPrice} gold\nCurrent gold balance after upgrade: ${player.gold}`)
+            .setTitle(`Player ${username} upgraded its backpack for ${price} ${generatorEnemy.placeholders["currency"] || 'gold'}!`)
+            .setDescription(`New backpack size: ${player.inventorySize}\nCost of next upgrade: ${newPrice} ${generatorEnemy.placeholders["currency"] || 'gold'}\nCurrent ${generatorEnemy.placeholders["currency"] || 'gold'} balance after upgrade: ${player.gold}`)
         return {
             message: embed,
             deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
-            pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !upgradeBackpack\n` : '') + `[ Player ${username} upgraded its backpack for ${price} gold! ]`, null, channel]
+            pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !upgradeBackpack\n` : '') + `[ Player ${username} upgraded its backpack for ${price} ${generatorEnemy.placeholders["currency"] || 'gold'}! ]`, null, channel]
         }
     }
 
@@ -1731,8 +1731,8 @@ class DuckHuntService {
         )
 
         if (generator.placeholders) {
-            for (let placeholder of generator.placeholders) {
-                prompt.completePrompt = prompt.completePrompt.replace("${" + placeholder[0] + "}", placeholder[1])
+            for (let placeholders of generator.placeholders) {
+                prompt.completePrompt = prompt.completePrompt.replace("${" + placeholders[0] + "}", placeholders[1])
             }
         }
 
