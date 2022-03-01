@@ -22,7 +22,7 @@ const generatorEnemy = utils.fileExists(`./bot/${envService.getBotId()}/generato
 const generatorSpellBook = utils.loadJSONFile("./data/generationPrompt/rpg/generateSpellBook.json")
 
 
-const STATUS_DEAD = ["dead", "killed", "died", "deceased", "defeated", "destroyed", "disabled", "total destruction", "annihilated", "obliterated"]
+const STATUS_DEAD = ["dead", "killed", "died", "deceased", "defeated", "destroyed", "disabled", "total destruction", "annihilated", "obliterated", "defeated!"]
 const FULL_HEALS = ['healed', 'cured', 'healed (general)', 'cured (general)', 'completely healed', 'completely cured',
     'full heal', 'full health', 'full cure', 'fully restored', 'fully healed', 'fully cured', 'recovered', 'fully recovered',
     'fully restored health', 'restored to full health', 'healed (all types)', 'cured (all wounds)', 'no more injuries', 'removed all injuries',
@@ -322,8 +322,8 @@ class DuckHuntService {
 
         const enemyWounds = target.health.wounds.length === 0 ? 'none' : [...new Set(target.health.wounds)].join(', ')
         const enemyStatus = target !== pawn ?
-            `[ Target: ${target.name}; race/species: human; wounds: ${enemyWounds}; blood loss: ${target.health.bloodLoss}; status: ${target.health.status} ]`
-            : `[ Target: ${target.name}; \${difficulty}: ${target.difficulty}; wounds: ${enemyWounds}; blood loss: ${target.health.bloodLoss}; status: ${target.health.status} ]`
+            `[ Target: ${target.name}; race/species: human; \${wounds}: ${enemyWounds}; \${bloodLoss}: ${target.health.bloodLoss}; status: ${target.health.status} ]`
+            : `[ Target: ${target.name}; \${difficulty}: ${target.difficulty}; \${wounds}: ${enemyWounds}; \${bloodLoss}: ${target.health.bloodLoss}; status: ${target.health.status} ]`
         const playerEquipment = playerService.getEquipmentPrompt(player, healMode)
 
         const input = {

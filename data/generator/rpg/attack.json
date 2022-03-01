@@ -45,7 +45,9 @@
     }
   ],
   "placeholders": {
-    "difficulty": "difficulty"
+    "difficulty": "difficulty",
+    "bloodLoss": "blood loss",
+    "wounds": "wounds"
   },
   "context": "[ Random Attack Generator ]\n[ Given a player and an enemy, generates a player attack description and detects the damages done to the enemy, the new wounds if the attack was successful, and the enemy status after the attack. ]",
   "list": [
@@ -219,7 +221,7 @@
           "description": "You attack the orc using your fists. It's not very effective, but you manage to break the orc's nose."
         },
         {
-          "player": "[ Iron Sword;No Armor ]",
+          "player": "[ Iron Sword; No Armor ]",
           "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose; blood loss: minor; status: slightly wounded ]",
           "description": "You strike the orc in the stomach with your iron sword. You cut into orc's abdomen and some guts come out, spreading his blood everywhere"
         },
