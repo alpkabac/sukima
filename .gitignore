@@ -5,6 +5,8 @@ node_modules
 ./env.*
 *.env
 google_api.json
+debug.txt
+logs.txt
 /save/*
 /bot/*
 /user/*
