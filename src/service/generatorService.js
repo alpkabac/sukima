@@ -101,6 +101,8 @@ class GeneratorService {
 
         if (submoduleCallStack.includes(submoduleName)) {
             return logService.error("Infinite loop", new Error(`Submodule ${submoduleName} has already been called during this workflow`))
+        }else{
+            submoduleCallStack.push(submoduleName)
         }
 
         let args = generator.submodules[submoduleName].properties
