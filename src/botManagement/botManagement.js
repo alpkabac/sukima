@@ -261,7 +261,7 @@ function startBot(id, preset = "default", force = false) {
     })
 
     workerProcess.on('close', function (code) {
-        console.log('Subprocess has exited, exit code' + code)
+        console.log(`Subprocess ${id} has exited, exit code` + code)
         runningBots = runningBots.filter(rb => rb.id !== id)
         fs.writeFileSync('./runningBots.json', JSON.stringify(runningBots))
     })
