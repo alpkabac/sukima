@@ -177,6 +177,7 @@ You have to install and run it in order for simple prompt to work
 3. You will be redirected to the new admin account, where you can create your first bot!
    - You can use the link `http://IP_OF_THE_MACHINE:7319/?login=YOUR_LOGIN&key=YOUR_PASSWORD` to connect to your new admin interface at any time
    - From there, you can now create bots and new users (creating a user also creates a new bot for this user)
+   - You'll need to create one or more discord bots through discord's website, check here for a tutorial: https://imgur.com/a/reC2kyC
 
 # Tips
 
