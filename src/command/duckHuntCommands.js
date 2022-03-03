@@ -262,7 +262,7 @@ const duckHuntCommands = {
     equipWeapon: new Command(
         "Equip Weapon",
         [],
-        ["!equipWeapon", "!equip Weapon", "!equip weapon", "!equipW", "!equip W", "!weapon"],
+        ["!equipWeapon", "!equip Weapon", "!equip weapon", "!equipW", "!equip W", "!weapon", "!ew"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipWeapon(channel, from, parsedMsg.trim())
@@ -272,7 +272,7 @@ const duckHuntCommands = {
     equipArmor: new Command(
         "Equip armor",
         [],
-        ["!equipArmor", "!equip Armor", "!equip armor", "!equipAr", "!equip Ar", "!equip ar", "!armor", "!wear"],
+        ["!equipArmor", "!equip Armor", "!equip armor", "!equipAr", "!equip Ar", "!equip ar", "!armor", "!wear", "!ear"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipArmor(channel, from, parsedMsg.trim())
@@ -282,7 +282,7 @@ const duckHuntCommands = {
     equipAccessory: new Command(
         "Equip accessory",
         [],
-        ["!equipAccessory", "!equipRing", "!equip Accessory", "!equip accessory", "!equipAcc", "!equip Acc", "!equip acc", "!equipAc", "!equip Ac", "!equip ac", "!accessory"],
+        ["!equipAccessory", "!equipRing", "!equip Accessory", "!equip accessory", "!equipAcc", "!equip Acc", "!equip acc", "!equipAc", "!equip Ac", "!equip ac", "!accessory", "!eac"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipAccessory(channel, from, parsedMsg.trim())
@@ -292,7 +292,7 @@ const duckHuntCommands = {
     equipHeal: new Command(
         "Equip Heal",
         [],
-        ["!equipHeal", "!equip Heal", "!equip heal", "!equipH", "!equip H"],
+        ["!equipHeal", "!equip Heal", "!equip heal", "!equipH", "!equip H", "!eh"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.equipHeal(channel, from, parsedMsg.trim())
@@ -302,7 +302,7 @@ const duckHuntCommands = {
     unequipWeapon: new Command(
         "Unequip Weapon",
         [],
-        ["!unequipWeapon", "!unequip Weapon", "!unequipW", "!unequip W"],
+        ["!unequipWeapon", "!unequip Weapon", "!unequipW", "!unequip W", "!uew"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.unequipWeapon(channel, from)
@@ -312,7 +312,7 @@ const duckHuntCommands = {
     unequipArmor: new Command(
         "Unequip armor",
         [],
-        ["!unequipArmor", "!unequip Armor", "!unequip armor", "!unequipAr", "!unequip Ar", "!unequip ar"],
+        ["!unequipArmor", "!unequip Armor", "!unequip armor", "!unequipAr", "!unequip Ar", "!unequip ar", "!uear"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.unequipArmor(channel, from)
@@ -322,7 +322,7 @@ const duckHuntCommands = {
     unequipAccessory: new Command(
         "Unequip accessory",
         [],
-        ["!unequipAccessory", "!unequip Accessory", "!unequipAcc", "!unequip Acc", "!unequip acc", "!unequipAc", "!unequip Ac", "!unequip ac"],
+        ["!unequipAccessory", "!unequip Accessory", "!unequipAcc", "!unequip Acc", "!unequip acc", "!unequipAc", "!unequip Ac", "!unequip ac", "!ueac"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.unequipAccessory(channel, from)
@@ -332,7 +332,7 @@ const duckHuntCommands = {
     unequipHeal: new Command(
         "Unequip Heal",
         [],
-        ["!unequipHeal", "!unequip Heal", "!unequipH", "!unequip H"],
+        ["!unequipHeal", "!unequip Heal", "!unequipH", "!unequip H", "!ueh"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.unequipHeal(channel, from)
