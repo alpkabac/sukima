@@ -183,7 +183,7 @@ class DuckHuntService {
                 .setDescription(object.encounterDescription)
                 .addFields(
                     {name: 'Enemy name', value: object.name, inline: true},
-                    {name: 'Difficulty', value: object.difficulty, inline: true},
+                    {name: utils.upperCaseFirstLetter(generatorEnemy.placeholders["difficulty"]), value: object.difficulty, inline: true},
                 ),
             pushIntoHistory: [`[ New Enemy Encounter: ${object.name} (${object.difficulty}) ]\n[ ${object.encounterDescription} ]`, null, channel],
             success: true,
