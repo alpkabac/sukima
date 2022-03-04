@@ -112,8 +112,6 @@ class GeneratorService {
 
         const {object, prompt, result} = await GeneratorService.generator(generator, args, false, submoduleName)
 
-        logService.log(prompt)
-
         for (let o in object) {
             persistentObject[o] = object[o]
         }
