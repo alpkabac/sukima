@@ -74,9 +74,15 @@ const duckHuntCommands = {
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             let difficulty
             let name
+            let encounterDescription
+
 
             const args = parsedMsg.split(';').map(s => s.trim())
-            if (args.length === 2) {
+            if (args.length === 3) {
+                difficulty = args[0]
+                name = args[1]
+                encounterDescription = args[2]
+            } else if (args.length === 2) {
                 difficulty = args[0]
                 name = args[1]
             } else if (args.length === 1) {
@@ -85,7 +91,7 @@ const duckHuntCommands = {
                 difficulty = parsedMsg || null
             }
 
-            return await duckHuntService.spawn(channel, difficulty, name)
+            return await duckHuntService.spawn(channel, difficulty, name, encounterDescription)
         },
         false
     ),

@@ -183,7 +183,11 @@ class DuckHuntService {
                 .setDescription(object.encounterDescription)
                 .addFields(
                     {name: 'Enemy name', value: object.name, inline: true},
-                    {name: utils.upperCaseFirstLetter(generatorEnemy.placeholders["difficulty"]), value: object.difficulty, inline: true},
+                    {
+                        name: utils.upperCaseFirstLetter(generatorEnemy.placeholders["difficulty"]),
+                        value: object.difficulty,
+                        inline: true
+                    },
                 ),
             pushIntoHistory: [`[ New Enemy Encounter: ${object.name} (${object.difficulty}) ]\n[ ${object.encounterDescription} ]`, null, channel],
             success: true,
@@ -195,7 +199,7 @@ class DuckHuntService {
     /**
      * Spawns a random animal/critter/enemy
      */
-    static async spawn(channel, difficulty = null, name = null) {
+    static async spawn(channel, difficulty = null, name = null, encounterDescription = null) {
 
         let args
         if (!difficulty && !name) {
@@ -223,6 +227,15 @@ class DuckHuntService {
                 {name: "encounterDescription"},
             ]
         }
+
+        if (encounterDescription !== null) {
+            args = [
+                {name: "encounterDescription", value: encounterDescription},
+                {name: "name"},
+                {name: "difficulty"},
+            ]
+        }
+
 
         const {
             object,
