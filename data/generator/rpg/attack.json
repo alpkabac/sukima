@@ -724,6 +724,47 @@
           "wounds": "light bruises (sternum)",
           "status": "dead"
         }
+      ],
+      "callsSubmodules": ["deathDetection"]
+    },
+    "deathDetection": {
+      "context": "[ Death Detection: given a status, detects whether or not the target is dead. ]",
+      "properties": [
+        {
+          "name": "status",
+          "replaceBy": "Target's status after your action:",
+          "input": true
+        },
+        {
+          "name": "isDead",
+          "replaceBy": "Is the target dead?"
+        }
+      ],
+      "list": [
+        {
+          "status": "very slightly wounded",
+          "isDead": "false"
+        },
+        {
+          "status": "slightly wounded",
+          "isDead": "false"
+        },
+        {
+          "status": "heavily wounded",
+          "isDead": "false"
+        },
+        {
+          "status": "dead",
+          "isDead": "true"
+        },
+        {
+          "status": "killed",
+          "isDead": "true"
+        },
+        {
+          "status": "destroyed",
+          "isDead": "true"
+        }
       ]
     }
   }

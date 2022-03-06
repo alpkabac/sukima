@@ -185,7 +185,7 @@ class DuckHuntService {
                     {name: 'Enemy name', value: object.name, inline: true},
                     {
                         name: utils.upperCaseFirstLetter(generatorEnemy.placeholders["difficulty"]),
-                        value: object.difficulty,
+                        value: object.difficulty || "undefined",
                         inline: true
                     },
                 ),
@@ -386,6 +386,11 @@ class DuckHuntService {
             target.health.status = object.status.toLowerCase()
         }
 
+        const isTargetDead = ["true", "yes"].includes(object.isDead?.trim?.())
+        if (isTargetDead) {
+            target.health.status = "dead"
+        }
+
         if (object.status && object.status.trim() && STATUS_DEAD.includes(object.status.trim().toLowerCase())) {
             if (target === pawn) pawn.alive = false
         }
@@ -401,6 +406,7 @@ class DuckHuntService {
             .addField('New enemy wounds', object.wounds || 'undefined', true)
             .addField('New enemy blood loss', object.bloodLoss || 'undefined', true)
             .addField('New enemy status', object.status || 'undefined', true)
+            .addField('Is enemy dead?', isTargetDead, true)
             .addField('All enemy wounds', [...new Set(target.health.wounds)].join('\n') || 'none', false)
             .addField(`Player equipment used for ${healMode ? 'heal' : 'attack'}`, playerEquipment, false)
 
@@ -598,7 +604,7 @@ class DuckHuntService {
 
         const embed = new MessageEmbed()
             .setColor('#ffff66')
-            .setTitle(`Loot for ${pawn.name} (${pawn.difficulty.toLowerCase()}): ${object.item} (${object.rarity} ${object.type})`)
+            .setTitle(`Loot for ${pawn.name} (${pawn.difficulty?.toLowerCase?.()}): ${object.item} (${object.rarity} ${object.type})`)
             .setDescription(`Looted item "${object.item}" is on the ground slot number [${worldItemsService.getActiveItems(channel).length - 1}]`)
             .addField("Item type", object.type, true)
             .addField("Item rarity", object.rarity, true)
