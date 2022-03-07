@@ -39,6 +39,35 @@ function isAlive(target) {
     return !!(target?.health?.status && !STATUS_DEAD.includes(target?.health?.status.toLowerCase()));
 }
 
+function sanitize(str){
+    return str
+        .toLowerCase()
+        .replace(/[,;.:!?"]/g, '')
+        .replace(/ a /g, ' ')
+        .replace(/ an /g, ' ')
+        .replace(/ of /g, ' ')
+        .replace(/ or /g, ' ')
+        .replace(/ from /g, ' ')
+        .replace(/ the /g, ' ')
+        .replace(/ this /g, ' ')
+        .replace(/ those /g, ' ')
+        .replace(/ that /g, ' ')
+        .replace(/ has /g, ' ')
+        .replace(/ was /g, ' ')
+        .replace(/ with /g, ' ')
+        .replace(/ and /g, ' ')
+        .replace(/ on /g, ' ')
+        .replace(/ for /g, ' ')
+        .replace(/ by /g, ' ')
+        .replace(/ now /g, ' ')
+        .replace(/ now /g, ' ')
+        .replace(/ to /g, ' ')
+        .replace(/ too /g, ' ')
+        .replace(/ as /g, ' ')
+        .replace(/ is /g, ' ')
+        .replace(/ it /g, ' ')
+}
+
 let lastUploadedGenerator = null
 
 class DuckHuntService {
@@ -245,15 +274,27 @@ class DuckHuntService {
 
         pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
+        const msg = new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle('New Encounter!')
+            .setDescription(object.encounterDescription)
+            .addFields(
+                {name: 'Enemy name', value: object.name, inline: true},
+                {name: 'Difficulty', value: object.difficulty, inline: true},
+            )
+
+
+        const encounterDescriptionParsed = sanitize(object.encounterDescription)
+        const difficultyParsed = sanitize(object.difficulty)
+
+        const buff = await utils.generatePicture(`${object.name}`)
+        if (buff) {
+            const m = new MessageAttachment(buff, "generated_image.png")
+            msg.attachFiles([m])
+        }
+
         return {
-            message: new MessageEmbed()
-                .setColor('#0099ff')
-                .setTitle('New Encounter!')
-                .setDescription(object.encounterDescription)
-                .addFields(
-                    {name: 'Enemy name', value: object.name, inline: true},
-                    {name: 'Difficulty', value: object.difficulty, inline: true},
-                ),
+            message: msg,
             pushIntoHistory: [`[ New Enemy Encounter: ${object.name} (${object.difficulty}) ]\n[ ${object.encounterDescription} ]`, null, channel],
             success: true,
             deleteUserMsg: true,
@@ -386,10 +427,13 @@ class DuckHuntService {
             target.health.status = object.status.toLowerCase()
         }
 
+
+        /*
         const isTargetDead = ["true", "yes"].includes(object.isDead?.trim?.())
         if (isTargetDead) {
             target.health.status = "dead"
         }
+         */
 
         if (object.status && object.status.trim() && STATUS_DEAD.includes(object.status.trim().toLowerCase())) {
             if (target === pawn) pawn.alive = false
@@ -406,7 +450,7 @@ class DuckHuntService {
             .addField('New enemy wounds', object.wounds || 'undefined', true)
             .addField('New enemy blood loss', object.bloodLoss || 'undefined', true)
             .addField('New enemy status', object.status || 'undefined', true)
-            .addField('Is enemy dead?', isTargetDead, true)
+            .addField('Is enemy dead?', STATUS_DEAD.includes(object.status.trim().toLowerCase()), true)
             .addField('All enemy wounds', [...new Set(target.health.wounds)].join('\n') || 'none', false)
             .addField(`Player equipment used for ${healMode ? 'heal' : 'attack'}`, playerEquipment, false)
 

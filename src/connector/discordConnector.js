@@ -1,7 +1,7 @@
 import dotenv from 'dotenv'
 import {Client} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
-import {getVoiceConnection, joinVoiceChannel} from "@discordjs/voice"
+import {getVoiceConnection} from "@discordjs/voice"
 import savingService from "../service/savingService.js"
 import messageCommands from "../command/messageCommands.js"
 import historyService from "../service/historyService.js"
@@ -19,6 +19,8 @@ import pawnService from "../service/rpg/pawnService.js"
 import duckHuntService from "../service/rpg/duckHuntService.js"
 import muteService from "../service/muteService.js"
 import duckHuntCommands from "../command/duckHuntCommands.js"
+import axios from "axios";
+import * as fs from "fs";
 
 
 dotenv.config()
@@ -660,7 +662,10 @@ setInterval(async () => {
             if (swarmMode) {
                 spawnMessage = await duckHuntService.swarm(channel, difficulty, swarm.name || null)
             } else {
+
                 spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
+
+
             }
 
             const m = await channels[channel].send(spawnMessage?.message).catch((e) => console.error(e))

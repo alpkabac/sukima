@@ -238,6 +238,8 @@ function getDefaultEnv(data, id) {
         + `\nALLOW_EPORNER="Bot Moderator, Bot Administrator"`
         + `\nALLOW_WIKI="Bot Moderator, Bot Administrator"`
         + `\nALLOW_DANBOORU="Bot Moderator, Bot Administrator"`
+        + `\nALLOW_IMAGE_GENERATION="Bot Administrator, Bot Moderator"`
+
         + `\nBOT_ID="${id}"`
 }
 

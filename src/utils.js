@@ -5,6 +5,7 @@ import {Duplex} from "stream";
 import {MessageAttachment} from "discord.js";
 import axios from "axios";
 import logService from "./service/logService.js";
+import sharp from "sharp";
 
 config()
 
@@ -203,6 +204,72 @@ class Utils {
             }
         }
         return results
+    }
+
+    static async generatePicture(text, steps = 1000, cutouts = 6) {
+        let buff
+        try {
+            const response = await axios({
+                url: `http://localhost:5000/index?steps=${steps}&cutouts=${cutouts}&input=${encodeURIComponent(text)}`,
+                method: 'GET',
+                responseType: 'stream',
+            })
+            const imgOriginal = await sharp(await response.data.read())
+            const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
+            buff = await im.toBuffer()
+        } catch (e) {
+            console.error(e)
+        }
+
+        return buff
+    }
+
+    static async continuePicture( steps = 600) {
+        let buff
+        try {
+            const response = await axios({
+                url: `http://localhost:5000/continue?steps=${steps}`,
+                method: 'GET',
+                responseType: 'stream',
+            })
+            const imgOriginal = await sharp(await response.data.read())
+            const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
+            buff = await im.toBuffer()
+        } catch (e) {
+            console.error(e)
+        }
+
+        return buff
+    }
+
+    static async changePicturePrompt(prompt,  steps = 600) {
+        let buff
+        try {
+            const response = await axios({
+                url: `http://localhost:5000/changeInput?steps=${steps}&input=${prompt}`,
+                method: 'GET',
+                responseType: 'stream',
+            })
+            const imgOriginal = await sharp(await response.data.read())
+            const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
+            buff = await im.toBuffer()
+        } catch (e) {
+            console.error(e)
+        }
+
+        return buff
+    }
+
+    static async updateCutouts(cutouts = 6) {
+        try {
+            await axios({
+                url: `http://localhost:5000/updateCutouts?cutouts=${cutouts}`,
+                method: 'GET',
+                responseType: 'stream',
+            })
+        } catch (e) {
+            console.error(e)
+        }
     }
 }
 

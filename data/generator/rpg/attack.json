@@ -724,8 +724,7 @@
           "wounds": "light bruises (sternum)",
           "status": "dead"
         }
-      ],
-      "callsSubmodules": ["deathDetection"]
+      ]
     },
     "deathDetection": {
       "context": "[ Death Detection: given a status, detects whether or not the target is dead. ]",
