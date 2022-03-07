@@ -205,6 +205,14 @@ function getDefaultEnv(data, id) {
         + `\nSEND_INTRO_TO_CHANNELS="${data.channelName}"`
         + `\nENABLE_GREET_NEW_USERS=false`
 
+        + `\nENABLE_RPG_IMAGES=false`
+        + `\nENABLE_RPG_MODE=false`
+        + `\nRPG_ATTACK_COOLDOWN=20`
+        + `\nRPG_SPAWN_COOLDOWN_MIN=120`
+        + `\nRPG_SPAWN_COOLDOWN_MAX=120`
+        + `\nRPG_RESPAWN_COOLDOWN_MIN=100000`
+        + `\nRPG_RESPAWN_COOLDOWN_MAX=100000`
+
         + `\nALLOW_MUTE="Bot Moderator, Bot Administrator"`
         + `\nALLOW_REMEMBER="Bot Moderator, Bot Administrator"`
         + `\nALLOW_WIPE_REMEMBER="Bot Moderator, Bot Administrator"`

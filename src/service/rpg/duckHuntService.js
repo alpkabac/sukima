@@ -284,13 +284,15 @@ class DuckHuntService {
             )
 
 
-        const encounterDescriptionParsed = sanitize(object.encounterDescription)
-        const difficultyParsed = sanitize(object.difficulty)
+        if (process.env.ENABLE_RPG_IMAGES) {
+            const encounterDescriptionParsed = sanitize(object.encounterDescription)
+            const difficultyParsed = sanitize(object.difficulty)
 
-        const buff = await utils.generatePicture(`${object.name}`)
-        if (buff) {
-            const m = new MessageAttachment(buff, "generated_image.png")
-            msg.attachFiles([m])
+            const buff = await utils.generatePicture(`${object.name}`)
+            if (buff) {
+                const m = new MessageAttachment(buff, "generated_image.png")
+                msg.attachFiles([m])
+            }
         }
 
         return {
