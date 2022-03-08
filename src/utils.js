@@ -208,7 +208,7 @@ class Utils {
         return results
     }
 
-    static async getResizedImage(response, resize = true){
+    static async getResizedImage(response, resize = true) {
         const contentLength = response.headers['content-length'];
         const contentType = response.headers['content-type'];
 
@@ -219,15 +219,15 @@ class Utils {
         if (resize) {
             const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
             return await im.toBuffer()
-        }else{
+        } else {
             return await imgOriginal.toBuffer()
         }
     }
 
-    static async generatePicture(text, steps = 1000, cutouts = 6, resize= true) {
+    static async generatePicture(text, steps = 1000, cutouts = 6, resize = true) {
         try {
             const response = await axios({
-                url: URL_IMAGE_GENERATION+`/index?steps=${steps}&cutouts=${cutouts}&input=${encodeURIComponent(text)}`,
+                url: URL_IMAGE_GENERATION + `/index?steps=${steps}&cutouts=${cutouts}&input=${encodeURIComponent(text)}`,
                 method: 'GET',
                 responseType: 'arraybuffer',
             })
@@ -237,10 +237,10 @@ class Utils {
         }
     }
 
-    static async continuePicture( steps = 600) {
+    static async continuePicture(steps = 600) {
         try {
             const response = await axios({
-                url: URL_IMAGE_GENERATION+`/continue?steps=${steps}`,
+                url: URL_IMAGE_GENERATION + `/continue?steps=${steps}`,
                 method: 'GET',
                 responseType: 'stream',
             })
@@ -250,10 +250,10 @@ class Utils {
         }
     }
 
-    static async changePicturePrompt(prompt,  steps = 600) {
+    static async changePicturePrompt(prompt, steps = 600) {
         try {
             const response = await axios({
-                url: URL_IMAGE_GENERATION+`/changeInput?steps=${steps}&input=${prompt}`,
+                url: URL_IMAGE_GENERATION + `/changeInput?steps=${steps}&input=${prompt}`,
                 method: 'GET',
                 responseType: 'stream',
             })
@@ -273,6 +273,42 @@ class Utils {
         } catch (e) {
             console.error(e)
         }
+    }
+
+    static sanitize(str, hard = true) {
+        const newStr = str
+            .toLowerCase()
+            .replace(/[,;.:!?"]/g, '')
+
+        if (hard) {
+            return newStr
+                .replace(/ a /g, ' ')
+                .replace(/ an /g, ' ')
+                .replace(/ of /g, ' ')
+                .replace(/ or /g, ' ')
+                .replace(/ from /g, ' ')
+                .replace(/ the /g, ' ')
+                .replace(/ this /g, ' ')
+                .replace(/ those /g, ' ')
+                .replace(/ that /g, ' ')
+                .replace(/ has /g, ' ')
+                .replace(/ was /g, ' ')
+                .replace(/ with /g, ' ')
+                .replace(/ and /g, ' ')
+                .replace(/ on /g, ' ')
+                .replace(/ for /g, ' ')
+                .replace(/ by /g, ' ')
+                .replace(/ now /g, ' ')
+                .replace(/ now /g, ' ')
+                .replace(/ to /g, ' ')
+                .replace(/ too /g, ' ')
+                .replace(/ as /g, ' ')
+                .replace(/ is /g, ' ')
+                .replace(/ it /g, ' ')
+        }else{
+            return newStr
+        }
+
     }
 }
 

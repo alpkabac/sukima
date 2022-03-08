@@ -659,7 +659,7 @@ async function mainRpgLoop() {
 
                 if (envService.getBoolean("ENABLE_RPG_IMAGES") && duckHuntService.getItemsToInspect(channel)?.length > 0) {
                     const itemToInspect = duckHuntService.getItemsToInspect(channel).shift()
-                    const buff = await utils.generatePicture(itemToInspect.name, 1000, 6, false)
+                    const buff = await utils.generatePicture(utils.sanitize(itemToInspect.name, false), 1000, 6, false)
                     if (buff) {
                         const embed = new MessageEmbed()
                             .setColor('#ffff66')
@@ -708,7 +708,7 @@ async function mainRpgLoop() {
                     }
 
                     if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
-                        const buff = await utils.generatePicture(spawnMessage.newPawn.loot.name, 1000, 6, false)
+                        const buff = await utils.generatePicture(utils.sanitize(spawnMessage.newPawn.loot.name, false), 1000, 6, false)
                         if (buff) {
                             spawnMessage.newPawn.loot.image = buff.toString('base64')
                         }

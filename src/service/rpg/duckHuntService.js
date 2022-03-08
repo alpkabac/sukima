@@ -292,7 +292,7 @@ class DuckHuntService {
             const difficultyParsed = sanitize(object.difficulty)
 
             const prompt = `${object.name}`
-            const buff = await utils.generatePicture(prompt)
+            const buff = await utils.generatePicture(utils.sanitize(prompt, false))
             if (buff) {
                 const m = new MessageAttachment(buff, "generated_image.png")
                 msg.attachFiles([m])
