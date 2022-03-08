@@ -685,6 +685,8 @@ setInterval(async () => {
                     utils.generatePicture(spawnMessage.newPawn.loot.name).then(buff => {
                         if (buff) {
                             spawnMessage.newPawn.loot.image = buff.toString('base64')
+
+                            channels[channel].send(`Loot item image generated for ${spawnMessage.newPawn.name}`).catch((e) => console.error(e))
                         }
                     })
                 }
