@@ -1595,18 +1595,29 @@ class DuckHuntService {
         let playerSelectedItem
         if (itemSlot && !isNaN(parseInt(itemSlot))) {
             playerSelectedItem = player.inventory[parseInt(itemSlot)]
-            if (playerSelectedItem){
+            if (playerSelectedItem) {
                 if (!playerSelectedItem.image) {
                     if (!itemsToInspect[channel]) itemsToInspect[channel] = []
                     itemsToInspect[channel].push(playerSelectedItem)
-                }else{
+                } else {
+                    const embed = new MessageEmbed()
+                        .setColor('#ffff66')
+                        .setTitle(`Identified item!`)
+                        .setDescription(`${playerSelectedItem.name} (${playerSelectedItem.rarity} ${playerSelectedItem.type})`)
+
+                    const buff2 = new Buffer.from(playerSelectedItem.image, "base64")
+                    const imgOriginal = await sharp(Buffer.from(buff2, 'binary'))
+                    const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
+                    const messageAttachment = new MessageAttachment(await im.toBuffer(), "output.png")
+                    embed.attachFiles([messageAttachment])
+
                     return {
-                        message: `# ${username} tried to add an item in the item inspection queue, but selected item is already inspected`,
+                        message: embed,
                         deleteUserMsg: username !== process.env.BOTNAME,
                         instantReply: true
                     }
                 }
-            }else{
+            } else {
                 return {
                     message: `# ${username} tried to add an item in the item inspection queue, but has no item in slot [${itemSlot}]`,
                     deleteUserMsg: username !== process.env.BOTNAME,
@@ -1632,7 +1643,7 @@ class DuckHuntService {
         }
     }
 
-    static getItemsToInspect(channel){
+    static getItemsToInspect(channel) {
         return itemsToInspect[channel]
     }
 
