@@ -1484,6 +1484,7 @@ class DuckHuntService {
             .addField('Wounds', player.health.wounds.join(', ') || 'none', true)
             .addField(utils.upperCaseFirstLetter(generatorEnemy.placeholders["currency"] || 'gold'), player.gold, false)
             .addField('Backpack size', player.inventorySize, true)
+            .addField('Next backpack upgrade cost', Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2)), true)
 
         const playerLastInventoryItem = player.inventory[player.inventory.length - 1]
         const backpackSelectedItem = `${playerLastInventoryItem?.name || 'none'}`
