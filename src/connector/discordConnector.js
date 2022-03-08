@@ -666,11 +666,9 @@ setInterval(async () => {
             } else {
                 spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
 
-
-
                 const args = [
-                    {name: "name", value: pawn.name},
-                    {name: "difficulty", value: pawn.difficulty},
+                    {name: "name", value: spawnMessage.newPawn.name},
+                    {name: "difficulty", value: spawnMessage.newPawn.difficulty},
                     {name: "item"},
                     {name: "type"},
                     {name: "rarity"},
