@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import {Client} from 'discord.js'
+import {Client, MessageAttachment} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
 import {getVoiceConnection} from "@discordjs/voice"
 import savingService from "../service/savingService.js"
@@ -19,9 +19,11 @@ import pawnService from "../service/rpg/pawnService.js"
 import duckHuntService from "../service/rpg/duckHuntService.js"
 import muteService from "../service/muteService.js"
 import duckHuntCommands from "../command/duckHuntCommands.js"
-import axios from "axios";
-import * as fs from "fs";
+import generatorService from "../service/generatorService.js";
 
+const generatorEnemy = utils.fileExists(`./bot/${envService.getBotId()}/generator/enemy.json`) ?
+    utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/enemy.json`)
+    : utils.loadJSONFile("./data/generator/rpg/enemy.json")
 
 dotenv.config()
 
@@ -662,11 +664,38 @@ setInterval(async () => {
             if (swarmMode) {
                 spawnMessage = await duckHuntService.swarm(channel, difficulty, swarm.name || null)
             } else {
-
                 spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
 
 
+
+                const args = [
+                    {name: "name", value: pawn.name},
+                    {name: "difficulty", value: pawn.difficulty},
+                    {name: "item"},
+                    {name: "type"},
+                    {name: "rarity"},
+                ]
+                const {
+                    object: lootedItem,
+                    result,
+                    module
+                } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
+
+                spawnMessage.newPawn.loot = {name: lootedItem.item, type: lootedItem.type, rarity: lootedItem.rarity}
+
+                if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
+                    const encounterDescriptionParsed = sanitize(object.encounterDescription)
+                    const difficultyParsed = sanitize(object.difficulty)
+
+                    const prompt = `${object.name}`
+                    utils.generatePicture().then(buff => {
+                        if (buff) {
+                            spawnMessage.newPawn.loot.image = buff.toString('base64')
+                        }
+                    })
+                }
             }
+
 
             const m = await channels[channel].send(spawnMessage?.message).catch((e) => console.error(e))
 

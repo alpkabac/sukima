@@ -272,7 +272,7 @@ class DuckHuntService {
             module
         } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "spawn")
 
-        pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
+        const newPawn = pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
         const msg = new MessageEmbed()
             .setColor('#0099ff')
@@ -301,7 +301,8 @@ class DuckHuntService {
             pushIntoHistory: [`[ New Enemy Encounter: ${object.name} (${object.difficulty}) ]\n[ ${object.encounterDescription} ]`, null, channel],
             success: true,
             deleteUserMsg: true,
-            instantReply: true
+            instantReply: true,
+            newPawn
         }
     }
 
@@ -633,33 +634,46 @@ class DuckHuntService {
         if (!pawnService.isPawnDeadOnChannel(channel)) return null
 
         const pawn = pawnService.getActivePawn(channel)
-        const args = [
-            {name: "name", value: pawn.name},
-            {name: "difficulty", value: pawn.difficulty},
-            {name: "item"},
-            {name: "type"},
-            {name: "rarity"},
-        ]
-        const {
-            object,
-            result,
-            module
-        } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
 
-        worldItemsService.appendItem(channel, {name: object.item, type: object.type, rarity: object.rarity})
+        let lootedItem
+        if (pawn?.loot){
+            lootedItem = pawn.loot
+        }else {
+            const args = [
+                {name: "name", value: pawn.name},
+                {name: "difficulty", value: pawn.difficulty},
+                {name: "item"},
+                {name: "type"},
+                {name: "rarity"},
+            ]
+            const {
+                object,
+                result,
+                module
+            } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
+            lootedItem = {name: object.item, type: object.type, rarity: object.rarity}
+        }
+
+        worldItemsService.appendItem(channel, {name: lootedItem.item, type: lootedItem.type, rarity: lootedItem.rarity})
         pawnService.removePawn(channel)
 
         const embed = new MessageEmbed()
             .setColor('#ffff66')
-            .setTitle(`Loot for ${pawn.name} (${pawn.difficulty?.toLowerCase?.()}): ${object.item} (${object.rarity} ${object.type})`)
-            .setDescription(`Looted item "${object.item}" is on the ground slot number [${worldItemsService.getActiveItems(channel).length - 1}]`)
-            .addField("Item type", object.type, true)
-            .addField("Item rarity", object.rarity, true)
+            .setTitle(`Loot for ${pawn.name} (${pawn.difficulty?.toLowerCase?.()}): ${lootedItem.item} (${lootedItem.rarity} ${lootedItem.type})`)
+            .setDescription(`Looted item "${lootedItem.item}" is on the ground slot number [${worldItemsService.getActiveItems(channel).length - 1}]`)
+            .addField("Item type", lootedItem.type, true)
+            .addField("Item rarity", lootedItem.rarity, true)
 
-        if (object) {
+        if (lootedItem.image){
+            const buff = new Buffer.from(lootedItem.image.split(",")[1], "base64")
+            const messageAttachment = new MessageAttachment(buff, "output.png")
+            embed.attachFiles([messageAttachment])
+        }
+
+        if (lootedItem) {
             return {
                 embed,
-                pushIntoHistory: `[ Loot item falling on the ground for defeating ${pawn.name} (${pawn.difficulty.toLowerCase()}): ${object.item} (${object.rarity} ${object.type}) ]`
+                pushIntoHistory: `[ Loot item falling on the ground for defeating ${pawn.name} (${pawn.difficulty.toLowerCase()}): ${lootedItem.item} (${lootedItem.rarity} ${lootedItem.type}) ]`
             }
         }
     }
