@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import {Client, MessageAttachment} from 'discord.js'
+import {Client} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
 import {getVoiceConnection} from "@discordjs/voice"
 import savingService from "../service/savingService.js"
@@ -682,16 +682,12 @@ setInterval(async () => {
                 spawnMessage.newPawn.loot = {name: lootedItem.item, type: lootedItem.type, rarity: lootedItem.rarity}
 
                 if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
-                    utils.generatePicture(spawnMessage.newPawn.loot.name).then(buff => {
-                        if (buff) {
-                            spawnMessage.newPawn.loot.image = buff.toString('base64')
-
-                            channels[channel].send(`Loot item image generated for ${spawnMessage.newPawn.name}`).catch((e) => console.error(e))
-                        }
-                    })
+                    const buff = await utils.generatePicture(spawnMessage.newPawn.loot.name)
+                    if (buff) {
+                        spawnMessage.newPawn.loot.image = buff.toString('base64')
+                    }
                 }
             }
-
 
             const m = await channels[channel].send(spawnMessage?.message).catch((e) => console.error(e))
 
