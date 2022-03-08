@@ -208,7 +208,7 @@ class Utils {
         return results
     }
 
-    static async getResizedImage(response){
+    static async getResizedImage(response, resize = true){
         const contentLength = response.headers['content-length'];
         const contentType = response.headers['content-type'];
 
@@ -216,18 +216,22 @@ class Utils {
         console.log(`Content length: ${contentLength}`);
 
         const imgOriginal = await sharp(Buffer.from(response.data, 'binary'))
-        const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
-        return await im.toBuffer()
+        if (resize) {
+            const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
+            return await im.toBuffer()
+        }else{
+            return await imgOriginal.toBuffer()
+        }
     }
 
-    static async generatePicture(text, steps = 1000, cutouts = 6) {
+    static async generatePicture(text, steps = 1000, cutouts = 6, resize= true) {
         try {
             const response = await axios({
                 url: URL_IMAGE_GENERATION+`/index?steps=${steps}&cutouts=${cutouts}&input=${encodeURIComponent(text)}`,
                 method: 'GET',
                 responseType: 'arraybuffer',
             })
-            return await this.getResizedImage(response)
+            return await this.getResizedImage(response, resize)
         } catch (e) {
             console.error(e)
         }

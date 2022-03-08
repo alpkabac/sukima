@@ -7,6 +7,7 @@ import worldItemsService from "./worldItemsService.js";
 import {MessageAttachment, MessageEmbed} from "discord.js";
 import personalityService from "../personalityService.js";
 import memoryService from "../memoryService.js";
+import sharp from "sharp";
 
 const generatorAttackNew = utils.fileExists(`./bot/${envService.getBotId()}/generator/attack.json`) ?
     utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/attack.json`)
@@ -39,7 +40,7 @@ function isAlive(target) {
     return !!(target?.health?.status && !STATUS_DEAD.includes(target?.health?.status.toLowerCase()));
 }
 
-function sanitize(str){
+function sanitize(str) {
     return str
         .toLowerCase()
         .replace(/[,;.:!?"]/g, '')
@@ -636,9 +637,9 @@ class DuckHuntService {
         const pawn = pawnService.getActivePawn(channel)
 
         let lootedItem
-        if (pawn?.loot){
+        if (pawn?.loot) {
             lootedItem = pawn.loot
-        }else {
+        } else {
             const args = [
                 {name: "name", value: pawn.name},
                 {name: "difficulty", value: pawn.difficulty},
@@ -664,9 +665,11 @@ class DuckHuntService {
             .addField("Item type", lootedItem.type, true)
             .addField("Item rarity", lootedItem.rarity, true)
 
-        if (lootedItem.image){
+        if (lootedItem.image) {
             const buff = new Buffer.from(lootedItem.image, "base64")
-            const messageAttachment = new MessageAttachment(buff, "output.png")
+            const imgOriginal = await sharp(Buffer.from(buff, 'binary'))
+            const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
+            const messageAttachment = new MessageAttachment(await im.toBuffer(), "output.png")
             embed.attachFiles([messageAttachment])
         }
 
