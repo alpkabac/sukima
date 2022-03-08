@@ -654,13 +654,13 @@ class DuckHuntService {
             lootedItem = {name: object.item, type: object.type, rarity: object.rarity}
         }
 
-        worldItemsService.appendItem(channel, {name: lootedItem.item, type: lootedItem.type, rarity: lootedItem.rarity})
+        worldItemsService.appendItem(channel, {name: lootedItem.name, type: lootedItem.type, rarity: lootedItem.rarity})
         pawnService.removePawn(channel)
 
         const embed = new MessageEmbed()
             .setColor('#ffff66')
-            .setTitle(`Loot for ${pawn.name} (${pawn.difficulty?.toLowerCase?.()}): ${lootedItem.item} (${lootedItem.rarity} ${lootedItem.type})`)
-            .setDescription(`Looted item "${lootedItem.item}" is on the ground slot number [${worldItemsService.getActiveItems(channel).length - 1}]`)
+            .setTitle(`Loot for ${pawn.name} (${pawn.difficulty?.toLowerCase?.()}): ${lootedItem.name} (${lootedItem.rarity} ${lootedItem.type})`)
+            .setDescription(`Looted item "${lootedItem.name}" is on the ground slot number [${worldItemsService.getActiveItems(channel).length - 1}]`)
             .addField("Item type", lootedItem.type, true)
             .addField("Item rarity", lootedItem.rarity, true)
 
