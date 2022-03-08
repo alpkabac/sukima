@@ -33,7 +33,8 @@
     }
   ],
   "placeholders": {
-    "currency": "gold"
+    "currency": "gold",
+    "difficulty": "difficulty"
   },
   "submodules": {
     "spawn": {
