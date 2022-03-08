@@ -25,6 +25,8 @@ function loadJSONFile(filename, silent = false) {
     }
 }
 
+const URL_IMAGE_GENERATION = "http://92.167.46.77:5000"
+
 class Utils {
     /**
      * Replaces the nick of the bot by the bot name
@@ -206,58 +208,49 @@ class Utils {
         return results
     }
 
+    static async getResizedImage(response){
+        const imgOriginal = await sharp(await response.data.read())
+        const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
+        return await im.toBuffer()
+    }
+
     static async generatePicture(text, steps = 1000, cutouts = 6) {
-        let buff
         try {
             const response = await axios({
-                url: `http://localhost:5000/index?steps=${steps}&cutouts=${cutouts}&input=${encodeURIComponent(text)}`,
+                url: URL_IMAGE_GENERATION+`/index?steps=${steps}&cutouts=${cutouts}&input=${encodeURIComponent(text)}`,
                 method: 'GET',
                 responseType: 'stream',
             })
-            const imgOriginal = await sharp(await response.data.read())
-            const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
-            buff = await im.toBuffer()
+            return await this.getResizedImage(response)
         } catch (e) {
             console.error(e)
         }
-
-        return buff
     }
 
     static async continuePicture( steps = 600) {
-        let buff
         try {
             const response = await axios({
-                url: `http://localhost:5000/continue?steps=${steps}`,
+                url: URL_IMAGE_GENERATION+`/continue?steps=${steps}`,
                 method: 'GET',
                 responseType: 'stream',
             })
-            const imgOriginal = await sharp(await response.data.read())
-            const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
-            buff = await im.toBuffer()
+            return await this.getResizedImage(response)
         } catch (e) {
             console.error(e)
         }
-
-        return buff
     }
 
     static async changePicturePrompt(prompt,  steps = 600) {
-        let buff
         try {
             const response = await axios({
-                url: `http://localhost:5000/changeInput?steps=${steps}&input=${prompt}`,
+                url: URL_IMAGE_GENERATION+`/changeInput?steps=${steps}&input=${prompt}`,
                 method: 'GET',
                 responseType: 'stream',
             })
-            const imgOriginal = await sharp(await response.data.read())
-            const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
-            buff = await im.toBuffer()
+            return await this.getResizedImage(response)
         } catch (e) {
             console.error(e)
         }
-
-        return buff
     }
 
     static async updateCutouts(cutouts = 6) {

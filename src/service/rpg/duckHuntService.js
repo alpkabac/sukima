@@ -284,11 +284,12 @@ class DuckHuntService {
             )
 
 
-        if (process.env.ENABLE_RPG_IMAGES) {
+        if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
             const encounterDescriptionParsed = sanitize(object.encounterDescription)
             const difficultyParsed = sanitize(object.difficulty)
 
-            const buff = await utils.generatePicture(`${object.name}`)
+            const prompt = `${object.name}`
+            const buff = await utils.generatePicture(prompt)
             if (buff) {
                 const m = new MessageAttachment(buff, "generated_image.png")
                 msg.attachFiles([m])
