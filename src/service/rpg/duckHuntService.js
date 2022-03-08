@@ -1611,7 +1611,7 @@ class DuckHuntService {
                 } else {
                     const embed = new MessageEmbed()
                         .setColor('#ffff66')
-                        .setTitle(`Identified item!`)
+                        .setTitle(`Inspected Item`)
                         .setDescription(`${playerSelectedItem.name} (${playerSelectedItem.rarity} ${playerSelectedItem.type})`)
 
                     const buff2 = new Buffer.from(playerSelectedItem.image, "base64")
