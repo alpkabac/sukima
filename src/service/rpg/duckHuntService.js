@@ -1491,7 +1491,7 @@ class DuckHuntService {
 
         async function appendToEmbed(item) {
             if (item?.image) {
-                const buff = new Buffer.from(player.weapon.image, "base64")
+                const buff = new Buffer.from(item.image, "base64")
                 const imgOriginal = await sharp(Buffer.from(buff, 'binary'))
                 const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
                 const messageAttachment = new MessageAttachment(await im.toBuffer(), "output.png")
