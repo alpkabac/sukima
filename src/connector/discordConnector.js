@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import {Client} from 'discord.js'
+import {Client, MessageAttachment, MessageEmbed} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
 import {getVoiceConnection} from "@discordjs/voice"
 import savingService from "../service/savingService.js"
@@ -20,6 +20,7 @@ import duckHuntService from "../service/rpg/duckHuntService.js"
 import muteService from "../service/muteService.js"
 import duckHuntCommands from "../command/duckHuntCommands.js"
 import generatorService from "../service/generatorService.js";
+import sharp from "sharp";
 
 const generatorEnemy = utils.fileExists(`./bot/${envService.getBotId()}/generator/enemy.json`) ?
     utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/enemy.json`)
@@ -654,6 +655,26 @@ setInterval(async () => {
             const swarm = duckHuntService.getSwarm()
             const swarmMode = !swarm.timestamp ? false : Date.now() - (swarm.timestamp + swarm.duration) < 0
             const pawn = pawnService.getActivePawn(channel)
+
+            if (envService.getBoolean("ENABLE_RPG_IMAGES") && duckHuntService.getItemsToInspect(channel).length > 0) {
+                const itemToInspect = duckHuntService.getItemsToInspect(channel).shift()
+                const buff = await utils.generatePicture(itemToInspect.name, 1000, 6, false)
+                if (buff) {
+                    const embed = new MessageEmbed()
+                        .setColor('#ffff66')
+                        .setTitle(`Identified item!`)
+                        .setDescription(`${itemToInspect.name} (${itemToInspect.rarity} ${itemToInspect.type})`)
+
+                    itemToInspect.image = buff.toString('base64')
+                    const buff2 = new Buffer.from(itemToInspect.image, "base64")
+                    const imgOriginal = await sharp(Buffer.from(buff2, 'binary'))
+                    const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
+                    const messageAttachment = new MessageAttachment(await im.toBuffer(), "output.png")
+                    embed.attachFiles([messageAttachment])
+                    await channels[channel].send(embed).catch((e) => console.error(e))
+                }
+            }
+
             if (pawn && (Date.now() - pawn.createdAt < 1000 * envService.getRpgRespawnCoolDown())) continue
             if (!swarmMode && (pawnService.lastPawnKilledAt[channel] && (Date.now() - pawnService.lastPawnKilledAt[channel] < 1000 * envService.getRpgSpawnCoolDown()))) continue
             if (swarmMode && pawn?.alive) continue

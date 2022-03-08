@@ -36,6 +36,8 @@ let swarmSettings = {
     duration: null
 }
 
+let itemsToInspect = {}
+
 function isAlive(target) {
     return !!(target?.health?.status && !STATUS_DEAD.includes(target?.health?.status.toLowerCase()));
 }
@@ -1487,7 +1489,7 @@ class DuckHuntService {
         const backpackSelectedItem = `${playerLastInventoryItem?.name || 'none'}`
             + (!playerLastInventoryItem ? `` : ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
 
-        async function appendToEmbed(item){
+        async function appendToEmbed(item) {
             if (item?.image) {
                 const buff = new Buffer.from(player.weapon.image, "base64")
                 const imgOriginal = await sharp(Buffer.from(buff, 'binary'))
@@ -1584,6 +1586,54 @@ class DuckHuntService {
             deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true
         }
+    }
+
+    static async inspectItem(channel, username, itemSlot) {
+        const player = playerService.getPlayer(channel, username)
+
+
+        let playerSelectedItem
+        if (itemSlot && !isNaN(parseInt(itemSlot))) {
+            playerSelectedItem = player.inventory[parseInt(itemSlot)]
+            if (playerSelectedItem){
+                if (!playerSelectedItem.image) {
+                    if (!itemsToInspect[channel]) itemsToInspect[channel] = []
+                    itemsToInspect[channel].push(playerSelectedItem)
+                }else{
+                    return {
+                        message: `# ${username} tried to add an item in the item inspection queue, but selected item is already inspected`,
+                        deleteUserMsg: username !== process.env.BOTNAME,
+                        instantReply: true
+                    }
+                }
+            }else{
+                return {
+                    message: `# ${username} tried to add an item in the item inspection queue, but has no item in slot [${itemSlot}]`,
+                    deleteUserMsg: username !== process.env.BOTNAME,
+                    instantReply: true
+                }
+            }
+        } else {
+            return {
+                message: `# ${username} tried to add an item in the item inspection queue, but no slot was provided`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                instantReply: true
+            }
+        }
+
+        const embed = new MessageEmbed()
+            .setColor('#ffffff')
+            .setTitle(`Player ${username} added the item "${playerSelectedItem.name}" in the inspection list, it will send a message once generated`)
+            .setDescription(`It might take up to a mine per item in the queue`)
+        return {
+            message: embed,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true
+        }
+    }
+
+    static getItemsToInspect(channel){
+        return itemsToInspect[channel]
     }
 
     static async generateSpell(channel, args) {

@@ -4,7 +4,6 @@ import duckHuntService from "../service/rpg/duckHuntService.js";
 
 config()
 
-
 const duckHuntCommands = {
     spawnItem: new Command(
         "Spawn Item",
@@ -375,6 +374,16 @@ const duckHuntCommands = {
         },
         false
     ),
+    inspectItem: new Command(
+        "Inspect Item",
+        [],
+        ["!inspect"],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return duckHuntService.inspectItem(channel, from, parsedMsg.trim())
+        },
+        false
+    ),
 }
 
 duckHuntCommands.all = [
@@ -404,6 +413,7 @@ duckHuntCommands.all = [
     duckHuntCommands.upgradeBackpack,
     duckHuntCommands.setGender,
     duckHuntCommands.equipWeapon,
+    duckHuntCommands.inspectItem,
     //duckHuntCommands.equip,
 ]
 
