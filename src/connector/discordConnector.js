@@ -723,6 +723,7 @@ async function mainRpgLoop() {
 
                 savingService.save(channel)
             }
+            await utils.sleep(10000)
         }
     }
 }
