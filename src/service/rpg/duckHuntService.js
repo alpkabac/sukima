@@ -665,7 +665,7 @@ class DuckHuntService {
             .addField("Item rarity", lootedItem.rarity, true)
 
         if (lootedItem.image){
-            const buff = new Buffer.from(lootedItem.image.split(",")[1], "base64")
+            const buff = new Buffer.from(lootedItem.image, "base64")
             const messageAttachment = new MessageAttachment(buff, "output.png")
             embed.attachFiles([messageAttachment])
         }
