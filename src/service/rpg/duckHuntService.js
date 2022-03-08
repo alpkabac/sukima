@@ -1487,6 +1487,20 @@ class DuckHuntService {
         const backpackSelectedItem = `${playerLastInventoryItem?.name || 'none'}`
             + (!playerLastInventoryItem ? `` : ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
 
+        async function appendToEmbed(item){
+            if (item?.image) {
+                const buff = new Buffer.from(player.weapon.image, "base64")
+                const imgOriginal = await sharp(Buffer.from(buff, 'binary'))
+                const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
+                const messageAttachment = new MessageAttachment(await im.toBuffer(), "output.png")
+                embed.attachFiles([messageAttachment])
+            }
+        }
+
+        await appendToEmbed(player.weapon)
+        await appendToEmbed(player.armor)
+        await appendToEmbed(player.accessory)
+        await appendToEmbed(player.heal)
 
         return {
             message: embed,
