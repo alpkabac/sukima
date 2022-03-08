@@ -377,10 +377,20 @@ const duckHuntCommands = {
     inspectItem: new Command(
         "Inspect Item",
         [],
-        ["!inspect"],
+        ["!inspect", "!ins"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return duckHuntService.inspectItem(channel, from, parsedMsg.trim())
+        },
+        false
+    ),
+    reInspectItem: new Command(
+        "Inspect Item",
+        [],
+        ["!reinspect", '!rei'],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return duckHuntService.reInspectItem(channel, from, parsedMsg.trim())
         },
         false
     ),
@@ -414,6 +424,7 @@ duckHuntCommands.all = [
     duckHuntCommands.setGender,
     duckHuntCommands.equipWeapon,
     duckHuntCommands.inspectItem,
+    duckHuntCommands.reInspectItem,
     //duckHuntCommands.equip,
 ]
 

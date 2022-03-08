@@ -209,12 +209,6 @@ class Utils {
     }
 
     static async getResizedImage(response, resize = true) {
-        const contentLength = response.headers['content-length'];
-        const contentType = response.headers['content-type'];
-
-        console.log(`Content type: ${contentType}`);
-        console.log(`Content length: ${contentLength}`);
-
         const imgOriginal = await sharp(Buffer.from(response.data, 'binary'))
         if (resize) {
             const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})

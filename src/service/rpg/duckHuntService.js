@@ -1644,7 +1644,62 @@ class DuckHuntService {
 
         const embed = new MessageEmbed()
             .setColor('#ffffff')
-            .setTitle(`Player ${username} added the item "${playerSelectedItem.name}" in the inspection list, it will send a message once generated`)
+            .setTitle(`Player ${username} added the item "${playerSelectedItem.name}" in the inspection list! A message will be sent when the item image is done generating!`)
+            .setDescription(`It might take up to a mine per item in the queue`)
+        return {
+            message: embed,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true
+        }
+    }
+
+    static async reInspectItem(channel, username, itemSlot) {
+        const price = 10000
+        const player = playerService.getPlayer(channel, username)
+
+        let playerSelectedItem
+        if (itemSlot && !isNaN(parseInt(itemSlot))) {
+            playerSelectedItem = player.inventory[parseInt(itemSlot)]
+            if (playerSelectedItem) {
+                const player = playerService.getPlayer(channel, username)
+
+                if (player.gold < price) {
+                    return {
+                        message: `# ${username} tried to re-inspect an item, but doesn't have enough gold! (10000 gold needed)`,
+                        deleteUserMsg: username !== process.env.BOTNAME,
+                        instantReply: true
+                    }
+                }
+
+                if (!itemsToInspect[channel]) itemsToInspect[channel] = []
+                if (!itemsToInspect[channel].includes(playerSelectedItem)) {
+                    itemsToInspect[channel].push(playerSelectedItem)
+                    player.gold -= price
+                } else {
+                    return {
+                        message: `# ${username} tried to add an item in the item inspection queue, but this item is already in the list`,
+                        deleteUserMsg: username !== process.env.BOTNAME,
+                        instantReply: true
+                    }
+                }
+            } else {
+                return {
+                    message: `# ${username} tried to add an item in the item inspection queue, but has no item in slot [${itemSlot}]`,
+                    deleteUserMsg: username !== process.env.BOTNAME,
+                    instantReply: true
+                }
+            }
+        } else {
+            return {
+                message: `# ${username} tried to add an item in the item inspection queue, but no slot was provided`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                instantReply: true
+            }
+        }
+
+        const embed = new MessageEmbed()
+            .setColor('#ffffff')
+            .setTitle(`Player ${username} added the item "${playerSelectedItem.name}" in the inspection list for ${price} ${generatorEnemy.placeholders["currency"]}! A message will be sent when the item image is done generating!`)
             .setDescription(`It might take up to a mine per item in the queue`)
         return {
             message: embed,
