@@ -682,7 +682,7 @@ setInterval(async () => {
                 spawnMessage.newPawn.loot = {name: lootedItem.item, type: lootedItem.type, rarity: lootedItem.rarity}
 
                 if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
-                    utils.generatePicture().then(buff => {
+                    utils.generatePicture(spawnMessage.newPawn.loot.name).then(buff => {
                         if (buff) {
                             spawnMessage.newPawn.loot.image = buff.toString('base64')
                         }
