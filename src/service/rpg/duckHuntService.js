@@ -1598,7 +1598,16 @@ class DuckHuntService {
             if (playerSelectedItem) {
                 if (!playerSelectedItem.image) {
                     if (!itemsToInspect[channel]) itemsToInspect[channel] = []
-                    itemsToInspect[channel].push(playerSelectedItem)
+
+                    if (!itemsToInspect[channel].includes(playerSelectedItem)) {
+                        itemsToInspect[channel].push(playerSelectedItem)
+                    }else{
+                        return {
+                            message: `# ${username} tried to add an item in the item inspection queue, but this item is already in the list`,
+                            deleteUserMsg: username !== process.env.BOTNAME,
+                            instantReply: true
+                        }
+                    }
                 } else {
                     const embed = new MessageEmbed()
                         .setColor('#ffff66')
