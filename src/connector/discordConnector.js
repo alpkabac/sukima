@@ -656,7 +656,7 @@ setInterval(async () => {
             const swarmMode = !swarm.timestamp ? false : Date.now() - (swarm.timestamp + swarm.duration) < 0
             const pawn = pawnService.getActivePawn(channel)
 
-            if (envService.getBoolean("ENABLE_RPG_IMAGES") && duckHuntService.getItemsToInspect(channel).length > 0) {
+            if (envService.getBoolean("ENABLE_RPG_IMAGES") && duckHuntService.getItemsToInspect(channel)?.length > 0) {
                 const itemToInspect = duckHuntService.getItemsToInspect(channel).shift()
                 const buff = await utils.generatePicture(itemToInspect.name, 1000, 6, false)
                 if (buff) {
