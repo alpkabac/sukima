@@ -684,10 +684,6 @@ setInterval(async () => {
                 spawnMessage.newPawn.loot = {name: lootedItem.item, type: lootedItem.type, rarity: lootedItem.rarity}
 
                 if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
-                    const encounterDescriptionParsed = sanitize(object.encounterDescription)
-                    const difficultyParsed = sanitize(object.difficulty)
-
-                    const prompt = `${object.name}`
                     utils.generatePicture().then(buff => {
                         if (buff) {
                             spawnMessage.newPawn.loot.image = buff.toString('base64')
