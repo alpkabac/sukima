@@ -645,80 +645,87 @@ bot.on('messageReactionAdd', async (reaction, user) => {
     }
 });
 
-setInterval(async () => {
+async function mainRpgLoop() {
     if (envService.isRpgModeEnabled()) {
-        for (let channel in channels) {
-            // Prevents auto messages in DMs (temporary, hopefully)
-            if (channel.startsWith("##")) continue
-            if (muteService.isChannelMuted(channel)) continue
+        while (true) {
+            for (let channel in channels) {
+                // Prevents auto messages in DMs (temporary, hopefully)
+                if (channel.startsWith("##")) continue
+                if (muteService.isChannelMuted(channel)) continue
 
-            const swarm = duckHuntService.getSwarm()
-            const swarmMode = !swarm.timestamp ? false : Date.now() - (swarm.timestamp + swarm.duration) < 0
-            const pawn = pawnService.getActivePawn(channel)
+                const swarm = duckHuntService.getSwarm()
+                const swarmMode = !swarm.timestamp ? false : Date.now() - (swarm.timestamp + swarm.duration) < 0
+                const pawn = pawnService.getActivePawn(channel)
 
-            if (envService.getBoolean("ENABLE_RPG_IMAGES") && duckHuntService.getItemsToInspect(channel)?.length > 0) {
-                const itemToInspect = duckHuntService.getItemsToInspect(channel).shift()
-                const buff = await utils.generatePicture(itemToInspect.name, 1000, 6, false)
-                if (buff) {
-                    const embed = new MessageEmbed()
-                        .setColor('#ffff66')
-                        .setTitle(`Identified item!`)
-                        .setDescription(`${itemToInspect.name} (${itemToInspect.rarity} ${itemToInspect.type})`)
-
-                    itemToInspect.image = buff.toString('base64')
-                    const buff2 = new Buffer.from(itemToInspect.image, "base64")
-                    const imgOriginal = await sharp(Buffer.from(buff2, 'binary'))
-                    const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
-                    const messageAttachment = new MessageAttachment(await im.toBuffer(), "output.png")
-                    embed.attachFiles([messageAttachment])
-                    await channels[channel].send(embed).catch((e) => console.error(e))
-                }
-            }
-
-            if (pawn && (Date.now() - pawn.createdAt < 1000 * envService.getRpgRespawnCoolDown())) continue
-            if (!swarmMode && (pawnService.lastPawnKilledAt[channel] && (Date.now() - pawnService.lastPawnKilledAt[channel] < 1000 * envService.getRpgSpawnCoolDown()))) continue
-            if (swarmMode && pawn?.alive) continue
-
-            let difficulty = swarmMode ? swarm.difficulty : null
-
-            let spawnMessage
-            if (swarmMode) {
-                spawnMessage = await duckHuntService.swarm(channel, difficulty, swarm.name || null)
-            } else {
-                spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
-
-                const args = [
-                    {name: "name", value: spawnMessage.newPawn.name},
-                    {name: "difficulty", value: spawnMessage.newPawn.difficulty},
-                    {name: "item"},
-                    {name: "type"},
-                    {name: "rarity"},
-                ]
-                const {
-                    object: lootedItem,
-                    result,
-                    module
-                } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
-
-                spawnMessage.newPawn.loot = {name: lootedItem.item, type: lootedItem.type, rarity: lootedItem.rarity}
-
-                if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
-                    const buff = await utils.generatePicture(spawnMessage.newPawn.loot.name, 1000, 6, false)
+                if (envService.getBoolean("ENABLE_RPG_IMAGES") && duckHuntService.getItemsToInspect(channel)?.length > 0) {
+                    const itemToInspect = duckHuntService.getItemsToInspect(channel).shift()
+                    const buff = await utils.generatePicture(itemToInspect.name, 1000, 6, false)
                     if (buff) {
-                        spawnMessage.newPawn.loot.image = buff.toString('base64')
+                        const embed = new MessageEmbed()
+                            .setColor('#ffff66')
+                            .setTitle(`Identified item!`)
+                            .setDescription(`${itemToInspect.name} (${itemToInspect.rarity} ${itemToInspect.type})`)
+
+                        itemToInspect.image = buff.toString('base64')
+                        const buff2 = new Buffer.from(itemToInspect.image, "base64")
+                        const imgOriginal = await sharp(Buffer.from(buff2, 'binary'))
+                        const im = await imgOriginal.resize(160, 160, {kernel: sharp.kernel.nearest})
+                        const messageAttachment = new MessageAttachment(await im.toBuffer(), "output.png")
+                        embed.attachFiles([messageAttachment])
+                        await channels[channel].send(embed).catch((e) => console.error(e))
                     }
                 }
+
+                if (pawn && (Date.now() - pawn.createdAt < 1000 * envService.getRpgRespawnCoolDown())) continue
+                if (!swarmMode && (pawnService.lastPawnKilledAt[channel] && (Date.now() - pawnService.lastPawnKilledAt[channel] < 1000 * envService.getRpgSpawnCoolDown()))) continue
+                if (swarmMode && pawn?.alive) continue
+
+                let difficulty = swarmMode ? swarm.difficulty : null
+
+                let spawnMessage
+                if (swarmMode) {
+                    spawnMessage = await duckHuntService.swarm(channel, difficulty, swarm.name || null)
+                } else {
+                    spawnMessage = await duckHuntService.spawn(channel, difficulty, null)
+
+                    const args = [
+                        {name: "name", value: spawnMessage.newPawn.name},
+                        {name: "difficulty", value: spawnMessage.newPawn.difficulty},
+                        {name: "item"},
+                        {name: "type"},
+                        {name: "rarity"},
+                    ]
+                    const {
+                        object: lootedItem,
+                        result,
+                        module
+                    } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
+
+                    spawnMessage.newPawn.loot = {
+                        name: lootedItem.item,
+                        type: lootedItem.type,
+                        rarity: lootedItem.rarity
+                    }
+
+                    if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
+                        const buff = await utils.generatePicture(spawnMessage.newPawn.loot.name, 1000, 6, false)
+                        if (buff) {
+                            spawnMessage.newPawn.loot.image = buff.toString('base64')
+                        }
+                    }
+                }
+
+                const m = await channels[channel].send(spawnMessage?.message).catch((e) => console.error(e))
+
+                if (m && spawnMessage && spawnMessage.pushIntoHistory) {
+                    historyService.pushIntoHistory(spawnMessage.pushIntoHistory[0], spawnMessage.pushIntoHistory[1], spawnMessage.pushIntoHistory[2], m?.id)
+                }
+
+                savingService.save(channel)
             }
-
-            const m = await channels[channel].send(spawnMessage?.message).catch((e) => console.error(e))
-
-            if (m && spawnMessage && spawnMessage.pushIntoHistory) {
-                historyService.pushIntoHistory(spawnMessage.pushIntoHistory[0], spawnMessage.pushIntoHistory[1], spawnMessage.pushIntoHistory[2], m?.id)
-            }
-
-            savingService.save(channel)
         }
     }
-}, 10000)
+}
+mainRpgLoop().then()
 
 export default {}
