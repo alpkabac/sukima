@@ -288,8 +288,8 @@ class DuckHuntService {
 
 
         if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
-            const encounterDescriptionParsed = sanitize(object.encounterDescription)
-            const difficultyParsed = sanitize(object.difficulty)
+            //const encounterDescriptionParsed = sanitize(object.encounterDescription)
+            //const difficultyParsed = sanitize(object.difficulty)
 
             const prompt = `${object.name}`
             const buff = await utils.generatePicture(utils.sanitize(prompt, false))
