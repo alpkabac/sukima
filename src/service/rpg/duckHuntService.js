@@ -288,10 +288,9 @@ class DuckHuntService {
 
 
         if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
-            //const encounterDescriptionParsed = sanitize(object.encounterDescription)
-            //const difficultyParsed = sanitize(object.difficulty)
-
-            const prompt = `${object.name}`
+            const prompt = envService.getBoolean("ENABLE_RPG_NSFW") ?
+                `${newPawn.name} naked girl ${utils.sanitize(newPawn.difficulty)}`
+                :`${newPawn.name}`
             const buff = await utils.generatePicture(utils.sanitize(prompt, false))
             if (buff) {
                 const m = new MessageAttachment(buff, "generated_image.png")

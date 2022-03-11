@@ -1,0 +1,6 @@
+pip install kornia
+pip install ftfy regex tqdm
+pip install git+https://github.com/openai/CLIP.git
+pip install flask
+pip install torchvision
+pip install matplotlib

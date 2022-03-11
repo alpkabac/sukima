@@ -25,7 +25,7 @@ function loadJSONFile(filename, silent = false) {
     }
 }
 
-const URL_IMAGE_GENERATION = "http://92.167.46.77:5000"
+const URL_IMAGE_GENERATION = process.env.URL_IMAGE_GENERATION
 
 class Utils {
     /**
