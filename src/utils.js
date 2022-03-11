@@ -221,7 +221,7 @@ class Utils {
     static async generatePicture(text, steps = 1000, cutouts = 6, resize = true) {
         try {
             const response = await axios({
-                url: URL_IMAGE_GENERATION + `/index?steps=${steps}&cutouts=${cutouts}&input=${encodeURIComponent(text+" #pixelart")}`,
+                url: URL_IMAGE_GENERATION + `/index?steps=${steps}&cutouts=${cutouts}&input=${encodeURIComponent(text)}`,
                 method: 'GET',
                 responseType: 'arraybuffer',
             })

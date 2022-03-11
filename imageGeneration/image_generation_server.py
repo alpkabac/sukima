@@ -79,7 +79,7 @@ cutout = MakeCutouts(n_px, n_cutouts, crop_scale_min=0.75)
 # initialize pixels
 pix = torch.randn(1, 3, H, W).to('cuda').requires_grad_(True)
 # optimize the pixels directly
-optimizer = torch.optim.Adam([pix], lr=1e-1)
+optimizer = torch.optim.Adam([pix], lr=0.05)
 losses = []
 iter_count = 0
 is_generating = False
@@ -104,7 +104,7 @@ def reset(cutouts, texts):
   pix = torch.randn(1, 3, H, W).to('cuda').requires_grad_(True)
   # optimize the pixels directly
   global optimizer
-  optimizer = torch.optim.Adam([pix], lr=1e-1)
+  optimizer = torch.optim.Adam([pix], lr=0.05)
   global losses
   losses = []
   global iter_count
