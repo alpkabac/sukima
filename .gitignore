@@ -12,3 +12,4 @@ logs.txt
 /user/*
 /runningBots.json
 /buildUrl.js
+/imageGeneration/img/*
