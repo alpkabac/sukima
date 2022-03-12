@@ -69,7 +69,7 @@ class GeneratorService {
             prompt: prompt.completePrompt,
             result
         }
-        logService.log(ret)
+        logService.log(JSON.stringify(ret, null, 4))
 
         return {
             object: this.parseResult(module, prompt.placeholderPrompt, result),
