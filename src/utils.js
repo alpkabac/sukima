@@ -115,9 +115,8 @@ class Utils {
                     'Authorization': "Bearer " + accessTokens[accessTokensCounter++ % accessTokens.length]
                 }
             })
-        console.log(buffer)
         const stream = new Duplex()
-        stream.push(buffer)
+        stream.push(buffer.data)
         stream.push(null)
         connection.play(stream)
     }
