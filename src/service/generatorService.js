@@ -64,13 +64,6 @@ class GeneratorService {
 
         const result = await this.executePrompt(generator, submoduleName, prompt.completePrompt, preventLMI)
 
-        const ret = {
-            object: this.parseResult(module, prompt.placeholderPrompt, result),
-            prompt: prompt.completePrompt,
-            result
-        }
-        logService.log(JSON.stringify(ret, null, 4))
-
         return {
             object: this.parseResult(module, prompt.placeholderPrompt, result),
             prompt: prompt.completePrompt,
