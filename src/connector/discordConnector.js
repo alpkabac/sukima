@@ -408,60 +408,59 @@ async function processMessage(msg) {
             channels[channelName].startTyping().then()
         }
 
-        setTimeout(async () => {
-            let newMessage = originalMsg
+        await utils.sleep(timeToWait)
+        let newMessage = originalMsg
 
-            if (message.editMessage) {
-                await (await channels[channelName].messages.fetch(message.editMessage))?.edit(parsedMessage)?.catch(() => null)
-            } else if (message.editLastMessage) {
-                await channels[channelName].lastBotMessage?.edit(parsedMessage)?.catch(() => null)
-            } else if (message.appendToLastMessage) {
-                await channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)?.catch(() => null)
+        if (message.editMessage) {
+            await (await channels[channelName].messages.fetch(message.editMessage))?.edit(parsedMessage)?.catch(() => null)
+        } else if (message.editLastMessage) {
+            await channels[channelName].lastBotMessage?.edit(parsedMessage)?.catch(() => null)
+        } else if (message.appendToLastMessage) {
+            await channels[channelName].lastBotMessage?.edit(channels[channelName].lastBotMessage.cleanContent + parsedMessage)?.catch(() => null)
+        } else {
+            if (message.image) {
+                newMessage = await originalMsg.inlineReply({
+                    message: parsedMessage, files: [{
+                        attachment: message.image,
+                        name: "SPOILER_FILE.jpg"
+                    }]
+                }).catch((e) => console.error(e))
             } else {
-                if (message.image) {
-                    newMessage = await originalMsg.inlineReply({
-                        message: parsedMessage, files: [{
-                            attachment: message.image,
-                            name: "SPOILER_FILE.jpg"
-                        }]
-                    }).catch((e) => console.error(e))
+                if (embedMessage) {
+                    newMessage = await channels[channelName].send(parsedMessage).catch(() => null)
                 } else {
-                    if (embedMessage) {
-                        newMessage = await channels[channelName].send(parsedMessage).catch(() => null)
-                    } else {
-                        await originalMsg.inlineReply(parsedMessage).catch(() => null)
-                    }
+                    await originalMsg.inlineReply(parsedMessage).catch(() => null)
                 }
             }
+        }
 
-            if (!newMessage) {
-                console.warn("New message couldn't be retrieved when it should have been...")
-            }
+        if (!newMessage) {
+            console.warn("New message couldn't be retrieved when it should have been...")
+        }
 
-            if (message && message.pushIntoHistory) {
-                historyService.pushIntoHistory(message.pushIntoHistory[0], message.pushIntoHistory[1], message.pushIntoHistory[2], newMessage?.id)
-            }
+        if (message && message.pushIntoHistory) {
+            historyService.pushIntoHistory(message.pushIntoHistory[0], message.pushIntoHistory[1], message.pushIntoHistory[2], newMessage?.id)
+        }
 
-            if (newMessage && message.deleteNewMessage) {
-                setTimeout(async () => {
-                    await newMessage.delete().catch(() => null)
-                }, 5000)
-            }
+        if (newMessage && message.deleteNewMessage) {
+            setTimeout(async () => {
+                await newMessage.delete().catch(() => null)
+            }, 5000)
+        }
 
-            channels[channelName].stopTyping(true)
-            locked[channelName] = false
-            savingService.save(channelName)
+        channels[channelName].stopTyping(true)
+        locked[channelName] = false
+        savingService.save(channelName)
 
-            if (message.alsoSend) {
-                if (Array.isArray(message.alsoSend)) {
-                    for (let alsoSend of message.alsoSend) {
-                        await channels[channelName].send(alsoSend).catch(e => console.error(e))
-                    }
-                } else {
-                    await channels[channelName].send(message.alsoSend).catch(e => console.error(e))
+        if (message.alsoSend) {
+            if (Array.isArray(message.alsoSend)) {
+                for (let alsoSend of message.alsoSend) {
+                    await channels[channelName].send(alsoSend).catch(e => console.error(e))
                 }
+            } else {
+                await channels[channelName].send(message.alsoSend).catch(e => console.error(e))
             }
-        }, timeToWait)
+        }
 
         if (!embedMessage && speak && !message.message.startsWith("#")) {
             await speak(parsedMessage, channelName)
@@ -528,15 +527,14 @@ async function parseForceMessage(channel, msg) {
     const parsedMessage = utils.replaceAsterisksByBackQuotes(msg.message)
     const timeToWait = encoder.encode(parsedMessage).length * 50
     channels[channel].startTyping().then()
-    setTimeout(async () => {
-        const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
-        if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
-            historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
-            savingService.save(channel)
-        }
-        channels[channel].stopTyping(true)
-        locked[channel] = false
-    }, timeToWait)
+    await utils.sleep(timeToWait)
+    const m = await channels[channel].send(clearRpgBotTextOutput(parsedMessage)).catch((e) => console.error(e))
+    if (msg.pushIntoHistory && (!msg.pushIntoHistory[0].startsWith('!') || isMessageAnAllowedCommand(msg.pushIntoHistory[0]))) {
+        historyService.pushIntoHistory(clearRpgBotTextOutput(msg.pushIntoHistory[0]), msg.pushIntoHistory[1], msg.pushIntoHistory[2], m?.id)
+        savingService.save(channel)
+    }
+    channels[channel].stopTyping(true)
+    locked[channel] = false
     if (!channel.startsWith("##")) {
         await speak(parsedMessage, channel)
     }
