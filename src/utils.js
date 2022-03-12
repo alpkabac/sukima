@@ -83,6 +83,22 @@ class Utils {
         connection.play(stream)
     }
 
+    static async tts2(connection, text, voiceConfig) {
+        const buffer = await axios.get(`https://api.novelai.net/ai/generate-voice`,
+            {
+                params: {
+                    text: text,
+                    seed: "Alice Lulune",
+                    voice: -1,
+                    opus: false
+                }
+            })
+        const stream = new Duplex()
+        stream.push(buffer)
+        stream.push(null)
+        connection.play(stream)
+    }
+
     static shuffleArray(array) {
         try {
             return Utils.shuffleArrayInPlace(JSON.parse(JSON.stringify(array)))
