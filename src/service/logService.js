@@ -3,13 +3,13 @@ import fs from 'fs'
 class LogService {
     static log(msg) {
         console.log(msg)
-        /*fs.writeFileSync(
+        fs.writeFileSync(
             './logs.txt',
             `[${process.env.BOT_ID}] `
             + `[${(new Date()).toLocaleDateString()} ${(new Date()).toLocaleTimeString()}] `
             + `${msg}\n`,
             {flag: 'a'}
-        )*/
+        )
     }
 
     static error(msg, err) {
