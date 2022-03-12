@@ -115,6 +115,8 @@ class Utils {
                     'Authorization': "Bearer " + accessTokens[accessTokensCounter++ % accessTokens.length]
                 }
             })
+
+        logService.log(JSON.stringify(buffer, null, 4))
         const stream = new Duplex()
         stream.push(Buffer.from(buffer.data))
         stream.push(null)
