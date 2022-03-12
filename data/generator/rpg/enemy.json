@@ -140,59 +140,6 @@
           "replaceBy": "Looted Item Rarity:"
         }
       ],
-      "aiParameters": {
-        "logit_bias_exp": [
-          {
-            "sequence": [
-              845,
-              2219
-            ],
-            "bias": 0.1,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              2219
-            ],
-            "bias": 0.1,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              19185
-            ],
-            "bias": 0.1,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              4071
-            ],
-            "bias": 0.1,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              12191
-            ],
-            "bias": 0.1,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          },
-          {
-            "sequence": [
-              13273
-            ],
-            "bias": 0.1,
-            "ensure_sequence_finish": false,
-            "generate_once": true
-          }
-        ]
-      },
       "list": [
         {
           "name": "Orc Soldier",
@@ -378,8 +325,5 @@
         }
       ]
     }
-  },
-  "aiParameters": {
-    "temperature": 0.8
   }
 }

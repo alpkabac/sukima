@@ -184,9 +184,6 @@
       "status": "dead"
     }
   ],
-  "aiParameters": {
-    "temperature": 0.8
-  },
   "submodules": {
     "attack": {
       "context": "[ Attack Description: given a target and a player's equipment, generates an attack description ]",
@@ -271,10 +268,6 @@
           "description": "You strike the troll with your wooden club, only doing light bruises on its sternum. The troll is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead."
         }
       ],
-      "aiParameters": {
-        "repetition_penalty": 1.15,
-        "repetition_penalty_slope": 9.99
-      }
     },
     "attackPlayer": {
       "context": "[ Attack Description: given a target and a player's equipment, generates an attack description ]",
@@ -297,10 +290,6 @@
       "callsSubmodules": [
         "woundDetection"
       ],
-      "aiParameters": {
-        "repetition_penalty": 1.15,
-        "repetition_penalty_slope": 9.99
-      },
       "list": [
         {
           "player": "[ Rare Small Copper Dagger; Leather Armor ]",
@@ -340,10 +329,6 @@
       "callsSubmodules": [
         "healDetection"
       ],
-      "aiParameters": {
-        "repetition_penalty": 1.15,
-        "repetition_penalty_slope": 9.99
-      },
       "list": [
         {
           "player": "[ Minor Healing (common healing spell) ]",
