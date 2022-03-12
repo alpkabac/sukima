@@ -12,7 +12,7 @@ config()
 
 const conf = loadJSONFile("./conf.json")
 const client = new textToSpeech.TextToSpeechClient()
-let accessTokens = Utils.loadKeys()
+let accessTokens = null
 let accessTokensCounter = 0
 
 function loadJSONFile(filename, silent = false) {
@@ -86,6 +86,7 @@ class Utils {
     }
 
     static async tts2(connection, text, voiceConfig) {
+        if (!accessTokens) accessTokens = await Utils.loadKeys()
         const buffer = await axios.get(`https://api.novelai.net/ai/generate-voice`,
             {
                 params: {
