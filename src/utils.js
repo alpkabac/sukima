@@ -6,7 +6,7 @@ import {MessageAttachment} from "discord.js";
 import axios from "axios";
 import logService from "./service/logService.js";
 import sharp from "sharp";
-import aiService from "./service/aiService";
+import aiService from "./service/aiService.js";
 
 config()
 
