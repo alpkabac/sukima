@@ -116,7 +116,7 @@ class Utils {
                 }
             })
         const stream = new Duplex()
-        stream.push(buffer.data)
+        stream.push(Buffer.from(buffer.data))
         stream.push(null)
         connection.play(stream)
     }
