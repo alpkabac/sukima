@@ -116,7 +116,6 @@ class Utils {
                 }
             })
 
-        logService.log(JSON.stringify(buffer.data, null, 4))
         const stream = new Duplex()
         stream.push(Buffer.from(buffer.data))
         stream.push(null)
