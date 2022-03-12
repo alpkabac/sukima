@@ -6,7 +6,6 @@ import {MessageAttachment} from "discord.js";
 import axios from "axios";
 import logService from "./service/logService.js";
 import sharp from "sharp";
-import aiService from "./service/aiService.js";
 
 config()
 
@@ -25,6 +24,22 @@ function loadJSONFile(filename, silent = false) {
             logService.error("Couldn't load JSON file", err)
         }
     }
+}
+
+const getAccessToken = async (access_key) => {
+    return new Promise((resolve, reject) => {
+        axios.post("https://api.novelai.net/user/login", {key: access_key}, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(r => {
+                resolve(r.data.accessToken)
+            })
+            .catch(err => {
+                reject(err)
+            })
+    })
 }
 
 const URL_IMAGE_GENERATION = process.env.URL_IMAGE_GENERATION
@@ -336,13 +351,17 @@ class Utils {
         const tokens = []
 
         for (let key of keys) {
-            const token = await aiService.getAccessToken(key)
+            const token = await getAccessToken(key)
             if (!tokens.includes(token))
                 tokens.push(token)
         }
 
         accessTokens = tokens
         return tokens
+    }
+
+    static async getAccessToken(key) {
+        return await getAccessToken(key)
     }
 }
 

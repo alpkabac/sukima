@@ -13,22 +13,6 @@ config()
 const conf = utils.loadJSONFile("./conf.json")
 let lastGenerationTimestamp = Date.now()
 
-const getAccessToken = async (access_key) => {
-    return new Promise((resolve, reject) => {
-        axios.post("https://api.novelai.net/user/login", {key: access_key}, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(r => {
-                resolve(r.data.accessToken)
-            })
-            .catch(err => {
-                reject(err)
-            })
-    })
-}
-
 const DEFAULT_PARAMETERS = utils.loadJSONFile("./data/aiParameters/personality_default.json")
 const DEFAULT_PARAMETERS_EVALBOT = utils.loadJSONFile("./data/aiParameters/evalbot_default.json")
 
@@ -181,7 +165,7 @@ class AiService {
     }
 
     static async getAccessToken(key) {
-        return await getAccessToken(key)
+        return await utils.getAccessToken(key)
     }
 }
 
