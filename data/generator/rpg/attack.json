@@ -267,7 +267,7 @@
           "enemy": "[ Target: Troll; difficulty: very hard; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
           "description": "You strike the troll with your wooden club, only doing light bruises on its sternum. The troll is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead."
         }
-      ],
+      ]
     },
     "attackPlayer": {
       "context": "[ Attack Description: given a target and a player's equipment, generates an attack description ]",
