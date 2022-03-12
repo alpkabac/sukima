@@ -6,12 +6,14 @@ import {MessageAttachment} from "discord.js";
 import axios from "axios";
 import logService from "./service/logService.js";
 import sharp from "sharp";
+import aiService from "./service/aiService";
 
 config()
 
 const conf = loadJSONFile("./conf.json")
 const client = new textToSpeech.TextToSpeechClient()
-
+let accessTokens = Utils.loadKeys()
+let accessTokensCounter = 0
 
 function loadJSONFile(filename, silent = false) {
     let file
@@ -91,6 +93,10 @@ class Utils {
                     seed: "Alice Lulune",
                     voice: -1,
                     opus: false
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': "Bearer " + accessTokens[accessTokensCounter++ % accessTokens.length]
                 }
             })
         const stream = new Duplex()
@@ -315,10 +321,27 @@ class Utils {
                 .replace(/ as /g, ' ')
                 .replace(/ is /g, ' ')
                 .replace(/ it /g, ' ')
-        }else{
+        } else {
             return newStr
         }
 
+    }
+
+    static async loadKeys(args) {
+        if (accessTokens && accessTokens.length > 0) return accessTokens
+        if (!process.env.NOVEL_AI_API_KEY && !args) return console.log("Couldn't load NovelAI API KEY")
+
+        const keys = (args ? args : process.env.NOVEL_AI_API_KEY).split(';').map(s => s.trim())
+        const tokens = []
+
+        for (let key of keys) {
+            const token = await aiService.getAccessToken(key)
+            if (!tokens.includes(token))
+                tokens.push(token)
+        }
+
+        accessTokens = tokens
+        return tokens
     }
 }
 
