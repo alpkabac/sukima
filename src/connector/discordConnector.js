@@ -1,4 +1,5 @@
 import dotenv from 'dotenv'
+import utils from "../utils.js"
 import {Client, MessageAttachment, MessageEmbed} from 'discord.js'
 import '../discord/ExtAPIMessage.js'
 import {getVoiceConnection} from "@discordjs/voice"
@@ -9,7 +10,6 @@ import encoder from "gpt-3-encoder"
 import aiService from "../service/aiService.js"
 import promptService from "../service/promptService.js"
 import updateBotInfo from "../discord/discordUtils.js"
-import utils from "../utils.js"
 import channelBotTranslationService from "../service/personalityService.js"
 import greetingService from "../service/greetingService.js"
 import commands from "../command/commands.js"
