@@ -177,7 +177,7 @@ class GeneratorService {
     static buildModel(generator, submodule = null) {
         if (!generator) throw new Error("No generator provided")
 
-        let model = "euterpe-v2"
+        let model = "krake-v1"
 
         if (!submodule && !generator.aiModel) return model
 
