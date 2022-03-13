@@ -1,0 +1,100 @@
+{
+  "name": "RPG Item Price Generator",
+  "description": "Estimates an item price",
+  "context": "[ Price Estimator: outputs an estimated price for an item given its name, type and rarity as input ]",
+  "placeholders": {
+    "currency": "gold"
+  },
+  "properties": [
+    {
+      "name": "item",
+      "replaceBy": "Item Name:"
+    },
+    {
+      "name": "type",
+      "replaceBy": "Item Type:"
+    },
+    {
+      "name": "rarity",
+      "replaceBy": "Item Rarity:"
+    },
+    {
+      "name": "price",
+      "replaceBy": "Item Price:"
+    }
+  ],
+  "list": [
+    {
+      "item": "Iron Broad Sword",
+      "type": "weapon",
+      "rarity": "common",
+      "price": "100 ${currency}"
+    },
+    {
+      "item": "Unicorn Horn",
+      "type": "component",
+      "rarity": "uncommon",
+      "price": "300 ${currency}"
+    },
+    {
+      "item": "Rare Dragonscale Armor",
+      "type": "armor",
+      "rarity": "rare",
+      "price": "1250 ${currency}"
+    },
+    {
+      "item": "Rabbit Pelt",
+      "type": "component",
+      "rarity": "very common",
+      "price": "10 ${currency}"
+    },
+    {
+      "item": "Old Wooden Shield",
+      "type": "shield",
+      "rarity": "very common",
+      "price": "30 ${currency}"
+    },
+    {
+      "item": "Giant Centipede's Carapace",
+      "type": "component",
+      "rarity": "uncommon",
+      "price": "70 ${currency}"
+    },
+    {
+      "item": "Dagger of Death",
+      "type": "weapon",
+      "rarity": "epic",
+      "price": "2500 ${currency}"
+    },
+    {
+      "item": "Glowing Staff of Fireballs",
+      "type": "magic item",
+      "rarity": "epic",
+      "price": "2300 ${currency}"
+    },
+    {
+      "item": "Silver Crossbow",
+      "type": "weapon",
+      "rarity": "rare",
+      "price": "750 ${currency}"
+    },
+    {
+      "item": "Mithril Plate Mail",
+      "type": "armor",
+      "rarity": "rare",
+      "price": "800 ${currency}"
+    },
+    {
+      "item": "Black Robes of the Necromancy School",
+      "type": "equipment",
+      "rarity": "epic",
+      "price": "1500 ${currency}"
+    },
+    {
+      "item": "Leather Breastplate of Disguise",
+      "type": "equipment",
+      "rarity": "rare",
+      "price": "650 ${currency}"
+    }
+  ]
+}

@@ -149,7 +149,6 @@ bot.on('ready', async () => {
             }
         }
         if (connection) {
-
             await utils.tts(connection, msg, channelBotTranslationService.getChannelPersonality(channel).voice)
         } else {
             console.log("Could not establish TTS connection.")

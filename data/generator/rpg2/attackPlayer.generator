@@ -1,0 +1,38 @@
+{
+  "name": "RPG Attack Generator",
+  "description": "Generates RPG attacks given a weapon",
+  "context": "[ Attack Description: given a target and a player's equipment, generates an attack description ]",
+  "properties": [
+    {
+      "name": "enemy",
+      "replaceBy": "Target:",
+      "input": true
+    },
+    {
+      "name": "player",
+      "replaceBy": "Your equipment:",
+      "input": true
+    },
+    {
+      "name": "description",
+      "replaceBy": "Description of your attack:"
+    }
+  ],
+  "list": [
+    {
+      "player": "[ Rare Small Copper Dagger; Leather Armor ]",
+      "enemy": "[ Target: John; race/species: human; wounds: none; blood loss: none; status: healthy ]",
+      "description": "You swiftly attack John with your copper dagger, cutting his left ear right off"
+    },
+    {
+      "player": "[ Rusty Copper Dagger; Leather Armor ]",
+      "enemy": "[ Target: Emma; race/species: human; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: heavily wounded ]",
+      "description": "You stab Emma in the chest, pushing the blade deep through her hearth. Emma is badly wounded and doesn't even fight back, she falls on the floor, dead."
+    },
+    {
+      "player": "[ Wooden Club; No Armor ]",
+      "enemy": "[ Target: Robert; race/species: human; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
+      "description": "You strike Robert with your wooden club, only doing light bruises on his sternum. Robert is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead."
+    }
+  ]
+}

@@ -13,17 +13,13 @@ const generatorAttackNew = utils.fileExists(`./bot/${envService.getBotId()}/gene
     utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/attack.json`)
     : utils.loadJSONFile("./data/generator/rpg/attack.json")
 
-const generatorPerspective = utils.fileExists(`./bot/${envService.getBotId()}/generator/secondToThirdPersonPerspective.json`) ?
-    utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/secondToThirdPersonPerspective.json`)
-    : utils.loadJSONFile("./data/generator/rpg/secondToThirdPersonPerspective.json")
-
 const generatorEnemy = utils.fileExists(`./bot/${envService.getBotId()}/generator/enemy.json`) ?
     utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/enemy.json`)
     : utils.loadJSONFile("./data/generator/rpg/enemy.json")
 const generatorSpellBook = utils.loadJSONFile("./data/generationPrompt/rpg/generateSpellBook.json")
 
 
-const STATUS_DEAD = ["dead", "killed", "died", "deceased", "defeated", "destroyed", "disabled", "total destruction", "annihilated", "obliterated", "defeated!"]
+const STATUS_DEAD = ["dead", "killed", "died", "deceased", "defeated", "destroyed", "disabled", "total destruction", "annihilated", "obliterated", "defeated!", "ashes"]
 const FULL_HEALS = ['healed', 'cured', 'healed (general)', 'cured (general)', 'completely healed', 'completely cured',
     'full heal', 'full health', 'full cure', 'fully restored', 'fully healed', 'fully cured', 'recovered', 'fully recovered',
     'fully restored health', 'restored to full health', 'healed (all types)', 'cured (all wounds)', 'no more injuries', 'removed all injuries',
@@ -40,35 +36,6 @@ let itemsToInspect = {}
 
 function isAlive(target) {
     return !!(target?.health?.status && !STATUS_DEAD.includes(target?.health?.status.toLowerCase()));
-}
-
-function sanitize(str) {
-    return str
-        .toLowerCase()
-        .replace(/[,;.:!?"]/g, '')
-        .replace(/ a /g, ' ')
-        .replace(/ an /g, ' ')
-        .replace(/ of /g, ' ')
-        .replace(/ or /g, ' ')
-        .replace(/ from /g, ' ')
-        .replace(/ the /g, ' ')
-        .replace(/ this /g, ' ')
-        .replace(/ those /g, ' ')
-        .replace(/ that /g, ' ')
-        .replace(/ has /g, ' ')
-        .replace(/ was /g, ' ')
-        .replace(/ with /g, ' ')
-        .replace(/ and /g, ' ')
-        .replace(/ on /g, ' ')
-        .replace(/ for /g, ' ')
-        .replace(/ by /g, ' ')
-        .replace(/ now /g, ' ')
-        .replace(/ now /g, ' ')
-        .replace(/ to /g, ' ')
-        .replace(/ too /g, ' ')
-        .replace(/ as /g, ' ')
-        .replace(/ is /g, ' ')
-        .replace(/ it /g, ' ')
 }
 
 let lastUploadedGenerator = null
@@ -1030,6 +997,8 @@ class DuckHuntService {
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
 
+            await DuckHuntService.appendItemImage(embed, player.weapon)
+
             return {
                 success: true,
                 message: embed,
@@ -1051,6 +1020,9 @@ class DuckHuntService {
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
+
+            await DuckHuntService.appendItemImage(embed, player.weapon)
+
             return {
                 success: true,
                 message: embed,
@@ -1103,6 +1075,8 @@ class DuckHuntService {
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
 
+            await DuckHuntService.appendItemImage(embed, player.heal)
+
             return {
                 success: true,
                 message: embed,
@@ -1124,6 +1098,9 @@ class DuckHuntService {
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
+
+            await DuckHuntService.appendItemImage(embed, player.heal)
+
             return {
                 success: true,
                 message: embed,
@@ -1173,6 +1150,9 @@ class DuckHuntService {
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
+
+            await DuckHuntService.appendItemImage(embed, player.armor)
+
             return {
                 success: true,
                 message: embed,
@@ -1194,6 +1174,9 @@ class DuckHuntService {
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
+
+            await DuckHuntService.appendItemImage(embed, player.armor)
+
             return {
                 success: true,
                 message: embed,
@@ -1243,6 +1226,9 @@ class DuckHuntService {
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
+
+            await DuckHuntService.appendItemImage(embed, player.accessory)
+
             return {
                 success: true,
                 message: embed,
@@ -1264,6 +1250,9 @@ class DuckHuntService {
                 .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}`, true)
                 .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}`, true)
                 .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}`, true)
+
+            await DuckHuntService.appendItemImage(embed, player.accessory)
+
             return {
                 success: true,
                 message: embed,
@@ -1468,6 +1457,16 @@ class DuckHuntService {
         }
     }
 
+    static async appendItemImage(embed, item){
+        if (item?.image) {
+            const buff = new Buffer.from(item.image, "base64")
+            const imgOriginal = await sharp(Buffer.from(buff, 'binary'))
+            const im = await imgOriginal.resize(64, 64, {kernel: sharp.kernel.nearest})
+            const messageAttachment = new MessageAttachment(await im.toBuffer(), `output_${Date.now()}.png`)
+            embed.attachFiles([messageAttachment])
+        }
+    }
+
     static async showInventory(channel, username) {
         const player = playerService.getPlayer(channel, username)
         const embed = new MessageEmbed()
@@ -1489,20 +1488,10 @@ class DuckHuntService {
         const backpackSelectedItem = `${playerLastInventoryItem?.name || 'none'}`
             + (!playerLastInventoryItem ? `` : ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
 
-        async function appendToEmbed(item) {
-            if (item?.image) {
-                const buff = new Buffer.from(item.image, "base64")
-                const imgOriginal = await sharp(Buffer.from(buff, 'binary'))
-                const im = await imgOriginal.resize(64, 64, {kernel: sharp.kernel.nearest})
-                const messageAttachment = new MessageAttachment(await im.toBuffer(), `output_${Date.now()}.png`)
-                embed.attachFiles([messageAttachment])
-            }
-        }
-
-        await appendToEmbed(player.weapon)
-        await appendToEmbed(player.armor)
-        await appendToEmbed(player.accessory)
-        await appendToEmbed(player.heal)
+        await DuckHuntService.appendItemImage(embed, player.weapon)
+        await DuckHuntService.appendItemImage(embed, player.armor)
+        await DuckHuntService.appendItemImage(embed, player.accessory)
+        await DuckHuntService.appendItemImage(embed, player.heal)
 
         return {
             message: embed,
