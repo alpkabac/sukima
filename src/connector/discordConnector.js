@@ -276,7 +276,7 @@ function colorId(id) {
 function colorBotName(botName) {
     const colors = [31, 32, 35, 36, 91, 92, 93, 94, 95, 96]
     const color = botName.split('').map(c=>c.charCodeAt(0)).reduce((partialSum, a) => partialSum + a, 0)
-    return `\x1b[${colors[color]}m${botName}\x1b[0m`
+    return `\x1b[${colors[color%10]}m${botName}\x1b[0m`
 }
 
 async function processMessage(msg) {
