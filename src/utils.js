@@ -123,9 +123,7 @@ class Utils {
             })
 
         fs.writeFileSync('tmp.mp3', buffer.data)
-        const resource = createAudioResource("tmp.mp3")
-        player.play(resource)
-        connection.subscribe(player)
+        connection.playFile(require("path").join(__dirname, './tmp.mp3'))
         //const stream = new Duplex()
         //stream.push(Buffer.from(buffer.data.getReader()))
         //stream.push(null)
