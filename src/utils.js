@@ -6,8 +6,8 @@ import {MessageAttachment} from "discord.js";
 import axios from "axios";
 import logService from "./service/logService.js";
 import sharp from "sharp";
-import {createAudioPlayer, createAudioResource} from "@discordjs/voice";
-
+import {createAudioPlayer} from "@discordjs/voice";
+import path from "path"
 
 const player = createAudioPlayer();
 
@@ -123,7 +123,7 @@ class Utils {
             })
 
         fs.writeFileSync('tmp.mp3', buffer.data)
-        connection.playFile(require("path").join(__dirname, './tmp.mp3'))
+        connection.playFile(path.join(__dirname, './tmp.mp3'))
         //const stream = new Duplex()
         //stream.push(Buffer.from(buffer.data.getReader()))
         //stream.push(null)
