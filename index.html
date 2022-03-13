@@ -841,7 +841,7 @@
                 document.getElementById("presentationMessageDm").value = botData.presentationMessageDm || ``
                 document.getElementById("discordAvatarUrl").value = botData.discordAvatarUrl || ``
                 document.getElementById("ttsVoiceSeed").value = botData.ttsVoiceSeed || ``
-                document.getElementById("enableTTS").checked = ["true", "on"].includes(botData.enableTTS?.toLowercase?.()) || ``
+                document.getElementById("enableTTS").checked = botData.enableTTS || ``
                 document.getElementById("channelName").value = botData.channelName
                 document.getElementById("aiModel").value = botData.aiModel
             } else {
