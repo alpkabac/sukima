@@ -6,6 +6,10 @@ import {MessageAttachment} from "discord.js";
 import axios from "axios";
 import logService from "./service/logService.js";
 import sharp from "sharp";
+import {createAudioPlayer, createAudioResource} from "@discordjs/voice";
+
+
+const player = createAudioPlayer();
 
 config()
 
@@ -101,6 +105,8 @@ class Utils {
     }
 
     static async tts2(connection, text, voiceConfig) {
+        //connection.subscribe(player)
+
         if (!accessTokens) accessTokens = await Utils.loadKeys()
         const buffer = await axios.get(`https://api.novelai.net/ai/generate-voice`,
             {
@@ -116,8 +122,10 @@ class Utils {
                 }
             })
 
+        //const resource = createAudioResource(buffer.data.getReader())
+
         const stream = new Duplex()
-        stream.push(Buffer.from(buffer.data))
+        stream.push(Buffer.from(buffer.data.getReader()))
         stream.push(null)
         connection.play(stream)
     }
