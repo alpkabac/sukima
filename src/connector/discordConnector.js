@@ -373,7 +373,7 @@ async function processMessage(msg) {
             await originalMsg.inlineReply("# Sorry, but you need to be connected to a voice channel for me to know which one to join!")
         }else {
             ttsEnabled = true
-            connection = getVoiceConnection(voiceChannel.guild.id)
+            connection = getVoiceConnection(voiceChannel?.guild?.id)
 
             connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
             if (!connection) {
