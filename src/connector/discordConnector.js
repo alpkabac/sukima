@@ -80,6 +80,7 @@ let locked = {}
 let connection
 let voiceChannel
 let speak = null
+let ttsEnabled = false
 
 
 bot.on('ready', async () => {
@@ -132,26 +133,13 @@ bot.on('ready', async () => {
 
     speak = async function (msg, channel) {
         if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return
-        //if (!channelBotTranslationService.getChannelPersonality(channel)?.voice?.languageCode) return console.log("TTS is enabled but the personality voice isn't set")
+        if (!ttsEnabled) return
         if (!voiceChannel) return
 
-        connection = getVoiceConnection(voiceChannel.guild.id)
-
-        connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
-        if (!connection) {
-            console.log("No connection is present for TTS, getting connection...")
-
-            connection = await voiceChannel.join()
-
-            if (connection) {
-                console.log("TTS connection found!")
-            }
-        }
         if (connection) {
-            //await utils.tts(connection, msg, channelBotTranslationService.getChannelPersonality(channel).voice)
             await utils.tts2(connection, msg)
         } else {
-            console.log("Could not establish TTS connection.")
+            console.log("Can't use TTS: No connection to vocal channel is open.")
         }
     }
 
@@ -377,6 +365,29 @@ async function processMessage(msg) {
             )
         }
     }
+
+    voiceChannel = msg.member?.voice?.channel
+    if (message && message.joinVoiceChannel) {
+        connection = getVoiceConnection(voiceChannel.guild.id)
+
+        connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
+        if (!connection) {
+            console.log("No connection is present for TTS, getting connection...")
+
+            connection = await voiceChannel.join()
+
+            if (connection) {
+                console.log("TTS connection established!")
+            }
+        }
+    }
+
+    if (message && message.leaveVoiceChannel) {
+        connection.disconnect()
+        connection = null
+        console.log("TTS disconnected")
+    }
+
     if (message && message.success) {
         await originalMsg.react("✅").catch(() => null)
     }
@@ -412,7 +423,6 @@ async function processMessage(msg) {
             embedMessage = true
         }
 
-        voiceChannel = msg.member?.voice?.channel
         const timeToWait = message.instantReply ? 0 : messageLength * (message.fastTyping ? 10 : 50)
         if (timeToWait > 0) {
             channels[channelName].startTyping().then()
@@ -472,7 +482,7 @@ async function processMessage(msg) {
             }
         }
 
-        if (!embedMessage && speak && !message.message.startsWith("#")) {
+        if (!embedMessage && speak && !message.message.startsWith("#") && !channelName.startsWith("##")) {
             await speak(parsedMessage, channelName)
         }
     } else {
@@ -545,7 +555,7 @@ async function parseForceMessage(channel, msg) {
     }
     channels[channel].stopTyping(true)
     locked[channel] = false
-    if (!channel.startsWith("##")) {
+    if (!channel.startsWith("##") && !parsedMessage.startsWith("#")) {
         await speak(parsedMessage, channel)
     }
 }

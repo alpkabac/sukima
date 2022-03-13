@@ -200,7 +200,7 @@ function getDefaultEnv(data, id) {
         + `\nMIN_BOT_MESSAGE_INTERVAL=12`
 
         + `\nENABLE_CUSTOM_AI=true`
-        + `\nENABLE_TTS=false`
+        + `\nENABLE_TTS=${data.enableTTS}`
         + `\nENABLE_DM=true`
         + `\nENABLE_INTRO=true`
         + `\nSEND_INTRO_TO_CHANNELS="${data.channelName}"`
@@ -384,7 +384,8 @@ app.post('/api/v1/user/create', async function (req, res) {
             discordAvatarUrl: data.discordAvatarUrl,
             channelName: data.channelName,
             aiModel: data.aiModel,
-            ttsVoiceSeed: data.ttsVoiceSeed || data.botName
+            ttsVoiceSeed: data.ttsVoiceSeed || data.botName,
+            enableTTS: data.enableTTS
         }))
 
         const params = {
@@ -505,7 +506,8 @@ app.post('/api/v1/bot/edit', async function (req, res, next) {
             channelName: data.channelName,
             aiModel: data.aiModel,
             aiModule: data.aiModule,
-            ttsVoiceSeed: data.ttsVoiceSeed || data.botName
+            ttsVoiceSeed: data.ttsVoiceSeed || data.botName,
+            enableTTS: data.enableTTS
         }, null, 4))
 
         if (data.phraseBias) {
@@ -599,7 +601,8 @@ app.post('/api/v1/bot/create', async function (req, res, next) {
             discordAvatarUrl: data.discordAvatarUrl,
             channelName: data.channelName,
             aiModel: data.aiModel,
-            ttsVoiceSeed: data.ttsVoiceSeed || data.botName
+            ttsVoiceSeed: data.ttsVoiceSeed || data.botName,
+            enableTTS: data.enableTTS
         }))
 
         if (data.phraseBias) {
@@ -661,7 +664,8 @@ app.post('/api/v1/bot/init', async function (req, res, next) {
             discordAvatarUrl: data.discordAvatarUrl,
             channelName: data.channelName,
             aiModel: data.aiModel,
-            ttsVoiceSeed: data.ttsVoiceSeed || data.botName
+            ttsVoiceSeed: data.ttsVoiceSeed || data.botName,
+            enableTTS: data.enableTTS
         }))
 
         res.json({

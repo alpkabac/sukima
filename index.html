@@ -514,6 +514,9 @@
                placeholder="https://i.imgur.com/FtD3r2p.jpg"
                required><br/><br/>
 
+        <label for="enableTTS">Enable TTS:</label>
+        <input class="formEdit" type="checkbox" id="enableTTS" name="enableTTS" style="width:32px"><br/><br/>
+
         <label for="ttsVoiceSeed">Voice Seed (used to generate a custom TTS voice):</label>
         <input class="formEdit" type="text" id="ttsVoiceSeed" name="ttsVoiceSeed"
                placeholder="Alice"><br/><br/>
@@ -837,6 +840,8 @@
                 document.getElementById("presentationMessage").value = botData.presentationMessage || ``
                 document.getElementById("presentationMessageDm").value = botData.presentationMessageDm || ``
                 document.getElementById("discordAvatarUrl").value = botData.discordAvatarUrl || ``
+                document.getElementById("ttsVoiceSeed").value = botData.ttsVoiceSeed || ``
+                document.getElementById("enableTTS").checked = botData.enableTTS || ``
                 document.getElementById("channelName").value = botData.channelName
                 document.getElementById("aiModel").value = botData.aiModel
             } else {

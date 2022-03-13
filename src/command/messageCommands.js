@@ -293,6 +293,30 @@ const messageCommands = {
         },
         false
     ),
+    enableTTS: new Command(
+        "Enable TTS",
+        ["!enableTTS", "!enable TTS", "!enable tts", "!etts", "!ETTS"],
+        [],
+        process.env.ALLOW_MUTE,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return {
+                enableTTS: true
+            }
+        },
+        true
+    ),
+    disableTTS: new Command(
+        "Disable TTS",
+        ["!disableTTS", "!disable TTS", "!disable tts", "!dtts", "!DTTS"],
+        [],
+        process.env.ALLOW_MUTE,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return {
+                disableTTS: true
+            }
+        },
+        true
+    ),
 }
 
 messageCommands.all = [
@@ -308,6 +332,8 @@ messageCommands.all = [
     messageCommands.retryMessage,
     messageCommands.editMessage,
     messageCommands.answerMessage,
+    messageCommands.enableTTS,
+    messageCommands.disableTTS,
     // messageCommands.talk,
     // messageCommands.reactToAction,
 ]
