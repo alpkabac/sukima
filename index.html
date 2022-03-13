@@ -358,7 +358,8 @@
 <div id="divCreateNewBot" class="tabcontent" hidden="hidden">
     <form>
         <label for="discordToken">Bot Discord Token: <span>*</span></label>
-        <input class="formCreateNewBot" type="text" id="createNewBotDiscordToken" name="discordToken" required><br/><br/>
+        <input class="formCreateNewBot" type="text" id="createNewBotDiscordToken" name="discordToken"
+               required><br/><br/>
 
         <label for="channelName">Discord channel name: <span>*</span></label>
         <input class="formCreateNewBot" type="text" name="channelName" placeholder="#general" required><br/><br/>
@@ -513,6 +514,10 @@
                placeholder="https://i.imgur.com/FtD3r2p.jpg"
                required><br/><br/>
 
+        <label for="ttsVoiceSeed">Voice Seed (used to generate a custom TTS voice):</label>
+        <input class="formEdit" type="text" id="ttsVoiceSeed" name="ttsVoiceSeed"
+               placeholder="Alice"><br/><br/>
+
         <span id="channelNameSpan" hidden="hidden">
             <label for="channelName">* Channel name (ex: "#test"):</label>
             <input type="text" id="channelName" name="channelName" placeholder="#yourusername-bot" required><br/><br/>
@@ -580,8 +585,6 @@
             <label for="inputFilePhraseBias">Banned Tokens (.badwords file from NovelAI)</label>
             <input type="file" id="inputFileBannedTokens"><br/><br/>
             <input class="formEdit" id="inputBannedTokens" name="bannedTokens" hidden="hidden">
-
-
         </div>
         <br/>
 

@@ -112,8 +112,8 @@ class Utils {
                 {
                     responseType: 'stream',
                     params: {
-                        text: text,
-                        seed: process.env.BOT_VOICE || process.env.BOTNAME,
+                        text: ". "+text,
+                        seed: process.env.TTS_VOICE_SEED || process.env.BOTNAME,
                         voice: -1,
                         opus: false
                     },

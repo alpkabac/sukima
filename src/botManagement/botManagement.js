@@ -186,6 +186,7 @@ function getDefaultEnv(data, id) {
         + `\nBOTNAME="${data.botName}"`
         + `\nBOT_DISCORD_USERNAME="${data.botDiscordName || data.botName}"`
         + `\nBOT_DISCORD_AVATAR="${data.discordAvatarUrl || ''}"`
+        + `\nTTS_VOICE_SEED="${data.ttsVoiceSeed || data.botName}"`
         + `\nTRANSLATION_FILE="default"`
         + `\nAI_MODEL="${data.aiModel || "euterpe-v0"}"`
         + `\nALLOWED_CHANNEL_NAMES="${data.channelName}"`
@@ -382,7 +383,8 @@ app.post('/api/v1/user/create', async function (req, res) {
             presentationMessageDm: data.presentationMessageDm,
             discordAvatarUrl: data.discordAvatarUrl,
             channelName: data.channelName,
-            aiModel: data.aiModel
+            aiModel: data.aiModel,
+            ttsVoiceSeed: data.ttsVoiceSeed || data.botName
         }))
 
         const params = {
@@ -502,7 +504,8 @@ app.post('/api/v1/bot/edit', async function (req, res, next) {
             discordAvatarUrl: data.discordAvatarUrl,
             channelName: data.channelName,
             aiModel: data.aiModel,
-            aiModule: data.aiModule
+            aiModule: data.aiModule,
+            ttsVoiceSeed: data.ttsVoiceSeed || data.botName
         }, null, 4))
 
         if (data.phraseBias) {
@@ -595,7 +598,8 @@ app.post('/api/v1/bot/create', async function (req, res, next) {
             presentationMessageDm: data.presentationMessageDm,
             discordAvatarUrl: data.discordAvatarUrl,
             channelName: data.channelName,
-            aiModel: data.aiModel
+            aiModel: data.aiModel,
+            ttsVoiceSeed: data.ttsVoiceSeed || data.botName
         }))
 
         if (data.phraseBias) {
@@ -656,7 +660,8 @@ app.post('/api/v1/bot/init', async function (req, res, next) {
             presentationMessageDm: data.presentationMessageDm,
             discordAvatarUrl: data.discordAvatarUrl,
             channelName: data.channelName,
-            aiModel: data.aiModel
+            aiModel: data.aiModel,
+            ttsVoiceSeed: data.ttsVoiceSeed || data.botName
         }))
 
         res.json({
