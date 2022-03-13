@@ -132,9 +132,8 @@ bot.on('ready', async () => {
 
     speak = async function (msg, channel) {
         if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return
-        if (!channelBotTranslationService.getChannelPersonality(channel)?.voice?.languageCode) return console.log("TTS is enabled but the personality voice isn't set")
+        //if (!channelBotTranslationService.getChannelPersonality(channel)?.voice?.languageCode) return console.log("TTS is enabled but the personality voice isn't set")
         if (!voiceChannel) return
-
 
         connection = getVoiceConnection(voiceChannel.guild.id)
 
@@ -149,7 +148,8 @@ bot.on('ready', async () => {
             }
         }
         if (connection) {
-            await utils.tts2(connection, msg, channelBotTranslationService.getChannelPersonality(channel).voice)
+            //await utils.tts(connection, msg, channelBotTranslationService.getChannelPersonality(channel).voice)
+            await utils.tts2(connection, msg)
         } else {
             console.log("Could not establish TTS connection.")
         }

@@ -1,18 +1,17 @@
 import {config} from "dotenv";
 import textToSpeech from "@google-cloud/text-to-speech";
 import fs from "fs";
+import * as stream from "stream";
 import {Duplex} from "stream";
 import {MessageAttachment} from "discord.js";
 import axios from "axios";
 import logService from "./service/logService.js";
 import sharp from "sharp";
-import {createAudioPlayer} from "@discordjs/voice";
-import path from "path"
-
-const player = createAudioPlayer();
+import {promisify} from 'util';
 
 config()
 
+const finished = promisify(stream.finished);
 const conf = loadJSONFile("./conf.json")
 const client = new textToSpeech.TextToSpeechClient()
 let accessTokens = null
@@ -105,29 +104,31 @@ class Utils {
     }
 
     static async tts2(connection, text, voiceConfig) {
-        //connection.subscribe(player)
-
         if (!accessTokens) accessTokens = await Utils.loadKeys()
-        const buffer = await axios.get(`https://api.novelai.net/ai/generate-voice`,
-            {
-                params: {
-                    text: text,
-                    seed: "Alice Lulune",
-                    voice: -1,
-                    opus: false
-                },
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': "Bearer " + accessTokens[accessTokensCounter++ % accessTokens.length]
-                }
-            })
 
-        fs.writeFileSync('tmp.mp3', buffer.data)
+        async function downloadFile(outputLocationPath) {
+            const writer = fs.createWriteStream(outputLocationPath);
+            return axios.get(`https://api.novelai.net/ai/generate-voice`,
+                {
+                    responseType: 'stream',
+                    params: {
+                        text: text,
+                        seed: process.env.BOTNAME,
+                        voice: -1,
+                        opus: false
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': "Bearer " + accessTokens[accessTokensCounter++ % accessTokens.length]
+                    }
+                }).then(async response => {
+                response.data.pipe(writer);
+                return finished(writer); //this is a Promise
+            });
+        }
+
+        await downloadFile('tmp.mp3')
         connection.play('tmp.mp3')
-        //const stream = new Duplex()
-        //stream.push(Buffer.from(buffer.data.getReader()))
-        //stream.push(null)
-        //connection.play(stream)
     }
 
     static shuffleArray(array) {
