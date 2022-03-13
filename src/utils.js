@@ -113,7 +113,7 @@ class Utils {
                     responseType: 'stream',
                     params: {
                         text: text,
-                        seed: process.env.BOTNAME,
+                        seed: process.env.BOT_VOICE || process.env.BOTNAME,
                         voice: -1,
                         opus: false
                     },
@@ -128,7 +128,7 @@ class Utils {
         }
 
         await downloadFile('tmp.mp3')
-        connection.play('tmp.mp3')
+        connection.play('tmp.mp3', { highWaterMark: 1 })
     }
 
     static shuffleArray(array) {

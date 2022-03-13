@@ -51,6 +51,10 @@ class EnvService {
     static getAiModule(){
         return jsonBot?.aiModule || "vanilla"
     }
+
+    static getJSONBot(){
+        return jsonBot
+    }
 }
 
 export default EnvService
