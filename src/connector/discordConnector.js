@@ -270,7 +270,7 @@ function clearRpgBotTextOutput(text) {
 
 function colorId(id) {
     const colors = [31, 32, 35, 36, 91, 92, 93, 94, 95, 96]
-    return `\x1b${id.split('').map(v=>`[${colors[parseInt(v)]}m${v}`)}\x1b[0m`
+    return `\x1b${id.split('').map(v=>`[${colors[parseInt(v)]}m${v}`).join('')}\x1b[0m`
 }
 
 async function processMessage(msg) {
