@@ -135,6 +135,7 @@ bot.on('ready', async () => {
         if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return console.log("TTS not enabled in env file")
         if (!ttsEnabled) return console.log("TTS NOT ENABLED")
         if (!voiceChannel) return console.log("No voice channel")
+        if (channel.startsWith("##")) return console.log("Can't use TTS in DMs")
 
         if (connection) {
             await utils.tts2(connection, msg)
@@ -368,17 +369,21 @@ async function processMessage(msg) {
 
     voiceChannel = msg.member?.voice?.channel
     if (message && message.enableTTS) {
-        ttsEnabled = true
-        connection = getVoiceConnection(voiceChannel.guild.id)
+        if (!voiceChannel){
+            await originalMsg.inlineReply("Sorry, but you need to be connected to a voice channel for me to know where to join!")
+        }else {
+            ttsEnabled = true
+            connection = getVoiceConnection(voiceChannel.guild.id)
 
-        connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
-        if (!connection) {
-            console.log("No connection is present for TTS, getting connection...")
+            connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
+            if (!connection) {
+                console.log("No connection is present for TTS, getting connection...")
 
-            connection = await voiceChannel.join()
+                connection = await voiceChannel.join()
 
-            if (connection) {
-                console.log("TTS connection established!")
+                if (connection) {
+                    console.log("TTS connection established!")
+                }
             }
         }
     }
