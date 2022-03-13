@@ -132,9 +132,9 @@ bot.on('ready', async () => {
 
 
     speak = async function (msg, channel) {
-        if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return
-        if (!ttsEnabled) return
-        if (!voiceChannel) return
+        if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return console.log("TTS not enabled in env file")
+        if (!ttsEnabled) return console.log("TTS NOT ENABLED")
+        if (!voiceChannel) return console.log("No voice channel")
 
         if (connection) {
             await utils.tts2(connection, msg)
@@ -367,7 +367,8 @@ async function processMessage(msg) {
     }
 
     voiceChannel = msg.member?.voice?.channel
-    if (message && message.joinVoiceChannel) {
+    if (message && message.enableTTS) {
+        ttsEnabled = true
         connection = getVoiceConnection(voiceChannel.guild.id)
 
         connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
@@ -382,7 +383,8 @@ async function processMessage(msg) {
         }
     }
 
-    if (message && message.leaveVoiceChannel) {
+    if (message && message.disableTTS) {
+        ttsEnabled = false
         connection.disconnect()
         connection = null
         console.log("TTS disconnected")

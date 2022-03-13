@@ -17,7 +17,7 @@ class EnvService {
     }
 
     static getBoolean(envVariable) {
-        return ["true"].includes(process.env[envVariable]?.toLowerCase?.())
+        return ["true", "on"].includes(process.env[envVariable]?.toLowerCase?.())
     }
 
     static getTokenLimit() {

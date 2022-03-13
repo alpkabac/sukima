@@ -515,7 +515,7 @@
                required><br/><br/>
 
         <label for="enableTTS">Enable TTS:</label>
-        <input class="formEdit" type="checkbox" id="enableTTS" name="enableTTS" style="width:32px"><br/><br/>
+        <input class="formEdit" type="checkbox" id="enableTTS" name="enableTTS" value="false" style="width:32px"><br/><br/>
 
         <label for="ttsVoiceSeed">Voice Seed (used to generate a custom TTS voice):</label>
         <input class="formEdit" type="text" id="ttsVoiceSeed" name="ttsVoiceSeed"
@@ -841,7 +841,7 @@
                 document.getElementById("presentationMessageDm").value = botData.presentationMessageDm || ``
                 document.getElementById("discordAvatarUrl").value = botData.discordAvatarUrl || ``
                 document.getElementById("ttsVoiceSeed").value = botData.ttsVoiceSeed || ``
-                document.getElementById("enableTTS").checked = botData.enableTTS || ``
+                document.getElementById("enableTTS").checked = ["true", "on"].includes(botData.enableTTS?.toLowercase?.()) || ``
                 document.getElementById("channelName").value = botData.channelName
                 document.getElementById("aiModel").value = botData.aiModel
             } else {
@@ -1040,7 +1040,11 @@
             }
             const elements = formValueClass ? document.getElementsByClassName(formValueClass) : []
             for (let i = 0; i < elements.length; i++) {
-                jsonToPost[elements[i].name] = elements[i].value
+                if (elements[i].checked === true){
+                    jsonToPost[elements[i].name] = true
+                }else {
+                    jsonToPost[elements[i].name] = elements[i].value
+                }
             }
             for (let d in data) {
                 jsonToPost[d] = data[d]

@@ -300,6 +300,8 @@ const messageCommands = {
         process.env.ALLOW_MUTE,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return {
+                success: true,
+                deleteUserMsg: true,
                 enableTTS: true
             }
         },
@@ -312,6 +314,8 @@ const messageCommands = {
         process.env.ALLOW_MUTE,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             return {
+                success: true,
+                deleteUserMsg: true,
                 disableTTS: true
             }
         },
