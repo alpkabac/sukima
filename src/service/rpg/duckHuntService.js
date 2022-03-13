@@ -1461,7 +1461,7 @@ class DuckHuntService {
         if (item?.image) {
             const buff = new Buffer.from(item.image, "base64")
             const imgOriginal = await sharp(Buffer.from(buff, 'binary'))
-            const im = await imgOriginal.resize(64, 64, {kernel: sharp.kernel.nearest})
+            const im = await imgOriginal.resize(128, 128, {kernel: sharp.kernel.nearest})
             const messageAttachment = new MessageAttachment(await im.toBuffer(), `output_${Date.now()}.png`)
             embed.attachFiles([messageAttachment])
         }
