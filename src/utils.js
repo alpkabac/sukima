@@ -123,7 +123,7 @@ class Utils {
             })
 
         fs.writeFileSync('tmp.mp3', buffer.data)
-        connection.playFile(path.join(__dirname, './tmp.mp3'))
+        connection.playFile('./tmp.mp3')
         //const stream = new Duplex()
         //stream.push(Buffer.from(buffer.data.getReader()))
         //stream.push(null)
