@@ -122,12 +122,14 @@ class Utils {
                 }
             })
 
-        //const resource = createAudioResource(buffer.data.getReader())
-
-        const stream = new Duplex()
-        stream.push(Buffer.from(buffer.data.getReader()))
-        stream.push(null)
-        connection.play(stream)
+        fs.writeFileSync('tmp.mp3', buffer.data)
+        const resource = createAudioResource("tmp.mp3")
+        player.play(resource)
+        connection.subscribe(player)
+        //const stream = new Duplex()
+        //stream.push(Buffer.from(buffer.data.getReader()))
+        //stream.push(null)
+        //connection.play(stream)
     }
 
     static shuffleArray(array) {
