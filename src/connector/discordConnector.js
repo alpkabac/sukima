@@ -273,13 +273,19 @@ function colorId(id) {
     return `${id.split('').map(v=>`\x1b[${colors[parseInt(v)]}m${v}`).join('')}\x1b[0m`
 }
 
+function colorBotName(botName) {
+    const colors = [31, 32, 35, 36, 91, 92, 93, 94, 95, 96]
+    const color = botName.split('').map(c=>c.charCodeAt(0)).reduce((partialSum, a) => partialSum + a, 0)
+    return `\x1b[${colors[color]}m${botName}\x1b[0m`
+}
+
 async function processMessage(msg) {
     const privateMessage = msg.channel.type === "dm"
     if (privateMessage && (!process.env.ENABLE_DM || process.env.ENABLE_DM.toLowerCase() !== "true")) return
     if (privateMessage && msg.author.username !== bot.user.username) {
         const date = new Date()
         console.log(`[${((date.getHours() < 10) ? "0" : "") + date.getHours() + ":" + ((date.getMinutes() < 10) ? "0" : "") + date.getMinutes() + ":" + ((date.getSeconds() < 10) ? "0" : "") + date.getSeconds()}]`
-            + ` User ${colorId(msg.author.id)} sent a DM to ${process.env.BOTNAME}`)
+            + ` User ${colorId(msg.author.id)} sent a DM to ${colorBotName(process.env.BOTNAME)}`)
     }
 
     const channelName = privateMessage ?
