@@ -259,13 +259,13 @@ function clearRpgBotTextOutput(text) {
 
 function colorId(id) {
     const colors = [31, 32, 35, 36, 91, 92, 93, 94, 95, 96]
-    return `${id.split('').map(v=>`\x1b[${colors[parseInt(v)]}m${v}`).join('')}\x1b[0m`
+    return `${id.split('').map(v => `\x1b[${colors[parseInt(v)]}m${v}`).join('')}\x1b[0m`
 }
 
 function colorBotName(botName) {
     const colors = [31, 32, 35, 36, 91, 92, 93, 94, 95, 96]
-    const color = botName.split('').map(c=>c.charCodeAt(0)).reduce((partialSum, a) => partialSum + a, 0)
-    return `\x1b[${colors[color%10]}m${botName}\x1b[0m`
+    const color = botName.split('').map(c => c.charCodeAt(0)).reduce((partialSum, a) => partialSum + a, 0)
+    return `\x1b[${colors[color % 10]}m${botName}\x1b[0m`
 }
 
 async function processMessage(msg) {
@@ -369,9 +369,9 @@ async function processMessage(msg) {
 
     voiceChannel = msg.member?.voice?.channel
     if (message && message.enableTTS) {
-        if (!voiceChannel){
+        if (!voiceChannel) {
             await originalMsg.inlineReply("# Sorry, but you need to be connected to a voice channel for me to know which one to join!")
-        }else {
+        } else {
             ttsEnabled = true
             connection = getVoiceConnection(voiceChannel?.guild?.id)
 
@@ -489,7 +489,7 @@ async function processMessage(msg) {
             }
         }
 
-        if (!embedMessage && speak && !message.message.startsWith("#") && !channelName.startsWith("##")) {
+        if (!embedMessage && speak && !message.message.startsWith("#") && !channelName.startsWith("##") && ttsEnabled) {
             await speak(parsedMessage, channelName)
         }
     } else {
@@ -562,7 +562,7 @@ async function parseForceMessage(channel, msg) {
     }
     channels[channel].stopTyping(true)
     locked[channel] = false
-    if (!channel.startsWith("##") && !parsedMessage.startsWith("#")) {
+    if (!channel.startsWith("##") && !parsedMessage.startsWith("#") && ttsEnabled) {
         await speak(parsedMessage, channel)
     }
 }
