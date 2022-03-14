@@ -5,6 +5,7 @@ import {encode} from "gpt-3-encoder";
 import lmiService from "./lmiService.js";
 import aiService from "./aiService.js";
 import logService from "./logService.js";
+import rpgService from "./rpg/rpgService.js";
 
 config()
 
@@ -72,6 +73,57 @@ class GeneratorService {
         }
     }
 
+    static async newWorkflow(workflowName, input) {
+        const workflows = rpgService.getWorkflows()
+        if (!workflows?.[workflowName]) {
+            return console.error(`Workflow ${workflowName} doesn't exist`)
+        }
+
+        const persistentObject = JSON.parse(JSON.stringify(input))
+
+        for(let w of workflows[workflowName]){
+            await GeneratorService.workflowGenerator(w, persistentObject)
+        }
+
+        return persistentObject
+    }
+
+    static async workflowGenerator(generatorName, persistentObject) {
+        const generators = rpgService.getGenerators()
+
+        if (Array.isArray(generatorName)) {
+            const calledGeneratorNames = generatorName.map(cgn => generators[cgn])
+            const promises = calledGeneratorNames.map(
+                cgn => GeneratorService.workflowGenerator(cgn, persistentObject)
+            )
+            await Promise.all(promises)
+        } else {
+            const submoduleInputs = generators[generatorName].properties
+                .filter(p => p.input)
+                .map(p => p.name)
+
+            const inputPropertyName = Object.keys(persistentObject)
+
+            const submodulesContainsAllInput = submoduleInputs.every(sip => inputPropertyName.includes(sip))
+
+            if (!submodulesContainsAllInput) {
+                return console.error(`Not every input are provided inside the generator ${generatorName}!`)
+            }
+
+
+            let args = generators[generatorName].properties
+                .map(p => {
+                    return {name: p.name, value: p.input ? persistentObject[p.name] : null}
+                })
+
+            const {object, prompt, result} = await GeneratorService.generator(generators[generatorName], args, true)
+
+            for (let o in object) {
+                persistentObject[o] = object[o]
+            }
+        }
+    }
+
     static async workflow(generator, workflowName, input) {
         if (!generator?.submodules[workflowName]) {
             console.error("You need to provide a generator containing submodules")
@@ -102,7 +154,7 @@ class GeneratorService {
 
         if (submoduleCallStack.includes(submoduleName)) {
             return logService.error("Infinite loop", new Error(`Submodule ${submoduleName} has already been called during this workflow`))
-        }else{
+        } else {
             submoduleCallStack.push(submoduleName)
         }
 

@@ -21,18 +21,18 @@
   "list": [
     {
       "player": "[ Minor Healing (common healing spell) ]",
-      "enemy": "[ Target: Kate; race/species: human; wounds: bruised arm (right); blood loss: minimal; status: slightly wounded ]",
-      "description": "You cast a minor healing spell on Kate, and her arm is completely healed!"
+      "enemy": "[ Target: Yourself; race/species: human; wounds: bruised arm (right); blood loss: minimal; status: slightly wounded ]",
+      "description": "You cast a minor healing spell on yourself, and your arm is completely healed!"
     },
     {
       "player": "[ Major Healing (rare healing spell) ]",
-      "enemy": "[ Target: John; race/species: human; wounds: amputated (right leg), amputated (left arm); blood loss: heavy; status: severely wounded ]",
-      "description": "You cast a major healing spell on John, and his arm and leg regrow instantly. He's now completely healed!"
+      "enemy": "[ Target: Yourself; race/species: human; wounds: amputated (right leg), amputated (left arm); blood loss: heavy; status: severely wounded ]",
+      "description": "You cast a major healing spell on yourself, and your arm and leg regrow instantly. You're now completely healed!"
     },
     {
       "player": "[ Light Healing (basic healing spell) ]",
-      "enemy": "[ Target: Robert; race/species: human; wounds: heavy bruises, eviscerated, amputated (left arm), perforated heart; blood loss: major; status: dying ]",
-      "description": "You use your light healing spell on Robert, which heals some of his injuries. He's still badly injured."
+      "enemy": "[ Target: Yourself; race/species: human; wounds: heavy bruises, eviscerated, amputated (left arm), perforated heart; blood loss: major; status: dying ]",
+      "description": "You use your light healing spell on yourself, which heals some of your injuries. You're still badly injured."
     }
   ]
 }

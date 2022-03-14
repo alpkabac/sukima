@@ -1,0 +1,30 @@
+{
+  "name": "RPG Attack Generator",
+  "description": "Generates RPG attacks given a weapon",
+  "context": null,
+  "properties": [
+    {
+      "name": "description",
+      "replaceBy": "Description of your action:",
+      "input": true
+    },
+    {
+      "name": "wounds",
+      "replaceBy": "Target's new wound(s):"
+    }
+  ],
+  "list": [
+    {
+      "description": "You swiftly attack John with your copper dagger, cutting his left ear right off",
+      "wounds": "amputated left ear"
+    },
+    {
+      "description": "You stab Emma in the chest, pushing the blade deep through her heart. Emma is badly wounded and doesn't even fight back, she falls on the floor, dead.",
+      "wounds": "impaled heart"
+    },
+    {
+      "description": "You strike Robert with your wooden club, only doing light bruises on his sternum. Robert is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead.",
+      "wounds": "light bruises"
+    }
+  ]
+}

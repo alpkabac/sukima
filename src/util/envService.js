@@ -45,7 +45,7 @@ class EnvService {
     }
 
     static getBotId() {
-        return process.env.BOT_ID || null
+        return process.env.BOT_ID
     }
 
     static getAiModule(){

@@ -117,7 +117,7 @@
       "enemyCurrentWounds": "lacerations (right arm), severed limb (left arm)",
       "enemyCurrentBloodLoss": "major",
       "enemyCurrentStatus": "heavily wounded",
-      "description": "You stab the enemy in the chest, pushing the blade deep through the kobold's hearth. The kobold is badly wounded and doesn't even fight back.",
+      "description": "You stab the enemy in the chest, pushing the blade deep through the kobold's heart. The kobold is badly wounded and doesn't even fight back.",
       "wounds": "pierced heart",
       "status": "dead"
     },

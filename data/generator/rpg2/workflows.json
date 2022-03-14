@@ -1,5 +1,6 @@
 {
   "enemy": [
+    "enemy"
   ],
   "attackEnemy": [
     "attackEnemy",
@@ -9,7 +10,7 @@
   ],
   "attackPlayer": [
     "attackPlayer",
-    "detectionWounds",
+    "detectionPlayerWounds",
     "detectionBloodLoss",
     "detectionStatus"
   ],

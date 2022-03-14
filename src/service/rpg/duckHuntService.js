@@ -56,11 +56,7 @@ class DuckHuntService {
                 {name: "rarity", value: rarity},
                 {name: "item"},
             ]
-            const {
-                object,
-                result,
-                module
-            } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
+            const object = await generatorService.newWorkflow("loot", args)
 
             name = object.item
             if (!rarity) {
@@ -96,9 +92,7 @@ class DuckHuntService {
                 {name: "rarity", value: rarity},
                 {name: "item"},
             ]
-            const {
-                object,
-            } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
+            const object = await generatorService.newWorkflow("loot", args)
 
             name = object.item
             if (!rarity) {
@@ -166,11 +160,7 @@ class DuckHuntService {
         swarmSettings.difficulty = difficulty
         swarmSettings.name = name
 
-        const {
-            object,
-            result,
-            module
-        } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "spawn")
+        const object = await generatorService.newWorkflow("enemy", args)
 
         pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
@@ -236,11 +226,7 @@ class DuckHuntService {
         }
 
 
-        const {
-            object,
-            result,
-            module
-        } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "spawn")
+        const object = await generatorService.newWorkflow("enemy", args)
 
         const newPawn = pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
@@ -257,7 +243,7 @@ class DuckHuntService {
         if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
             const prompt = envService.getBoolean("ENABLE_RPG_NSFW") ?
                 `${newPawn.name} naked girl ${utils.sanitize(newPawn.difficulty)}`
-                :`${newPawn.name}`
+                : `${newPawn.name}`
             const buff = await utils.generatePicture(utils.sanitize(prompt, false))
             if (buff) {
                 const m = new MessageAttachment(buff, "generated_image.png")
@@ -326,10 +312,14 @@ class DuckHuntService {
                 }
             }
         } else {
-            target = pawn
+            if (healMode) {
+                target = player
+            } else {
+                target = pawn
+            }
         }
 
-        if (target === pawn && !pawnService.isPawnAliveOnChannel(channel)) return {
+        if (target === pawn && !healMode && !pawnService.isPawnAliveOnChannel(channel)) return {
             message: `# ${username} tried to attack, but there is no enemy...`,
             deleteUserMsg: username !== process.env.BOTNAME,
             deleteNewMessage: username !== process.env.BOTNAME,
@@ -347,10 +337,21 @@ class DuckHuntService {
             }
         }
 
+
+        const workflowName = target === pawn ?
+            "attackEnemy"
+            : target === player ?
+                "healSelf"
+                : healMode ?
+                    "healPlayer"
+                    : "attackPlayer"
+
         const enemyWounds = target.health.wounds.length === 0 ? 'none' : [...new Set(target.health.wounds)].join(', ')
         const enemyStatus = target !== pawn ?
             `[ Target: ${target.name}; race/species: human; \${wounds}: ${enemyWounds}; \${bloodLoss}: ${target.health.bloodLoss}; status: ${target.health.status} ]`
-            : `[ Target: ${target.name}; \${difficulty}: ${target.difficulty}; \${wounds}: ${enemyWounds}; \${bloodLoss}: ${target.health.bloodLoss}; status: ${target.health.status} ]`
+            : healMode ?
+                `[ Target: Yourself; race/species: human; \${wounds}: ${enemyWounds}; \${bloodLoss}: ${player.health.bloodLoss}; status: ${player.health.status} ]`
+                : `[ Target: ${target.name}; \${difficulty}: ${target.difficulty}; \${wounds}: ${enemyWounds}; \${bloodLoss}: ${target.health.bloodLoss}; status: ${target.health.status} ]`
         const playerEquipment = playerService.getEquipmentPrompt(player, healMode)
 
         const input = {
@@ -361,9 +362,10 @@ class DuckHuntService {
             enemyCurrentStatus: target.health.status
         }
 
-        const object = await generatorService.workflow(generatorAttackNew, healMode ? "heal" : target === pawn ? "attack" : "attackPlayer", input)
 
-        if (target === pawn) pawn.attacks.push({player: username, description: object.description})
+        const object = await generatorService.newWorkflow(workflowName, input)
+
+        if (target === pawn && !healMode) pawn.attacks.push({player: username, description: object.description})
 
         const noDamageStrings = ["n/a", "no damage", "none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"]
         if (object.wounds && object.wounds.trim() && !noDamageStrings.includes(object.wounds.trim().toLowerCase())) {
@@ -400,25 +402,22 @@ class DuckHuntService {
             target.health.status = object.status.toLowerCase()
         }
 
-
-        /*
-        const isTargetDead = ["true", "yes"].includes(object.isDead?.trim?.())
-        if (isTargetDead) {
-            target.health.status = "dead"
-        }
-         */
-
         if (object.status && object.status.trim() && STATUS_DEAD.includes(object.status.trim().toLowerCase())) {
-            if (target === pawn) pawn.alive = false
+            if (target === pawn && !healMode) pawn.alive = false
         }
 
         player.lastAttackAt = Date.now()
 
+        const title = target === pawn ?
+            `Player ${username} attacks the ${target.name} (${pawn.difficulty})`
+            : target === player ?
+                `Player ${username} heals itself!`
+                : healMode ? `Player ${username} heals player ${target.name}!`
+                    : `Player ${username} attacks player ${target.name}!`
+
         const msg = new MessageEmbed()
             .setColor('#ff0000')
-            .setTitle(target === pawn ?
-                `${username} ${healMode ? 'heals' : 'attacks'} the ${target.name} (${pawn.difficulty})`
-                : `${username} ${healMode ? 'heals' : 'attacks'} ${target.name}!`)
+            .setTitle(title)
             .setDescription(`${object.description || 'undefined'}`)
             .addField('New enemy wounds', object.wounds || 'undefined', true)
             .addField('New enemy blood loss', object.bloodLoss || 'undefined', true)
@@ -432,18 +431,20 @@ class DuckHuntService {
             {embed: null, pushIntoHistory: null}
             : (await this.loot(channel) || {embed: null, pushIntoHistory: null})
 
-        if (target === pawn && !pawn.alive) {
+        if (target === pawn && !healMode && !pawn.alive) {
             pawnService.lastPawnKilledAt[channel] = Date.now()
         }
 
-        const historyMessage = (username !== process.env.BOTNAME ? `!${healMode ? 'heal' : 'attack'}${target === pawn ? '' : ` ${target.name}`}\n` : '')
-            + (target === pawn ?
-                `[ ${username} ${healMode ? 'heals' : 'attacks'} the ${target.name} ]`
-                : `[ ${username} ${healMode ? 'heals' : 'attacks'} ${target.name} ]`)
+        const historyMessage = (username !== process.env.BOTNAME ?
+                `!${healMode ? 'heal' : 'attack'}${target === pawn || target === player ?
+                    ''
+                    : ` ${target.name}`}\n`
+                : '')
+            + `[ ${title} ]`
             + `\n[ Narrator to ${username}: ${object.description} ]`
             + (target === pawn ?
                 `\n[ Target new wound(s): ${object.wounds}; Target new status: ${object.status}${pawn.alive ? ' (not dead yet)' : ''} ]`
-                : `\n[ Target: ${target.name}; new wound(s): ${object.wounds}; Target new status: ${object.status}${isAlive(target) ? ' (not dead yet)' : ''} ]`)
+                : `\n[ Target: ${target.name}; new wound(s): ${object.wounds}; Target new status: ${object.status}${isAlive(target) && !healMode ? ' (not dead yet)' : ''} ]`)
             + (isAlive(target) ? '' : `\n[ ${target === pawn ? `Enemy ${pawn.name} (${pawn.difficulty})` : `Target ${target.name}`} has been defeated and is now dead! ]`)
             + (pushIntoHistory ? `\n${pushIntoHistory}` : '')
 
@@ -615,11 +616,7 @@ class DuckHuntService {
                 {name: "type"},
                 {name: "rarity"},
             ]
-            const {
-                object,
-                result,
-                module
-            } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
+            const object = await generatorService.newWorkflow("loot", args)
             lootedItem = {name: object.item, type: object.type, rarity: object.rarity}
         }
 
@@ -856,11 +853,7 @@ class DuckHuntService {
             {name: "rarity", value: item.rarity || 'undefined rarity'},
             {name: "price"},
         ]
-        const {
-            object,
-            result,
-            module
-        } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "sell")
+        const object = await generatorService.newWorkflow("sell", args)
 
         let goldAmount = !object?.price ? null : parseInt(
             object.price.trim().split(' ')[0]
@@ -1457,7 +1450,7 @@ class DuckHuntService {
         }
     }
 
-    static async appendItemImage(embed, item){
+    static async appendItemImage(embed, item) {
         if (item?.image) {
             const buff = new Buffer.from(item.image, "base64")
             const imgOriginal = await sharp(Buffer.from(buff, 'binary'))
