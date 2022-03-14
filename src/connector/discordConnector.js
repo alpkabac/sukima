@@ -367,12 +367,14 @@ async function processMessage(msg) {
         }
     }
 
-    voiceChannel = msg.member?.voice?.channel
     if (message && message.enableTTS) {
         try {
             connection.disconnect()
         } catch {
         }
+        
+        voiceChannel = msg.member?.voice?.channel
+
 
         if (!voiceChannel) {
             await originalMsg.inlineReply("# Sorry, but you need to be connected to a voice channel for me to know which one to join!")
