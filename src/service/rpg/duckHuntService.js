@@ -66,9 +66,10 @@ class DuckHuntService {
 
         worldItemsService.appendItem(channel, {name, type, rarity})
 
+        const title = `Admin ${username} spawned an item on the ground: ${name} (${rarity} ${type})`
         const embed = new MessageEmbed()
             .setColor('#ffff66')
-            .setTitle(`Admin ${username} spawned an item on the ground: ${name} (${rarity} ${type})`)
+            .setTitle(title)
             .setDescription(`Spawned item "${name}" is on the ground slot number [${worldItemsService.getActiveItems(channel).length - 1}]`)
             .addField("Item type", type, true)
             .addField("Item rarity", rarity, true)
@@ -78,7 +79,8 @@ class DuckHuntService {
             success: true,
             instantReply: true,
             deleteUserMsg: username !== process.env.BOTNAME,
-            pushIntoHistory: [`[ Admin ${username} spawned an item on the ground: ${name} (${rarity} ${type}) ]`, null, channel]
+            pushIntoHistory: [`[ Admin ${username} spawned an item on the ground: ${name} (${rarity} ${type}) ]`, null, channel],
+            ttsMessage: title
         }
     }
 
@@ -109,9 +111,10 @@ class DuckHuntService {
         }
         player.weapon = item
 
+        const title = `Admin ${username} spawned and equipped an item: ${name} (${rarity} ${type})`
         const embed = new MessageEmbed()
             .setColor('#ffff66')
-            .setTitle(`Admin ${username} spawned and equipped an item: ${name} (${rarity} ${type})`)
+            .setTitle(title)
             .setDescription(`Spawned item "${name}" is now used as weapon by ${username}`)
             .addField("Item type", type, true)
             .addField("Item rarity", rarity, true)
@@ -121,7 +124,8 @@ class DuckHuntService {
             success: true,
             instantReply: true,
             deleteUserMsg: username !== process.env.BOTNAME,
-            pushIntoHistory: [`[ Player ${username} spawned and equipped an item: ${name} (${rarity} ${type}) ]`, null, channel]
+            pushIntoHistory: [`[ Player ${username} spawned and equipped an item: ${name} (${rarity} ${type}) ]`, null, channel],
+            ttsMessage: title
         }
     }
 
@@ -165,10 +169,11 @@ class DuckHuntService {
         pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
         const remainingTime = ((swarmSettings.timestamp + swarmSettings.duration) - Date.now()) / 1000
+        const title = `New Swarm Event Encounter! (remaining time: ${remainingTime.toFixed(0)} seconds)`
         return {
             message: new MessageEmbed()
                 .setColor('#0099ff')
-                .setTitle(`New Swarm Event Encounter! (remaining time: ${remainingTime.toFixed(2)} seconds)`)
+                .setTitle(title)
                 .setDescription(object.encounterDescription)
                 .addFields(
                     {name: 'Enemy name', value: object.name, inline: true},
@@ -182,7 +187,7 @@ class DuckHuntService {
             success: true,
             deleteUserMsg: true,
             instantReply: true,
-            ttsMessage: object.encounterDescription
+            ttsMessage: title +". " +object.encounterDescription
         }
     }
 
@@ -231,15 +236,15 @@ class DuckHuntService {
 
         const newPawn = pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
+        const title = 'New Encounter!'
         const msg = new MessageEmbed()
             .setColor('#0099ff')
-            .setTitle('New Encounter!')
+            .setTitle(title)
             .setDescription(object.encounterDescription)
             .addFields(
                 {name: 'Enemy name', value: object.name, inline: true},
                 {name: 'Difficulty', value: object.difficulty, inline: true},
             )
-
 
         if (envService.getBoolean("ENABLE_RPG_IMAGES")) {
             const prompt = envService.getBoolean("ENABLE_RPG_NSFW") ?
@@ -259,7 +264,7 @@ class DuckHuntService {
             deleteUserMsg: true,
             instantReply: true,
             newPawn,
-            ttsMessage: object.encounterDescription
+            ttsMessage: title +". " +object.encounterDescription
         }
     }
 

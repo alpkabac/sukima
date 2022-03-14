@@ -746,6 +746,10 @@ async function mainRpgLoop() {
                     historyService.pushIntoHistory(spawnMessage.pushIntoHistory[0], spawnMessage.pushIntoHistory[1], spawnMessage.pushIntoHistory[2], m?.id)
                 }
 
+                if (ttsEnabled && speak && spawnMessage.ttsMessage) {
+                    speak(ttsMessage, channel)
+                }
+
                 savingService.save(channel)
             }
             await utils.sleep(1000)
