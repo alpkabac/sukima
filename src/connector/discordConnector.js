@@ -369,6 +369,10 @@ async function processMessage(msg) {
 
     voiceChannel = msg.member?.voice?.channel
     if (message && message.enableTTS) {
+        try{
+            connection.disconnect()
+        }catch{}
+
         if (!voiceChannel) {
             await originalMsg.inlineReply("# Sorry, but you need to be connected to a voice channel for me to know which one to join!")
         } else {
@@ -377,13 +381,7 @@ async function processMessage(msg) {
 
             connection = bot.voice.connections.find((vc) => vc.channel.id === voiceChannel.id)
             if (!connection) {
-                console.log("No connection is present for TTS, getting connection...")
-
                 connection = await voiceChannel.join()
-
-                if (connection) {
-                    console.log("TTS connection established!")
-                }
             }
         }
     }
@@ -392,7 +390,6 @@ async function processMessage(msg) {
         ttsEnabled = false
         connection.disconnect()
         connection = null
-        console.log("TTS disconnected")
     }
 
     if (message && message.success) {
