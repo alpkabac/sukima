@@ -137,8 +137,13 @@ bot.on('ready', async () => {
         if (!voiceChannel) return console.log("No voice channel")
         if (channel.startsWith("##")) return console.log("Can't use TTS in DMs")
 
+        const parsedMessage = msg
+            .replace(/ \(/g, '. ')
+            .replace(/\)/g, '')
+            .replace(/:/g, '.')
+
         if (connection) {
-            await utils.tts2(connection, msg)
+            await utils.tts2(connection, parsedMessage)
         } else {
             console.log("Can't use TTS: No connection to vocal channel is open.")
         }
@@ -372,7 +377,7 @@ async function processMessage(msg) {
             connection.disconnect()
         } catch {
         }
-        
+
         voiceChannel = msg.member?.voice?.channel
 
 

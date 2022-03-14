@@ -462,7 +462,7 @@ class DuckHuntService {
             deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
             alsoSend: (target !== pawn || pawn.alive) ? null : embed,
-            ttsMessage: title + ' ' + object.description + (!ttsMessage?'': `. ${ttsMessage}`)
+            ttsMessage: title + '. ' + object.description + (!ttsMessage?'': `.. ${ttsMessage}`)
         }
     }
 
@@ -658,7 +658,7 @@ class DuckHuntService {
             embed.attachFiles([messageAttachment])
         }
 
-        const lootText = `Loot item falling on the ground for defeating ${pawn.name} (${pawn.difficulty.toLowerCase()}): ${lootedItem.item} (${lootedItem.rarity} ${lootedItem.type})`
+        const lootText = `Loot item falling on the ground for defeating ${pawn.name} (${pawn.difficulty.toLowerCase()}): ${lootedItem.name} (${lootedItem.rarity} ${lootedItem.type})`
         if (lootedItem) {
             return {
                 embed,
