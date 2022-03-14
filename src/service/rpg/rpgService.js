@@ -7,9 +7,25 @@ class RpgService {
     static generators = null
     static workflows = null
 
+    static loadDefaultGenerators(){
+        const files = fs.readdirSync(`./data/generator/rpg2`)
+        console.log(files)
+
+        for (const file of files) {
+            const json = utils.loadJSONFile(`./data/generator/rpg2/${file}`)
+            if (file === "workflows.json") {
+                RpgService.workflows = json
+            } else {
+                RpgService.generators[file.replace(/\.generator/gi, '')] = json
+            }
+        }
+    }
+
     static loadAllGenerators() {
         if (!envService.getBotId()) return
         RpgService.generators = {}
+
+        RpgService.loadDefaultGenerators()
 
         let zip
         zip = new StreamZip({
@@ -33,18 +49,7 @@ class RpgService {
         })
 
         zip.on('error', () => {
-            console.error(`Couldn't extract rpg.zip file for ${envService.getBotId()}, loading default RPG...`);
-            const files = fs.readdirSync(`./data/generator/rpg2`)
-            console.log(files)
-
-            for (const file of files) {
-                const json = utils.loadJSONFile(`./data/generator/rpg2/${file}`)
-                if (file === "workflows.json") {
-                    RpgService.workflows = json
-                } else {
-                    RpgService.generators[file.replace(/\.generator/gi, '')] = json
-                }
-            }
+            console.error(`Couldn't extract rpg.zip file for ${envService.getBotId()}`);
         })
     }
 

@@ -128,7 +128,7 @@ class Utils {
         }
 
         await downloadFile('tmp.mp3')
-        connection.play('tmp.mp3', { highWaterMark: 1 })
+        await connection.play('tmp.mp3', { highWaterMark: 1 })
     }
 
     static shuffleArray(array) {
@@ -275,7 +275,7 @@ class Utils {
             })
             return await this.getResizedImage(response, resize)
         } catch (e) {
-            console.error(e)
+            // console.error(e)
         }
     }
 

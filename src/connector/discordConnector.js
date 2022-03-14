@@ -369,9 +369,10 @@ async function processMessage(msg) {
 
     voiceChannel = msg.member?.voice?.channel
     if (message && message.enableTTS) {
-        try{
+        try {
             connection.disconnect()
-        }catch{}
+        } catch {
+        }
 
         if (!voiceChannel) {
             await originalMsg.inlineReply("# Sorry, but you need to be connected to a voice channel for me to know which one to join!")
@@ -486,8 +487,10 @@ async function processMessage(msg) {
             }
         }
 
-        if (!embedMessage && speak && !message.message.startsWith("#") && !channelName.startsWith("##") && ttsEnabled) {
-            await speak(parsedMessage, channelName)
+
+        const shouldSpeak = (!embedMessage || message.ttsMessage) && speak && !message?.message?.startsWith?.("#") && !channelName.startsWith("##") && ttsEnabled
+        if (shouldSpeak) {
+            await speak(message.ttsMessage ? message.ttsMessage : parsedMessage, channelName)
         }
     } else {
         locked[channelName] = false

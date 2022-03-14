@@ -107,9 +107,8 @@ class GeneratorService {
             const submodulesContainsAllInput = submoduleInputs.every(sip => inputPropertyName.includes(sip))
 
             if (!submodulesContainsAllInput) {
-                return console.error(`Not every input are provided inside the generator ${generatorName}!`)
+                // console.error(`Not every input are provided inside the generator ${generatorName}!`)
             }
-
 
             let args = generators[generatorName].properties
                 .map(p => {
