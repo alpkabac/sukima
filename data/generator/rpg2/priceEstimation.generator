@@ -8,15 +8,18 @@
   "properties": [
     {
       "name": "item",
-      "replaceBy": "Item Name:"
+      "replaceBy": "Item Name:",
+      "input": true
     },
     {
       "name": "type",
-      "replaceBy": "Item Type:"
+      "replaceBy": "Item Type:",
+      "input": true
     },
     {
       "name": "rarity",
-      "replaceBy": "Item Rarity:"
+      "replaceBy": "Item Rarity:",
+      "input": true
     },
     {
       "name": "price",

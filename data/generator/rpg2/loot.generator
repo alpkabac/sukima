@@ -5,11 +5,13 @@
   "properties": [
     {
       "name": "name",
-      "replaceBy": "Defeated Enemy Name:"
+      "replaceBy": "Defeated Enemy Name:",
+      "input": true
     },
     {
       "name": "difficulty",
-      "replaceBy": "Defeated Enemy Difficulty:"
+      "replaceBy": "Defeated Enemy Difficulty:",
+      "input": true
     },
     {
       "name": "item",

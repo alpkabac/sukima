@@ -1,3 +1,34 @@
 {
-
+  "enemy": [
+  ],
+  "attackEnemy": [
+    "attackEnemy",
+    "detectionWounds",
+    "detectionBloodLoss",
+    "detectionStatus"
+  ],
+  "attackPlayer": [
+    "attackPlayer",
+    "detectionWounds",
+    "detectionBloodLoss",
+    "detectionStatus"
+  ],
+  "healSelf": [
+    "healSelf",
+    "detectionHealSelf",
+    "detectionBloodLoss",
+    "detectionStatus"
+  ],
+  "healPlayer": [
+    "healPlayer",
+    "detectionHealPlayer",
+    "detectionBloodLoss",
+    "detectionStatus"
+  ],
+  "loot": [
+    "loot"
+  ],
+  "sell": [
+    "priceEstimation"
+  ]
 }
