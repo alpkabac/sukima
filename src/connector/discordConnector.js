@@ -747,7 +747,7 @@ async function mainRpgLoop() {
                 }
 
                 if (ttsEnabled && speak && spawnMessage.ttsMessage) {
-                    speak(ttsMessage, channel)
+                    speak(spawnMessage.ttsMessage, channel)
                 }
 
                 savingService.save(channel)
