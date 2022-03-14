@@ -709,7 +709,7 @@ class DuckHuntService {
                 .setTitle(`Player ${username} takes the item "${item.name}"`)
                 .setDescription(`${username} puts the item in its backpack slot number [${player.inventory.length - 1}]`)
 
-            const text = `Player ${username} takes the item ${item.name} (${item.rarity} ${item.type}) from the ground and puts it in its backpack`
+            const text = `Player ${username} takes the item ${item.name} (${item.rarity} ${item.type}) and puts it in its backpack`
             return {
                 message: embed,
                 success: true,
