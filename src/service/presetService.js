@@ -6,7 +6,7 @@ import envService from "../util/envService.js";
 
 config()
 
-class AiParametersService {
+class PresetService {
     static aiParameters = {}
 
     static getAiParameters(channel) {
@@ -17,7 +17,7 @@ class AiParametersService {
         }
 
         if (fs.existsSync(`./bot/${process.env.BOT_ID}/default.preset`)) {
-            this.aiParameters[channel] = AiParametersService.loadPresetFile(`./bot/${process.env.BOT_ID}/default.preset`)
+            this.aiParameters[channel] = PresetService.loadPresetFile(`./bot/${process.env.BOT_ID}/default.preset`)
             if (this.aiParameters[channel]) return this.aiParameters[channel]
         }
 
@@ -54,4 +54,4 @@ class AiParametersService {
     }
 }
 
-export default AiParametersService
+export default PresetService

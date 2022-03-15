@@ -422,15 +422,16 @@ class DuckHuntService {
                 : healMode ? `Player ${username} heals player ${target.name}!`
                     : `Player ${username} attacks player ${target.name}!`
 
+
         const msg = new MessageEmbed()
             .setColor('#ff0000')
             .setTitle(title)
             .setDescription(`${object.description || 'undefined'}`)
-            .addField('New enemy wounds', object.wounds || 'undefined', true)
-            .addField('New enemy blood loss', object.bloodLoss || 'undefined', true)
-            .addField('New enemy status', object.status || 'undefined', true)
-            .addField('Is enemy dead?', STATUS_DEAD.includes(object.status.trim().toLowerCase()), true)
-            .addField('All enemy wounds', [...new Set(target.health.wounds)].join('\n') || 'none', false)
+            .addField('New wounds', object.wounds || 'undefined', true)
+            .addField('New blood loss', object.bloodLoss || 'undefined', true)
+            .addField('New status', object.status || 'undefined', true)
+            .addField('Is dead?', STATUS_DEAD.includes(object.status.trim().toLowerCase()), true)
+            .addField('All wounds', [...new Set(target.health.wounds)].join('\n') || 'none', false)
             .addField(`Player equipment used for ${healMode ? 'heal' : 'attack'}`, playerEquipment, false)
 
 
@@ -1845,114 +1846,6 @@ class DuckHuntService {
 
         return {
             message: attachment,
-            instantReply: true
-        }
-    }
-
-    static async workflow(channel, args, attachmentUrl) {
-        if (!attachmentUrl && !lastUploadedGenerator) return {
-            error: "# You need to upload a JSON generator file as attachment to your command"
-        }
-
-        let generator
-        if (!lastUploadedGenerator || attachmentUrl) {
-            generator = await utils.getAttachment(attachmentUrl)
-            lastUploadedGenerator = generator
-        } else {
-            generator = lastUploadedGenerator
-        }
-        let argsJSON
-        try {
-            argsJSON = !args ? null : JSON.parse(args.trim())
-        } catch (e) {
-            return {
-                error: "# Invalid JSON",
-                instantReply: true
-            }
-        }
-
-        let json = {}
-        let nbResults = 1
-        let submoduleName = null
-        if (argsJSON) {
-            for (let name in argsJSON) {
-                if (name === 'nbResults') {
-                    if (typeof argsJSON[name] === "string") {
-                        argsJSON[name] = parseInt(argsJSON[name])
-                    }
-                    nbResults = Math.min(5, argsJSON[name])
-                } else if (name === "aiParameters") {
-                    generator.aiParameters = argsJSON[name]
-                } else if (name === "aiModel") {
-                    generator.aiModel = argsJSON[name]
-                } else if (name === "submodule") {
-                    submoduleName = argsJSON[name]
-                } else {
-                    json[name] = argsJSON[name]
-                }
-            }
-        }
-
-        let results = []
-        for (let i = 0; i < nbResults; i++) {
-            const object = await generatorService.workflow(generator, submoduleName, json)
-            results.push(object)
-        }
-
-        const resultsJSONString = JSON.stringify(results, null, 1)
-
-        const attachment = resultsJSONString.length < 2000 ? resultsJSONString : new MessageAttachment(Buffer.from(resultsJSONString), 'results.json')
-
-        return {
-            message: attachment,
-            instantReply: true
-        }
-    }
-
-    static async ioGenerator(channel, arg, attachmentUrl) {
-        if (!attachmentUrl && !lastUploadedGenerator) return {
-            error: "# You need to upload a JSON generator file as attachment to your command"
-        }
-
-        let generator
-        if (!lastUploadedGenerator || attachmentUrl) {
-            generator = await utils.getAttachment(attachmentUrl)
-            lastUploadedGenerator = generator
-        } else {
-            generator = lastUploadedGenerator
-        }
-
-        const properties = [
-            {name: "input", value: arg},
-            {name: "output"},
-        ]
-
-        if (!generator.context) {
-            const personality = personalityService.getChannelPersonality(channel)
-            if (personality?.description) {
-                generator.context = personality.description
-            }
-
-            const memories = memoryService.getChannelMemory(channel)
-            if (memories) {
-                for (let key in memories) {
-                    generator.context += `\n${memories[key]}`
-                }
-            }
-        }
-
-        const {
-            object,
-            result,
-            module,
-            prompt
-        } = await generatorService.generator(generator, properties, channel.startsWith("##"))
-
-        const message = object.output
-
-        return {
-            message,
-            //pushIntoHistory: message ? [`${message}`, null, channel] : null,
             instantReply: true
         }
     }

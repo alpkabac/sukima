@@ -4,7 +4,6 @@ import envService from "../util/envService.js";
 import {encode} from "gpt-3-encoder";
 import lmiService from "./lmiService.js";
 import aiService from "./aiService.js";
-import logService from "./logService.js";
 import rpgService from "./rpg/rpgService.js";
 
 config()
@@ -79,9 +78,12 @@ class GeneratorService {
             return console.error(`Workflow ${workflowName} doesn't exist`)
         }
 
-        const persistentObject = JSON.parse(JSON.stringify(input))
+        const persistentObject = {}
+        for (let i of input){
+            persistentObject[i.name] = i.value
+        }
 
-        for(let w of workflows[workflowName]){
+        for (let w of workflows[workflowName]) {
             await GeneratorService.workflowGenerator(w, persistentObject)
         }
 
@@ -98,24 +100,44 @@ class GeneratorService {
             )
             await Promise.all(promises)
         } else {
+            const inputPropertyNames = Object.keys(persistentObject)
+
             const submoduleInputs = generators[generatorName].properties
                 .filter(p => p.input)
                 .map(p => p.name)
 
-            const inputPropertyName = Object.keys(persistentObject)
-
-            const submodulesContainsAllInput = submoduleInputs.every(sip => inputPropertyName.includes(sip))
+            const submodulesContainsAllInput = submoduleInputs.every(sip => inputPropertyNames.includes(sip))
 
             if (!submodulesContainsAllInput) {
                 // console.error(`Not every input are provided inside the generator ${generatorName}!`)
             }
 
-            let args = generators[generatorName].properties
-                .map(p => {
-                    return {name: p.name, value: p.input ? persistentObject[p.name] : null}
-                })
+            let orderedProperties = []
+            for (let poPropName of inputPropertyNames) {
+                for (let geProp of generators[generatorName].properties) {
+                    if (poPropName === geProp.name) {
+                        orderedProperties.push({
+                            name: poPropName,
+                            value: persistentObject[poPropName]
+                        })
+                    }
+                }
+            }
 
-            const {object, prompt, result} = await GeneratorService.generator(generators[generatorName], args, true)
+            for (let geProp of generators[generatorName].properties) {
+                if (!inputPropertyNames.includes(geProp.name)){
+                    orderedProperties.push({
+                        name: geProp.name,
+                        value: null
+                    })
+                }
+            }
+
+            const {
+                object,
+                prompt,
+                result
+            } = await GeneratorService.generator(generators[generatorName], orderedProperties, true)
 
             for (let o in object) {
                 persistentObject[o] = object[o]
@@ -123,60 +145,6 @@ class GeneratorService {
         }
     }
 
-    static async workflow(generator, workflowName, input) {
-        if (!generator?.submodules[workflowName]) {
-            console.error("You need to provide a generator containing submodules")
-            return
-        }
-
-        const submodule = generator.submodules[workflowName]
-
-        const submoduleInputs = submodule.properties
-            .filter(p => p.input)
-            .map(p => p.name)
-
-        const inputPropertyName = Object.keys(input)
-
-        const submodulesContainsAllInput = submoduleInputs.every(sip => inputPropertyName.includes(sip))
-
-        if (!submodulesContainsAllInput) {
-            console.error("Not every input is mapped inside the submodule")
-            return
-        }
-
-        const persistentObject = JSON.parse(JSON.stringify(input))
-
-        return await GeneratorService.workflowModule(generator, workflowName, persistentObject)
-    }
-
-    static async workflowModule(generator, submoduleName, persistentObject, submoduleCallStack = []) {
-
-        if (submoduleCallStack.includes(submoduleName)) {
-            return logService.error("Infinite loop", new Error(`Submodule ${submoduleName} has already been called during this workflow`))
-        } else {
-            submoduleCallStack.push(submoduleName)
-        }
-
-        let args = generator.submodules[submoduleName].properties
-            .map(p => {
-                return {name: p.name, value: p.input ? persistentObject[p.name] : null}
-            })
-
-        const {object, prompt, result} = await GeneratorService.generator(generator, args, false, submoduleName)
-
-        for (let o in object) {
-            persistentObject[o] = object[o]
-        }
-
-        if (generator?.submodules?.[submoduleName]?.callsSubmodules?.length > 0) {
-            const promises = generator?.submodules?.[submoduleName]?.callsSubmodules.map(
-                sm => GeneratorService.workflowModule(generator, sm, persistentObject, submoduleCallStack)
-            )
-            await Promise.all(promises)
-        }
-
-        return persistentObject
-    }
 
     /**
      * Generates a prompt given a generic generator

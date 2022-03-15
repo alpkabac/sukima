@@ -5,7 +5,7 @@ import messageService from "./messageService.js";
 import lmiService from "./lmiService.js";
 import phraseBiasService from "./phraseBiasService.js";
 import bannedTokensService from "./bannedTokensService.js";
-import aiParametersService from "./aiParametersService.js";
+import presetService from "./presetService.js";
 
 config()
 
@@ -106,7 +106,7 @@ class AiService {
 
 
         if (channel) {
-            const aiParameters = aiParametersService.getAiParameters(channel)
+            const aiParameters = presetService.getAiParameters(channel)
             if (aiParameters) {
                 params = aiParameters
             }
