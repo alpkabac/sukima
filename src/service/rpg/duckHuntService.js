@@ -369,7 +369,6 @@ class DuckHuntService {
             enemyCurrentStatus: target.health.status
         }
 
-
         const object = await generatorService.newWorkflow(workflowName, input)
 
         if (target === pawn && !healMode) pawn.attacks.push({player: username, description: object.description})

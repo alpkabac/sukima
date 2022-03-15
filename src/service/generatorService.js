@@ -78,9 +78,14 @@ class GeneratorService {
             return console.error(`Workflow ${workflowName} doesn't exist`)
         }
 
-        const persistentObject = {}
-        for (let i of input){
-            persistentObject[i.name] = i.value
+        let persistentObject
+        if (Array.isArray(input)) {
+            persistentObject = {}
+            for (let i of input) {
+                persistentObject[i.name] = i.value
+            }
+        }else{
+            persistentObject = JSON.parse(JSON.stringify(input))
         }
 
         for (let w of workflows[workflowName]) {
@@ -125,7 +130,7 @@ class GeneratorService {
             }
 
             for (let geProp of generators[generatorName].properties) {
-                if (!inputPropertyNames.includes(geProp.name)){
+                if (!inputPropertyNames.includes(geProp.name)) {
                     orderedProperties.push({
                         name: geProp.name,
                         value: null
