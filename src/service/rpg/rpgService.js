@@ -9,7 +9,6 @@ class RpgService {
 
     static loadDefaultGenerators(){
         const files = fs.readdirSync(`./data/generator/rpg2`)
-        console.log(files)
 
         for (const file of files) {
             const json = utils.loadJSONFile(`./data/generator/rpg2/${file}`)
