@@ -16,13 +16,15 @@ const duckHuntCommands = {
         process.env.ALLOW_RPG_SPAWN,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
             async function getAttachment(attachmentUrl) {
+                const path = `bot/${envService.getBotId()}/rpg.zip`
+                await (fs.rmSync(path))
+
                 // fetch the file from the external URL
                 const response = await axios.get(attachmentUrl, {
                     responseType: 'stream',
                 })
 
-                const path = `bot/${envService.getBotId()}/rpg.zip`
-                await (fs.rmSync(path))
+
                 response.data.pipe(fs.createWriteStream(path))
 
                 return new Promise((resolve, reject) => {
