@@ -2,6 +2,9 @@
   "name": "RPG Item Generator",
   "description": "Generates an RPG item given an enemy and its difficulty",
   "context": "[ Item Loot Generator: outputs an item name, type and rarity given the defeated enemy name and difficulty as input ]",
+  "placeholders": {
+    "difficulty": "difficulty"
+  },
   "properties": [
     {
       "name": "name",
@@ -40,76 +43,6 @@
       "item": "Unicorn Horn",
       "type": "component",
       "rarity": "uncommon"
-    },
-    {
-      "name": "Rare Golden Dragon",
-      "difficulty": "arduous",
-      "item": "Rare Dragonscale Armor",
-      "type": "armor",
-      "rarity": "rare"
-    },
-    {
-      "name": "Enraged Rabbit",
-      "difficulty": "very easy",
-      "item": "Rabbit Pelt",
-      "type": "component",
-      "rarity": "very common"
-    },
-    {
-      "name": "Famished Goblin",
-      "difficulty": "easy",
-      "item": "Old Wooden Shield",
-      "type": "shield",
-      "rarity": "very common"
-    },
-    {
-      "name": "Giant Centipede",
-      "difficulty": "difficult",
-      "item": "Giant Centipede's Carapace",
-      "type": "component",
-      "rarity": "uncommon"
-    },
-    {
-      "name": "Skeleton Knight",
-      "difficulty": "extremely difficult",
-      "item": "Dagger of Death",
-      "type": "weapon",
-      "rarity": "epic"
-    },
-    {
-      "name": "Dark Wizard",
-      "difficulty": "impossible",
-      "item": "Glowing Staff of Fireballs",
-      "type": "magic item",
-      "rarity": "epic"
-    },
-    {
-      "name": "Dire Wolf",
-      "difficulty": "challenging",
-      "item": "Silver Crossbow",
-      "type": "weapon",
-      "rarity": "rare"
-    },
-    {
-      "name": "Molten Lizard",
-      "difficulty": "hard",
-      "item": "Mithril Plate Mail",
-      "type": "armor",
-      "rarity": "rare"
-    },
-    {
-      "name": "Undead Archmage",
-      "difficulty": "extremely difficult",
-      "item": "Black Robes of the Necromancy School",
-      "type": "equipment",
-      "rarity": "epic"
-    },
-    {
-      "name": "Chameleon Ogre",
-      "difficulty": "medium",
-      "item": "Leather Breastplate of Disguise",
-      "type": "equipment",
-      "rarity": "rare"
     }
   ]
 }

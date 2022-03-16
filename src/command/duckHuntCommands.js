@@ -1,10 +1,51 @@
 import {config} from "dotenv";
 import Command from "./Command.js";
 import duckHuntService from "../service/rpg/duckHuntService.js";
+import axios from "axios";
+import * as fs from "fs";
+import envService from "../util/envService.js";
+import rpgService from "../service/rpg/rpgService.js";
 
 config()
 
 const duckHuntCommands = {
+    editRPG: new Command(
+        "Edit RPG",
+        ["!editRPG", '!erpg'],
+        [],
+        process.env.ALLOW_RPG_SPAWN,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            async function getAttachment(attachmentUrl) {
+                // fetch the file from the external URL
+                const response = await axios.get(attachmentUrl, {
+                    responseType: 'stream',
+                })
+
+                const path = `bot/${envService.getBotId()}/rpg.zip`
+                await (fs.rmSync(path))
+                response.data.pipe(fs.createWriteStream(path))
+
+                return new Promise((resolve, reject) => {
+                    response.data.on('end', () => {
+                        resolve()
+                    })
+
+                    response.data.on('error', () => {
+                        reject()
+                    })
+                })
+            }
+
+            await getAttachment(attachmentUrl)
+
+            rpgService.loadAllGenerators()
+            return {
+                message: "# RPG mod loaded",
+                success: true
+            }
+        },
+        true
+    ),
     spawnItem: new Command(
         "Spawn Item",
         [],
@@ -397,6 +438,7 @@ const duckHuntCommands = {
 }
 
 duckHuntCommands.all = [
+    duckHuntCommands.editRPG,
     duckHuntCommands.spawnItem,
     duckHuntCommands.spawnEquipItem,
     duckHuntCommands.spawn,

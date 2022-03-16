@@ -8,6 +8,7 @@ import {MessageAttachment, MessageEmbed} from "discord.js";
 import personalityService from "../personalityService.js";
 import memoryService from "../memoryService.js";
 import sharp from "sharp";
+import rpgService from "./rpgService.js";
 
 const generatorAttackNew = utils.fileExists(`./bot/${envService.getBotId()}/generator/attack.json`) ?
     utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/attack.json`)
@@ -178,7 +179,7 @@ class DuckHuntService {
                 .addFields(
                     {name: 'Enemy name', value: object.name, inline: true},
                     {
-                        name: utils.upperCaseFirstLetter(generatorEnemy.placeholders["difficulty"]),
+                        name: utils.upperCaseFirstLetter(rpgService.getGenerators()?.["loot"]?.placeholders["difficulty"] || "difficulty"),
                         value: object.difficulty || "undefined",
                         inline: true
                     },
@@ -896,7 +897,7 @@ class DuckHuntService {
             player.inventory.splice(player.inventory.indexOf(item), 1)
         } else {
             return {
-                error: `# ${username} tried to sell an item but something went wrong with the AI generation (missing numerical value in result)\nFull result:\n\`\`\`${result}\`\`\``,
+                error: `# ${username} tried to sell an item but something went wrong with the AI generation (missing numerical value in result)`,
                 instantReply: true,
                 deleteUserMsg: username !== process.env.BOTNAME
             }
