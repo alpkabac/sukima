@@ -467,6 +467,16 @@ const duckHuntCommands = {
         },
         false
     ),
+    showAllShops: new Command(
+        "Show All Shops",
+        ["!shop"],
+        [],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return duckHuntService.showAllShops(channel, from)
+        },
+        false
+    ),
     upgradeBackpack: new Command(
         "Upgrade Backpack",
         [],
@@ -537,6 +547,7 @@ duckHuntCommands.all = [
     duckHuntCommands.unequipAccessory,
     duckHuntCommands.unequipHeal,
     duckHuntCommands.showInventory,
+    duckHuntCommands.showAllShops,
     duckHuntCommands.upgradeBackpack,
     duckHuntCommands.setGender,
     duckHuntCommands.equipWeapon,

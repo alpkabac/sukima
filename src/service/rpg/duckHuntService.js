@@ -820,7 +820,7 @@ class DuckHuntService {
         }
     }
 
-    static async buyItemFromPlayer(channel, username, playerName, itemSlot){
+    static async buyItemFromPlayer(channel, username, playerName, itemSlot) {
         const player = playerService.getPlayer(channel, username)
         const itemSlotNumber = parseInt(itemSlot)
         const targetPlayer = playerService.getPlayer(channel, playerName, false)
@@ -833,28 +833,28 @@ class DuckHuntService {
             }
         }
 
-        if (!item){
+        if (!item) {
             return {
                 message: `# Player ${username} tried to buy an item from "${playerName}", but no item was found in slot its inventory [${itemSlot}].`,
                 deleteUserMsg: true
             }
         }
 
-        if (!item.forSale){
+        if (!item.forSale) {
             return {
                 message: `# Player ${username} tried to buy an item from "${playerName}", but no item in slot its inventory [${itemSlot}] is not for sale.`,
                 deleteUserMsg: true
             }
         }
 
-        if (player.gold < item.playerPrice){
+        if (player.gold < item.playerPrice) {
             return {
                 message: `# Player ${username} tried to buy an item from "${playerName}", but doesn't have enough ${rpgService.getCurrency()}.`,
                 deleteUserMsg: true
             }
         }
 
-        if (player.inventory.length >= player.inventorySize){
+        if (player.inventory.length >= player.inventorySize) {
             return {
                 message: `# Player ${username} tried to buy an item from "${playerName}", but doesn't have enough backpack space.`,
                 deleteUserMsg: true
@@ -984,7 +984,7 @@ class DuckHuntService {
             }
         }
 
-        if (price <= 0){
+        if (price <= 0) {
             const message = `# ${username} tried to put an item for sale at an invalid price.`
             return {
                 message,
@@ -1737,13 +1737,54 @@ class DuckHuntService {
         }
     }
 
+    static async showAllShops(channel, username) {
+        const players = playerService.players[channel]
+        let text = Object.keys(players)
+            .map(playerName =>
+                `Player ${playerName}:`
+                + players[playerName].inventory
+                    .filter(item => item.forSale)
+                    .map((item, index) =>
+                        `${index}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale ? ` (:moneybag: ${item.playerPrice} ${rpgService.getCurrency()})` : ''}`
+                    )
+                    .join('\n')
+            )
+            .join('\n')
+
+        let chunks = []
+        let lines = text.split('\n')
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i]
+            const messageWillBeTooLong = chunks.length === 0 || chunks[chunks.length - 1].length + line.length + 2 > 4000
+            if (i % 50 === 0 || messageWillBeTooLong) {
+                chunks.push(line)
+            } else {
+                chunks[chunks.length - 1] += "\n" + line
+            }
+        }
+
+        const messages = chunks.map((c, i) => new MessageEmbed()
+            .setColor('#887733')
+            .setTitle(`Shops (page ${i + 1}/${chunks.length})`)
+            .setDescription(c))
+
+        return {
+            success: true,
+            message: messages[0],
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true,
+            alsoSend: messages && messages?.length > 1 ? messages.slice(1) : null
+        }
+    }
+
+
     static async showInventory(channel, username) {
         const player = playerService.getPlayer(channel, username)
 
         const itemList = player.inventory
             .map(
                 (item, n) =>
-                    `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale? ` (:moneybag: ${item.playerPrice} ${rpgService.getCurrency()})` :''}`
+                    `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale ? ` (:moneybag: ${item.playerPrice} ${rpgService.getCurrency()})` : ''}`
             )
             .join('')
 
