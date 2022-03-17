@@ -980,7 +980,7 @@ class DuckHuntService {
         const embed = new MessageEmbed()
             .setColor('#ffff00')
             .setTitle(text)
-            .setDescription(`Price: ${price} ${rpgService.getCurrency()}`)
+            .setDescription(`Price: ${price} ${rpgService.getCurrency()}\nSlot number: [${itemSlotNumber}]`)
 
         await DuckHuntService.appendItemImage(embed, item)
 
