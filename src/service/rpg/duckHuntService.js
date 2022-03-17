@@ -1605,7 +1605,7 @@ class DuckHuntService {
         const itemList = player.inventory
             .map(
                 (item, n) =>
-                    `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale? ` (:moneybag: ${item.playerPrice})` :''}`
+                    `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale? ` (:moneybag: ${item.playerPrice} ${generatorEnemy.placeholders["currency"] || 'gold'})` :''}`
             )
             .join(', ')
 
