@@ -20,17 +20,17 @@
   ],
   "list": [
     {
-      "player": "[ Rare Small Copper Dagger; Leather Armor ]",
+      "player": "[ Rare Small Copper Dagger (rare weapon) ; Leather Armor (uncommon armor) ]",
       "enemy": "[ Target: John; race/species: human; wounds: none; blood loss: none; status: healthy ]",
       "description": "You swiftly attack John with your copper dagger, cutting his left ear right off"
     },
     {
-      "player": "[ Rusty Copper Dagger; Leather Armor ]",
+      "player": "[ Rusty Copper Dagger (common weapon); Leather Armor (uncommon armor) ]",
       "enemy": "[ Target: Emma; race/species: human; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: heavily wounded ]",
       "description": "You stab Emma in the chest, pushing the blade deep through her heart. Emma is badly wounded and doesn't even fight back, she falls on the floor, dead."
     },
     {
-      "player": "[ Wooden Club; No Armor ]",
+      "player": "[ Wooden Club (common weapon) ]",
       "enemy": "[ Target: Robert; race/species: human; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
       "description": "You strike Robert with your wooden club, only doing light bruises on his sternum. Robert is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead."
     }

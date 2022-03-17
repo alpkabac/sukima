@@ -1,0 +1,38 @@
+{
+  "name": "RPG Attack Generator",
+  "description": "Generates RPG attacks given a weapon",
+  "context": "[ Attack Description: given a target and a player's equipment, generates an attack description ]",
+  "properties": [
+    {
+      "name": "enemy",
+      "replaceBy": "Target:",
+      "input": true
+    },
+    {
+      "name": "player",
+      "replaceBy": "Your equipment:",
+      "input": true
+    },
+    {
+      "name": "description",
+      "replaceBy": "Description of your attack:"
+    }
+  ],
+  "list": [
+    {
+      "player": "[ Rare Small Copper Dagger (rare weapon) ; Leather Armor (uncommon armor) ]",
+      "enemy": "[ Target: yourself; race/species: human; wounds: none; blood loss: none; status: healthy ]",
+      "description": "You swiftly attack yourself with your copper dagger, cutting your left ear right off"
+    },
+    {
+      "player": "[ Rusty Copper Dagger (common weapon); Leather Armor (uncommon armor) ]",
+      "enemy": "[ Target: yourself; race/species: human; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: heavily wounded ]",
+      "description": "You stab yourself in the chest, pushing the blade deep through your heart. You are badly wounded, and quickly fall on the floor, dead."
+    },
+    {
+      "player": "[ Wooden Club (common weapon) ]",
+      "enemy": "[ Target: yourself; race/species: human; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
+      "description": "You strike yourself with your wooden club, only doing light bruises on your sternum. You are however badly in shape and bleeding profusely, and just crumble to the floor few seconds later, dead."
+    }
+  ]
+}

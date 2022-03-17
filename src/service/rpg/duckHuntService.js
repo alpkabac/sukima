@@ -5,8 +5,6 @@ import pawnService from "./pawnService.js";
 import envService from "../../util/envService.js";
 import worldItemsService from "./worldItemsService.js";
 import {MessageAttachment, MessageEmbed} from "discord.js";
-import personalityService from "../personalityService.js";
-import memoryService from "../memoryService.js";
 import sharp from "sharp";
 import rpgService from "./rpgService.js";
 
@@ -188,7 +186,7 @@ class DuckHuntService {
             success: true,
             deleteUserMsg: true,
             instantReply: true,
-            ttsMessage: title +". " +object.encounterDescription
+            ttsMessage: title + ". " + object.encounterDescription
         }
     }
 
@@ -265,7 +263,7 @@ class DuckHuntService {
             deleteUserMsg: true,
             instantReply: true,
             newPawn,
-            ttsMessage: title +". " +object.encounterDescription
+            ttsMessage: title + ". " + object.encounterDescription
         }
     }
 
@@ -349,7 +347,8 @@ class DuckHuntService {
         const workflowName = target === pawn ?
             "attackEnemy"
             : target === player ?
-                "healSelf"
+                healMode ? "healSelf"
+                    : "attackSelf"
                 : healMode ?
                     "healPlayer"
                     : "attackPlayer"
@@ -418,14 +417,16 @@ class DuckHuntService {
         const title = target === pawn ?
             `Player ${username} attacks the ${target.name} (${pawn.difficulty})!`
             : target === player ?
-                `Player ${username} heals itself!`
+                healMode ?
+                    `Player ${username} heals itself!`
+                    : `Player ${username} attacks itself!`
                 : healMode ? `Player ${username} heals player ${target.name}!`
                     : `Player ${username} attacks player ${target.name}!`
 
 
         const msg = new MessageEmbed()
             .setColor('#ff0000')
-            .setTitle(title)
+            .setTitle(title + ` [workflow: ${workflowName}]`)
             .setDescription(`${object.description || 'undefined'}`)
             .addField('New wounds', object.wounds || 'undefined', true)
             .addField('New blood loss', object.bloodLoss || 'undefined', true)
@@ -436,8 +437,8 @@ class DuckHuntService {
 
 
         const {embed, pushIntoHistory, ttsMessage} = (target !== pawn || target.alive) ?
-            {embed: null, pushIntoHistory: null, ttsMessage:null}
-            : (await this.loot(channel) || {embed: null, pushIntoHistory: null,ttsMessage:null})
+            {embed: null, pushIntoHistory: null, ttsMessage: null}
+            : (await this.loot(channel) || {embed: null, pushIntoHistory: null, ttsMessage: null})
 
         if (target === pawn && !healMode && !pawn.alive) {
             pawnService.lastPawnKilledAt[channel] = Date.now()
@@ -463,7 +464,7 @@ class DuckHuntService {
             deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
             alsoSend: (target !== pawn || pawn.alive) ? null : embed,
-            ttsMessage: title + '. ' + object.description + (!ttsMessage?'': `.. ${ttsMessage}`)
+            ttsMessage: title + '. ' + object.description + (!ttsMessage ? '' : `.. ${ttsMessage}`)
         }
     }
 
@@ -584,13 +585,13 @@ class DuckHuntService {
             }
         }
 
-        const verb = STATUS_DEAD.includes(targetPlayer.health.status)?
+        const verb = STATUS_DEAD.includes(targetPlayer.health.status) ?
             reviveMode ?
                 "revived"
-                :"resurrected"
-            :reviveMode ?
+                : "resurrected"
+            : reviveMode ?
                 "heals"
-                :"heals"
+                : "heals"
 
         if (!reviveMode) {
             targetPlayer.health.wounds = []

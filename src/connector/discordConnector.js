@@ -264,7 +264,8 @@ function clearRpgBotTextOutput(text) {
 
 function colorId(id) {
     const colors = [31, 32, 35, 36, 91, 92, 93, 94, 95, 96]
-    return `${id.split('').map(v => `\x1b[${colors[parseInt(v)]}m${v}`).join('')}\x1b[0m`
+    const backgrounds = [41, 42, 45, 46, 101, 102, 103, 104, 105, 106]
+    return `${id.split('').map(v => `\x1b[${colors[parseInt(v)]}m\x1b[${backgrounds[parseInt(v)]}m${v}`).join('')}\x1b[0m`
 }
 
 function colorBotName(botName) {
