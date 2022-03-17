@@ -18,6 +18,9 @@
       "replaceBy": "Description of your heal:"
     }
   ],
+  "aiParameters": {
+    "repetition_penalty_slope": 9.99
+  },
   "list": [
     {
       "player": "[ Minor Healing (common healing spell) ]",

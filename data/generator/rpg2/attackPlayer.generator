@@ -18,6 +18,9 @@
       "replaceBy": "Description of your attack:"
     }
   ],
+  "aiParameters": {
+    "repetition_penalty_slope": 9.99
+  },
   "list": [
     {
       "player": "[ Rare Small Copper Dagger (rare weapon) ; Leather Armor (uncommon armor) ]",

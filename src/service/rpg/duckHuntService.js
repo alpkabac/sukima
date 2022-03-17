@@ -562,26 +562,27 @@ class DuckHuntService {
         }
     }
 
-    static async resurrect(channel, username, target = null, reviveMode = false) {
+    static async adminResurrect(channel, username, target = null, reviveMode = false) {
         let targetPlayer
+        let isTargetDead
         if (target) {
             targetPlayer = playerService.getPlayer(channel, target, false)
             if (targetPlayer) {
-
+                isTargetDead = STATUS_DEAD.includes(targetPlayer.health.status)
             } else {
                 return {
-                    message: `# ${username} tried to attack a player, but no player with that name could be found...`,
+                    message: `# Admin ${username} tried to resurrect a player, but no player with that name could be found...`,
                     deleteUserMsg: username !== process.env.BOTNAME,
                     deleteNewMessage: username !== process.env.BOTNAME,
-                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to attack a player, but no player with that name could be found... ]`, null, channel],
+                    pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Admin ${username} tried to resurrect a player, but no player with that name could be found... ]`, null, channel],
                 }
             }
         } else {
             return {
-                message: `# ${username} tried to resurrect a player, but no player with that name could be found...`,
+                message: `# Admin ${username} tried to resurrect player ${target}, but ${target} isn't dead.`,
                 deleteUserMsg: username !== process.env.BOTNAME,
                 deleteNewMessage: username !== process.env.BOTNAME,
-                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to resurrect a player, but no player with that name could be found... ]`, null, channel],
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Admin ${username} tried to resurrect player ${target}, but ${target} isn't dead. ]`, null, channel],
             }
         }
 
@@ -589,9 +590,7 @@ class DuckHuntService {
             reviveMode ?
                 "revived"
                 : "resurrected"
-            : reviveMode ?
-                "heals"
-                : "heals"
+            : "heals"
 
         if (!reviveMode) {
             targetPlayer.health.wounds = []
@@ -609,6 +608,47 @@ class DuckHuntService {
             .addField(`${targetPlayer.name}'s status`, targetPlayer.health.status || 'undefined', true)
 
         const historyMessage = reviveMode ? `[ Player ${username} ${verb} ${targetPlayer.name}, but ${targetPlayer.name}'s wounds are still here. ]` : `[ Player ${username} ${verb} ${targetPlayer.name} to full health! ]`
+
+        return {
+            pushIntoHistory: [historyMessage, username !== process.env.BOTNAME ? username : null, channel],
+            message: msg,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true,
+            ttsMessage: title
+        }
+    }
+
+    static async resurrect(channel, username) {
+        let targetPlayer = playerService.getPlayer(channel, username, false)
+        let isTargetDead = STATUS_DEAD.includes(targetPlayer.health.status)
+
+        if (!isTargetDead) {
+            return {
+                message: `# Player ${username} tried to get resurrected but isn't dead.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to get resurrected but isn't dead. ]`, null, channel],
+            }
+        }
+
+        if (targetPlayer.inventorySize > 0) {
+            targetPlayer.inventorySize--
+        }
+
+        targetPlayer.health.wounds = []
+        targetPlayer.health.bloodLoss = 'none'
+        targetPlayer.health.status = 'healthy'
+
+        const title = `Player ${username} got resurrected, but lost a backpack slot!`
+        const msg = new MessageEmbed()
+            .setColor('#ff0000')
+            .setTitle(title)
+            .setDescription(title)
+            .addField(`${targetPlayer.name}'s wounds`, targetPlayer.health.wounds.join(', ') || 'none', true)
+            .addField(`${targetPlayer.name}'s blood loss`, targetPlayer.health.bloodLoss || 'undefined', true)
+            .addField(`${targetPlayer.name}'s status`, targetPlayer.health.status || 'undefined', true)
+
+        const historyMessage = `[ ${title} ]`
 
         return {
             pushIntoHistory: [historyMessage, username !== process.env.BOTNAME ? username : null, channel],

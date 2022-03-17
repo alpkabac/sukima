@@ -217,11 +217,11 @@ const duckHuntCommands = {
     ),
     resurrect: new Command(
         "Resurrect",
-        [],
         ["!resurrect"],
-        process.env.ALLOW_RPG_SPAWN,
+        [],
+        process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            return await duckHuntService.resurrect(channel, from, parsedMsg)
+            return await duckHuntService.resurrect(channel, from)
         },
         false
     ),
@@ -231,7 +231,7 @@ const duckHuntCommands = {
         ["!revive"],
         process.env.ALLOW_RPG_SPAWN,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            return await duckHuntService.resurrect(channel, from, parsedMsg, true)
+            return await duckHuntService.adminResurrect(channel, from, parsedMsg, false)
         },
         false
     ),
