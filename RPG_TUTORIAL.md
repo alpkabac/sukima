@@ -19,7 +19,7 @@ Once an enemy is dead, it will drop a random item on the floor depending on the 
 
 ## Items and Equipment
 When an enemy drops an item, this item is dropped ***on the ground***, not in your inventory  
-You'll have to `!take` the item into your backpack first in order to equip it, however, multiple items can be on the ground at the same time, and the `!take` command will take the oldest one first  
+You'll have to `!take` the item into your backpack first in order to equip it, however, multiple items can be on the ground at the same time, and the `!take` command will take the newest one first  
 Slot numbers are mentioned in most command results when needed, in the example the item fell onto the slot `1` so the command to take it is `!take 1`:  
 ![Take Command](https://i.imgur.com/ZJHLn56.png)  
 (notice that the item went into the backpack slot number `0`)
@@ -63,18 +63,34 @@ First upgrade costs 99 gold, but price goes up exponentially each time you upgra
 
 # Commands Cheat Sheet
 ```
-!attack                   <= When a monster spawns, you can attack it using your weapon with this command (you start with no weapon)
-!take <groundSlot?>       <= Grab item on the ground and put it in your backpack (groundSlot can be ommitted)
-!sell                     <= Sells your **equipped weapon**
+!attack                   <= When a monster spawns, you can attack it using your weapon with this command
+!attack <playerName>      <= Also works with players
+!heal <playerName>        <= Can also heal/resurrect players (or at least try), requires an item equipped in the heal slot
+!take <groundSlot?>       <= Grab item on the ground and put it in your backpack (groundSlot can be omitted to pick last item on the floor)
+!sell                     <= Sells the last item in your backpack
 !sell <inventorySlot>     <= Sells the item in your inventory slot X
 !drop <inventorySlot>     <= Drops the item in your inventory slot X
 !look                     <= Shows the items on the floor that you can !grab
 !inventory                <= Shows your inventory
 !equipAr <inventorySlot>  <= Equips selected item as armor (you need to put the item slot **number**)
+!ear                      <= Alias for !equipArmor
 !equipAc <inventorySlot>  <= Equips selected item as accessory
+!eac                      <= Alias for !equipAccessory
 !equipW <inventorySlot>   <= Equips selected item as weapon
+!ew                       <= Alias for !equipWeapon
+!equipH <inventorySlot>   <= Equips selected item as healing item/spell
+!eh                       <= Alias for !equipHeal
 !unequipAr                <= Unequips armor
+!uear                     <= Alias for !unequipArmor
 !unequipAc                <= Unequips accessory
+!ueac                     <= Alias for !unequipAccessory
 !unequipW                 <= Unequips weapon
+!uew                      <= Alias for !unequipWeapon
+!unequipH                 <= Unequips heal
+!ueh                      <= Alias for !unequipHeal
+!inspect <inventorySlot>  <= Shows the item's image, or generates it if there is none yet
+!rei <inventorySlot>      <= Re-inspects an item for 10k gold, regenerating its image
 !upgrade                  <= Upgrades your backpack size (gives 1 new slot per upgrade, upgrade cost is exponential)
+!setGender <male/female>  <= Set your character gender for better third person generated text
+!resurrect                <= Resurrects you, BUT costs you a backpack slot that you'll have to buy again
 ```
