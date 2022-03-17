@@ -528,6 +528,7 @@ duckHuntCommands.all = [
     duckHuntCommands.sell,
     duckHuntCommands.markItemForSale,
     duckHuntCommands.markItemNotForSale,
+    duckHuntCommands.buyItemFromPlayer,
     duckHuntCommands.equipArmor,
     duckHuntCommands.equipAccessory,
     duckHuntCommands.equipHeal,
