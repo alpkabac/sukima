@@ -828,35 +828,35 @@ class DuckHuntService {
 
         if (!targetPlayer) {
             return {
-                message: `# Player ${username} tried to buy an item from another player, but player "${playerName} couldn't be found."`,
+                message: `# Player ${username} tried to buy an item from another player, but player "${playerName} couldn't be found.`,
                 deleteUserMsg: true
             }
         }
 
         if (!item){
             return {
-                message: `# Player ${username} tried to buy an item from "${playerName}", but no item was found in slot its inventory [${itemSlot}]."`,
+                message: `# Player ${username} tried to buy an item from "${playerName}", but no item was found in slot its inventory [${itemSlot}].`,
                 deleteUserMsg: true
             }
         }
 
         if (!item.forSale){
             return {
-                message: `# Player ${username} tried to buy an item from "${playerName}", but no item in slot its inventory [${itemSlot}] is not for sale."`,
+                message: `# Player ${username} tried to buy an item from "${playerName}", but no item in slot its inventory [${itemSlot}] is not for sale.`,
                 deleteUserMsg: true
             }
         }
 
         if (player.gold < item.playerPrice){
             return {
-                message: `# Player ${username} tried to buy an item from "${playerName}", but doesn't have enough ${rpgService.getCurrency()}."`,
+                message: `# Player ${username} tried to buy an item from "${playerName}", but doesn't have enough ${rpgService.getCurrency()}.`,
                 deleteUserMsg: true
             }
         }
 
         if (player.inventory.length >= player.inventorySize){
             return {
-                message: `# Player ${username} tried to buy an item from "${playerName}", but doesn't have enough backpack space."`,
+                message: `# Player ${username} tried to buy an item from "${playerName}", but doesn't have enough backpack space.`,
                 deleteUserMsg: true
             }
         }
@@ -972,8 +972,31 @@ class DuckHuntService {
             }
         }
 
+        price = parseInt(price)
+        if (!price) {
+            const message = `# ${username} tried to put an item for sale but has no item in inventory slot [${itemSlotNumber}]`
+            return {
+                message,
+                instantReply: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to put an item for sale but has no item in inventory slot [${itemSlotNumber}] ]`, null, channel]
+            }
+        }
+
+        if (price <= 0){
+            const message = `# ${username} tried to put an item for sale at an invalid price.`
+            return {
+                message,
+                instantReply: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to put an item for sale at an invalid price. ]`, null, channel]
+            }
+        }
+
         item.forSale = true
-        item.playerPrice = parseInt(price)
+        item.playerPrice = price
 
         const text = `Player ${username} puts the item ${item.name} (${item.rarity} ${item.type}) for sale!`
 
