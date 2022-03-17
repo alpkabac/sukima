@@ -926,6 +926,49 @@ class DuckHuntService {
         }
     }
 
+    static async notForSale(channel, username, itemSlot) {
+        const player = playerService.getPlayer(channel, username)
+
+        const itemSlotNumber = parseInt(itemSlot)
+        const item = player.inventory[itemSlotNumber]
+
+        if (!item) {
+            const message = `# ${username} tried to remove an item for sale but has no item in inventory slot [${itemSlotNumber}]`
+            return {
+                message,
+                instantReply: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to remove an item for sale but has no item in its backpack! ]`, null, channel]
+            }
+        }
+
+        item.forSale = undefined
+        item.playerPrice = undefined
+
+        const text = `Player ${username} removes the item ${item.name} (${item.rarity} ${item.type}) for sale.`
+
+        const embed = new MessageEmbed()
+            .setColor('#ffff00')
+            .setTitle(text)
+            .setDescription(`Item ${item.name} (${item.rarity} ${item.type}) is no longer for sale.`)
+
+        await DuckHuntService.appendItemImage(embed, item)
+
+        return {
+            success: true,
+            message: embed,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true,
+            pushIntoHistory: [
+                `[ ${text} ]`,
+                null,
+                channel
+            ],
+            ttsMessage: text
+        }
+    }
+
     static async sell(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
 
@@ -1607,7 +1650,7 @@ class DuckHuntService {
                 (item, n) =>
                     `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale? ` (:moneybag: ${item.playerPrice} ${generatorEnemy.placeholders["currency"] || 'gold'})` :''}`
             )
-            .join(', ')
+            .join('')
 
         const embed = new MessageEmbed()
             .setColor('#887733')

@@ -315,6 +315,25 @@ const duckHuntCommands = {
         },
         true
     ),
+    markItemNotForSale: new Command(
+        "Mark Item NOT for Sale",
+        [],
+        ["!notForSale "],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            const itemSlot = parsedMsg.trim()
+
+            if (isNaN(itemSlot)) {
+                return {
+                    message: `# Player ${from} tried to remove an item for sale but didn't provide an item slot as number (value: \`${itemSlot}\`).`,
+                    deleteUserMsg: true
+                }
+            }
+
+            return duckHuntService.notForSale(channel, from, itemSlot)
+        },
+        true
+    ),
     equip: new Command(
         "Equip Item",
         [],
@@ -475,6 +494,7 @@ duckHuntCommands.all = [
     duckHuntCommands.cleanup,
     duckHuntCommands.sell,
     duckHuntCommands.markItemForSale,
+    duckHuntCommands.markItemNotForSale,
     duckHuntCommands.equipArmor,
     duckHuntCommands.equipAccessory,
     duckHuntCommands.equipHeal,
