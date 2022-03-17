@@ -1785,7 +1785,7 @@ class DuckHuntService {
         const itemList = player.inventory
             .map(
                 (item, n) =>
-                    `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale ? ` (:moneybag: ${item.playerPrice} ${rpgService.getCurrency()})` : ''}`
+                    `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :frame_photo:' : ''}${item.forSale ? ` (:moneybag: ${item.playerPrice} ${rpgService.getCurrency()})` : ''}`
             )
             .join('')
 
@@ -1793,10 +1793,10 @@ class DuckHuntService {
             .setColor('#887733')
             .setTitle(`Inventory of Player ${username}`)
             .setDescription(`Backpack (${player.inventory.length}/${player.inventorySize}):${itemList}`)
-            .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}${player.weapon.image ? ' :white_check_mark:' : ''}`, true)
-            .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}${player.armor.image ? ' :white_check_mark:' : ''}`, true)
-            .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}${player.accessory.image ? ' :white_check_mark:' : ''}`, true)
-            .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}${player.heal.image ? ' :white_check_mark:' : ''}`, true)
+            .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}${player.weapon.image ? ' :frame_photo:' : ''}`, true)
+            .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}${player.armor.image ? ' :frame_photo:' : ''}`, true)
+            .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}${player.accessory.image ? ' :frame_photo:' : ''}`, true)
+            .addField('Equipped heal', !player.heal ? 'No healing item or spell' : `[${player.heal.rarity} ${player.heal.type}] ${player.heal.name}${player.heal.image ? ' :frame_photo:' : ''}`, true)
             .addField('Health', player.health.status, true)
             .addField('Blood Loss', player.health.bloodLoss, true)
             .addField('Wounds', player.health.wounds.join(', ') || 'none', true)
