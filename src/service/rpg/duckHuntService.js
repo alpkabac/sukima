@@ -562,13 +562,11 @@ class DuckHuntService {
         }
     }
 
-    static async adminResurrect(channel, username, target = null, reviveMode = false) {
+    static async adminResurrect(channel, username, target = null) {
         let targetPlayer
-        let isTargetDead
         if (target) {
             targetPlayer = playerService.getPlayer(channel, target, false)
             if (targetPlayer) {
-                isTargetDead = STATUS_DEAD.includes(targetPlayer.health.status)
             } else {
                 return {
                     message: `# Admin ${username} tried to resurrect a player, but no player with that name could be found...`,
@@ -587,27 +585,23 @@ class DuckHuntService {
         }
 
         const verb = STATUS_DEAD.includes(targetPlayer.health.status) ?
-            reviveMode ?
-                "revived"
-                : "resurrected"
-            : "heals"
+            "resurrected"
+            : "healed"
 
-        if (!reviveMode) {
-            targetPlayer.health.wounds = []
-        }
+        targetPlayer.health.wounds = []
         targetPlayer.health.bloodLoss = 'none'
         targetPlayer.health.status = 'healthy'
 
-        const title = reviveMode ? `Admin ${username} ${verb} ${targetPlayer.name}, but ${targetPlayer.name}'s wounds are still here.` : `Admin ${username} ${verb} ${targetPlayer.name}!`
+        const title = `Admin ${username} ${verb} ${targetPlayer.name}!`
         const msg = new MessageEmbed()
             .setColor('#ff0000')
             .setTitle(title)
-            .setDescription(reviveMode ? `Admin ${username} ${verb} ${targetPlayer.name}, but ${targetPlayer.name}'s wounds are still here.` : `Admin ${username} ${verb} ${targetPlayer.name} to full health!`)
+            .setDescription(`Admin ${username} ${verb} ${targetPlayer.name} to full health!`)
             .addField(`${targetPlayer.name}'s wounds`, targetPlayer.health.wounds.join(', ') || 'none', true)
             .addField(`${targetPlayer.name}'s blood loss`, targetPlayer.health.bloodLoss || 'undefined', true)
             .addField(`${targetPlayer.name}'s status`, targetPlayer.health.status || 'undefined', true)
 
-        const historyMessage = reviveMode ? `[ Player ${username} ${verb} ${targetPlayer.name}, but ${targetPlayer.name}'s wounds are still here. ]` : `[ Player ${username} ${verb} ${targetPlayer.name} to full health! ]`
+        const historyMessage = `[ Admin ${username} ${verb} ${targetPlayer.name} to full health! ]`
 
         return {
             pushIntoHistory: [historyMessage, username !== process.env.BOTNAME ? username : null, channel],
