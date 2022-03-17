@@ -1740,8 +1740,9 @@ class DuckHuntService {
     static async showAllShops(channel, username) {
         const players = playerService.players[channel]
         let text = Object.keys(players)
+            .filter(playerName => players[playerName].inventory.some(item => item.forSale))
             .map(playerName =>
-                `Player ${playerName}:`
+                `Player ${playerName}:\n`
                 + players[playerName].inventory
                     .filter(item => item.forSale)
                     .map((item, index) =>
