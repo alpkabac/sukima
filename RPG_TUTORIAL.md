@@ -102,3 +102,8 @@ First upgrade costs 99 gold, but price goes up exponentially each time you upgra
 | !upgradeBackpack | !upgrade |  Upgrades your backpack size (gives 1 new slot per upgrade, upgrade cost is exponential) |
 | !setGender `male/female` |  |  Set your character gender for better third person generated text |
 | !resurrect |  |  Resurrects you, BUT costs you a backpack slot that you'll have to buy again |
+| !forSale `inventorySlot` `price` |  |  Puts an item for sale |
+| !notForSale `inventorySlot` |  |  Removes for sale status on an item |
+| !buy `playerName` `inventorySlot` |  |  Buys an item from player |
+| !shop |  | See all items to sell |
+
