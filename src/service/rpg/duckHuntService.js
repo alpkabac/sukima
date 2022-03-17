@@ -1746,7 +1746,7 @@ class DuckHuntService {
                 + players[playerName].inventory
                     .filter(item => item.forSale)
                     .map((item, index) =>
-                        `${players[playerName].inventory.indexOf(item)}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale ? ` (:moneybag: ${item.playerPrice} ${rpgService.getCurrency()})` : ''}`
+                        `${players[playerName].inventory.indexOf(item).toString().padEnd(3, ' ')}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale ? ` (:moneybag: ${item.playerPrice} ${rpgService.getCurrency()})` : ''}`
                     )
                     .join('\n')
             )
