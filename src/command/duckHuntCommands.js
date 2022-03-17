@@ -19,7 +19,8 @@ const duckHuntCommands = {
                 const path = `bot/${envService.getBotId()}/rpg.zip`
                 try {
                     await (fs.rmSync(path))
-                }catch{}
+                } catch {
+                }
 
                 // fetch the file from the external URL
                 const response = await axios.get(attachmentUrl, {
@@ -289,6 +290,31 @@ const duckHuntCommands = {
         },
         false
     ),
+    markItemForSale: new Command(
+        "Mark Item for Sale",
+        [],
+        ["!forSale "],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            const [itemSlot, price] = parsedMsg.split(' ')
+
+            if (isNaN(itemSlot)) {
+                return {
+                    message: `# Player ${from} tried to put an item for sale but didn't provide an item slot as number (value: \`${itemSlot}\`).`,
+                    deleteUserMsg: true
+                }
+            }
+            if (isNaN(price)) {
+                return {
+                    message: `# Player ${from} tried to put an item for sale but didn't provide a price as number (value: \`${price}\`).`,
+                    deleteUserMsg: true
+                }
+            }
+
+            return duckHuntService.forSale(channel, from, itemSlot, price)
+        },
+        true
+    ),
     equip: new Command(
         "Equip Item",
         [],
@@ -448,6 +474,7 @@ duckHuntCommands.all = [
     duckHuntCommands.look,
     duckHuntCommands.cleanup,
     duckHuntCommands.sell,
+    duckHuntCommands.markItemForSale,
     duckHuntCommands.equipArmor,
     duckHuntCommands.equipAccessory,
     duckHuntCommands.equipHeal,

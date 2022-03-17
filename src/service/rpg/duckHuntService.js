@@ -798,6 +798,9 @@ class DuckHuntService {
             }
         }
 
+        item.playerPrice = undefined
+        item.forSale = undefined
+
         worldItemsService.appendItem(channel, item)
         player.inventory.splice(player.inventory.indexOf(item), 1)
 
@@ -877,6 +880,49 @@ class DuckHuntService {
             instantReply: true,
             pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Administrator deleted some items on the ground to clean up the server ]`, null, channel],
             ttsMessage: `${username} cleaned up some items on the ground!`
+        }
+    }
+
+    static async forSale(channel, username, itemSlot, price) {
+        const player = playerService.getPlayer(channel, username)
+
+        const itemSlotNumber = parseInt(itemSlot)
+        const item = player.inventory[itemSlotNumber]
+
+        if (!item) {
+            const message = `# ${username} tried to put an item for sale but has no item in inventory slot [${itemSlotNumber}]`
+            return {
+                message,
+                instantReply: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to put an item for sale but has no item in its backpack! ]`, null, channel]
+            }
+        }
+
+        item.forSale = true
+        item.playerPrice = parseInt(price)
+
+        const text = `Player ${username} puts the item ${item.name} (${item.rarity} ${item.type}) for sale!`
+
+        const embed = new MessageEmbed()
+            .setColor('#ffff00')
+            .setTitle(text)
+            .setDescription(`Price: ${price} ${generatorEnemy.placeholders["currency"] || 'gold'}`)
+
+        await DuckHuntService.appendItemImage(embed, item)
+
+        return {
+            success: true,
+            message: embed,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true,
+            pushIntoHistory: [
+                `[ ${text} ]`,
+                null,
+                channel
+            ],
+            ttsMessage: text
         }
     }
 
@@ -1555,10 +1601,18 @@ class DuckHuntService {
 
     static async showInventory(channel, username) {
         const player = playerService.getPlayer(channel, username)
+
+        const itemList = player.inventory
+            .map(
+                (item, n) =>
+                    `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale? ` (:moneybag: ${item.playerPrice})` :''}`
+            )
+            .join(', ')
+
         const embed = new MessageEmbed()
             .setColor('#887733')
             .setTitle(`Inventory of Player ${username}`)
-            .setDescription(`Backpack (${player.inventory.length}/${player.inventorySize}):${player.inventory.map((item, n) => `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}`).join(', ')}`)
+            .setDescription(`Backpack (${player.inventory.length}/${player.inventorySize}):${itemList}`)
             .addField('Equipped weapon', !player.weapon ? 'No Weapon' : `[${player.weapon.rarity} ${player.weapon.type}] ${player.weapon.name}${player.weapon.image ? ' :white_check_mark:' : ''}`, true)
             .addField('Equipped armor', !player.armor ? 'No Armor' : `[${player.armor.rarity} ${player.armor.type}] ${player.armor.name}${player.armor.image ? ' :white_check_mark:' : ''}`, true)
             .addField('Equipped accessory', !player.accessory ? 'No accessory' : `[${player.accessory.rarity} ${player.accessory.type}] ${player.accessory.name}${player.accessory.image ? ' :white_check_mark:' : ''}`, true)
