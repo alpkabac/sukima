@@ -1742,7 +1742,7 @@ class DuckHuntService {
         let text = Object.keys(players)
             .filter(playerName => players[playerName].inventory.some(item => item.forSale))
             .map(playerName =>
-                `Player ${playerName}:\n`
+                `**Player ${playerName}'s shop:**\n`
                 + players[playerName].inventory
                     .filter(item => item.forSale)
                     .map(item =>
