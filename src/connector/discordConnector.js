@@ -112,9 +112,7 @@ bot.on('ready', async () => {
 
     if (process.env.BOT_DISCORD_AVATAR && bot.user.displayAvatarURL() !== process.env.BOT_DISCORD_AVATAR) {
         try {
-            console.log("Changing discord avatar...")
             await bot.user.setAvatar(process.env.BOT_DISCORD_AVATAR)
-            console.log("Discord avatar changed!")
         } catch (e) {
             console.error("Couldn't change the bot's avatar")
         }

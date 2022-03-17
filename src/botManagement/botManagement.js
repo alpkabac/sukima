@@ -89,7 +89,7 @@ function loadJSONFile(filename) {
         file = fs.readFileSync(filename)
         return JSON.parse(file)
     } catch (err) {
-        logService.error("Couldn't load JSON file", err)
+        // logService.error("Couldn't load JSON file", err)
     }
 }
 

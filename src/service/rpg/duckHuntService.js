@@ -426,7 +426,7 @@ class DuckHuntService {
 
         const msg = new MessageEmbed()
             .setColor('#ff0000')
-            .setTitle(title + ` [workflow: ${workflowName}]`)
+            .setTitle(title)
             .setDescription(`${object.description || 'undefined'}`)
             .addField('New wounds', object.wounds || 'undefined', true)
             .addField('New blood loss', object.bloodLoss || 'undefined', true)
