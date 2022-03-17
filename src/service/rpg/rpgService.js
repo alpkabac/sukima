@@ -20,6 +20,10 @@ class RpgService {
         }
     }
 
+    static getCurrency(){
+        return RpgService.generators["priceEstimation"].placeholders["currency"]
+    }
+
     static loadAllGenerators() {
         if (!envService.getBotId()) return
         RpgService.generators = {}

@@ -334,6 +334,39 @@ const duckHuntCommands = {
         },
         true
     ),
+    buyItemFromPlayer: new Command(
+        "Buy Item From Player",
+        [],
+        ["!buy "],
+        process.env.ALLOW_RPG_ATTACK,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            const [playerName, itemSlot] = parsedMsg.split(' ')
+
+            if(!playerName){
+                return {
+                    message: `# Player ${from} tried to buy an item from a player, but didn't provide a player name.`,
+                    deleteUserMsg: true
+                }
+            }
+
+            if(!itemSlot){
+                return {
+                    message: `# Player ${from} tried to buy an item from player ${playerName}, but didn't provide slot number.`,
+                    deleteUserMsg: true
+                }
+            }
+
+            if (isNaN(itemSlot)) {
+                return {
+                    message: `# Player ${from} tried to buy an item from ${playerName} but didn't provide an item slot as number (value: \`${itemSlot}\`).`,
+                    deleteUserMsg: true
+                }
+            }
+
+            return duckHuntService.buyItemFromPlayer(channel, from, playerName, itemSlot)
+        },
+        true
+    ),
     equip: new Command(
         "Equip Item",
         [],

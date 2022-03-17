@@ -820,6 +820,78 @@ class DuckHuntService {
         }
     }
 
+    static async buyItemFromPlayer(channel, username, playerName, itemSlot){
+        const player = playerService.getPlayer(channel, username)
+        const itemSlotNumber = parseInt(itemSlot)
+        const targetPlayer = playerService.getPlayer(channel, playerName, false)
+        const item = targetPlayer.inventory[itemSlotNumber]
+
+        if (!targetPlayer) {
+            return {
+                message: `# Player ${username} tried to buy an item from another player, but player "${playerName} couldn't be found."`,
+                deleteUserMsg: true
+            }
+        }
+
+        if (!item){
+            return {
+                message: `# Player ${username} tried to buy an item from "${playerName}", but no item was found in slot its inventory [${itemSlot}]."`,
+                deleteUserMsg: true
+            }
+        }
+
+        if (!item.forSale){
+            return {
+                message: `# Player ${username} tried to buy an item from "${playerName}", but no item in slot its inventory [${itemSlot}] is not for sale."`,
+                deleteUserMsg: true
+            }
+        }
+
+        if (player.gold < item.playerPrice){
+            return {
+                message: `# Player ${username} tried to buy an item from "${playerName}", but doesn't have enough ${rpgService.getCurrency()}."`,
+                deleteUserMsg: true
+            }
+        }
+
+        if (player.inventory.length >= player.inventorySize){
+            return {
+                message: `# Player ${username} tried to buy an item from "${playerName}", but doesn't have enough backpack space."`,
+                deleteUserMsg: true
+            }
+        }
+
+        const price = item.playerPrice
+        player.gold -= price
+        targetPlayer.gold += price
+        item.playerPrice = undefined
+        item.forSale = undefined
+
+        player.inventory.push(item)
+        targetPlayer.inventory.splice(itemSlotNumber, 1)
+
+        const text = `Player ${username} bought the item [${item.name} (${item.rarity} ${item.type})] from "${playerName}" for ${price} ${rpgService.getCurrency()}!`
+        const embed = new MessageEmbed()
+            .setColor('#ffff00')
+            .setTitle(text)
+            .setDescription(`${username} paid ${price} ${rpgService.getCurrency()} to ${playerName}`)
+
+        await DuckHuntService.appendItemImage(embed, item)
+
+        return {
+            success: true,
+            message: embed,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true,
+            pushIntoHistory: [
+                `[ ${text} ]`,
+                null,
+                channel
+            ],
+            ttsMessage: text
+        }
+    }
+
     static async look(channel, username) {
         const items = worldItemsService.getActiveItems(channel)
 
@@ -908,7 +980,7 @@ class DuckHuntService {
         const embed = new MessageEmbed()
             .setColor('#ffff00')
             .setTitle(text)
-            .setDescription(`Price: ${price} ${generatorEnemy.placeholders["currency"] || 'gold'}`)
+            .setDescription(`Price: ${price} ${rpgService.getCurrency()}`)
 
         await DuckHuntService.appendItemImage(embed, item)
 
@@ -1029,10 +1101,10 @@ class DuckHuntService {
 
         const embed = new MessageEmbed()
             .setColor('#ffff00')
-            .setTitle(`Player ${username} sold the item "${item.name}" for ${goldAmount} ${generatorEnemy.placeholders["currency"] || 'gold'}!`)
-            .setDescription(`Total player ${generatorEnemy.placeholders["currency"] || 'gold'} now: ${player.gold}`)
+            .setTitle(`Player ${username} sold the item "${item.name}" for ${goldAmount} ${rpgService.getCurrency()}!`)
+            .setDescription(`Total player ${rpgService.getCurrency()} now: ${player.gold}`)
 
-        const text = `Player ${username} sold the item ${item.name} (${item.rarity} ${item.type}) for ${goldAmount} ${generatorEnemy.placeholders["currency"] || 'gold'}!`
+        const text = `Player ${username} sold the item ${item.name} (${item.rarity} ${item.type}) for ${goldAmount} ${rpgService.getCurrency()}!`
         return {
             success: true,
             message: embed,
@@ -1648,7 +1720,7 @@ class DuckHuntService {
         const itemList = player.inventory
             .map(
                 (item, n) =>
-                    `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale? ` (:moneybag: ${item.playerPrice} ${generatorEnemy.placeholders["currency"] || 'gold'})` :''}`
+                    `\n${n}: [${item.rarity} ${item.type}] "${item.name}"${item.image ? ' :white_check_mark:' : ''}${item.forSale? ` (:moneybag: ${item.playerPrice} ${rpgService.getCurrency()})` :''}`
             )
             .join('')
 
@@ -1663,7 +1735,7 @@ class DuckHuntService {
             .addField('Health', player.health.status, true)
             .addField('Blood Loss', player.health.bloodLoss, true)
             .addField('Wounds', player.health.wounds.join(', ') || 'none', true)
-            .addField(utils.upperCaseFirstLetter(generatorEnemy.placeholders["currency"] || 'gold'), player.gold, false)
+            .addField(utils.upperCaseFirstLetter(rpgService.getCurrency()), player.gold, false)
             .addField('Backpack size', player.inventorySize, true)
             .addField('Next backpack upgrade cost', Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2)), true)
 
@@ -1712,11 +1784,11 @@ class DuckHuntService {
         const price = Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2))
 
         if (player.gold < price) return {
-            message: `# ${username} tried to upgrade its backpack but doesn't have enough ${generatorEnemy.placeholders["currency"] || 'gold'}! (${player.gold}/${price})`,
+            message: `# ${username} tried to upgrade its backpack but doesn't have enough ${rpgService.getCurrency()}! (${player.gold}/${price})`,
             instantReply: true,
             deleteUserMsg: username !== process.env.BOTNAME,
             deleteNewMessage: username !== process.env.BOTNAME,
-            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to upgrade its backpack but doesn't have enough ${generatorEnemy.placeholders["currency"] || 'gold'}! (${player.gold}/${price}) ]`, null, channel]
+            pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Player ${username} tried to upgrade its backpack but doesn't have enough ${rpgService.getCurrency()}! (${player.gold}/${price}) ]`, null, channel]
         }
 
         player.inventorySize += 1
@@ -1724,16 +1796,16 @@ class DuckHuntService {
 
         const newPrice = Math.floor(Math.pow(player.inventorySize * 2, 3) + Math.pow(player.inventorySize * 9.59, 2))
 
-        const text = `Player ${username} upgraded its backpack for ${price} ${generatorEnemy.placeholders["currency"] || 'gold'}!`
+        const text = `Player ${username} upgraded its backpack for ${price} ${rpgService.getCurrency()}!`
         const embed = new MessageEmbed()
             .setColor('#33ff33')
             .setTitle(text)
-            .setDescription(`New backpack size: ${player.inventorySize}\nCost of next upgrade: ${newPrice} ${generatorEnemy.placeholders["currency"] || 'gold'}\nCurrent ${generatorEnemy.placeholders["currency"] || 'gold'} balance after upgrade: ${player.gold}`)
+            .setDescription(`New backpack size: ${player.inventorySize}\nCost of next upgrade: ${newPrice} ${rpgService.getCurrency()}\nCurrent ${rpgService.getCurrency()} balance after upgrade: ${player.gold}`)
         return {
             message: embed,
             deleteUserMsg: username !== process.env.BOTNAME,
             instantReply: true,
-            pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !upgradeBackpack\n` : '') + `[ Player ${username} upgraded its backpack for ${price} ${generatorEnemy.placeholders["currency"] || 'gold'}! ]`, null, channel],
+            pushIntoHistory: [(username !== process.env.BOTNAME ? `${username}: !upgradeBackpack\n` : '') + `[ Player ${username} upgraded its backpack for ${price} ${rpgService.getCurrency()}! ]`, null, channel],
             ttsMessage: text
         }
     }
@@ -1875,7 +1947,7 @@ class DuckHuntService {
 
         const embed = new MessageEmbed()
             .setColor('#ffffff')
-            .setTitle(`Player ${username} added the item "${playerSelectedItem.name}" in the inspection list for ${price} ${generatorEnemy.placeholders["currency"]}! A message will be sent when the item image is done generating!`)
+            .setTitle(`Player ${username} added the item "${playerSelectedItem.name}" in the inspection list for ${price} ${rpgService.getCurrency()}! A message will be sent when the item image is done generating!`)
             .setDescription(`It might take up to a mine per item in the queue`)
         return {
             message: embed,
