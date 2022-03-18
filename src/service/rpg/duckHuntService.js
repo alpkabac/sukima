@@ -100,6 +100,9 @@ class DuckHuntService {
             if (!rarity) {
                 rarity = object.rarity
             }
+            if (!type){
+                type = object.type
+            }
         }
 
         const player = playerService.getPlayer(channel, username)
