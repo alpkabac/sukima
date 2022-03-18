@@ -100,7 +100,7 @@ class DuckHuntService {
             if (!rarity) {
                 rarity = object.rarity
             }
-            if (!type){
+            if (!type) {
                 type = object.type
             }
         }
@@ -679,7 +679,11 @@ class DuckHuntService {
             lootedItem = {name: object.item, type: object.type, rarity: object.rarity}
         }
 
-        worldItemsService.appendItem(channel, {name: lootedItem.name, type: lootedItem.type, rarity: lootedItem.rarity})
+        worldItemsService.appendItem(channel, pawn.loot ? pawn.loot : {
+            name: lootedItem.name,
+            type: lootedItem.type,
+            rarity: lootedItem.rarity
+        })
         pawnService.removePawn(channel)
 
         const embed = new MessageEmbed()
