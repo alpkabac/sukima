@@ -19,7 +19,6 @@
     }
   ],
   "aiParameters": {
-    "repetition_penalty_slope": 9.99
   },
   "list": [
     {
