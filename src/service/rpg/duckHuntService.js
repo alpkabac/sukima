@@ -23,6 +23,7 @@ const FULL_HEALS = ['healed', 'cured', 'healed (general)', 'cured (general)', 'c
     'full heal', 'full health', 'full cure', 'fully restored', 'fully healed', 'fully cured', 'recovered', 'fully recovered',
     'fully restored health', 'restored to full health', 'healed (all types)', 'cured (all wounds)', 'no more injuries', 'removed all injuries',
     'resurrected', 'restored (hit points)']
+const NO_DAMAGE = ["n/a", "no damage", "none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"]
 
 let swarmSettings = {
     difficulty: null,
@@ -373,8 +374,7 @@ class DuckHuntService {
 
         if (target === pawn && !healMode) pawn.attacks.push({player: username, description: object.description})
 
-        const noDamageStrings = ["n/a", "no damage", "none", "undefined", "blocked", "spared", "missed", "failed attempt", "failed attempt (unsuccessful)", "0", "thrown", "nothing"]
-        if (object.wounds && object.wounds.trim() && !noDamageStrings.includes(object.wounds.trim().toLowerCase())) {
+        if (object.wounds && object.wounds.trim() && !NO_DAMAGE.includes(object.wounds.trim().toLowerCase())) {
             const parsedWounds = object.wounds.toLowerCase()
                 .split(/[;,+]./)
                 .map(e => e.trim())
