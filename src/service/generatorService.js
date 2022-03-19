@@ -84,7 +84,7 @@ class GeneratorService {
             for (let i of input) {
                 persistentObject[i.name] = i.value
             }
-        }else{
+        } else {
             persistentObject = JSON.parse(JSON.stringify(input))
         }
 

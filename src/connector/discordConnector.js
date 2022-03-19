@@ -687,6 +687,7 @@ async function mainRpgLoop() {
                 const swarm = duckHuntService.getSwarm()
                 const swarmMode = !swarm.timestamp ? false : Date.now() - (swarm.timestamp + swarm.duration) < 0
                 const pawn = pawnService.getActivePawn(channel)
+                pawn.alive = false
 
                 if (envService.getBoolean("ENABLE_RPG_IMAGES") && duckHuntService.getItemsToInspect(channel)?.length > 0) {
                     const itemToInspect = duckHuntService.getItemsToInspect(channel).shift()
@@ -755,6 +756,8 @@ async function mainRpgLoop() {
                 if (ttsEnabled && speak && spawnMessage.ttsMessage) {
                     speak(spawnMessage.ttsMessage, channel)
                 }
+
+                pawn.alive = false
 
                 savingService.save(channel)
             }

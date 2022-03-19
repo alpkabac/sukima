@@ -1,0 +1,92 @@
+{
+  "name": "RPG Attack Generator",
+  "description": "Generates RPG attacks given a weapon",
+  "context": "[ Attack Description: given a target and a player's equipment, generates an attack description ]",
+  "properties": [
+    {
+      "name": "enemy",
+      "replaceBy": "Target:",
+      "input": true
+    },
+    {
+      "name": "player",
+      "replaceBy": "Your equipment:",
+      "input": true
+    },
+    {
+      "name": "description",
+      "replaceBy": "Description of your attack:"
+    }
+  ],
+  "placeholders": {
+    "wounds": "wounds",
+    "bloodLoss": "blood loss",
+    "difficulty": "difficulty"
+  },
+  "aiParameters": {
+    "repetition_penalty_slope": 9.99,
+    "temperature": 0.8
+  },
+  "list": [
+    {
+      "player": "[ No Weapon; No Armor ]",
+      "enemy": "[ Target: Orc; difficulty: hard; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
+      "description": "You attack the orc using your bare hands. The orc manages to dodge or block some of your attacks, but still gets bruised and tired from the efforts."
+    },
+    {
+      "player": "[ No Weapon; No Armor ]",
+      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: none; blood loss: none; status: healthy ]",
+      "description": "You attack the orc using your fists. It's not very effective, but you manage to break the orc's nose."
+    },
+    {
+      "player": "[ Iron Sword; No Armor ]",
+      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose; blood loss: minor; status: slightly wounded ]",
+      "description": "You strike the orc in the stomach with your iron sword. You cut into orc's abdomen and some guts come out, spreading his blood everywhere"
+    },
+    {
+      "player": "[ No Weapon; No Armor ]",
+      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs, eviscerated; blood loss: major; status: heavily wounded ]",
+      "description": "You punch the semi-conscious orc in the torso. Your blows doesn't do much, but the orc is already so badly mangled that it succumbs to his severe wounds and dies."
+    },
+    {
+      "player": "[ Iron Longsword; No Armor ]",
+      "enemy": "[ Target: Orc; difficulty: medium; armor: Leather Armor; wounds: broken nose, broken ribs; blood loss: minimal; status: heavily wounded ]",
+      "description": "You swing your iron longsword at the orc's throat. Due to his wounds, he fails to dodge and you cut his head off."
+    },
+    {
+      "player": "[ No Weapon; No Armor ]",
+      "enemy": "[ Target: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
+      "description": "You attack the goblin using your bare fists. The goblin is quite aa agile fighter, and dodges most of your attacks."
+    },
+    {
+      "player": "[ Small Knife; No Armor ]",
+      "enemy": "[ Target: Goblin; difficulty: easy; armor: Cloth Armor; wounds: none; blood loss: none; status: healthy ]",
+      "description": "You slash the goblin with your knife across the chest. The goblin's cloth armor does nothing for protection, it slowly starts to bleed from the cut."
+    },
+    {
+      "player": "[ Wooden Spear; No Armor ]",
+      "enemy": "[ Target: Goblin; difficulty: easy; armor: Cloth Armor; wounds: slashed chest; blood loss: moderate; status: moderately wounded ]",
+      "description": "You pierce the goblin with your wooden spear. Your speer flies into the goblin's stomach and guts, spreading his blood and intestines everywhere."
+    },
+    {
+      "player": "[ Rare Large Steel Axe; Leather Armor ]",
+      "enemy": "[ Target: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
+      "description": "You swing your steel axe at the boar with strength, severing its right leg"
+    },
+    {
+      "player": "[ Rare Small Copper Dagger; Leather Armor ]",
+      "enemy": "[ Target: Kobold; difficulty: easy; wounds: none; blood loss: none; status: healthy ]",
+      "description": "You swiftly attack the kobold with your copper dagger, cutting his left ear right off"
+    },
+    {
+      "player": "[ Rusty Copper Dagger; Leather Armor ]",
+      "enemy": "[ Target: Kobold; difficulty: easy; wounds: lacerations (right arm), severed limb (left arm); blood loss: major; status: heavily wounded ]",
+      "description": "You stab the enemy in the chest, pushing the blade deep through the kobold's heart. The kobold is badly wounded and doesn't even fight back."
+    },
+    {
+      "player": "[ Wooden Club; No Armor ]",
+      "enemy": "[ Target: Troll; difficulty: very hard; wounds: disemboweled, amputated (right leg); blood loss: major; status: heavily wounded ]",
+      "description": "You strike the troll with your wooden club, only doing light bruises on its sternum. The troll is however badly in shape and bleeding profusely, and just crumbles to the floor few seconds later, dead."
+    }
+  ]
+}
