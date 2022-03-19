@@ -728,11 +728,7 @@ async function mainRpgLoop() {
                         {name: "type"},
                         {name: "rarity"},
                     ]
-                    const {
-                        object: lootedItem,
-                        result,
-                        module
-                    } = await generatorService.generator(generatorEnemy, args, channel.startsWith("##"), "loot")
+                    const lootedItem = await generatorService.newWorkflow("loot", args)
 
                     spawnMessage.newPawn.loot = {
                         name: lootedItem.item,
