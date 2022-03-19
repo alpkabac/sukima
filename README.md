@@ -165,6 +165,7 @@ You have to install and run it in order for simple prompt to work
 1. A paid NovelAI account (any tier should do)
 2. Grab your NovelAI API key (see https://discord.com/channels/851625855062638603/851625855528075317/883549059271491624)
 3. Node version 14.x or more
+4 Create you discord bot using this tuto: https://imgur.com/a/reC2kyC
 
 # Install
 
