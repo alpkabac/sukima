@@ -1,21 +1,21 @@
 {
   "name": "RPG Attack Generator",
   "description": "Generates RPG attacks given a weapon",
-  "context": "[ Attack Description: given a target and a player's equipment, generates an attack description ]",
+  "context": "[ Enemy's Attack Description: given a your player's equipment and an enemy, generates the description of the enemy's attack ]",
   "properties": [
     {
       "name": "enemy",
-      "replaceBy": "Target:",
+      "replaceBy": "Attacking enemy:",
       "input": true
     },
     {
       "name": "player",
-      "replaceBy": "Your equipment:",
+      "replaceBy": "Your current state:",
       "input": true
     },
     {
       "name": "description",
-      "replaceBy": "Description of your attack:"
+      "replaceBy": "Description of the enemy's attack:"
     }
   ],
   "placeholders": {
