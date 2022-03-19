@@ -20,10 +20,6 @@ class RpgService {
         }
     }
 
-    static getCurrency(){
-        return RpgService.generators["priceEstimation"].placeholders["currency"]
-    }
-
     static loadAllGenerators() {
         if (!envService.getBotId()) return
         RpgService.generators = {}
@@ -62,6 +58,10 @@ class RpgService {
 
     static getWorkflows() {
         return (RpgService.workflows)
+    }
+
+    static getCurrency(){
+        return RpgService.generators["priceEstimation"].placeholders["currency"]
     }
 
 }
