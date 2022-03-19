@@ -6,7 +6,7 @@
     "difficulty": "difficulty"
   },
   "aiParameters": {
-    "temperature": 0.8
+    "temperature": 0.9
   },
   "properties": [
     {

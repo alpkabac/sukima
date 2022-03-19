@@ -347,7 +347,6 @@ class DuckHuntService {
             }
         }
 
-
         const workflowName = target === pawn ?
             "attackEnemy"
             : target === player ?
@@ -356,6 +355,7 @@ class DuckHuntService {
                 : healMode ?
                     "healPlayer"
                     : "attackPlayer"
+
 
         const enemyWounds = target.health.wounds.length === 0 ? 'none' : [...new Set(target.health.wounds)].join(', ')
         const enemyStatus = target !== pawn ?
@@ -437,6 +437,7 @@ class DuckHuntService {
             .addField('Is dead?', STATUS_DEAD.includes(object.status.trim().toLowerCase()), true)
             .addField('All wounds', [...new Set(target.health.wounds)].join('\n') || 'none', false)
             .addField(`Player equipment used for ${healMode ? 'heal' : 'attack'}`, playerEquipment, false)
+
 
 
         const {embed, pushIntoHistory, ttsMessage} = (target !== pawn || target.alive) ?

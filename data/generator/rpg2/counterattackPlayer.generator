@@ -1,0 +1,37 @@
+{
+  "name": "RPG Attack Generator",
+  "description": "Generates RPG attacks given a weapon",
+  "context": "[ Enemy's Attack Description: given a your player's equipment and an enemy, generates the description of the enemy's attack ]",
+  "properties": [
+    {
+      "name": "enemy",
+      "replaceBy": "Attacking enemy's info:",
+      "input": true
+    },
+    {
+      "name": "player",
+      "replaceBy": "Your current equipment:",
+      "input": true
+    },
+    {
+      "name": "description",
+      "replaceBy": "Description of the enemy's attack:"
+    }
+  ],
+  "placeholders": {
+    "wounds": "wounds",
+    "bloodLoss": "blood loss",
+    "difficulty": "difficulty"
+  },
+  "aiParameters": {
+    "repetition_penalty_slope": 9.99,
+    "temperature": 0.8
+  },
+  "list": [
+    {
+      "player": "[ Player: You; gender: male; armor: Leather Armor (common armor); accessory: none; wounds: none; blood loss: none; status: healthy ]",
+      "enemy": "[ Attacker: Aleskah; gender: male; wounds: none; blood loss: none; status: healthy ]",
+      "description": ""
+    }
+  ]
+}

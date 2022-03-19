@@ -1,7 +1,7 @@
 {
   "name": "RPG Enemy Generator",
   "description": "Generates an RPG enemy given a difficulty",
-  "context": "[ Heal Description: given a target and a player's equipment, generates a heal description ]",
+  "context": "[ Heal Description: given a target and your player's info, generates a heal description ]",
   "properties": [
     {
       "name": "enemy",
@@ -10,7 +10,7 @@
     },
     {
       "name": "player",
-      "replaceBy": "Your equipment:",
+      "replaceBy": "Your player's equipment:",
       "input": true
     },
     {

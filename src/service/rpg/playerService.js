@@ -38,15 +38,25 @@ class PlayerService {
         return this.players[channel][username]
     }
 
+    static getItems(player) {
+        const weapon = player.weapon ? `${player.weapon.name} (${player.weapon.rarity} ${player.weapon.type})` : 'none'
+        const armor = player.armor ? `${player.armor.name} (${player.armor.rarity} ${player.armor.type})` : 'none'
+        const accessory = player.accessory ? `${player.accessory.name} (${player.accessory.rarity} ${player.accessory.type})` : 'none'
+        const heal = player.heal ? `${player.heal.name} (${player.heal.rarity} ${player.heal.type})` : 'none'
+        return {weapon, armor, accessory, heal}
+    }
+
+    static getPlayerInfo(player) {
+        const items = PlayerService.getItems(player)
+        return `[ Player: ${player.name}; gender: ${player.gender || "unspecified"}; race: human; weapon: ${items.weapon}; armor: ${items.armor}; accessory: ${items.accessory}; heal: ${items.heal}; wounds: ${player.health.wounds}; blood loss: ${player.health.bloodLoss}; status: ${player.health.status} ]`
+    }
+
     static getPlayerPrompt(player) {
-        const weapon = player.weapon ? `${player.weapon.name} (${player.weapon.rarity} ${player.weapon.type})` : 'No Weapon'
-        const armor = player.armor ? `${player.armor.name} (${player.armor.rarity} ${player.armor.type})` : 'No Armor'
-        const accessory = player.accessory ? `${player.accessory.name} (${player.accessory.rarity} ${player.accessory.type})` : 'No Accessory'
-        const heal = player.heal ? `${player.heal.name} (${player.heal.rarity} ${player.heal.type})` : 'No Heal'
+        const items = PlayerService.getItems(player)
         const playerLastInventoryItem = player.inventory[player.inventory.length - 1]
         const backpackSelectedItem = `${playerLastInventoryItem?.name || 'none'}`
             + (!playerLastInventoryItem ? `` : ` (${playerLastInventoryItem.rarity} ${playerLastInventoryItem.type})`)
-        return `[ Player: ${player.name}; gender: ${player.gender || "unspecified"}; race: human; weapon: ${weapon}; armor: ${armor}; accessory: ${accessory}; heal: ${heal}; selectable item in backpack: ${backpackSelectedItem}; wounds: ${player.health.wounds}; blood loss: ${player.health.bloodLoss}; status: ${player.health.status} ]`
+        return `[ Player: ${player.name}; gender: ${player.gender || "unspecified"}; race: human; weapon: ${items.weapon}; armor: ${items.armor}; accessory: ${items.accessory}; heal: ${items.heal}; selectable item in backpack: ${backpackSelectedItem}; wounds: ${player.health.wounds}; blood loss: ${player.health.bloodLoss}; status: ${player.health.status} ]`
     }
 
     static getItemPrompt(item) {
