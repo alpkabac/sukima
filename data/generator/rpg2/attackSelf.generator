@@ -19,7 +19,8 @@
     }
   ],
   "aiParameters": {
-    "repetition_penalty_slope": 9.99
+    "repetition_penalty_slope": 9.99,
+    "temperature": 0.8
   },
   "list": [
     {
