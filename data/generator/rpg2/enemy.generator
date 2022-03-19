@@ -79,6 +79,11 @@
       "name": "Chameleon Ogre",
       "difficulty": "medium",
       "encounterDescription": "You have heard stories about ogres that turn into other creatures but never thought they would come true. The chameleon ogre is no different, changing colors to blend in with it's surroundings in order to ambush you."
+    },
+    {
+      "name": "Vicious Vampire",
+      "difficulty": "medium",
+      "encounterDescription": "You feel the cold chill of death as you enter a room in the abandoned manor house where you find the vampire feasting on the remains of a young woman."
     }
   ]
 }
