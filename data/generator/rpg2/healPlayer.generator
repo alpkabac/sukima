@@ -18,6 +18,11 @@
       "replaceBy": "Description of your heal:"
     }
   ],
+  "placeholders": {
+    "wounds": "wounds",
+    "bloodLoss": "blood loss",
+    "difficulty": "difficulty"
+  },
   "aiParameters": {
     "repetition_penalty_slope": 9.99,
     "temperature": 0.8

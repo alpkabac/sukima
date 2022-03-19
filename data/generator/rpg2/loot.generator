@@ -5,6 +5,9 @@
   "placeholders": {
     "difficulty": "difficulty"
   },
+  "aiParameters": {
+    "temperature": 0.8
+  },
   "properties": [
     {
       "name": "name",
