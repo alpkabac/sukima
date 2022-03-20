@@ -116,6 +116,20 @@
       "item": "Leather Breastplate of Disguise",
       "type": "equipment",
       "rarity": "rare"
+    },
+    {
+      "name": "Evil Overlord",
+      "difficulty": "extreme",
+      "item": "Evil Staff of Doom",
+      "type": "magic weapon",
+      "rarity": "legendary"
+    },
+    {
+      "name": "Golden Dragon",
+      "difficulty": "legendary",
+      "item": "Golden Axe of Ultimate Power",
+      "type": "mythic enchanted weapon",
+      "rarity": "legendary"
     }
   ]
 }
