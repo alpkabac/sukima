@@ -29,19 +29,9 @@
       "encounterDescription": "The Orc soldier with it's worn leather armor and broad sword slowly and silently approach you from deep in the woods reading its weapon for a powerful and swift attack."
     },
     {
-      "name": "Rabid Unicorn",
-      "difficulty": "hard",
-      "encounterDescription": "You spot an all white rabid unicorn tearing through the brush chasing and gouging at another adventure that came along its gaze."
-    },
-    {
       "name": "Rare Golden Dragon",
       "difficulty": "arduous",
       "encounterDescription": "The rare majestic golden dragon circles far above the trees looking for its next easy meal, when it spots you and decides that you are it."
-    },
-    {
-      "name": "Enraged Rabbit",
-      "difficulty": "very easy",
-      "encounterDescription": "After you unexpectedly corner a small cute rabbit in the wooded trail it becomes enraged and leaps at your throat trying to rip it from your neck."
     },
     {
       "name": "Famished Goblin",
@@ -67,11 +57,6 @@
       "name": "Dire Wolf",
       "difficulty": "challenging",
       "encounterDescription": "You hear the crunching of bones and flesh as you approach a small cave hidden in the rock face of the mountain. You can smell and hear the dire wolf enjoying its last kill well before you can see it."
-    },
-    {
-      "name": "Molten Lizard",
-      "difficulty": "hard",
-      "encounterDescription": "A large scaly creature with flaming eyes and burning breath rushes out of the red hot cracks of the volcanic mountainside directly toward you."
     },
     {
       "name": "Undead Archmage",
