@@ -46,9 +46,11 @@ class PresetService {
         }
 
         if (parameters.order) {
-            parameters.order = parameters.order.map(o =>
-                ["temperature", "top_k", "top_p", "tfs", "top_a", "typical_p"].indexOf(o.id)
-            )
+            parameters.order = parameters.order
+                .filter(o => o.enabled)
+                .map(o =>
+                    ["temperature", "top_k", "top_p", "tfs", "top_a", "typical_p"].indexOf(o.id)
+                )
         }
         return parameters
     }
