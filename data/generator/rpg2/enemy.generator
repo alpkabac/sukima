@@ -19,6 +19,9 @@
       "replaceBy": "Encounter Description:"
     }
   ],
+  "aiParameters": {
+    "temperature": 0.9
+  },
   "list": [
     {
       "name": "Orc Soldier",
