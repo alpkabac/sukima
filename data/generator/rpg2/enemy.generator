@@ -87,6 +87,11 @@
       "name": "Vicious Vampire",
       "difficulty": "medium",
       "encounterDescription": "You feel the cold chill of death as you enter a room in the abandoned manor house where you find the vampire feasting on the remains of a young woman."
+    },
+    {
+      "name": "Fire Elemental",
+      "difficulty": "rare difficult",
+      "encounterDescription": "You see a fire elemental begins to appear in front of you. It starts off as a simple fireball, but as it gets bigger it becomes more dangerous, taking on new shapes and forms."
     }
   ]
 }
