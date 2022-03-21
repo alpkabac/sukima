@@ -20,6 +20,7 @@ next ones better and faster
 | !drop |  |  Drops the last item in your backpack |
 | !drop `inventorySlot` |  |  Drops the last item in your backpack |
 | !look |  |  Shows the items on the floor that you can !take |
+| !look `playerName` |  |  Shows the visible informations of a player |
 | !equipWeapon `inventorySlot` | !equipW, !ew |  Equips selected item as weapon |
 | !equipArmor `inventorySlot` | !equipAr, !ear |  Equips selected item as armor |
 | !equipAccessory `inventorySlot` | !equipAc, !eac |  Equips selected item as accessory |
