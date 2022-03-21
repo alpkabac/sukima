@@ -443,7 +443,6 @@ class DuckHuntService {
             .addField(`Player equipment used for ${healMode ? 'heal' : 'attack'}`, playerEquipment, false)
 
 
-
         const {embed, pushIntoHistory, ttsMessage} = (target !== pawn || target.alive) ?
             {embed: null, pushIntoHistory: null, ttsMessage: null}
             : (await this.loot(channel) || {embed: null, pushIntoHistory: null, ttsMessage: null})
@@ -904,7 +903,50 @@ class DuckHuntService {
         }
     }
 
-    static async look(channel, username) {
+    static async lookPlayer(channel, username, targetPlayerName) {
+        const targetPlayer = playerService.getPlayer(channel, targetPlayerName, false)
+
+        if (!targetPlayer) {
+            return {
+                message: `# Player ${username} tried to look at a player but no player with the name "${targetPlayerName} could be found!"`,
+                instantReply: true,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME
+            }
+        }
+
+        const text = `**Player ${targetPlayerName}**`
+            + `\nGender: ${targetPlayer.gender || 'unspecified'}`
+            + `\nBackpack size: ${targetPlayer.inventorySize}`
+            + `\n\nHealth: ${targetPlayer.health.status}`
+            + `\nBlood Loss: ${targetPlayer.health.bloodLoss}`
+            + `\nWounds: ${targetPlayer.health.wounds.join(', ') || 'none'}`
+            + `\n\nEquipped weapon: ${!targetPlayer.weapon ? 'No Weapon' : `[${targetPlayer.weapon.rarity} ${targetPlayer.weapon.type}] ${targetPlayer.weapon.name}`}`
+            + `\nEquipped armor: ${!targetPlayer.armor ? 'No Weapon' : `[${targetPlayer.armor.rarity} ${targetPlayer.armor.type}] ${targetPlayer.armor.name}`}`
+            + `\nEquipped accessory: ${!targetPlayer.accessory ? 'No Weapon' : `[${targetPlayer.accessory.rarity} ${targetPlayer.accessory.type}] ${targetPlayer.accessory.name}`}`
+            + `\nEquipped heal: ${!targetPlayer.heal ? 'No Weapon' : `[${targetPlayer.heal.rarity} ${targetPlayer.heal.type}] ${targetPlayer.heal.name}`}`
+
+
+        const message = new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle(`${username} looks at ${targetPlayerName}`)
+            .setDescription(text)
+
+        await this.appendItemImage(message, targetPlayer.weapon)
+        await this.appendItemImage(message, targetPlayer.armor)
+        await this.appendItemImage(message, targetPlayer.accessory)
+        await this.appendItemImage(message, targetPlayer.heal)
+
+        return {
+            success: true,
+            message: message,
+            deleteUserMsg: username !== process.env.BOTNAME,
+            instantReply: true,
+            ttsMessage: text
+        }
+    }
+
+    static async lookItems(channel, username) {
         const items = worldItemsService.getActiveItems(channel)
 
         const itemListString = `${items.map((item, i) => `${i}: [${item.rarity} ${item.type}] "${item.name}"`).join('\n') || 'None'}`
@@ -938,6 +980,14 @@ class DuckHuntService {
             instantReply: true,
             pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ Item on the ground: ${lastItemOnTheGround} ]`, null, channel],
             alsoSend: messages && messages?.length > 1 ? messages.slice(1) : null
+        }
+    }
+
+    static async look(channel, username, targetPlayer) {
+        if (targetPlayer){
+            return await this.lookPlayer(channel, username, targetPlayer)
+        }else{
+            return await this.lookItems(channel, username)
         }
     }
 

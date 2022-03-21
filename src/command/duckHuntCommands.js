@@ -276,7 +276,7 @@ const duckHuntCommands = {
         ["!look"],
         process.env.ALLOW_RPG_ATTACK,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            return duckHuntService.look(channel, from)
+            return duckHuntService.look(channel, from, parsedMsg)
         },
         false
     ),
