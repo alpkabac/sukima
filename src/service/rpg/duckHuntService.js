@@ -239,6 +239,8 @@ class DuckHuntService {
 
         const newPawn = pawnService.createPawn(channel, object.name, object.difficulty, object.encounterDescription)
 
+        newPawn.alive = false
+
         const title = 'New Encounter!'
         const msg = new MessageEmbed()
             .setColor('#0099ff')
@@ -259,6 +261,8 @@ class DuckHuntService {
                 msg.attachFiles([m])
             }
         }
+
+        newPawn.alive = true
 
         return {
             message: msg,
