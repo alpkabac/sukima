@@ -100,8 +100,8 @@ class TravellingMerchantService {
 
     static async spawnMerchant(channel) {
         const merchant = playerService.getPlayer(channel, this.merchantName, true)
-        const minItemCount = 3
-        const maxItemCount = 6
+        const minItemCount = 5
+        const maxItemCount = 10
         const itemCount = Math.floor(Math.random() * (maxItemCount - minItemCount) + minItemCount)
         const promises = []
         for (let i = 0; i < itemCount; i++) {
