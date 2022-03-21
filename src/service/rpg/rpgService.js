@@ -36,7 +36,10 @@ class RpgService {
             // Take a look at the files
             for (const entry of Object.values(zip.entries())) {
                 if (entry.name === "workflows.json") {
-                    RpgService.workflows = JSON.parse(zip.entryDataSync(entry.name).toString('utf8'))
+                    const newWorkflows = JSON.parse(zip.entryDataSync(entry.name).toString('utf8'))
+                    for (let key of Object.keys(newWorkflows)){
+                        RpgService.workflows[key] = newWorkflows[key]
+                    }
                 } else {
                     RpgService.generators[entry.name.replace(/\.generator/gi, '')] =
                         JSON.parse(zip.entryDataSync(entry.name).toString('utf8'))

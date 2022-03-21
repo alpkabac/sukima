@@ -77,7 +77,6 @@ class TravellingMerchantService {
                 .setTitle(`The Travelling Merchant arrives!`)
                 .setDescription(`The merchant currently has ${merchant.inventory.length} items to sell!\nHe will stay here for 10 minutes before leaving.\nCheck out what he has to sell with \`!shop\``)
 
-
             const buff = await utils.generatePicture(this.merchantName)
             if (buff) {
                 const m = new MessageAttachment(buff, "generated_image.png")
