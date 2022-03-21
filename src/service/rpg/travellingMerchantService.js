@@ -56,12 +56,14 @@ class TravellingMerchantService {
         let merchant = playerService.getPlayer(channel, this.merchantName, false)
 
         if (!merchant) {
-            if (this.lastMerchantTimestamps[channel] &&
-                Date.now() < this.lastMerchantTimestamps[channel] + (1000 * 60 * 60)
-            ) return null
+            if (this.lastMerchantTimestamps[channel] && Date.now() < this.lastMerchantTimestamps[channel] + (1000 * 60 * 60)) {
+                this.lastMerchantSpawnTryTimestamp[channel] = Date.now()
+                return null
+            }
 
             if (this.lastMerchantSpawnTryTimestamp[channel]) {
                 const timeDiff = Date.now() - this.lastMerchantSpawnTryTimestamp[channel]
+                if (timeDiff < 1000 * 60 * 10) return null
 
                 if (Math.random() > (timeDiff / 1000 / 60 / 60)) {
                     this.lastMerchantSpawnTryTimestamp[channel] = Date.now()
