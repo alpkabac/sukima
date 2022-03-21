@@ -22,10 +22,6 @@ import duckHuntCommands from "../command/duckHuntCommands.js"
 import generatorService from "../service/generatorService.js";
 import sharp from "sharp";
 
-const generatorEnemy = utils.fileExists(`./bot/${envService.getBotId()}/generator/enemy.json`) ?
-    utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/enemy.json`)
-    : utils.loadJSONFile("./data/generator/rpg/enemy.json")
-
 dotenv.config()
 
 const allowedCommands = []
