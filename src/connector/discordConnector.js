@@ -21,6 +21,7 @@ import muteService from "../service/muteService.js"
 import duckHuntCommands from "../command/duckHuntCommands.js"
 import generatorService from "../service/generatorService.js";
 import sharp from "sharp";
+import travellingMerchantService from "../service/rpg/travellingMerchantService.js";
 
 dotenv.config()
 
@@ -684,6 +685,10 @@ async function mainRpgLoop() {
                 const swarmMode = !swarm.timestamp ? false : Date.now() - (swarm.timestamp + swarm.duration) < 0
                 const pawn = pawnService.getActivePawn(channel)
 
+                /*const travellingMerchantMessage = await travellingMerchantService.manageMerchant(channel)
+                if (travellingMerchantMessage){
+                    await channels[channel].send(travellingMerchantMessage).catch((e) => console.error(e))
+                }*/
 
                 if (envService.getBoolean("ENABLE_RPG_IMAGES") && duckHuntService.getItemsToInspect(channel)?.length > 0) {
                     const itemToInspect = duckHuntService.getItemsToInspect(channel).shift()

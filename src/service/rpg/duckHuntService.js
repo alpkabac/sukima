@@ -7,6 +7,7 @@ import worldItemsService from "./worldItemsService.js";
 import {MessageAttachment, MessageEmbed} from "discord.js";
 import sharp from "sharp";
 import rpgService from "./rpgService.js";
+import travellingMerchantService from "./travellingMerchantService.js";
 
 const generatorAttackNew = utils.fileExists(`./bot/${envService.getBotId()}/generator/attack.json`) ?
     utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/attack.json`)
@@ -294,7 +295,7 @@ class DuckHuntService {
 
         if (target) {
             targetPlayer = playerService.getPlayer(channel, target, false)
-            if (targetPlayer) {
+            if (targetPlayer && target !== travellingMerchantService.getMerchantName()) {
                 if (!healMode && isAlive(targetPlayer)) {
                     // Target player acquired
                     target = targetPlayer
@@ -921,10 +922,10 @@ class DuckHuntService {
             + `\n\nHealth: ${targetPlayer.health.status}`
             + `\nBlood Loss: ${targetPlayer.health.bloodLoss}`
             + `\nWounds: ${targetPlayer.health.wounds.join(', ') || 'none'}`
-            + `\n\nEquipped weapon: ${!targetPlayer.weapon ? 'No Weapon' : `[${targetPlayer.weapon.rarity} ${targetPlayer.weapon.type}] ${targetPlayer.weapon.name}`}`
-            + `\nEquipped armor: ${!targetPlayer.armor ? 'No Weapon' : `[${targetPlayer.armor.rarity} ${targetPlayer.armor.type}] ${targetPlayer.armor.name}`}`
-            + `\nEquipped accessory: ${!targetPlayer.accessory ? 'No Weapon' : `[${targetPlayer.accessory.rarity} ${targetPlayer.accessory.type}] ${targetPlayer.accessory.name}`}`
-            + `\nEquipped heal: ${!targetPlayer.heal ? 'No Weapon' : `[${targetPlayer.heal.rarity} ${targetPlayer.heal.type}] ${targetPlayer.heal.name}`}`
+            + `\n\nEquipped weapon: ${!targetPlayer.weapon ? 'No weapon' : `[${targetPlayer.weapon.rarity} ${targetPlayer.weapon.type}] ${targetPlayer.weapon.name}`}`
+            + `\nEquipped armor: ${!targetPlayer.armor ? 'No armor' : `[${targetPlayer.armor.rarity} ${targetPlayer.armor.type}] ${targetPlayer.armor.name}`}`
+            + `\nEquipped accessory: ${!targetPlayer.accessory ? 'No accessory' : `[${targetPlayer.accessory.rarity} ${targetPlayer.accessory.type}] ${targetPlayer.accessory.name}`}`
+            + `\nEquipped heal: ${!targetPlayer.heal ? 'No heal item' : `[${targetPlayer.heal.rarity} ${targetPlayer.heal.type}] ${targetPlayer.heal.name}`}`
 
 
         const message = new MessageEmbed()
@@ -984,9 +985,9 @@ class DuckHuntService {
     }
 
     static async look(channel, username, targetPlayer) {
-        if (targetPlayer){
+        if (targetPlayer) {
             return await this.lookPlayer(channel, username, targetPlayer)
-        }else{
+        } else {
             return await this.lookItems(channel, username)
         }
     }
@@ -1801,10 +1802,12 @@ class DuckHuntService {
 
     static async showAllShops(channel, username) {
         const players = playerService.players[channel]
+        if (!players) return
+
         let text = Object.keys(players)
             .filter(playerName => players[playerName].inventory.some(item => item.forSale))
             .map(playerName =>
-                `**Player ${playerName}'s shop:**\n`
+                `**${playerName !== travellingMerchantService.getMerchantName() ? 'Player' : 'The'} ${playerName}'s shop:**\n`
                 + players[playerName].inventory
                     .filter(item => item.forSale)
                     .map(item =>

@@ -1,0 +1,61 @@
+{
+  "name": "RPG Spell Price Generator",
+  "description": "Estimates a spell price",
+  "context": "[ Price Estimator: outputs an estimated price for an spell given its name, type and rarity as input ]",
+  "placeholders": {
+    "currency": "gold"
+  },
+  "properties": [
+    {
+      "name": "item",
+      "replaceBy": "Spell Name:",
+      "input": true
+    },
+    {
+      "name": "type",
+      "replaceBy": "Spell Type:",
+      "input": true
+    },
+    {
+      "name": "rarity",
+      "replaceBy": "Spell Rarity:",
+      "input": true
+    },
+    {
+      "name": "price",
+      "replaceBy": "Spell Price:"
+    }
+  ],
+  "list": [
+    {
+      "rarity": "novice",
+      "type": "illusion spell",
+      "item": "Spell: Bright Sparkles",
+      "price": "200 ${currency}"
+    },
+    {
+      "rarity": "apprentice",
+      "type": "restoration spell",
+      "item": "Spell: Healing Light",
+      "price": "1000 ${currency}"
+    },
+    {
+      "rarity": "adept",
+      "type": "destruction spell",
+      "item": "Spell: Lightning Bolt",
+      "price": "5000 ${currency}"
+    },
+    {
+      "rarity": "expert",
+      "type": "conjuration spell",
+      "item": "Spell: Summon Skeleton Warrior",
+      "price": "15000 ${currency}"
+    },
+    {
+      "rarity": "master",
+      "type": "destruction spell",
+      "item": "Spell: Meteor",
+      "price": "50000 ${currency}"
+    }
+  ]
+}

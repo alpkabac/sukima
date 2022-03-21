@@ -1,0 +1,50 @@
+{
+  "name": "RPG Spell Generator",
+  "description": "Generates Spell items",
+  "context": "[ Item Generator: generates random spells ]",
+  "aiParameters": {
+    "temperature": 1,
+    "repetition_penalty": 1.12
+  },
+  "properties": [
+    {
+      "name": "rarity",
+      "replaceBy": "Spell level:"
+    },
+    {
+      "name": "type",
+      "replaceBy": "Spell Type:"
+    },
+    {
+      "name": "item",
+      "replaceBy": "Spell Name:"
+    }
+  ],
+  "list": [
+    {
+      "rarity": "novice",
+      "type": "illusion spell",
+      "item": "Spell: Bright Sparkles"
+    },
+    {
+      "rarity": "apprentice",
+      "type": "restoration spell",
+      "item": "Spell: Healing Light"
+    },
+    {
+      "rarity": "adept",
+      "type": "destruction spell",
+      "item": "Spell: Lightning Bolt"
+    },
+    {
+      "rarity": "expert",
+      "type": "conjuration spell",
+      "item": "Spell: Summon Skeleton Warrior"
+    },
+    {
+      "rarity": "master",
+      "type": "destruction spell",
+      "item": "Spell: Meteor"
+    }
+  ]
+}

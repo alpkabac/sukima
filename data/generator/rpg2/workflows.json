@@ -35,7 +35,13 @@
   "loot": [
     "loot"
   ],
+  "spell": [
+    "spell"
+  ],
   "sell": [
     "priceEstimation"
+  ],
+  "spellPriceEstimation": [
+    "spellPriceEstimation"
   ]
 }
