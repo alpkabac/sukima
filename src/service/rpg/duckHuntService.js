@@ -2020,7 +2020,7 @@ class DuckHuntService {
         const embed = new MessageEmbed()
             .setColor('#ffffff')
             .setTitle(`Player ${username} added the item "${playerSelectedItem.name}" in the inspection list! A message will be sent when the item image is done generating!`)
-            .setDescription(`It might take up to a mine per item in the queue`)
+            .setDescription(`It might take up to a minute per item in the queue`)
         return {
             message: embed,
             deleteUserMsg: username !== process.env.BOTNAME,
@@ -2075,7 +2075,7 @@ class DuckHuntService {
         const embed = new MessageEmbed()
             .setColor('#ffffff')
             .setTitle(`Player ${username} added the item "${playerSelectedItem.name}" in the inspection list for ${price} ${rpgService.getCurrency()}! A message will be sent when the item image is done generating!`)
-            .setDescription(`It might take up to a mine per item in the queue`)
+            .setDescription(`It might take up to a minute per item in the queue`)
         return {
             message: embed,
             deleteUserMsg: username !== process.env.BOTNAME,
