@@ -57,11 +57,13 @@ class TravellingMerchantService {
 
         if (!merchant) {
             // Waits 10 minutes before trying to spawn (counted from merchant spawn)
-            if (this.lastMerchantTimestamps[channel] && Date.now() < this.lastMerchantTimestamps[channel] + (1000 * 60 * 10)) {
+            if (this.lastMerchantTimestamps[channel] && Date.now() < (this.lastMerchantTimestamps[channel] + (1000 * 60 * 10))) {
                 return null
             }
 
-            if (Date.now() < this.lastMerchantTimestamps[channel] + this.merchantTimeBeforeRespawn[channel]) {
+            if (this.lastMerchantTimestamps[channel]
+                && this.merchantTimeBeforeRespawn[channel]
+                && Date.now() < (this.lastMerchantTimestamps[channel] + this.merchantTimeBeforeRespawn[channel])) {
                 return null
             }
 
