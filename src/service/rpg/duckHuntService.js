@@ -1129,6 +1129,16 @@ class DuckHuntService {
 
     static async sell(channel, username, itemSlot) {
         const player = playerService.getPlayer(channel, username)
+        const merchant = playerService.getPlayer(channel, this.merchantName, false)
+
+        if (!merchant){
+            return {
+                message: `# ${username} tried to sell an item, but there is no merchant around.`,
+                deleteUserMsg: username !== process.env.BOTNAME,
+                deleteNewMessage: username !== process.env.BOTNAME,
+                pushIntoHistory: username !== process.env.BOTNAME ? null : [`[ ${username} tried to sell an item, but there is no merchant around. ]`, null, channel],
+            }
+        }
 
         if (!isAlive(player)) {
             return {
