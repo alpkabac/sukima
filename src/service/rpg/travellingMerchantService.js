@@ -61,7 +61,7 @@ class TravellingMerchantService {
                 return null
             }
 
-            if (Date.now < this.lastMerchantTimestamps[channel] + this.merchantTimeBeforeRespawn[channel]) {
+            if (Date.now() < this.lastMerchantTimestamps[channel] + this.merchantTimeBeforeRespawn[channel]) {
                 return null
             }
 

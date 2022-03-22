@@ -40,9 +40,11 @@ class PresetService {
         parameters.eos_token_id = 198
 
         if (parameters.repetition_penalty) {
-            const oldRange = 1 - 8
-            const newRange = 1 - 1.525
-            parameters.repetition_penalty = ((parameters.repetition_penalty - 1) * newRange) / oldRange + 1
+            if (parameters.textGenerationSettingsVersion !== 3){
+                const oldRange = 1 - 8
+                const newRange = 1 - 1.525
+                parameters.repetition_penalty = ((parameters.repetition_penalty - 1) * newRange) / oldRange + 1
+            }
         }
 
         if (parameters.order) {
