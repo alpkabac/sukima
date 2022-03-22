@@ -836,7 +836,6 @@ class DuckHuntService {
         const player = playerService.getPlayer(channel, username)
         const itemSlotNumber = parseInt(itemSlot)
         const targetPlayer = playerService.getPlayer(channel, playerName, false)
-        const item = targetPlayer.inventory[itemSlotNumber]
 
         if (!targetPlayer) {
             return {
@@ -844,6 +843,7 @@ class DuckHuntService {
                 deleteUserMsg: true
             }
         }
+        const item = targetPlayer.inventory[itemSlotNumber]
 
         if (!item) {
             return {
