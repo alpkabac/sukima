@@ -108,8 +108,8 @@ class TravellingMerchantService {
             embed.attachFiles([m])
         }
 
-        const minTimeBeforeRespawn = 1000 * 60 * 10
-        const maxTimeBeforeRespawn = 1000 * 60 * 30
+        const minTimeBeforeRespawn = 1000 * 60 * 20
+        const maxTimeBeforeRespawn = 1000 * 60 * 40
         merchant.timeout = Date.now() + (1000 * 60 * 10)
         this.lastMerchantTimestamps[channel] = Date.now()
         this.merchantTimeBeforeRespawn[channel] = Math.floor(Math.random() * (maxTimeBeforeRespawn - minTimeBeforeRespawn) + minTimeBeforeRespawn)
