@@ -68,6 +68,48 @@
       "type": "spell",
       "item": "Spell: Meteor",
       "price": "50000 ${currency}"
+    },
+    {
+      "rarity": "novice",
+      "type": "spell",
+      "item": "Spell: Projectile Sparks",
+      "price": "100 ${currency}"
+    },
+    {
+      "rarity": "apprentice",
+      "type": "spell",
+      "item": "Spell: Camouflage",
+      "price": "800 ${currency}"
+    },
+    {
+      "rarity": "adept",
+      "type": "spell",
+      "item": "Spell: Summon Shadow Spectre",
+      "price": "3000 ${currency}"
+    },
+    {
+      "rarity": "expert",
+      "type": "spell",
+      "item": "Spell: Conjure Delicious Banquet",
+      "price": "12000 ${currency}"
+    },
+    {
+      "rarity": "journeyman",
+      "type": "spell",
+      "item": "Spell: Long Range Telekinesis",
+      "price": "22000 ${currency}"
+    },
+    {
+      "rarity": "elite",
+      "type": "spell",
+      "item": "Spell: Temporary Zone Invisibility",
+      "price": "28000 ${currency}"
+    },
+    {
+      "rarity": "master",
+      "type": "spell",
+      "item": "Spell: Perfect Resurrection",
+      "price": "45000 ${currency}"
     }
   ]
 }

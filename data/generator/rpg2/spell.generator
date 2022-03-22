@@ -48,12 +48,47 @@
     {
       "rarity": "elite",
       "type": "spell",
-      "item": "Spell: Teleporation"
+      "item": "Spell: Teleportation"
     },
     {
       "rarity": "master",
       "type": "spell",
       "item": "Spell: Meteor"
+    },
+    {
+      "rarity": "novice",
+      "type": "spell",
+      "item": "Spell: Projectile Sparks"
+    },
+    {
+      "rarity": "apprentice",
+      "type": "spell",
+      "item": "Spell: Camouflage"
+    },
+    {
+      "rarity": "adept",
+      "type": "spell",
+      "item": "Spell: Summon Shadow Spectre"
+    },
+    {
+      "rarity": "expert",
+      "type": "spell",
+      "item": "Spell: Conjure Delicious Banquet"
+    },
+    {
+      "rarity": "journeyman",
+      "type": "spell",
+      "item": "Spell: Long Range Telekinesis"
+    },
+    {
+      "rarity": "elite",
+      "type": "spell",
+      "item": "Spell: Temporary Zone Invisibility"
+    },
+    {
+      "rarity": "master",
+      "type": "spell",
+      "item": "Spell: Perfect Resurrection"
     }
   ]
 }
