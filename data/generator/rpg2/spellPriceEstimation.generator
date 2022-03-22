@@ -29,31 +29,43 @@
   "list": [
     {
       "rarity": "novice",
-      "type": "illusion spell",
+      "type": "spell",
       "item": "Spell: Bright Sparkles",
       "price": "200 ${currency}"
     },
     {
       "rarity": "apprentice",
-      "type": "restoration spell",
+      "type": "spell",
       "item": "Spell: Healing Light",
       "price": "1000 ${currency}"
     },
     {
       "rarity": "adept",
-      "type": "destruction spell",
+      "type": "spell",
       "item": "Spell: Lightning Bolt",
       "price": "5000 ${currency}"
     },
     {
       "rarity": "expert",
-      "type": "conjuration spell",
+      "type": "spell",
       "item": "Spell: Summon Skeleton Warrior",
       "price": "15000 ${currency}"
     },
     {
+      "rarity": "journeyman",
+      "type": "spell",
+      "item": "Spell: Bear Form",
+      "price": "20000 ${currency}"
+    },
+    {
+      "rarity": "elite",
+      "type": "spell",
+      "item": "Spell: Teleporation",
+      "price": "25000 ${currency}"
+    },
+    {
       "rarity": "master",
-      "type": "destruction spell",
+      "type": "spell",
       "item": "Spell: Meteor",
       "price": "50000 ${currency}"
     }
