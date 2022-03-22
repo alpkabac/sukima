@@ -7,7 +7,7 @@ import utils from "../../utils.js";
 class TravellingMerchantService {
     static merchantName = "TravellingMerchant"
     static lastMerchantTimestamps = {}
-    static lastMerchantSpawnTryTimestamp = {}
+    static merchantTimeBeforeRespawn = {}
 
     static async getSpell() {
         const args = [
@@ -56,21 +56,12 @@ class TravellingMerchantService {
         let merchant = playerService.getPlayer(channel, this.merchantName, false)
 
         if (!merchant) {
+            // Waits 10 minutes before trying to spawn (counted from merchant spawn)
             if (this.lastMerchantTimestamps[channel] && Date.now() < this.lastMerchantTimestamps[channel] + (1000 * 60 * 10)) {
-                this.lastMerchantSpawnTryTimestamp[channel] = Date.now()
                 return null
             }
 
-            if (this.lastMerchantSpawnTryTimestamp[channel]) {
-                const timeDiff = Date.now() - this.lastMerchantSpawnTryTimestamp[channel]
-                if (timeDiff < 1000 * 60) return null
-
-                if (Math.random() * 1000 * 60 * 30 > timeDiff) {
-                    this.lastMerchantSpawnTryTimestamp[channel] = Date.now()
-                    return null
-                }
-            } else {
-                this.lastMerchantSpawnTryTimestamp[channel] = Date.now()
+            if (Date.now < this.lastMerchantTimestamps[channel] + this.merchantTimeBeforeRespawn[channel]) {
                 return null
             }
 
@@ -106,9 +97,6 @@ class TravellingMerchantService {
             }
         }
 
-        merchant.timeout = Date.now() + (1000 * 60 * 10)
-        this.lastMerchantTimestamps[channel] = Date.now()
-
         const embed = new MessageEmbed()
             .setColor('#ffff66')
             .setTitle(`The Travelling Merchant arrives!`)
@@ -119,6 +107,12 @@ class TravellingMerchantService {
             const m = new MessageAttachment(buff, "generated_image.png")
             embed.attachFiles([m])
         }
+
+        const minTimeBeforeRespawn = 1000 * 60 * 10
+        const maxTimeBeforeRespawn = 1000 * 60 * 30
+        merchant.timeout = Date.now() + (1000 * 60 * 10)
+        this.lastMerchantTimestamps[channel] = Date.now()
+        this.merchantTimeBeforeRespawn[channel] = Math.floor(Math.random() * (maxTimeBeforeRespawn - minTimeBeforeRespawn) + minTimeBeforeRespawn)
 
         return embed
     }
