@@ -63,9 +63,9 @@ class TravellingMerchantService {
 
             if (this.lastMerchantSpawnTryTimestamp[channel]) {
                 const timeDiff = Date.now() - this.lastMerchantSpawnTryTimestamp[channel]
-                 if (timeDiff < 1000 * 60) return null
+                if (timeDiff < 1000 * 60) return null
 
-                if (Math.random() > (timeDiff / 1000 / 60 / 60)) {
+                if (Math.random() * 1000 * 60 * 30 > timeDiff) {
                     this.lastMerchantSpawnTryTimestamp[channel] = Date.now()
                     return null
                 }
@@ -74,20 +74,7 @@ class TravellingMerchantService {
                 return null
             }
 
-            merchant = await this.spawnMerchant(channel)
-
-            const embed = new MessageEmbed()
-                .setColor('#ffff66')
-                .setTitle(`The Travelling Merchant arrives!`)
-                .setDescription(`The merchant currently has ${merchant.inventory.length} items to sell!\nHe will stay here for 10 minutes before leaving.\nCheck out what he has to sell with \`!shop\``)
-
-            const buff = await utils.generatePicture(this.merchantName)
-            if (buff) {
-                const m = new MessageAttachment(buff, "generated_image.png")
-                embed.attachFiles([m])
-            }
-
-            return embed
+            return await this.spawnMerchant(channel)
         } else {
             if (Date.now() > merchant.timeout) {
                 const embed = new MessageEmbed()
@@ -122,7 +109,18 @@ class TravellingMerchantService {
         merchant.timeout = Date.now() + (1000 * 60 * 10)
         this.lastMerchantTimestamps[channel] = Date.now()
 
-        return merchant
+        const embed = new MessageEmbed()
+            .setColor('#ffff66')
+            .setTitle(`The Travelling Merchant arrives!`)
+            .setDescription(`The merchant currently has ${merchant.inventory.length} items to sell!\nHe will stay here for 10 minutes before leaving.\nCheck out what he has to sell with \`!shop\``)
+
+        const buff = await utils.generatePicture("Dwarf Merchant")
+        if (buff) {
+            const m = new MessageAttachment(buff, "generated_image.png")
+            embed.attachFiles([m])
+        }
+
+        return embed
     }
 
 

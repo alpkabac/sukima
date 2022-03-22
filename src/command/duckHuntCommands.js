@@ -5,6 +5,7 @@ import axios from "axios";
 import * as fs from "fs";
 import envService from "../util/envService.js";
 import rpgService from "../service/rpg/rpgService.js";
+import travellingMerchantService from "../service/rpg/travellingMerchantService.js";
 
 config()
 
@@ -68,6 +69,21 @@ const duckHuntCommands = {
             }
 
             return await duckHuntService.spawnItem(channel, from, rarity, type, name)
+        },
+        false
+    ),
+    spawnMerchant: new Command(
+        "Spawn the Travelling Merchant",
+        ["!spawnMerchant", "!spawnTravellingMerchant", "!spawnTravelingMerchant"],
+        [],
+        process.env.ALLOW_RPG_SPAWN,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            return {
+                message: await travellingMerchantService.spawnMerchant(channel),
+                success: true,
+                deleteUserMsg: true,
+                instantReply: true
+            }
         },
         false
     ),
@@ -521,6 +537,7 @@ const duckHuntCommands = {
 
 duckHuntCommands.all = [
     duckHuntCommands.editRPG,
+    duckHuntCommands.spawnMerchant,
     duckHuntCommands.spawnItem,
     duckHuntCommands.spawnEquipItem,
     duckHuntCommands.spawn,
