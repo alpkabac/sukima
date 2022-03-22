@@ -10,13 +10,13 @@ next ones better and faster
 | Command      | Alias | Description |
 | --- | ----------- | ----------- |
 | !attack | !atk |  When a monster spawns, you can attack it using your weapon with this command |
-| attack `playerName` |  |  Also works with players |
+| !attack `playerName` |  |  Also works with players |
 | !heal |  |  Will use your heal item on yourself, requires an item equipped in the heal slot |
 | !heal `playerName` |  |  Can also heal/resurrect players (or at least try), requires an item equipped in the heal slot |
 | !take | !grab |  Grabs the last item that fell on the ground and puts it in your backpack |
 | !take `groundSlot` |  |  Grabs item on the ground slot `groundSlot` and puts it in your backpack |
-| !sell |  |  Sells the last item in your backpack |
-| !sell `inventorySlot` |  |  Sells the item in your inventory slot `inventorySlot` |
+| !sell |  |  Sells the last item in your backpack (only available when the travelling merchant is present) |
+| !sell `inventorySlot` |  |  Sells the item in your inventory slot `inventorySlot` (only available when the travelling merchant is present) |
 | !drop |  |  Drops the last item in your backpack |
 | !drop `inventorySlot` |  |  Drops the last item in your backpack |
 | !look |  |  Shows the items on the floor that you can !take |
@@ -101,12 +101,16 @@ You can use the `!inventory` command to check your inventory and other player in
 
 ### How to get gold then?
 
-By selling items from your backpack with the `!sell <backpackSlot>` command!  
+By selling items from your backpack with the `!sell <backpackSlot>` command!
 It will sell your item and generate a price depending on the item:  
 ![Selling Items](https://i.imgur.com/XsQK8XY.png)  
 Item prices may vary a lot from generation to generation, let's say it's a feature and some shopkeepers just want some
-items more than others
+items more than others  
+This command is only available when the travelling merchant is present, so keep an eye open for him.
 
 Now that you have gold, you can upgrade your backpack with the `!upgrade` command:  
 ![Upgrade Command](https://i.imgur.com/y5np24E.png)  
 First upgrade costs 99 gold, but price goes up exponentially each time you upgrade!
+
+### How do I buy stuff?
+You can use `!shop` to list all the items for sale from all players and the travelling merchant, when he's there.
