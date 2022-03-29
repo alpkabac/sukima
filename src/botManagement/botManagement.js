@@ -940,8 +940,7 @@ async function proxy(input, model, params, accessToken) {
     return res?.data
 }
 
-
-app.get('/', async function (req, res, next) {
+async function getIndexPage(req, res){
     res.setHeader('Access-Control-Allow-Origin', '*')
     try {
         res.sendFile(path.join(path.resolve(), '/index.html'))
@@ -949,7 +948,10 @@ app.get('/', async function (req, res, next) {
         logService.error("An error happened", e)
         res.json({status: 'ERROR', error: e.message})
     }
-})
+}
+
+app.get('/', getIndexPage)
+app.get('/botManagement', getIndexPage)
 
 app.post('/api/v1/generator', async function (req, res, next) {
     try {
