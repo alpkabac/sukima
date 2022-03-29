@@ -915,7 +915,7 @@
             tr.insertCell().innerHTML = `${userRequest.data?.user?.isAdmin}`
             tr.insertCell().innerHTML = `${userRequest.data?.user?.bots?.length}/${userRequest.data?.user?.maxBots}`
             tr.insertCell().innerHTML = `${userRequest.data?.user?.bots.join(', ')}`
-            tr.insertCell().innerHTML = `<a href="/?login=${userRequest.data?.user?.id}&key=${userRequest.data?.user?.key}">Impersonate ${userRequest.data?.user?.username}</a>`
+            tr.insertCell().innerHTML = `<a href="/botManagement?login=${userRequest.data?.user?.id}&key=${userRequest.data?.user?.key}">Impersonate ${userRequest.data?.user?.username}</a>`
         }
 
         divTableAdminUsers.innerHTML = ''
@@ -965,7 +965,7 @@
     function redirectToBotEdition(botId, login, key) {
         login = login ? login : document.getElementById("login").value
         key = key ? key : document.getElementById("key").value
-        window.location.href = `/?login=${login}&key=${key}&botId=${botId}`
+        window.location.href = `/botManagement?login=${login}&key=${key}&botId=${botId}`
     }
 
     async function sendEditForm() {
@@ -1003,7 +1003,7 @@
         const result = await sendForm("formCreateNewBot", '/bot/create', {id: null})
         if (result.status === "SUCCESS") {
             alert("Bot created!")
-            window.location.href = `/?login=${document.getElementById("login").value}&key=${document.getElementById("key").value}&botId="${result.data.id}"`
+            window.location.href = `/botManagement?login=${document.getElementById("login").value}&key=${document.getElementById("key").value}&botId="${result.data.id}"`
         }
     }
 
@@ -1011,7 +1011,7 @@
         const result = await sendForm("formFirstConnexion", '/admin/firstConnexion')
         alert(JSON.stringify(result))
         if (result.status === "SUCCESS") {
-            window.location.href = `/?login=${document.getElementById("firstConnexionLogin").value}&key=${document.getElementById("firstConnexionKey").value}`
+            window.location.href = `/botManagement?login=${document.getElementById("firstConnexionLogin").value}&key=${document.getElementById("firstConnexionKey").value}`
         }
     }
 
@@ -1022,7 +1022,7 @@
 
         if (result.status === "SUCCESS") {
             divResultAdminCreateUser.innerHTML = `<span style="color: green">SUCCESS!</span><br/>`
-                + `<a href="/?login=${result.data?.user?.id}&key=${result.data?.user?.key}&botId=${result.data?.botId}">Impersonate ${result.data?.user?.username}</a>`
+                + `<a href="/botManagement?login=${result.data?.user?.id}&key=${result.data?.user?.key}&botId=${result.data?.botId}">Impersonate ${result.data?.user?.username}</a>`
             divResultAdminCreateUser.innerHTML += `<br/>channelName: ${result.data.channelName}`
             divResultAdminCreateUser.innerHTML += `<br/>Bot ID: ${result.data.botId}`
         }
