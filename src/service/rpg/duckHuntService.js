@@ -9,13 +9,6 @@ import sharp from "sharp";
 import rpgService from "./rpgService.js";
 import travellingMerchantService from "./travellingMerchantService.js";
 
-const generatorAttackNew = utils.fileExists(`./bot/${envService.getBotId()}/generator/attack.json`) ?
-    utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/attack.json`)
-    : utils.loadJSONFile("./data/generator/rpg/attack.json")
-
-const generatorEnemy = utils.fileExists(`./bot/${envService.getBotId()}/generator/enemy.json`) ?
-    utils.loadJSONFile(`./bot/${envService.getBotId()}/generator/enemy.json`)
-    : utils.loadJSONFile("./data/generator/rpg/enemy.json")
 const generatorSpellBook = utils.loadJSONFile("./data/generationPrompt/rpg/generateSpellBook.json")
 
 

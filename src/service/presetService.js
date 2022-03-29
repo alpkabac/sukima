@@ -47,6 +47,9 @@ class PresetService {
             }
         }
 
+        parameters.textGenerationSettingsVersion = undefined
+        delete parameters.textGenerationSettingsVersion
+
         if (parameters.order) {
             parameters.order = parameters.order
                 .filter(o => o.enabled)

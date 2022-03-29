@@ -13,7 +13,7 @@
     },
     {
       "name": "KEYS",
-      "replaceBy": "KEYS"
+      "replaceBy": "KEYS:"
     }
   ],
   "list": [
@@ -132,24 +132,6 @@
     "repetition_penalty_range": 2048,
     "repetition_penalty_slope": 3.6,
     "repetition_penalty_frequency": 0,
-    "repetition_penalty_presence": 0,
-    "order": [
-      {
-        "id": "temperature",
-        "enabled": true
-      },
-      {
-        "id": "top_k",
-        "enabled": true
-      },
-      {
-        "id": "top_p",
-        "enabled": true
-      },
-      {
-        "id": "tfs",
-        "enabled": true
-      }
-    ]
+    "repetition_penalty_presence": 0
   }
 }

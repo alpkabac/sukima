@@ -889,9 +889,13 @@ async function loadKeys(args) {
     const keys = (args ? args : process.env.NOVEL_AI_API_KEY).split(';').map(s => s.trim())
 
     for (let key of keys) {
-        const token = await aiService.getAccessToken(key)
-        if (!accessTokens.includes(token))
-            accessTokens.push(token)
+        try {
+            const token = await aiService.getAccessToken(key)
+            if (!accessTokens.includes(token))
+                accessTokens.push(token)
+        } catch (e){
+            console.error(e)
+        }
     }
 }
 
@@ -915,7 +919,7 @@ async function proxy(input, model, params, accessToken) {
     let res
     try {
         res = await axios.post(
-            "https://api.novelai.net/ai/generate",
+            (process.env.API_URL || "https://api.novelai.net/ai") + "/generate",
             {
                 input,
                 model,
