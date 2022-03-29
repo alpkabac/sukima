@@ -112,7 +112,7 @@ class Utils {
                 {
                     responseType: 'stream',
                     params: {
-                        text: ". "+text,
+                        text: ". " + text,
                         seed: process.env.TTS_VOICE_SEED || process.env.BOTNAME,
                         voice: -1,
                         opus: false
@@ -128,7 +128,7 @@ class Utils {
         }
 
         await downloadFile('tmp.mp3')
-        await connection.play('tmp.mp3', { highWaterMark: 1 })
+        await connection.play('tmp.mp3', {highWaterMark: 1})
     }
 
     static shuffleArray(array) {
@@ -361,9 +361,12 @@ class Utils {
         const tokens = []
 
         for (let key of keys) {
-            const token = await getAccessToken(key)
-            if (!tokens.includes(token))
-                tokens.push(token)
+            try {
+                const token = await getAccessToken(key)
+                if (!tokens.includes(token))
+                    tokens.push(token)
+            } catch {
+            }
         }
 
         accessTokens = tokens
