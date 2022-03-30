@@ -264,15 +264,15 @@ function startBot(id, preset = "default", force = false) {
     const workerProcess = child_process.spawn("node", ["-r", "dotenv/config", "index_discord.js", `dotenv_config_path=${filePath}`])
 
     workerProcess.stdout.on('data', function (data) {
-        console.log('stdout: ' + data)
+        process.stdout.write('stdout: ' + data)
     })
 
     workerProcess.stderr.on('data', function (data) {
-        console.log('stderr: ' + data)
+        process.stdout.write('stderr: ' + data)
     })
 
     workerProcess.on('close', function (code) {
-        console.log(`Subprocess ${id} has exited, exit code` + code)
+        process.stdout.write(`Subprocess ${id} has exited, exit code` + code)
         runningBots = runningBots.filter(rb => rb.id !== id)
         fs.writeFileSync('./runningBots.json', JSON.stringify(runningBots))
     })
@@ -918,6 +918,7 @@ async function handleLoadBalancing() {
 async function proxy(input, model, params, accessToken) {
     let res
     try {
+        console.log("process.env.API_URL", process.env.API_URL)
         res = await axios.post(
             (process.env.API_URL || "https://api.novelai.net/ai") + "/generate",
             {
