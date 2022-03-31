@@ -6,37 +6,54 @@ import * as fs from "fs";
 import envService from "../util/envService.js";
 import rpgService from "../service/rpg/rpgService.js";
 import travellingMerchantService from "../service/rpg/travellingMerchantService.js";
+import StreamZip from "node-stream-zip";
 
 config()
+
+async function downloadZipMod(attachmentUrl) {
+    const path = `bot/${envService.getBotId()}/rpg.zip`
+    try {
+        await (fs.rmSync(path))
+    } catch {
+    }
+
+    // fetch the file from the external URL
+    const response = await axios.get(attachmentUrl, {
+        responseType: 'arraybuffer',
+    })
+
+    const zip = Buffer.from(response.data, 'binary')
+    fs.writeFileSync(path, zip)
+}
 
 const duckHuntCommands = {
     editRPG: new Command(
         "Edit RPG",
-        ["!editRPG", '!erpg'],
+        ["!editRPG", "!edit RPG", '!erpg'],
         [],
         process.env.ALLOW_RPG_SPAWN,
         async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
-            async function getAttachment(attachmentUrl) {
-                const path = `bot/${envService.getBotId()}/rpg.zip`
-                try {
-                    await (fs.rmSync(path))
-                } catch {
-                }
-
-                // fetch the file from the external URL
-                const response = await axios.get(attachmentUrl, {
-                    responseType: 'arraybuffer',
-                })
-
-                const zip = Buffer.from(response.data, 'binary')
-                fs.writeFileSync(path, zip)
-            }
-
-            await getAttachment(attachmentUrl)
+            await downloadZipMod(attachmentUrl)
 
             rpgService.loadAllGenerators()
             return {
                 message: "# RPG mod loaded",
+                success: true
+            }
+        },
+        true
+    ),
+    addRPGMod: new Command(
+        "Add RPG mod",
+        ["!addRPG", "!add RPG", '!arpg'],
+        [],
+        process.env.ALLOW_RPG_SPAWN,
+        async (msg, parsedMsg, from, channel, command, roles, messageId, targetMessageId, client, attachmentUrl) => {
+            await downloadZipMod(attachmentUrl)
+
+            rpgService.loadAllGenerators(true)
+            return {
+                message: "# RPG mod added",
                 success: true
             }
         },
@@ -537,6 +554,7 @@ const duckHuntCommands = {
 
 duckHuntCommands.all = [
     duckHuntCommands.editRPG,
+    duckHuntCommands.addRPGMod,
     duckHuntCommands.spawnMerchant,
     duckHuntCommands.spawnItem,
     duckHuntCommands.spawnEquipItem,

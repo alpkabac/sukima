@@ -918,7 +918,6 @@ async function handleLoadBalancing() {
 async function proxy(input, model, params, accessToken) {
     let res
     try {
-        console.log("process.env.API_URL", process.env.API_URL)
         res = await axios.post(
             (process.env.API_URL || "https://api.novelai.net/ai") + "/generate",
             {

@@ -20,14 +20,15 @@ class RpgService {
         }
     }
 
-    static loadAllGenerators() {
+    static loadAllGenerators(appendMode = false) {
         if (!envService.getBotId()) return
-        RpgService.generators = {}
 
-        RpgService.loadDefaultGenerators()
+        if (!appendMode) {
+            RpgService.generators = {}
+            RpgService.loadDefaultGenerators()
+        }
 
-        let zip
-        zip = new StreamZip({
+        let zip = new StreamZip({
             file: `./bot/${envService.getBotId()}/rpg.zip`,
             storeEntries: true
         })

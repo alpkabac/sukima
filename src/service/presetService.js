@@ -39,12 +39,10 @@ class PresetService {
         parameters.max_length = process.env.TOKEN_LIMIT === "2048" ? 150 : 100
         parameters.eos_token_id = 198
 
-        if (parameters.repetition_penalty) {
-            if (parameters.textGenerationSettingsVersion !== 3){
-                const oldRange = 1 - 8
-                const newRange = 1 - 1.525
-                parameters.repetition_penalty = ((parameters.repetition_penalty - 1) * newRange) / oldRange + 1
-            }
+        if (parameters.repetition_penalty && file.model !== "krake-v1") {
+            const oldRange = 1 - 8
+            const newRange = 1 - 1.525
+            parameters.repetition_penalty = ((parameters.repetition_penalty - 1) * newRange) / oldRange + 1
         }
 
         parameters.textGenerationSettingsVersion = undefined

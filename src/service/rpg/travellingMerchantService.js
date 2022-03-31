@@ -86,11 +86,10 @@ class TravellingMerchantService {
         const minItemCount = 5
         const maxItemCount = 10
         const itemCount = Math.floor(Math.random() * (maxItemCount - minItemCount) + minItemCount)
-        const promises = []
+        const items = []
         for (let i = 0; i < itemCount; i++) {
-            promises.push(this.getPricedSpell())
+            items.push(await this.getPricedSpell())
         }
-        const items = await Promise.all(promises)
         merchant.inventorySize = maxItemCount
 
         for (let item of items) {
