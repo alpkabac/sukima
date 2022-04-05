@@ -13,7 +13,7 @@ class LogService {
     }
 
     static error(msg, err) {
-        console.error(msg)
+        console.error(msg, err)
         if (err) {
             fs.writeFileSync(
                 './debug.txt',

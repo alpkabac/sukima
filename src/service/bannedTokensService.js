@@ -49,7 +49,7 @@ class BannedTokensService {
         }
 
         // load default banned tokens
-        this.loadChannelBannedTokenFiles(channel, this.parseBannedTokenFilesString('default'))
+        // this.loadChannelBannedTokenFiles(channel, this.parseBannedTokenFilesString('default'))
         return this.channelBannedTokens[channel]
     }
 

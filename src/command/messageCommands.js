@@ -207,7 +207,7 @@ const messageCommands = {
             const prompt = promptService.getPrompt(channel)
             const answer = await aiService.sendUntilSuccess(prompt, channel.startsWith("##"), channel)
             return {
-                message: answer, success: true,
+                message: answer,
                 pushIntoHistory: [answer, process.env.BOTNAME, channel]
             }
         },

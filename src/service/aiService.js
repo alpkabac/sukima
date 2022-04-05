@@ -151,7 +151,8 @@ class AiService {
      * @param eos_token_id
      */
     static async simpleEvalbot(prompt, tokensToGenerate = 1, preventLMI = false, eos_token_id = 198) {
-        const params = JSON.parse(JSON.stringify(DEFAULT_PARAMETERS_EVALBOT))
+        const params = JSON.parse(JSON.stringify(presetService.getAiParameters("evalbot")))
+
 
         params.max_length = tokensToGenerate
         params.eos_token_id = eos_token_id

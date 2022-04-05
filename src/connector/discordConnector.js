@@ -125,7 +125,6 @@ bot.on('ready', async () => {
         await bot.user.setActivity()
     }
 
-
     speak = async function (msg, channel) {
         if (!utils.getBoolFromString(process.env.ENABLE_TTS)) return console.log("TTS not enabled in env file")
         if (!ttsEnabled) return console.log("TTS NOT ENABLED")
@@ -610,10 +609,11 @@ async function messageLoop() {
             const historyIsEmpty = history.length === 0
             const lastMessage = historyIsEmpty ? null : history[history.length - 1]
             const timePassed = Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
+            const random = Math.random() < 0.9
             const enoughPassedTime = timePassed > lastMessage?.timestamp
             const isLastMessageFromBot = lastMessage?.from?.toLowerCase() === process.env.BOTNAME.toLowerCase()
 
-            if (historyIsEmpty || !enoughPassedTime || !isLastMessageFromBot) {
+            if (historyIsEmpty || !enoughPassedTime || !isLastMessageFromBot || random) {
                 continue
             }
 
