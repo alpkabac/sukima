@@ -609,11 +609,10 @@ async function messageLoop() {
             const historyIsEmpty = history.length === 0
             const lastMessage = historyIsEmpty ? null : history[history.length - 1]
             const timePassed = Date.now() - (parseInt(process.env.INTERVAL_AUTO_MESSAGE_CHECK || "60") * 1000)
-            const random = Math.random() < 0.9
             const enoughPassedTime = timePassed > lastMessage?.timestamp
             const isLastMessageFromBot = lastMessage?.from?.toLowerCase() === process.env.BOTNAME.toLowerCase()
 
-            if (historyIsEmpty || !enoughPassedTime || !isLastMessageFromBot || random) {
+            if (historyIsEmpty || !enoughPassedTime || !isLastMessageFromBot) {
                 continue
             }
 
