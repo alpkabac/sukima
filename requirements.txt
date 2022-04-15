@@ -10,4 +10,6 @@ numpy
 transformers
 bcrypt
 passlib
+ngrok
+nest-asyncio
 git+https://github.com/harubaru/mkultra.git

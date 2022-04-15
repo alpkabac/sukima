@@ -19,6 +19,10 @@ if settings.BACKEND_CORS_ORIGINS:
 
 app.include_router(api_router, prefix="/api/v1", tags=["v1"])
 
+ngrok_tunnel = ngrok.connect(8000)
+print('Public URL:', ngrok_tunnel.public_url)
+nest_asyncio.apply()
+
 @app.get("/")
 async def root():
     return 'Sometimes I dream about cheese.'
